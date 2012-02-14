@@ -7,38 +7,39 @@ to expand it in order for it to cover most ( if not all ) operations in the Amaz
 
 Its based on the [amazon-mws-python](http://code.google.com/p/amazon-mws-python).
 
-# Basic usage
+# API usage
 
-Say i want to get the ASIN for a certain product and all i have is its UPC
+Make sure you check out the Amazon MWS documentation at https://developer.amazonservices.com/
 
-Import the api class ( same as amazon api ). 
-In this case i am going to use the Products API.
+Here's an exmaple of how to use python-amazon-mws to upload your products to amazon.
+
 
 ```python
 from mws import mws
 
+# You can get all these credentials when you sign up for Amazon MWS
+
 MWS_ACCESS_KEY = 'your key'
 MWS_SECRET_KEY = 'your secret'
-MERCHANTID = 'your merchantid'
-MARKETPLACEID = 'your marketplace id'
+MERCHANT_ID = 'your merchantid'
 
-# You can get all the above credentials when you sign up for Amazon MWS
+# Amazon supports different file formats for uploading products
+# here i use a simple tsv file.
 
-amazon = mws.Feeds(MWS_ACCESS_KEY, MWS_SECRET_KEY, MERCHANTID)
-response = amazon.submit_feed(data, feed_type="_POST_FLAT_FILE_LISTINGS_DATA_", 
+file_name = "templates/amazon-upload.tsv"
+
+with open(file_name, "r+") as f:
+    data = f.read()
+    f.close()
+    amazon = mws.Feeds(MWS_ACCESS_KEY, MWS_SECRET_KEY, MERCHANT_ID)
+    response = amazon.submit_feed(data, feed_type="_POST_FLAT_FILE_LISTINGS_DATA_", 
                                     content_type="text/tab-separated-values;charset=iso-8859-1")
-                                    
-# For more information on the above parameters, check out the Feeds API Documentation
 
-
-UPC = "885259292327"
-amazon = mws.Products(MWS_ACCESS_KEY, MWS_SECRET_KEY, MERCHANTID)
-response = amazon.list_matching_products("", MARKETPLACEID) 
+print response
+<Element '{http://mws.amazonaws.com/doc/2009-01-01/}SubmitFeedResponse' at 0x8edaa4c>
 
 ```
-### Important (and basic) things!
-
-Make sure you check out the Amazon MWS documentation at https://developer.amazonservices.com/
+For more information on feed uploading, check out the [Feeds API Documentation](https://developer.amazonservices.com/gp/mws/api.html/184-4424737-7926818?ie=UTF8&section=feeds&group=bde&version=latest).
 
 # Contribute
 
