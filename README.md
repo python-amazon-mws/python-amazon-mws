@@ -35,6 +35,8 @@ with open(file_name, "r+") as f:
     response = amazon.submit_feed(data, feed_type="_POST_FLAT_FILE_LISTINGS_DATA_", 
                                     content_type="text/tab-separated-values;charset=iso-8859-1")
 
+# In shell...
+
 print response
 <Element '{http://mws.amazonaws.com/doc/2009-01-01/}SubmitFeedResponse' at 0x8edaa4c>
 
