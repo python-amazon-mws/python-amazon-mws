@@ -1,8 +1,10 @@
 # Pyton Amazon MWS
 
-Pyton Amazon MWS is a python interface for the Amazon MWS API.
-I created wrote to help me upload my products to amazon. However, seeing its potential i decided
+Python Amazon MWS is a python interface for the Amazon MWS API.
+I wrote it to help me upload my products to amazon. However, seeing its potential i decided
 to expand it in order for it to cover most ( if not all ) operations in the Amazon MWS.
+
+This is still an ongoing project. If you would like to contribute, see below :).
 
 
 Its based on the [amazon-mws-python](http://code.google.com/p/amazon-mws-python).
