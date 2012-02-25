@@ -201,7 +201,7 @@ class Products(MWS):
             ASIN values that you specify.
         """
         data = dict(SellerId=self.merchant_id, MarketplaceId=marketplaceid)
-        for num, asin in enumerate(skus):
+        for num, asin in enumerate(asins):
             data['ASINList.ASIN.%d' % (num + 1)] = asin
         return self.make_request(data)
 
