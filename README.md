@@ -43,7 +43,28 @@ print response
 <Element '{http://mws.amazonaws.com/doc/2009-01-01/}SubmitFeedResponse' at 0x8edaa4c>
 
 ```
-For more information on feed uploading, check out the [Feeds API Documentation](https://developer.amazonservices.com/gp/mws/api.html/184-4424737-7926818?ie=UTF8&section=feeds&group=bde&version=latest).
+For more information, check out the [Products API Documentation](https://developer.amazonservices.com/gp/mws/api.html/182-2079318-8524647?ie=UTF8&section=products&group=products&version=latest).
+
+Here's another example in which i use python-amazon-mws to query amazon for a product using the product's UPC
+
+```python
+from mws import mws
+
+MWS_ACCESS_KEY = 'your key'
+MWS_SECRET_KEY = 'your secret'
+MERCHANT_ID = 'your merchantid'
+MARKETPLACE_ID = 'your marketplaceid'
+UPC = "886039397430"
+
+amazon = mws.Products(MWS_ACCESS_KEY, MWS_SECRET_KEY, MERCHANT_ID)
+response = amazon.list_matching_products(UPC, MARKETPLACE_ID)
+
+# In shell...
+
+print response
+<Element '{http://mws.amazonservices.com/schema/Products/2011-10-01}ListMatchingProductsResponse' at 0xa1b188c>
+
+```
 
 # Contribute
 

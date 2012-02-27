@@ -71,6 +71,8 @@ class MWS(object):
             conn.request(method, uri, kwargs.get('body', ''),
                          headers)
             response = conn.getresponse().read()
+            print uri
+            print response
             parsed_response = self.parse_response(response)
         except HTTPException, e:
             response = e.read()
@@ -182,7 +184,7 @@ class Products(MWS):
     NS = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
     
 
-    def list_matching_products(self, query, marketplaceid, contextid=''):
+    def list_matching_products(self, query, marketplaceid, contextid='All'):
         """ Returns a list of products and their attributes, ordered by 
             relevancy, based on a search query that you specify. 
             Your search query can be a phrase that describes the product 
