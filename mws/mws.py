@@ -21,10 +21,24 @@ class MWSError(Exception):
     pass
 
 
-class FutureSerializer(object):
+class TreeWrapper(object):
+    """ Small wrapper around the find and findall methods of
+        the the xml.etree.ElementTree.Element class.
+    """
 
-    def __init__(self, xml):
-        self.xml = xml
+    def __init__(self, xml, ns):
+        try:
+            self.xml = fromstring(xml)
+        except ParseError, e:
+            raise MWSError("Invalid xml, maybe amazon error...")
+
+        self.ns = ns
+
+    def find(self, text):
+        return self.xml.find(".//" + self.ns + text)
+
+    def findall(self, text):
+        return self.xml.findall(".//" + self.ns + text)
 
 
 class MWS(object):
@@ -78,7 +92,7 @@ class MWS(object):
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
             response = request(method, url, data=kwargs.get('body', ''), headers=headers)
-            parsed_response = FutureSerializer(response.text)
+            parsed_response = TreeWrapper(response.text, self.NS)
         except RequestException, e:
             error = e.read()
             raise MWSError(error)
@@ -293,7 +307,7 @@ class Products(MWS):
         """ Returns a list of products and their attributes, based on a list of
             ASIN values that you specify.
         """
-        data = dict(SellerId=self.merchant_id, MarketplaceId=marketplaceid)
+        data = dict(Action='GetMatchingProduct', SellerId=self.merchant_id, MarketplaceId=marketplaceid)
         for num, asin in enumerate(asins):
             data['ASINList.ASIN.%d' % (num + 1)] = asin
         return self.make_request(data)
