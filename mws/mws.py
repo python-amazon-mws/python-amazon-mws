@@ -5,21 +5,26 @@
 # Based on http://code.google.com/p/amazon-mws-python
 #
 
-import re
 import urllib
 import hashlib
 import hmac
 import base64
 import md5
-from pprint import pprint
 from xml.etree.ElementTree import fromstring, ParseError
 from time import strftime, gmtime
+
 from requests import request
 from requests.exceptions import RequestException
 
 
 class MWSError(Exception):
     pass
+
+
+class FutureSerializer(object):
+
+    def __init__(self, xml):
+        self.xml = xml
 
 
 class MWS(object):
@@ -73,12 +78,13 @@ class MWS(object):
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
             response = request(method, url, data=kwargs.get('body', ''), headers=headers)
-            parsed_response = self.parse_response(response.text)
+            parsed_response = FutureSerializer(response.text)
         except RequestException, e:
-            response = e.read()
-            raise MWSError(response)
-        except ParseError:
-            return response
+            error = e.read()
+            raise MWSError(error)
+
+        # Store the response object in the parsed_response for quick access
+        parsed_response.response = response
         return parsed_response
 
     def calc_signature(self, method, request_description):
@@ -98,43 +104,133 @@ class MWS(object):
         return fromstring(response)
 
     def get_timestamp(self):
-        """Return current timestamp in proper format
+        """
+            Return current timestamp in proper format.
         """
         return strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
+
+    def enumerate_param(self, param, values):
+        """
+            Builds a dictionary of an enumerated parameter.
+            Takes any iterable and returns a dictionary.
+            ie.
+            enumerate_param('MarketplaceIdList.Id', (123, 345, 4343))
+            returns
+            {
+                MarketplaceIdList.Id.1: 123,
+                MarketplaceIdList.Id.2: 345,
+                MarketplaceIdList.Id.3: 4343
+            }
+        """
+        params = {}
+
+        if not param.endswith('.'):
+            param = "%s." % param
+        for num, value in enumerate(values):
+            params['%s%d' % (param, (num + 1))] = value
+        return params
 
 
 class Feeds(MWS):
     """ Amazon MWS Feeds API """
 
-    def get_feed_submission_list(self):
-        data = dict(Action='GetFeedSubmissionList')
-        return self.make_request(data)
-
-    def submit_feed(self, feed, feed_type, content_type="text/xml", purge='false'):
+    def submit_feed(self, feed, feed_type, marketplaceids='', content_type="text/xml", purge='false'):
+        """
+            Uploads a feed ( xml or .tsv ) to the seller's inventory.
+            Can be used for creating/updating products on amazon.
+        """
         data = dict(Action='SubmitFeed', FeedType=feed_type, PurgeAndReplace=purge)
         md = self.calc_md5(feed)
+        if marketplaceids:
+            data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceidlist))
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type})
+
+    def get_feed_submission_list(self, feedids='', max_count='', feedtypes='',
+                                    processingstatuses='', fromdate='', todate=''):
+        data = dict(Action='GetFeedSubmissionList')
+        if feedids:
+            data.update(self.enumerate_param('FeedSubmissionIdList.Id', feedids))
+        if max_count:
+            data['MaxCount'] = max_count
+        if feedtypes:
+            data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
+        if processingstatuses:
+            data.update(self.enumerate_param('FeedProcessingStatusList.Status.', feedtypes))
+        if fromdate:
+            data['SubmittedFromDate'] = fromdate
+        if todate:
+            data['SubmittedToDate'] = todate
+        return self.make_request(data)
+
+    def get_submission_list_by_next_token(self, token):
+        data = dict(Action='GetFeedSubmissionListByNextToken', NextToken=token)
+        return self.make_request(data)
+
+    def get_feed_submission_count(self, feedtypes='', processingstatuses='', fromdate='', todate=''):
+        data = dict(Action='GetFeedSubmissionCount')
+        if feedtypes:
+            data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
+        if processingstatuses:
+            data.update(self.enumerate_param('FeedProcessingStatusList.Status.', feedtypes))
+        if fromdate:
+            data['SubmittedFromDate'] = fromdate
+        if todate:
+            data['SubmittedToDate'] = todate
+        return self.make_request(data)
+
+    def cancel_feed_submissions(self, feedids=(), feedtypes='', fromdate='', todate=''):
+        data = dict(Action='CancelFeedSubmissions')
+        if feedids:
+            data.update(self.enumerate_param('FeedSubmissionIdList.Id.', feedsubmissionids))
+        if feedtypes:
+            data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
+        if fromdate:
+            data['SubmittedFromDate'] = fromdate
+        if todate:
+            data['SubmittedToDate'] = todate
+        return self.make_request(data)
+
+    def get_feed_submission_result(self, feedid):
+        data = dict(Action='GetFeedSubmissionResult', FeedSubmissionId=feedid)
+        return self.make_request(data)
 
 
 class Reports(MWS):
     """ Amazon MWS Reports API """
 
+    def request_report(self, report_type, start_date='', end_date='', marketplaceids=''):
+        data = dict(Action='RequestReport', ReportType=report_type)
+        if start_date:
+            data['StartDate'] = start_date
+        if end_date:
+            data['EndDate'] = end_date
+        if marketplaceids:
+            data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+        return self.make_request(data)
+
+    def get_report_request_list(self, requestids='', types='', processingstatuses='', max_count='', fromdate='', todate=''):
+        data = dict(Action='GetReportRequestList')
+        if requestids:
+            data.update(self.enumerate_param('ReportRequestIdList.Id.', requestids))
+        if types:
+            data.update(self.enumerate_param('ReportTypeList.Type.', types))
+        if processingstatuses:
+            data.update(self.enumerate_param('ReportProcessingStatusList.Status.', processingstatuses))
+        if max_count:
+            data['MaxCount'] = max_count
+        if fromdate:
+            data['RequestedFromDate'] = fromdate
+        if todate:
+            data['RequestedToDate'] = todate
+        return self.make_request(data)
+
     def get_report_count(self):
         data = dict(Action='GetReportCount')
         return self.make_request(data)
 
-    def request_report(self, report_type, start_date='', end_date=''):
-        data = dict(Action='RequestReport', StartDate=start_date, EndDate=end_date, ReportType=report_type)
-        return self.make_request(data)
-
     def get_report(self, report_id):
         data = dict(Action='GetReport', ReportId=report_id)
-        return self.make_request(data)
-
-    def get_report_request_list(self, **kwargs):
-        data = dict(Action='GetReportRequestList')
-        data.update(kwargs)
         return self.make_request(data)
 
 
