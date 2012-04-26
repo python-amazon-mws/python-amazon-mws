@@ -58,11 +58,20 @@ class MWS(object):
     # For more information see http://stackoverflow.com/a/8719461/389453
     NS = ''
 
-    def __init__(self, access_key, secret_key, merchant_id,
+    # Some APIs are available only to either a "Merchant" or "Seller"
+    # the type of account needs to be sent in every call to the amazon MWS.
+    # This constant defines the exact name of the parameter Amazon expects for the specific APi
+    # being used. All subclasses need to define this if they require another account type
+    # like "Seller" in which case you define it like so.
+    # ACCOUNT_TYPE = "SellerId"
+    # Which is the name of the parameter for that specific account type.
+    ACCOUNT_TYPE = "Merchant"
+
+    def __init__(self, access_key, secret_key, account_id,
                  domain='https://mws.amazonservices.com', uri="", version=""):
         self.access_key = access_key
         self.secret_key = secret_key
-        self.merchant_id = merchant_id
+        self.account_id = account_id
         self.domain = domain
         self.uri = uri or self.URI
         self.version = version or self.VERSION
@@ -73,7 +82,7 @@ class MWS(object):
 
         params = {
             'AWSAccessKeyId': self.access_key,
-            'Merchant': self.merchant_id,
+            self.ACCOUNT_TYPE: self.self.account_id,
             'SignatureVersion': '2',
             'Timestamp': self.get_timestamp(),
             'Version': self.version,
@@ -262,6 +271,7 @@ class Orders(MWS):
     URI = "/Orders/2011-01-01"
     VERSION = "2011-01-01"
     NS = '{https://mws.amazonservices.com/Orders/2011-01-01}'
+    ACCOUNT_TYPE = "SellerId"
 
     # Not ready !!!
     # def list_orders(self, marketplaceids, **kwargs):
@@ -272,7 +282,7 @@ class Orders(MWS):
     #     return self.make_request(data)
 
     def list_orders_by_next_token(self, next_token):
-        data = dict(Action='ListOrdersByNextToken', SellerId=self.merchant_id, NextToken=next_token)
+        data = dict(Action='ListOrdersByNextToken', NextToken=next_token)
         return self.make_request(data)
 
 
@@ -281,10 +291,11 @@ class Inventory(MWS):
 
     URI = '/FulfillmentInventory/2010-10-01'
     VERSION = '2010-10-01'
+    ACCOUNT_TYPE = "SellerId"
 
     def list_inventory_supply(self, skus=(), datetime=False, response_group='Basic'):
         """ Returns information on available inventory """
-        data = dict(Action='ListInventorySupply', SellerId=self.merchant_id, ResponseGroup=response_group)
+        data = dict(Action='ListInventorySupply', ResponseGroup=response_group)
         if skus:
             data.update(self.enumerate_param('SellerSkus.member.', skus))
         if datetime:
@@ -298,6 +309,7 @@ class Products(MWS):
     URI = '/Products/2011-10-01'
     VERSION = '2011-10-01'
     NS = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
+    ACCOUNT_TYPE = "SellerId"
 
     def list_matching_products(self, query, marketplaceid, contextid='All'):
         """ Returns a list of products and their attributes, ordered by
@@ -306,7 +318,6 @@ class Products(MWS):
             or it can be a product identifier such as a UPC, EAN, ISBN, or JAN.
         """
         data = dict(Action='ListMatchingProducts',
-                    SellerId=self.merchant_id,
                     MarketplaceId=marketplaceid,
                     Query=query,
                     QueryContextId=contextid)
@@ -316,7 +327,7 @@ class Products(MWS):
         """ Returns a list of products and their attributes, based on a list of
             ASIN values that you specify.
         """
-        data = dict(Action='GetMatchingProduct', SellerId=self.merchant_id, MarketplaceId=marketplaceid)
+        data = dict(Action='GetMatchingProduct', MarketplaceId=marketplaceid)
         for num, asin in enumerate(asins):
             data['ASINList.ASIN.%d' % (num + 1)] = asin
         return self.make_request(data)
@@ -325,7 +336,7 @@ class Products(MWS):
         """ Returns the current competitive pricing of a product,
             based on the SellerSKU and MarketplaceId that you specify.
         """
-        data = dict(SellerId=self.merchant_id, MarketplaceId=marketplaceid)
+        data = dict(MarketplaceId=marketplaceid)
         for num, asin in enumerate(skus):
             data['SellerSKUList.SellerSKU.%d' % (num + 1)] = asin
         return self.make_request(data)
