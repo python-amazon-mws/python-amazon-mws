@@ -71,6 +71,12 @@ class MWS(object):
         """Make request to Amazon MWS API with these parameters
         """
 
+        # Remove all keys with an empty value because
+        # Amazon's MWS does not allow such a thing.
+        for key in extra_data.keys():
+            if not extra_data[key]:
+                del extra_data[key]
+
         params = {
             'AWSAccessKeyId': self.access_key,
             'Merchant': self.merchant_id,
@@ -153,28 +159,23 @@ class Feeds(MWS):
             Uploads a feed ( xml or .tsv ) to the seller's inventory.
             Can be used for creating/updating products on amazon.
         """
-        data = dict(Action='SubmitFeed', FeedType=feed_type, PurgeAndReplace=purge)
+        data = dict(Action='SubmitFeed',
+                    FeedType=feed_type,
+                    PurgeAndReplace=purge)
+        data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceidlist))
         md = self.calc_md5(feed)
-        if marketplaceids:
-            data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceidlist))
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type})
 
     def get_feed_submission_list(self, feedids='', max_count='', feedtypes='',
                                     processingstatuses='', fromdate='', todate=''):
-        data = dict(Action='GetFeedSubmissionList')
-        if feedids:
-            data.update(self.enumerate_param('FeedSubmissionIdList.Id', feedids))
-        if max_count:
-            data['MaxCount'] = max_count
-        if feedtypes:
-            data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
-        if processingstatuses:
-            data.update(self.enumerate_param('FeedProcessingStatusList.Status.', feedtypes))
-        if fromdate:
-            data['SubmittedFromDate'] = fromdate
-        if todate:
-            data['SubmittedToDate'] = todate
+        data = dict(Action='GetFeedSubmissionList',
+                    MaxCount=max_count,
+                    SubmittedFromDate=fromdate,
+                    SubmittedToDate=todate,)
+        data.update(self.enumerate_param('FeedSubmissionIdList.Id', feedids))
+        data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
+        data.update(self.enumerate_param('FeedProcessingStatusList.Status.', feedtypes))
         return self.make_request(data)
 
     def get_submission_list_by_next_token(self, token):
@@ -182,27 +183,19 @@ class Feeds(MWS):
         return self.make_request(data)
 
     def get_feed_submission_count(self, feedtypes='', processingstatuses='', fromdate='', todate=''):
-        data = dict(Action='GetFeedSubmissionCount')
-        if feedtypes:
-            data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
-        if processingstatuses:
-            data.update(self.enumerate_param('FeedProcessingStatusList.Status.', feedtypes))
-        if fromdate:
-            data['SubmittedFromDate'] = fromdate
-        if todate:
-            data['SubmittedToDate'] = todate
+        data = dict(Action='GetFeedSubmissionCount',
+                    SubmittedFromDate=fromdate,
+                    SubmittedToDate=todate)
+        data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
+        data.update(self.enumerate_param('FeedProcessingStatusList.Status.', feedtypes))
         return self.make_request(data)
 
     def cancel_feed_submissions(self, feedids=(), feedtypes='', fromdate='', todate=''):
-        data = dict(Action='CancelFeedSubmissions')
-        if feedids:
-            data.update(self.enumerate_param('FeedSubmissionIdList.Id.', feedsubmissionids))
-        if feedtypes:
-            data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
-        if fromdate:
-            data['SubmittedFromDate'] = fromdate
-        if todate:
-            data['SubmittedToDate'] = todate
+        data = dict(Action='CancelFeedSubmissions',
+                    SubmittedFromDate=fromdate,
+                    SubmittedToDate=todate)
+        data.update(self.enumerate_param('FeedSubmissionIdList.Id.', feedsubmissionids))
+        data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
         return self.make_request(data)
 
     def get_feed_submission_result(self, feedid):
@@ -214,29 +207,21 @@ class Reports(MWS):
     """ Amazon MWS Reports API """
 
     def request_report(self, report_type, start_date='', end_date='', marketplaceids=''):
-        data = dict(Action='RequestReport', ReportType=report_type)
-        if start_date:
-            data['StartDate'] = start_date
-        if end_date:
-            data['EndDate'] = end_date
-        if marketplaceids:
-            data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+        data = dict(Action='RequestReport',
+                    ReportType=report_type,
+                    StartDate=start_date,
+                    EndDate=end_date)
+        data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
         return self.make_request(data)
 
     def get_report_request_list(self, requestids='', types='', processingstatuses='', max_count='', fromdate='', todate=''):
-        data = dict(Action='GetReportRequestList')
-        if requestids:
-            data.update(self.enumerate_param('ReportRequestIdList.Id.', requestids))
-        if types:
-            data.update(self.enumerate_param('ReportTypeList.Type.', types))
-        if processingstatuses:
-            data.update(self.enumerate_param('ReportProcessingStatusList.Status.', processingstatuses))
-        if max_count:
-            data['MaxCount'] = max_count
-        if fromdate:
-            data['RequestedFromDate'] = fromdate
-        if todate:
-            data['RequestedToDate'] = todate
+        data = dict(Action='GetReportRequestList',
+                    MaxCount=max_count,
+                    RequestedFromDate=fromdate,
+                    RequestedToDate=todate)
+        data.update(self.enumerate_param('ReportRequestIdList.Id.', requestids))
+        data.update(self.enumerate_param('ReportTypeList.Type.', types))
+        data.update(self.enumerate_param('ReportProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
 
     def get_report_count(self):
@@ -264,7 +249,9 @@ class Orders(MWS):
     #     return self.make_request(data)
 
     def list_orders_by_next_token(self, next_token):
-        data = dict(Action='ListOrdersByNextToken', SellerId=self.merchant_id, NextToken=next_token)
+        data = dict(Action='ListOrdersByNextToken',
+                    SellerId=self.merchant_id,
+                    NextToken=next_token)
         return self.make_request(data)
 
 
@@ -276,7 +263,9 @@ class Fulfillment(MWS):
 
     def list_inventory_supply(self, skus, date_query=False, detail='Basic'):
         """ Returns information on available inventory """
-        data = dict(Action='ListInventorySupply', SellerId=self.merchant_id, ResponseGroup=detail)
+        data = dict(Action='ListInventorySupply',
+                    SellerId=self.merchant_id,
+                    ResponseGroup=detail)
         # DateQuery is not supported for now :(
         for num, sku in enumerate(skus):
             data['SellerSkus.member.%d' % (num + 1)] = sku
@@ -307,7 +296,9 @@ class Products(MWS):
         """ Returns a list of products and their attributes, based on a list of
             ASIN values that you specify.
         """
-        data = dict(Action='GetMatchingProduct', SellerId=self.merchant_id, MarketplaceId=marketplaceid)
+        data = dict(Action='GetMatchingProduct',
+                    SellerId=self.merchant_id,
+                    MarketplaceId=marketplaceid)
         for num, asin in enumerate(asins):
             data['ASINList.ASIN.%d' % (num + 1)] = asin
         return self.make_request(data)
