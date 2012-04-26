@@ -28,17 +28,17 @@ class TreeWrapper(object):
 
     def __init__(self, xml, ns):
         try:
-            self.xml = fromstring(xml)
+            self.etree = fromstring(xml)
         except ParseError, e:
             raise MWSError("Invalid xml, maybe amazon error...")
 
         self.ns = ns
 
     def find(self, text):
-        return self.xml.find(".//" + self.ns + text)
+        return self.etree.find(".//" + self.ns + text)
 
     def findall(self, text):
-        return self.xml.findall(".//" + self.ns + text)
+        return self.etree.findall(".//" + self.ns + text)
 
 
 class MWS(object):
@@ -58,11 +58,20 @@ class MWS(object):
     # For more information see http://stackoverflow.com/a/8719461/389453
     NS = ''
 
-    def __init__(self, access_key, secret_key, merchant_id,
+    # Some APIs are available only to either a "Merchant" or "Seller"
+    # the type of account needs to be sent in every call to the amazon MWS.
+    # This constant defines the exact name of the parameter Amazon expects for the specific APi
+    # being used. All subclasses need to define this if they require another account type
+    # like "Seller" in which case you define it like so.
+    # ACCOUNT_TYPE = "SellerId"
+    # Which is the name of the parameter for that specific account type.
+    ACCOUNT_TYPE = "Merchant"
+
+    def __init__(self, access_key, secret_key, account_id,
                  domain='https://mws.amazonservices.com', uri="", version=""):
         self.access_key = access_key
         self.secret_key = secret_key
-        self.merchant_id = merchant_id
+        self.account_id = account_id
         self.domain = domain
         self.uri = uri or self.URI
         self.version = version or self.VERSION
@@ -79,7 +88,7 @@ class MWS(object):
 
         params = {
             'AWSAccessKeyId': self.access_key,
-            'Merchant': self.merchant_id,
+            self.ACCOUNT_TYPE: self.self.account_id,
             'SignatureVersion': '2',
             'Timestamp': self.get_timestamp(),
             'Version': self.version,
@@ -154,7 +163,7 @@ class MWS(object):
 class Feeds(MWS):
     """ Amazon MWS Feeds API """
 
-    def submit_feed(self, feed, feed_type, marketplaceids='', content_type="text/xml", purge='false'):
+    def submit_feed(self, feed, feed_type, marketplaceids=(), content_type="text/xml", purge='false'):
         """
             Uploads a feed ( xml or .tsv ) to the seller's inventory.
             Can be used for creating/updating products on amazon.
@@ -224,8 +233,12 @@ class Reports(MWS):
         data.update(self.enumerate_param('ReportProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
 
-    def get_report_count(self):
-        data = dict(Action='GetReportCount')
+    def get_report_count(self, report_types=(), acknowledged=None, fromdate='', todate=''):
+        data = dict(Action='GetReportCount',
+                    Acknowledged=acknowledged,
+                    AvailableFromDate=fromdate,
+                    AvailableToDate=todate)
+        data.update(self.enumerate_param('ReportTypeList.Type.', report_types))
         return self.make_request(data)
 
     def get_report(self, report_id):
@@ -239,6 +252,7 @@ class Orders(MWS):
     URI = "/Orders/2011-01-01"
     VERSION = "2011-01-01"
     NS = '{https://mws.amazonservices.com/Orders/2011-01-01}'
+    ACCOUNT_TYPE = "SellerId"
 
     # Not ready !!!
     # def list_orders(self, marketplaceids, **kwargs):
@@ -255,20 +269,20 @@ class Orders(MWS):
         return self.make_request(data)
 
 
-class Fulfillment(MWS):
+class Inventory(MWS):
     """ Amazon MWS Fulfillment API """
 
     URI = '/FulfillmentInventory/2010-10-01'
     VERSION = '2010-10-01'
+    ACCOUNT_TYPE = "SellerId"
 
-    def list_inventory_supply(self, skus, date_query=False, detail='Basic'):
+    def list_inventory_supply(self, skus=(), datetime=False, response_group='Basic'):
         """ Returns information on available inventory """
+
         data = dict(Action='ListInventorySupply',
-                    SellerId=self.merchant_id,
-                    ResponseGroup=detail)
-        # DateQuery is not supported for now :(
-        for num, sku in enumerate(skus):
-            data['SellerSkus.member.%d' % (num + 1)] = sku
+                    ResponseGroup=response_group,
+                    QueryStartDateTime=datetime)
+        data.update(self.enumerate_param('SellerSkus.member.', skus))
         return self.make_request(data, "POST")
 
 
@@ -278,6 +292,7 @@ class Products(MWS):
     URI = '/Products/2011-10-01'
     VERSION = '2011-10-01'
     NS = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
+    ACCOUNT_TYPE = "SellerId"
 
     def list_matching_products(self, query, marketplaceid, contextid='All'):
         """ Returns a list of products and their attributes, ordered by
@@ -286,7 +301,6 @@ class Products(MWS):
             or it can be a product identifier such as a UPC, EAN, ISBN, or JAN.
         """
         data = dict(Action='ListMatchingProducts',
-                    SellerId=self.merchant_id,
                     MarketplaceId=marketplaceid,
                     Query=query,
                     QueryContextId=contextid)
@@ -296,9 +310,7 @@ class Products(MWS):
         """ Returns a list of products and their attributes, based on a list of
             ASIN values that you specify.
         """
-        data = dict(Action='GetMatchingProduct',
-                    SellerId=self.merchant_id,
-                    MarketplaceId=marketplaceid)
+        data = dict(Action='GetMatchingProduct', MarketplaceId=marketplaceid)
         for num, asin in enumerate(asins):
             data['ASINList.ASIN.%d' % (num + 1)] = asin
         return self.make_request(data)
@@ -307,7 +319,7 @@ class Products(MWS):
         """ Returns the current competitive pricing of a product,
             based on the SellerSKU and MarketplaceId that you specify.
         """
-        data = dict(SellerId=self.merchant_id, MarketplaceId=marketplaceid)
+        data = dict(MarketplaceId=marketplaceid)
         for num, asin in enumerate(skus):
             data['SellerSKUList.SellerSKU.%d' % (num + 1)] = asin
         return self.make_request(data)
