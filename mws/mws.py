@@ -116,6 +116,14 @@ class MWS(object):
         parsed_response.response = response
         return parsed_response
 
+    def get_service_status(self):
+        """
+            It can return a GREEN, GREEN_I, YELLOW or RED status.
+            Depending on the status/availability of the API its being called from.
+        """
+
+        return self.make_request(extra_data=dict(Action='GetServiceStatus'))
+
     def calc_signature(self, method, request_description):
         """Calculate MWS signature to interface with Amazon
         """
@@ -128,9 +136,6 @@ class MWS(object):
         md = md5.new()
         md.update(string)
         return base64.encodestring(md.digest()).strip('\n')
-
-    def parse_response(self, response):
-        return fromstring(response)
 
     def get_timestamp(self):
         """
@@ -270,7 +275,7 @@ class Orders(MWS):
 
 
 class Inventory(MWS):
-    """ Amazon MWS Fulfillment API """
+    """ Amazon MWS Inventory Fulfillment API """
 
     URI = '/FulfillmentInventory/2010-10-01'
     VERSION = '2010-10-01'
@@ -294,7 +299,7 @@ class Products(MWS):
     NS = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
     ACCOUNT_TYPE = "SellerId"
 
-    def list_matching_products(self, query, marketplaceid, contextid='All'):
+    def list_matching_products(self, marketplaceid, query, contextid=''):
         """ Returns a list of products and their attributes, ordered by
             relevancy, based on a search query that you specify.
             Your search query can be a phrase that describes the product
@@ -311,15 +316,47 @@ class Products(MWS):
             ASIN values that you specify.
         """
         data = dict(Action='GetMatchingProduct', MarketplaceId=marketplaceid)
-        for num, asin in enumerate(asins):
-            data['ASINList.ASIN.%d' % (num + 1)] = asin
+        data.update(self.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
     def get_competitive_pricing_for_sku(self, marketplaceid, skus):
         """ Returns the current competitive pricing of a product,
             based on the SellerSKU and MarketplaceId that you specify.
         """
-        data = dict(MarketplaceId=marketplaceid)
-        for num, asin in enumerate(skus):
-            data['SellerSKUList.SellerSKU.%d' % (num + 1)] = asin
+        data = dict(Action='GetCompetitivePricingForSKU', MarketplaceId=marketplaceid)
+        data.update(self.enumerate_param('SellerSKUList.SellerSKU.', skus))
+        return self.make_request(data)
+
+    def get_competitive_pricing_for_asin(self, marketplaceid, asins):
+        """ Returns the current competitive pricing of a product,
+            based on the ASIN and MarketplaceId that you specify.
+        """
+        data = dict(Action=GetCompetitivePricingForASIN, MarketplaceId=marketplaceid)
+        data.update(self.enumerate_param('ASINList.ASIN.', asins))
+        return self.make_request(data)
+
+    def get_lowest_offer_listings_for_sku(self, marketplaceid, skus, condition="Any"):
+        data = dict(Action='GetLowestOfferListingsForSKU',
+                    MarketplaceId=marketplaceid,
+                    ItemCondition=condition)
+        data.update(self.enumerate_param('SellerSKUList.SellerSKU.', skus))
+        return self.make_request(data)
+
+    def get_lowest_offer_listings_for_asin(self, marketplaceid, asins, condition="All"):
+        data = dict(Action='GetLowestOfferListingsForASIN',
+                    MarketplaceId=marketplaceid,
+                    ItemCondition=condition)
+        data.update(self.enumerate_param('ASINList.ASIN.', asins))
+        return self.make_request(data)
+
+    def get_product_categories_for_sku(self, marketplaceid, sku):
+        data = dict(Action='GetProductCategoriesForSKU',
+                    MarketplaceId=marketplaceid,
+                    SellerSKU=sku)
+        return self.make_request(data)
+
+    def get_product_categories_for_asin(self, marketplaceid, asin):
+        data = dict(Action='GetProductCategoriesForASIN',
+                    MarketplaceId=marketplaceid,
+                    ASIN=asin)
         return self.make_request(data)
