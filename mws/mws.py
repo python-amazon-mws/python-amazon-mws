@@ -62,10 +62,10 @@ class MWS(object):
     # the type of account needs to be sent in every call to the amazon MWS.
     # This constant defines the exact name of the parameter Amazon expects for the specific APi
     # being used. All subclasses need to define this if they require another account type
-    # like "Seller" in which case you define it like so.
-    # ACCOUNT_TYPE = "SellerId"
+    # like "Merchant" in which case you define it like so.
+    # ACCOUNT_TYPE = "Merchant"
     # Which is the name of the parameter for that specific account type.
-    ACCOUNT_TYPE = "Merchant"
+    ACCOUNT_TYPE = "SellerId"
 
     def __init__(self, access_key, secret_key, account_id,
                  domain='https://mws.amazonservices.com', uri="", version=""):
@@ -168,6 +168,8 @@ class MWS(object):
 class Feeds(MWS):
     """ Amazon MWS Feeds API """
 
+    ACCOUNT_TYPE = "Merchant"
+
     def submit_feed(self, feed, feed_type, marketplaceids=(), content_type="text/xml", purge='false'):
         """
             Uploads a feed ( xml or .tsv ) to the seller's inventory.
@@ -220,6 +222,8 @@ class Feeds(MWS):
 class Reports(MWS):
     """ Amazon MWS Reports API """
 
+    ACCOUNT_TYPE = "Merchant"
+
     def request_report(self, report_type, start_date='', end_date='', marketplaceids=''):
         data = dict(Action='RequestReport',
                     ReportType=report_type,
@@ -257,7 +261,6 @@ class Orders(MWS):
     URI = "/Orders/2011-01-01"
     VERSION = "2011-01-01"
     NS = '{https://mws.amazonservices.com/Orders/2011-01-01}'
-    ACCOUNT_TYPE = "SellerId"
 
     # Not ready !!!
     # def list_orders(self, marketplaceids, **kwargs):
@@ -279,7 +282,6 @@ class Inventory(MWS):
 
     URI = '/FulfillmentInventory/2010-10-01'
     VERSION = '2010-10-01'
-    ACCOUNT_TYPE = "SellerId"
 
     def list_inventory_supply(self, skus=(), datetime=False, response_group='Basic'):
         """ Returns information on available inventory """
@@ -297,7 +299,6 @@ class Products(MWS):
     URI = '/Products/2011-10-01'
     VERSION = '2011-10-01'
     NS = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
-    ACCOUNT_TYPE = "SellerId"
 
     def list_matching_products(self, marketplaceid, query, contextid=''):
         """ Returns a list of products and their attributes, ordered by
@@ -359,4 +360,30 @@ class Products(MWS):
         data = dict(Action='GetProductCategoriesForASIN',
                     MarketplaceId=marketplaceid,
                     ASIN=asin)
+        return self.make_request(data)
+
+
+class Sellers(MWS):
+    """ Amazon MWS Sellers API """
+
+    URI = '/Sellers/2011-07-01'
+    VERSION = '2011-07-01'
+    NS = '{http://mws.amazonservices.com/schema/Sellers/2011-07-01}'
+
+    def list_marketplace_participations(self):
+        """
+            Returns a list of marketplaces a seller can participate in and
+            a list of participations that include seller-specific information in that marketplace.
+            The operation returns only those marketplaces where the seller's account is in an active state.
+        """
+
+        data = dict(Acion='ListMarketplaceParticipations')
+        return self.make_request(data)
+
+    def list_marketplace_participations_by_next_token(self, token):
+        """
+            Takes a "NextToken" and returns the same information as "list_marketplace_participations".
+            Based on the "NextToken".
+        """
+        data = dict(Acion='ListMarketplaceParticipations', NextToken=token)
         return self.make_request(data)
