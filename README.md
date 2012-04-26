@@ -1,3 +1,7 @@
+** DISCLAIMER **
+This API is in constant development. Do not rely on it too much until its in stable release. **
+
+
 # Python Amazon MWS
 
 Python Amazon MWS is a python interface for the Amazon MWS API.
