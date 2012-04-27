@@ -17,6 +17,17 @@ from requests import request
 from requests.exceptions import RequestException
 
 
+def remove_empty(d):
+    """
+        Helper function that removes all keys from a dictionary (d),
+        that have an empty value.
+    """
+    for key in d.keys():
+        if not d[key]:
+            del d[key]
+    return d
+
+
 class MWSError(Exception):
     pass
 
@@ -60,8 +71,9 @@ class MWS(object):
 
     # Some APIs are available only to either a "Merchant" or "Seller"
     # the type of account needs to be sent in every call to the amazon MWS.
-    # This constant defines the exact name of the parameter Amazon expects for the specific APi
-    # being used. All subclasses need to define this if they require another account type
+    # This constant defines the exact name of the parameter Amazon expects
+    # for the specific API being used.
+    # All subclasses need to define this if they require another account type
     # like "Merchant" in which case you define it like so.
     # ACCOUNT_TYPE = "Merchant"
     # Which is the name of the parameter for that specific account type.
@@ -82,9 +94,7 @@ class MWS(object):
 
         # Remove all keys with an empty value because
         # Amazon's MWS does not allow such a thing.
-        for key in extra_data.keys():
-            if not extra_data[key]:
-                del extra_data[key]
+        extra_data = remove_empty(extra_data)
 
         params = {
             'AWSAccessKeyId': self.access_key,
@@ -139,7 +149,7 @@ class MWS(object):
 
     def get_timestamp(self):
         """
-            Return current timestamp in proper format.
+            Returns the current timestamp in proper format.
         """
         return strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
 
@@ -170,7 +180,8 @@ class Feeds(MWS):
 
     ACCOUNT_TYPE = "Merchant"
 
-    def submit_feed(self, feed, feed_type, marketplaceids=(), content_type="text/xml", purge='false'):
+    def submit_feed(self, feed, feed_type, marketplaceids=(),
+                    content_type="text/xml", purge='false'):
         """
             Uploads a feed ( xml or .tsv ) to the seller's inventory.
             Can be used for creating/updating products on amazon.
@@ -183,34 +194,34 @@ class Feeds(MWS):
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type})
 
-    def get_feed_submission_list(self, feedids='', max_count='', feedtypes='',
-                                    processingstatuses='', fromdate='', todate=''):
+    def get_feed_submission_list(self, feedids=(), max_count=None, feedtypes=(),
+                                    processingstatuses=(), fromdate=None, todate=None):
         data = dict(Action='GetFeedSubmissionList',
                     MaxCount=max_count,
                     SubmittedFromDate=fromdate,
                     SubmittedToDate=todate,)
         data.update(self.enumerate_param('FeedSubmissionIdList.Id', feedids))
         data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
-        data.update(self.enumerate_param('FeedProcessingStatusList.Status.', feedtypes))
+        data.update(self.enumerate_param('FeedProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
 
     def get_submission_list_by_next_token(self, token):
         data = dict(Action='GetFeedSubmissionListByNextToken', NextToken=token)
         return self.make_request(data)
 
-    def get_feed_submission_count(self, feedtypes='', processingstatuses='', fromdate='', todate=''):
+    def get_feed_submission_count(self, feedtypes=(), processingstatuses=(), fromdate=None, todate=None):
         data = dict(Action='GetFeedSubmissionCount',
                     SubmittedFromDate=fromdate,
                     SubmittedToDate=todate)
         data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
-        data.update(self.enumerate_param('FeedProcessingStatusList.Status.', feedtypes))
+        data.update(self.enumerate_param('FeedProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
 
-    def cancel_feed_submissions(self, feedids=(), feedtypes='', fromdate='', todate=''):
+    def cancel_feed_submissions(self, feedids=(), feedtypes=(), fromdate=None, todate=None):
         data = dict(Action='CancelFeedSubmissions',
                     SubmittedFromDate=fromdate,
                     SubmittedToDate=todate)
-        data.update(self.enumerate_param('FeedSubmissionIdList.Id.', feedsubmissionids))
+        data.update(self.enumerate_param('FeedSubmissionIdList.Id.', feedids))
         data.update(self.enumerate_param('FeedTypeList.Type.', feedtypes))
         return self.make_request(data)
 
@@ -224,7 +235,7 @@ class Reports(MWS):
 
     ACCOUNT_TYPE = "Merchant"
 
-    def request_report(self, report_type, start_date='', end_date='', marketplaceids=''):
+    def request_report(self, report_type, start_date=None, end_date=None, marketplaceids=()):
         data = dict(Action='RequestReport',
                     ReportType=report_type,
                     StartDate=start_date,
@@ -232,7 +243,8 @@ class Reports(MWS):
         data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
         return self.make_request(data)
 
-    def get_report_request_list(self, requestids='', types='', processingstatuses='', max_count='', fromdate='', todate=''):
+    def get_report_request_list(self, requestids=(), types=(), processingstatuses=(),
+                                max_count=None, fromdate=None, todate=None):
         data = dict(Action='GetReportRequestList',
                     MaxCount=max_count,
                     RequestedFromDate=fromdate,
@@ -242,7 +254,7 @@ class Reports(MWS):
         data.update(self.enumerate_param('ReportProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
 
-    def get_report_count(self, report_types=(), acknowledged=None, fromdate='', todate=''):
+    def get_report_count(self, report_types=(), acknowledged=None, fromdate=None, todate=None):
         data = dict(Action='GetReportCount',
                     Acknowledged=acknowledged,
                     AvailableFromDate=fromdate,
@@ -262,35 +274,41 @@ class Orders(MWS):
     VERSION = "2011-01-01"
     NS = '{https://mws.amazonservices.com/Orders/2011-01-01}'
 
-    # Not ready !!!
-    # def list_orders(self, marketplaceids, **kwargs):
-    #     data = dict(Action='ListOrders', SellerId=self.merchant_id)
-    #     for num, mid in enumerate(marketplaceids):
-    #         data['MarketplaceId.Id.%d' % (num + 1)] = mid
-    #     data.update(kwargs)
-    #     return self.make_request(data)
+    def list_orders(self, created_after=None, created_before=None, lastupdatedafter=None,
+                    lastupdatedbefore=None, orderstatus=(), marketplaceids, fulfillment_channels=(),
+                    payment_methods=(), buyer_email=None, seller_orderid=None, max_results=100):
 
-    def list_orders_by_next_token(self, next_token):
-        data = dict(Action='ListOrdersByNextToken',
-                    SellerId=self.merchant_id,
-                    NextToken=next_token)
+        data = dict(Action='ListOrders',
+                    CreatedAfter=created_after,
+                    CreatedBefore=created_before,
+                    LastUpdatedAfter=lastupdatedafter,
+                    LastUpdatedBefore=lastupdatedbefore,
+                    BuyerEmail=buyer_email,
+                    SellerOrderId=seller_orderid,
+                    MaxResultsPerPage=max_results,
+                    )
+        data.update(self.enumerate_param('OrderStatus.Status.', orderstatus))
+        data.update(self.enumerate_param('MarketplaceId.Id.', marketplaceids))
+        data.update(self.enumerate_param('FulfillmentChannel.Channel.', fulfillment_channels))
+        data.update(self.enumerate_param('PaymentMethod.Method.', payment_methods))
         return self.make_request(data)
 
+    def list_orders_by_next_token(self, token):
+        data = dict(Action='ListOrdersByNextToken', NextToken=token)
+        return self.make_request(data)
 
-class Inventory(MWS):
-    """ Amazon MWS Inventory Fulfillment API """
+    def get_order(self, amazon_order_ids):
+        data = dict(Action='GetOrder')
+        data.update(self.enumerate_param('AmazonOrderId.Id.', amazon_order_ids))
+        return self.make_request(data)
 
-    URI = '/FulfillmentInventory/2010-10-01'
-    VERSION = '2010-10-01'
+    def list_order_items(self, amazon_order_id):
+        data = dict(Action='ListOrderItems', AmazonOrderId=amazon_order_id)
+        return self.make_request(data)
 
-    def list_inventory_supply(self, skus=(), datetime=False, response_group='Basic'):
-        """ Returns information on available inventory """
-
-        data = dict(Action='ListInventorySupply',
-                    ResponseGroup=response_group,
-                    QueryStartDateTime=datetime)
-        data.update(self.enumerate_param('SellerSkus.member.', skus))
-        return self.make_request(data, "POST")
+    def list_order_items_by_next_token(self, token):
+        data = dict(Action='ListOrderItemsByNextToken', NextToken=token)
+        return self.make_request(data)
 
 
 class Products(MWS):
@@ -300,7 +318,7 @@ class Products(MWS):
     VERSION = '2011-10-01'
     NS = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
 
-    def list_matching_products(self, marketplaceid, query, contextid=''):
+    def list_matching_products(self, marketplaceid, query, contextid=None):
         """ Returns a list of products and their attributes, ordered by
             relevancy, based on a search query that you specify.
             Your search query can be a phrase that describes the product
@@ -377,7 +395,7 @@ class Sellers(MWS):
             The operation returns only those marketplaces where the seller's account is in an active state.
         """
 
-        data = dict(Acion='ListMarketplaceParticipations')
+        data = dict(Action='ListMarketplaceParticipations')
         return self.make_request(data)
 
     def list_marketplace_participations_by_next_token(self, token):
@@ -385,5 +403,43 @@ class Sellers(MWS):
             Takes a "NextToken" and returns the same information as "list_marketplace_participations".
             Based on the "NextToken".
         """
-        data = dict(Acion='ListMarketplaceParticipations', NextToken=token)
+        data = dict(Action='ListMarketplaceParticipations', NextToken=token)
         return self.make_request(data)
+
+
+#### Fulfillment APIs ####
+
+
+class InboundShipments(MWS):
+    URI = "/FulfillmentInboundShipment/2010-10-01"
+    VERSION = '2010-10-01'
+
+    # To be completed
+
+
+class Inventory(MWS):
+    """ Amazon MWS Inventory Fulfillment API """
+
+    URI = '/FulfillmentInventory/2010-10-01'
+    VERSION = '2010-10-01'
+    NS = "{http://mws.amazonaws.com/FulfillmentInventory/2010-10-01}"
+
+    def list_inventory_supply(self, skus=(), datetime=None, response_group='Basic'):
+        """ Returns information on available inventory """
+
+        data = dict(Action='ListInventorySupply',
+                    QueryStartDateTime=datetime,
+                    ResponseGroup=response_group,
+                    )
+        data.update(self.enumerate_param('SellerSkus.member.', skus))
+        return self.make_request(data, "POST")
+
+    def list_inventory_supply_by_next_token(self, token):
+        data = dict(Action='ListInventorySupplyByNextToken', NextToken=token)
+        return self.make_request(data, "POST")
+
+
+class OutboundShipments(MWS):
+    URI = "/FulfillmentOutboundShipment/2010-10-01"
+    VERSION = "2010-10-01"
+    # To be completed
