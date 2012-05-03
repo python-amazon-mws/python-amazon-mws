@@ -274,8 +274,8 @@ class Orders(MWS):
     VERSION = "2011-01-01"
     NS = '{https://mws.amazonservices.com/Orders/2011-01-01}'
 
-    def list_orders(self, created_after=None, created_before=None, lastupdatedafter=None,
-                    lastupdatedbefore=None, orderstatus=(), marketplaceids=(), fulfillment_channels=(),
+    def list_orders(self, marketplaceids, created_after=None, created_before=None, lastupdatedafter=None,
+                    lastupdatedbefore=None, orderstatus=(), fulfillment_channels=(),
                     payment_methods=(), buyer_email=None, seller_orderid=None, max_results=100):
 
         data = dict(Action='ListOrders',
