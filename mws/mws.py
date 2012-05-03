@@ -98,7 +98,7 @@ class MWS(object):
 
         params = {
             'AWSAccessKeyId': self.access_key,
-            self.ACCOUNT_TYPE: self.self.account_id,
+            self.ACCOUNT_TYPE: self.account_id,
             'SignatureVersion': '2',
             'Timestamp': self.get_timestamp(),
             'Version': self.version,
@@ -275,7 +275,7 @@ class Orders(MWS):
     NS = '{https://mws.amazonservices.com/Orders/2011-01-01}'
 
     def list_orders(self, created_after=None, created_before=None, lastupdatedafter=None,
-                    lastupdatedbefore=None, orderstatus=(), marketplaceids, fulfillment_channels=(),
+                    lastupdatedbefore=None, orderstatus=(), marketplaceids=(), fulfillment_channels=(),
                     payment_methods=(), buyer_email=None, seller_orderid=None, max_results=100):
 
         data = dict(Action='ListOrders',
