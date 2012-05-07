@@ -52,6 +52,14 @@ class TreeWrapper(object):
         return self.etree.findall(".//" + self.ns + text)
 
 
+class DataWrapper(object):
+    def __init__(self, data, header):
+        self.data = data
+        hash = self.calc_md5(data)
+        if header['content-md5'] != hash:
+            raise MWSError("Wrong Contentlength, maybe amazon error...")
+
+
 class MWS(object):
     """ Base Amazon API class """
 
@@ -178,12 +186,6 @@ class MWS(object):
             params['%s%d' % (param, (num + 1))] = value
         return params
 
-class DataWrapper(MWS):
-    def __init__(self, data, header):
-            self.data = data
-            hash = self.calc_md5(data)
-            if header['content-md5'] != hash:
-                raise MWSError("Wrong Contentlength, maybe amazon error...")
 
 class Feeds(MWS):
     """ Amazon MWS Feeds API """
