@@ -4,6 +4,13 @@ All except for the last two APIs ( InboundShipment and OutboundShipment ) are co
 Help towards completing this last two APIs would be greatly appreciated.
 I will mark this as stable 1.0 once all tests have been completed.
 
+# To-Do
+* Update README
+* Create tests
+* Finish InboundShipments & OutboundShipments APIs
+* Build Docs
+
+
 
 # Python Amazon MWS
 
@@ -75,4 +82,4 @@ print response
 
 # Contribute
 
-If you like the project, plz, contact me at commonzenpython@gmail.com (gtalk and email) and help me improve it.
+If you like the project, please, contact me at commonzenpython@gmail.com (gtalk and email) and help me improve it.
