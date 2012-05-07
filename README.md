@@ -4,12 +4,6 @@ All except for the last two APIs ( InboundShipment and OutboundShipment ) are co
 Help towards completing this last two APIs would be greatly appreciated.
 I will mark this as stable 1.0 once all tests have been completed.
 
-# To-Do
-* Update README
-* Create tests
-* Finish InboundShipments & OutboundShipments APIs
-* Build Docs
-
 
 
 # Python Amazon MWS
@@ -79,6 +73,13 @@ print response
 <Element '{http://mws.amazonservices.com/schema/Products/2011-10-01}ListMatchingProductsResponse' at 0xa1b188c>
 
 ```
+
+# To-Do
+
+* Update README
+* Create tests
+* Finish InboundShipments & OutboundShipments APIs
+* Build Docs
 
 # Contribute
 
