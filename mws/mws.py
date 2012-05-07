@@ -51,7 +51,6 @@ class TreeWrapper(object):
     def findall(self, text):
         return self.etree.findall(".//" + self.ns + text)
 
-
 class MWS(object):
     """ Base Amazon API class """
 
@@ -98,7 +97,7 @@ class MWS(object):
 
         params = {
             'AWSAccessKeyId': self.access_key,
-            self.ACCOUNT_TYPE: self.self.account_id,
+            self.ACCOUNT_TYPE: self.account_id,
             'SignatureVersion': '2',
             'Timestamp': self.get_timestamp(),
             'Version': self.version,
@@ -117,7 +116,11 @@ class MWS(object):
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
             response = request(method, url, data=kwargs.get('body', ''), headers=headers)
-            parsed_response = TreeWrapper(response.text, self.NS)
+            if response.headers['content-type'] == 'text/xml':
+                parsed_response = TreeWrapper(response.text, self.NS)
+            else:
+                parsed_response = DataWrapper(response.content, response.headers)
+            
         except RequestException, e:
             error = e.read()
             raise MWSError(error)
@@ -174,6 +177,12 @@ class MWS(object):
             params['%s%d' % (param, (num + 1))] = value
         return params
 
+class DataWrapper(MWS):
+    def __init__(self, data, header):
+            self.data = data
+            hash = self.calc_md5(data)
+            if header['content-md5'] != hash:
+                raise MWSError("Wrong Contentlength, maybe amazon error...")
 
 class Feeds(MWS):
     """ Amazon MWS Feeds API """
@@ -243,6 +252,27 @@ class Reports(MWS):
         data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
         return self.make_request(data)
 
+    def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None, 
+                        fromdate=None, todate=None):
+        data = dict(Action='GetReportList',
+                    Acknowledged=acknowledged,
+                    AvailableFromDate=fromdate,
+                    AvailableToDate=todate,
+                    MaxCount=max_count)
+        data.update(self.enumerate_param('ReportRequestIdList.Id.', requestids))
+        data.update(self.enumerate_param('ReportTypeList.Type.', types))
+        return self.make_request(data)
+    
+    def get_report_schedule_list(self, types=()):
+        data = dict(Action='GetReportScheduleList')
+        data.update(self.enumerate_param('ReportTypeList.Type.', types))
+        return self.make_request(data)
+    
+    def get_report_schedule_count(self, types=()):
+        data = dict(Action='GetReportScheduleCount')
+        data.update(self.enumerate_param('ReportTypeList.Type.', types))
+        return self.make_request(data)
+    
     def get_report_request_list(self, requestids=(), types=(), processingstatuses=(),
                                 max_count=None, fromdate=None, todate=None):
         data = dict(Action='GetReportRequestList',
@@ -274,8 +304,8 @@ class Orders(MWS):
     VERSION = "2011-01-01"
     NS = '{https://mws.amazonservices.com/Orders/2011-01-01}'
 
-    def list_orders(self, created_after=None, created_before=None, lastupdatedafter=None,
-                    lastupdatedbefore=None, orderstatus=(), marketplaceids, fulfillment_channels=(),
+    def list_orders(self, marketplaceids, created_after=None, created_before=None, lastupdatedafter=None,
+                    lastupdatedbefore=None, orderstatus=(), fulfillment_channels=(),
                     payment_methods=(), buyer_email=None, seller_orderid=None, max_results=100):
 
         data = dict(Action='ListOrders',
@@ -354,17 +384,19 @@ class Products(MWS):
         data.update(self.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
-    def get_lowest_offer_listings_for_sku(self, marketplaceid, skus, condition="Any"):
+    def get_lowest_offer_listings_for_sku(self, marketplaceid, skus, condition="Any", excludeme=False):
         data = dict(Action='GetLowestOfferListingsForSKU',
                     MarketplaceId=marketplaceid,
-                    ItemCondition=condition)
+                    ItemCondition=condition,
+                    ExcludeMe=excludeme)
         data.update(self.enumerate_param('SellerSKUList.SellerSKU.', skus))
         return self.make_request(data)
 
-    def get_lowest_offer_listings_for_asin(self, marketplaceid, asins, condition="All"):
+    def get_lowest_offer_listings_for_asin(self, marketplaceid, asins, condition="All", excludeme=False):
         data = dict(Action='GetLowestOfferListingsForASIN',
                     MarketplaceId=marketplaceid,
-                    ItemCondition=condition)
+                    ItemCondition=condition,
+                    ExcludeMe=excludeme)
         data.update(self.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
