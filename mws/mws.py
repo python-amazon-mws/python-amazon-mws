@@ -55,8 +55,8 @@ class TreeWrapper(object):
 class DataWrapper(object):
     def __init__(self, data, header):
         self.data = data
-        hash = self.calc_md5(data)
-        if header['content-md5'] != hash:
+        hash_ = calc_md5(self.data)
+        if header['content-md5'] != hash_:
             raise MWSError("Wrong Contentlength, maybe amazon error...")
 
 
@@ -152,13 +152,6 @@ class MWS(object):
         sig_data = method + '\n' + self.domain.replace('https://', '').lower() + '\n' + self.uri + '\n' + request_description
         return base64.b64encode(hmac.new(str(self.secret_key), sig_data, hashlib.sha256).digest())
 
-    def calc_md5(self, string):
-        """Calculates the MD5 encryption for the given string
-        """
-        md = md5.new()
-        md.update(string)
-        return base64.encodestring(md.digest()).strip('\n')
-
     def get_timestamp(self):
         """
             Returns the current timestamp in proper format.
@@ -201,8 +194,8 @@ class Feeds(MWS):
         data = dict(Action='SubmitFeed',
                     FeedType=feed_type,
                     PurgeAndReplace=purge)
-        data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceidlist))
-        md = self.calc_md5(feed)
+        data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+        md = calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type})
 
@@ -383,7 +376,7 @@ class Products(MWS):
         """ Returns the current competitive pricing of a product,
             based on the ASIN and MarketplaceId that you specify.
         """
-        data = dict(Action=GetCompetitivePricingForASIN, MarketplaceId=marketplaceid)
+        data = dict(Action='GetCompetitivePricingForASIN', MarketplaceId=marketplaceid)
         data.update(self.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
@@ -478,3 +471,10 @@ class OutboundShipments(MWS):
     URI = "/FulfillmentOutboundShipment/2010-10-01"
     VERSION = "2010-10-01"
     # To be completed
+
+def calc_md5(string):
+    """Calculates the MD5 encryption for the given string
+    """
+    md = md5.new()
+    md.update(string)
+    return base64.encodestring(md.digest()).strip('\n')
