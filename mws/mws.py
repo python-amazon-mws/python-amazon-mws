@@ -126,7 +126,6 @@ class MWS(object):
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
             response = request(method, url, data=kwargs.get('body', ''), headers=headers)
-            self.respons = response
             if response.headers['content-type'] == 'text/xml':
                 parsed_response = TreeWrapper(response.text, self.NS)
             else:
