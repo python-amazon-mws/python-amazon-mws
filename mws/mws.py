@@ -39,25 +39,26 @@ class TreeWrapper(object):
 
     def __init__(self, xml, ns):
         try:
-            self.etree = fromstring(xml)
+            self.data = fromstring(xml)
         except ParseError, e:
             raise MWSError("Invalid xml, maybe amazon error...")
 
         self.ns = ns
 
     def find(self, text):
-        return self.etree.find(".//" + self.ns + text)
+        return self.data.find(".//" + self.ns + text)
 
     def findall(self, text):
-        return self.etree.findall(".//" + self.ns + text)
+        return self.data.findall(".//" + self.ns + text)
 
 
 class DataWrapper(object):
     def __init__(self, data, header):
         self.data = data
-        hash_ = calc_md5(self.data)
-        if header['content-md5'] != hash_:
-            raise MWSError("Wrong Contentlength, maybe amazon error...")
+        if 'content-md5' in header:
+            hash_ = calc_md5(self.data)
+            if header['content-md5'] != hash_:
+                raise MWSError("Wrong Contentlength, maybe amazon error...")
 
 
 class MWS(object):
@@ -125,6 +126,7 @@ class MWS(object):
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
             response = request(method, url, data=kwargs.get('body', ''), headers=headers)
+            self.respons = response
             if response.headers['content-type'] == 'text/xml':
                 parsed_response = TreeWrapper(response.text, self.NS)
             else:
