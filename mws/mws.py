@@ -10,7 +10,11 @@ import hashlib
 import hmac
 import base64
 import md5
-from xml.etree.ElementTree import fromstring, ParseError
+from xml.etree.ElementTree import fromstring
+try:
+    from xml.etree.ElementTree import ParseError as XMLError
+except ImportError:
+    from xml.parsers.expat import ExpatError as XMLError
 from time import strftime, gmtime
 
 from requests import request
@@ -40,7 +44,7 @@ class TreeWrapper(object):
     def __init__(self, xml, ns):
         try:
             self.data = fromstring(xml)
-        except ParseError, e:
+        except XMLError, e:
             raise MWSError("Invalid xml, maybe amazon error...")
 
         self.ns = ns
