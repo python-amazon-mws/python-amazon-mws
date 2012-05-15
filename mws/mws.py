@@ -328,7 +328,7 @@ class Orders(MWS):
 
     def list_orders(self, marketplaceids, created_after=None, created_before=None, lastupdatedafter=None,
                     lastupdatedbefore=None, orderstatus=(), fulfillment_channels=(),
-                    payment_methods=(), buyer_email=None, seller_orderid=None, max_results=100):
+                    payment_methods=(), buyer_email=None, seller_orderid=None, max_results='100'):
 
         data = dict(Action='ListOrders',
                     CreatedAfter=created_after,
