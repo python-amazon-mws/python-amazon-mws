@@ -441,7 +441,7 @@ class Products(MWS):
         data.update(self.enumerate_param('SellerSKUList.SellerSKU.', skus))
         return self.make_request(data)
 
-    def get_my_price_for_sku(self, marketplaceid, asins, condition=None):
+    def get_my_price_for_asin(self, marketplaceid, asins, condition=None):
         data = dict(Action='GetMyPriceForASIN',
                     MarketplaceId=marketplaceid,
                     ItemCondition=condition)
