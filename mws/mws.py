@@ -145,7 +145,7 @@ class MWS(object):
 
     def get_service_status(self):
         """
-            It can return a GREEN, GREEN_I, YELLOW or RED status.
+            Returns a GREEN, GREEN_I, YELLOW or RED status.
             Depending on the status/availability of the API its being called from.
         """
 
@@ -245,12 +245,18 @@ class Reports(MWS):
 
     ACCOUNT_TYPE = "Merchant"
 
-    def request_report(self, report_type, start_date=None, end_date=None, marketplaceids=()):
-        data = dict(Action='RequestReport',
-                    ReportType=report_type,
-                    StartDate=start_date,
-                    EndDate=end_date)
-        data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+    ## REPORTS ###
+
+    def get_report(self, report_id):
+        data = dict(Action='GetReport', ReportId=report_id)
+        return self.make_request(data)
+
+    def get_report_count(self, report_types=(), acknowledged=None, fromdate=None, todate=None):
+        data = dict(Action='GetReportCount',
+                    Acknowledged=acknowledged,
+                    AvailableFromDate=fromdate,
+                    AvailableToDate=todate)
+        data.update(self.enumerate_param('ReportTypeList.Type.', report_types))
         return self.make_request(data)
 
     def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None, 
@@ -263,17 +269,19 @@ class Reports(MWS):
         data.update(self.enumerate_param('ReportRequestIdList.Id.', requestids))
         data.update(self.enumerate_param('ReportTypeList.Type.', types))
         return self.make_request(data)
-    
-    def get_report_schedule_list(self, types=()):
-        data = dict(Action='GetReportScheduleList')
-        data.update(self.enumerate_param('ReportTypeList.Type.', types))
+
+    def get_report_list_by_next_token(self, token):
+        data = dict(Action='GetReportListByNextToken', NextToken=token)
         return self.make_request(data)
-    
-    def get_report_schedule_count(self, types=()):
-        data = dict(Action='GetReportScheduleCount')
-        data.update(self.enumerate_param('ReportTypeList.Type.', types))
+
+    def get_report_request_count(self, report_types=(), processingstatuses=(), fromdate=None, todate=None):
+        data = dict(Action='GetReportRequestCount',
+                    RequestedFromDate=fromdate,
+                    RequestedToDate=todate)
+        data.update(self.enumerate_param('ReportTypeList.Type.', report_types))
+        data.update(self.enumerate_param('ReportProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
-    
+
     def get_report_request_list(self, requestids=(), types=(), processingstatuses=(),
                                 max_count=None, fromdate=None, todate=None):
         data = dict(Action='GetReportRequestList',
@@ -285,16 +293,29 @@ class Reports(MWS):
         data.update(self.enumerate_param('ReportProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
 
-    def get_report_count(self, report_types=(), acknowledged=None, fromdate=None, todate=None):
-        data = dict(Action='GetReportCount',
-                    Acknowledged=acknowledged,
-                    AvailableFromDate=fromdate,
-                    AvailableToDate=todate)
-        data.update(self.enumerate_param('ReportTypeList.Type.', report_types))
+    def get_report_request_list_by_next_token(self, token):
+        data = dict(Action='GetReportRequestListByNextToken', NextToken=token)
         return self.make_request(data)
 
-    def get_report(self, report_id):
-        data = dict(Action='GetReport', ReportId=report_id)
+    def request_report(self, report_type, start_date=None, end_date=None, marketplaceids=()):
+        data = dict(Action='RequestReport',
+                    ReportType=report_type,
+                    StartDate=start_date,
+                    EndDate=end_date)
+        data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+        return self.make_request(data)
+    
+
+    ### ReportSchedule ###
+
+    def get_report_schedule_list(self, types=()):
+        data = dict(Action='GetReportScheduleList')
+        data.update(self.enumerate_param('ReportTypeList.Type.', types))
+        return self.make_request(data)
+    
+    def get_report_schedule_count(self, types=()):
+        data = dict(Action='GetReportScheduleCount')
+        data.update(self.enumerate_param('ReportTypeList.Type.', types))
         return self.make_request(data)
 
 
@@ -411,6 +432,20 @@ class Products(MWS):
         data = dict(Action='GetProductCategoriesForASIN',
                     MarketplaceId=marketplaceid,
                     ASIN=asin)
+        return self.make_request(data)
+
+    def get_my_price_for_sku(self, marketplaceid, skus, condition=None):
+        data = dict(Action='GetMyPriceForSKU',
+                    MarketplaceId=marketplaceid,
+                    ItemCondition=condition)
+        data.update(self.enumerate_param('SellerSKUList.SellerSKU.', skus))
+        return self.make_request(data)
+
+    def get_my_price_for_sku(self, marketplaceid, asins, condition=None):
+        data = dict(Action='GetMyPriceForASIN',
+                    MarketplaceId=marketplaceid,
+                    ItemCondition=condition)
+        data.update(self.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
 
