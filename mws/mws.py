@@ -10,7 +10,11 @@ import hashlib
 import hmac
 import base64
 import md5
-from xml.etree.ElementTree import fromstring, ParseError
+from xml.etree.ElementTree import fromstring
+try:
+    from xml.etree.ElementTree import ParseError as XMLError
+except ImportError:
+    from xml.parsers.expat import ExpatError as XMLError
 from time import strftime, gmtime
 
 from requests import request
@@ -39,17 +43,26 @@ class TreeWrapper(object):
 
     def __init__(self, xml, ns):
         try:
-            self.etree = fromstring(xml)
-        except ParseError, e:
+            self.data = fromstring(xml)
+        except XMLError, e:
             raise MWSError("Invalid xml, maybe amazon error...")
 
         self.ns = ns
 
     def find(self, text):
-        return self.etree.find(".//" + self.ns + text)
+        return self.data.find(".//" + self.ns + text)
 
     def findall(self, text):
-        return self.etree.findall(".//" + self.ns + text)
+        return self.data.findall(".//" + self.ns + text)
+
+
+class DataWrapper(object):
+    def __init__(self, data, header):
+        self.data = data
+        if 'content-md5' in header:
+            hash_ = calc_md5(self.data)
+            if header['content-md5'] != hash_:
+                raise MWSError("Wrong Contentlength, maybe amazon error...")
 
 class MWS(object):
     """ Base Amazon API class """
@@ -131,7 +144,7 @@ class MWS(object):
 
     def get_service_status(self):
         """
-            It can return a GREEN, GREEN_I, YELLOW or RED status.
+            Returns a GREEN, GREEN_I, YELLOW or RED status.
             Depending on the status/availability of the API its being called from.
         """
 
@@ -142,13 +155,6 @@ class MWS(object):
         """
         sig_data = method + '\n' + self.domain.replace('https://', '').lower() + '\n' + self.uri + '\n' + request_description
         return base64.b64encode(hmac.new(str(self.secret_key), sig_data, hashlib.sha256).digest())
-
-    def calc_md5(self, string):
-        """Calculates the MD5 encryption for the given string
-        """
-        md = md5.new()
-        md.update(string)
-        return base64.encodestring(md.digest()).strip('\n')
 
     def get_timestamp(self):
         """
@@ -198,8 +204,8 @@ class Feeds(MWS):
         data = dict(Action='SubmitFeed',
                     FeedType=feed_type,
                     PurgeAndReplace=purge)
-        data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceidlist))
-        md = self.calc_md5(feed)
+        data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+        md = calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type})
 
@@ -244,12 +250,41 @@ class Reports(MWS):
 
     ACCOUNT_TYPE = "Merchant"
 
-    def request_report(self, report_type, start_date=None, end_date=None, marketplaceids=()):
-        data = dict(Action='RequestReport',
-                    ReportType=report_type,
-                    StartDate=start_date,
-                    EndDate=end_date)
-        data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+    ## REPORTS ###
+
+    def get_report(self, report_id):
+        data = dict(Action='GetReport', ReportId=report_id)
+        return self.make_request(data)
+
+    def get_report_count(self, report_types=(), acknowledged=None, fromdate=None, todate=None):
+        data = dict(Action='GetReportCount',
+                    Acknowledged=acknowledged,
+                    AvailableFromDate=fromdate,
+                    AvailableToDate=todate)
+        data.update(self.enumerate_param('ReportTypeList.Type.', report_types))
+        return self.make_request(data)
+
+    def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None, 
+                        fromdate=None, todate=None):
+        data = dict(Action='GetReportList',
+                    Acknowledged=acknowledged,
+                    AvailableFromDate=fromdate,
+                    AvailableToDate=todate,
+                    MaxCount=max_count)
+        data.update(self.enumerate_param('ReportRequestIdList.Id.', requestids))
+        data.update(self.enumerate_param('ReportTypeList.Type.', types))
+        return self.make_request(data)
+
+    def get_report_list_by_next_token(self, token):
+        data = dict(Action='GetReportListByNextToken', NextToken=token)
+        return self.make_request(data)
+
+    def get_report_request_count(self, report_types=(), processingstatuses=(), fromdate=None, todate=None):
+        data = dict(Action='GetReportRequestCount',
+                    RequestedFromDate=fromdate,
+                    RequestedToDate=todate)
+        data.update(self.enumerate_param('ReportTypeList.Type.', report_types))
+        data.update(self.enumerate_param('ReportProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
 
     def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None, 
@@ -284,16 +319,29 @@ class Reports(MWS):
         data.update(self.enumerate_param('ReportProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
 
-    def get_report_count(self, report_types=(), acknowledged=None, fromdate=None, todate=None):
-        data = dict(Action='GetReportCount',
-                    Acknowledged=acknowledged,
-                    AvailableFromDate=fromdate,
-                    AvailableToDate=todate)
-        data.update(self.enumerate_param('ReportTypeList.Type.', report_types))
+    def get_report_request_list_by_next_token(self, token):
+        data = dict(Action='GetReportRequestListByNextToken', NextToken=token)
         return self.make_request(data)
 
-    def get_report(self, report_id):
-        data = dict(Action='GetReport', ReportId=report_id)
+    def request_report(self, report_type, start_date=None, end_date=None, marketplaceids=()):
+        data = dict(Action='RequestReport',
+                    ReportType=report_type,
+                    StartDate=start_date,
+                    EndDate=end_date)
+        data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+        return self.make_request(data)
+    
+
+    ### ReportSchedule ###
+
+    def get_report_schedule_list(self, types=()):
+        data = dict(Action='GetReportScheduleList')
+        data.update(self.enumerate_param('ReportTypeList.Type.', types))
+        return self.make_request(data)
+    
+    def get_report_schedule_count(self, types=()):
+        data = dict(Action='GetReportScheduleCount')
+        data.update(self.enumerate_param('ReportTypeList.Type.', types))
         return self.make_request(data)
 
 
@@ -306,7 +354,7 @@ class Orders(MWS):
 
     def list_orders(self, marketplaceids, created_after=None, created_before=None, lastupdatedafter=None,
                     lastupdatedbefore=None, orderstatus=(), fulfillment_channels=(),
-                    payment_methods=(), buyer_email=None, seller_orderid=None, max_results=100):
+                    payment_methods=(), buyer_email=None, seller_orderid=None, max_results='100'):
 
         data = dict(Action='ListOrders',
                     CreatedAfter=created_after,
@@ -380,7 +428,7 @@ class Products(MWS):
         """ Returns the current competitive pricing of a product,
             based on the ASIN and MarketplaceId that you specify.
         """
-        data = dict(Action=GetCompetitivePricingForASIN, MarketplaceId=marketplaceid)
+        data = dict(Action='GetCompetitivePricingForASIN', MarketplaceId=marketplaceid)
         data.update(self.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
@@ -410,6 +458,20 @@ class Products(MWS):
         data = dict(Action='GetProductCategoriesForASIN',
                     MarketplaceId=marketplaceid,
                     ASIN=asin)
+        return self.make_request(data)
+
+    def get_my_price_for_sku(self, marketplaceid, skus, condition=None):
+        data = dict(Action='GetMyPriceForSKU',
+                    MarketplaceId=marketplaceid,
+                    ItemCondition=condition)
+        data.update(self.enumerate_param('SellerSKUList.SellerSKU.', skus))
+        return self.make_request(data)
+
+    def get_my_price_for_asin(self, marketplaceid, asins, condition=None):
+        data = dict(Action='GetMyPriceForASIN',
+                    MarketplaceId=marketplaceid,
+                    ItemCondition=condition)
+        data.update(self.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
 
@@ -475,3 +537,10 @@ class OutboundShipments(MWS):
     URI = "/FulfillmentOutboundShipment/2010-10-01"
     VERSION = "2010-10-01"
     # To be completed
+
+def calc_md5(string):
+    """Calculates the MD5 encryption for the given string
+    """
+    md = md5.new()
+    md.update(string)
+    return base64.encodestring(md.digest()).strip('\n')

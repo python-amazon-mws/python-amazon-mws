@@ -5,6 +5,7 @@ Help towards completing this last two APIs would be greatly appreciated.
 I will mark this as stable 1.0 once all tests have been completed.
 
 
+
 # Python Amazon MWS
 
 Python Amazon MWS is a python interface for the Amazon MWS API.
@@ -73,6 +74,13 @@ print response
 
 ```
 
+# To-Do
+
+* Update README
+* Create tests
+* Finish InboundShipments & OutboundShipments APIs
+* Build Docs
+
 # Contribute
 
-If you like the project, plz, contact me at commonzenpython@gmail.com (gtalk and email) and help me improve it.
+If you like the project, please, contact me at commonzenpython@gmail.com (gtalk and email) and help me improve it.

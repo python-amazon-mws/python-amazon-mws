@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name="python-amazon-mws",
@@ -10,6 +10,7 @@ setup(
     author_email="commonzenpython@gmail.com",
     url="http://github.com/czpython/python-amazon-mws",
     packages=['mws'],
-    
+    install_requires=[
+        'requests',
+    ],
 )
- 
