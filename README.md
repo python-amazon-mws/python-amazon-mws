@@ -8,9 +8,10 @@ I will mark this as stable 1.0 once all tests have been completed.
 Due to a bad commit I was forced to delete the repo. 
 I apologize for the inconvenience, thanks for all your contributions.
 
-bloodywing
-shalabhaggarwal
-ojii
+
+[bloodywing](https://github.com/bloodywing)
+[shalabhaggarwal](https://github.com/shalabhaggarwal)
+[ojii](https://github.com/ojii)
 
 # Python Amazon MWS
 
