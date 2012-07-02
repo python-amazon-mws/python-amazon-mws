@@ -10,6 +10,8 @@ import hashlib
 import hmac
 import base64
 import md5
+import utils
+import re
 from xml.etree.ElementTree import fromstring
 try:
     from xml.etree.ElementTree import ParseError as XMLError
@@ -50,11 +52,15 @@ def remove_empty(d):
     return d
 
 
+def remove_namespace(xml):
+    regex = re.compile('xmlns="[^"]+"')
+    return regex.sub('', xml)
+    
+    
 class TreeWrapper(object):
     """ Small wrapper around the find and findall methods of
         the the xml.etree.ElementTree.Element class.
     """
-
     def __init__(self, gen, ns):
         self.data = fromstring(gen)
         self.ns = ns
@@ -65,7 +71,18 @@ class TreeWrapper(object):
     def findall(self, text):
         return self.data.findall(".//" + self.ns + text)
 
+        
+class DictWrapper(object):
+    def __init__(self, xml):
+        remove_namespace(xml)
+        self._mydict = utils.xml2dict().fromstring(remove_namespace(xml))
+        self._response_dict = self._mydict.get(self._mydict.keys()[0],
+                                               self._mydict)
 
+    def wrapped(self):
+        return self._response_dict
+
+        
 class DataWrapper(object):
     """
         Text wrapper in charge of validating the hash sent by Amazon.
@@ -206,7 +223,7 @@ class MWS(object):
             params['%s%d' % (param, (num + 1))] = value
         return params
 
-
+        
 class Feeds(MWS):
     """ Amazon MWS Feeds API """
 
