@@ -55,31 +55,17 @@ def remove_empty(d):
 def remove_namespace(xml):
     regex = re.compile('xmlns="[^"]+"')
     return regex.sub('', xml)
-    
-    
-class TreeWrapper(object):
-    """ Small wrapper around the find and findall methods of
-        the the xml.etree.ElementTree.Element class.
-    """
-    def __init__(self, gen, ns):
-        self.data = fromstring(gen)
-        self.ns = ns
-
-    def find(self, text):
-        return self.data.find(".//" + self.ns + text)
-
-    def findall(self, text):
-        return self.data.findall(".//" + self.ns + text)
 
         
 class DictWrapper(object):
     def __init__(self, xml):
-        remove_namespace(xml)
+        self.original = xml
         self._mydict = utils.xml2dict().fromstring(remove_namespace(xml))
         self._response_dict = self._mydict.get(self._mydict.keys()[0],
                                                self._mydict)
 
-    def wrapped(self):
+    @property
+    def parsed(self):
         return self._response_dict
 
         
@@ -88,11 +74,15 @@ class DataWrapper(object):
         Text wrapper in charge of validating the hash sent by Amazon.
     """
     def __init__(self, data, header):
-        self.data = data
+        self.original = data
         if 'content-md5' in header:
-            hash_ = calc_md5(self.data)
+            hash_ = calc_md5(self.original)
             if header['content-md5'] != hash_:
                 raise MWSError("Wrong Contentlength, maybe amazon error...")
+
+    @property
+    def parsed(self):
+        return self.original
 
 
 class MWS(object):
@@ -169,7 +159,7 @@ class MWS(object):
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
             try:
-                parsed_response = TreeWrapper(data, self.NS)
+                parsed_response = DictWrapper(data)
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
 
