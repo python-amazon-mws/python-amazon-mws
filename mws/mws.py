@@ -55,8 +55,8 @@ def remove_empty(d):
 def remove_namespace(xml):
     regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
     return regex.sub('', xml)
-    
-    
+
+
 class TreeWrapper(object):
     """ Small wrapper around the find and findall methods of
         the the xml.etree.ElementTree.Element class.
@@ -71,7 +71,7 @@ class TreeWrapper(object):
     def findall(self, text):
         return self.data.findall(".//" + self.ns + text)
 
-        
+
 class DictWrapper(object):
     def __init__(self, xml):
         remove_namespace(xml)
@@ -79,10 +79,13 @@ class DictWrapper(object):
         self._response_dict = self._mydict.get(self._mydict.keys()[0],
                                                self._mydict)
 
-    def wrapped(self):
-        return self._response_dict
+    def wrapped(self, key=None):
+        if key:
+            return self._response_dict.get(key)
+        else:
+            return self._response_dict
 
-        
+
 class DataWrapper(object):
     """
         Text wrapper in charge of validating the hash sent by Amazon.
@@ -161,7 +164,7 @@ class MWS(object):
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
             response = request(method, url, data=kwargs.get('body', ''), headers=headers)
             response.raise_for_status()
-            # When retrieving data from the response object, 
+            # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
             # response.content and converts it to unicode.
             data = response.content
@@ -223,7 +226,7 @@ class MWS(object):
             params['%s%d' % (param, (num + 1))] = value
         return params
 
-        
+
 class Feeds(MWS):
     """ Amazon MWS Feeds API """
 
@@ -298,7 +301,7 @@ class Reports(MWS):
         data.update(self.enumerate_param('ReportTypeList.Type.', report_types))
         return self.make_request(data)
 
-    def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None, 
+    def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None,
                         fromdate=None, todate=None):
         data = dict(Action='GetReportList',
                     Acknowledged=acknowledged,
@@ -343,7 +346,7 @@ class Reports(MWS):
                     EndDate=end_date)
         data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
         return self.make_request(data)
-    
+
 
     ### ReportSchedule ###
 
@@ -351,7 +354,7 @@ class Reports(MWS):
         data = dict(Action='GetReportScheduleList')
         data.update(self.enumerate_param('ReportTypeList.Type.', types))
         return self.make_request(data)
-    
+
     def get_report_schedule_count(self, types=()):
         data = dict(Action='GetReportScheduleCount')
         data.update(self.enumerate_param('ReportTypeList.Type.', types))
