@@ -58,16 +58,17 @@ def remove_namespace(xml):
 
 
 class DictWrapper(object):
-    def __init__(self, xml):
+    def __init__(self, xml, rootkey=None):
         self.original = xml
+        self._rootkey = rootkey
         self._mydict = utils.xml2dict().fromstring(remove_namespace(xml))
         self._response_dict = self._mydict.get(self._mydict.keys()[0],
                                                self._mydict)
 
     @property
-    def parsed(self, key=None):
-        if key:
-            return self._response_dict.get(key)
+    def parsed(self):
+        if self._rootkey:
+            return self._response_dict.get(self._rootkey)
         else:
             return self._response_dict
 
@@ -162,7 +163,7 @@ class MWS(object):
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
             try:
-                parsed_response = DictWrapper(data)
+                parsed_response = DictWrapper(data, extra_data.get("Action") + "Result")
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
 
