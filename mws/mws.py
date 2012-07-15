@@ -53,22 +53,26 @@ def remove_empty(d):
 
 
 def remove_namespace(xml):
-    regex = re.compile('xmlns="[^"]+"')
+    regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
     return regex.sub('', xml)
 
-        
+
 class DictWrapper(object):
-    def __init__(self, xml):
+    def __init__(self, xml, rootkey=None):
         self.original = xml
+        self._rootkey = rootkey
         self._mydict = utils.xml2dict().fromstring(remove_namespace(xml))
         self._response_dict = self._mydict.get(self._mydict.keys()[0],
                                                self._mydict)
 
     @property
     def parsed(self):
-        return self._response_dict
+        if self._rootkey:
+            return self._response_dict.get(self._rootkey)
+        else:
+            return self._response_dict
 
-        
+
 class DataWrapper(object):
     """
         Text wrapper in charge of validating the hash sent by Amazon.
@@ -151,7 +155,7 @@ class MWS(object):
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
             response = request(method, url, data=kwargs.get('body', ''), headers=headers)
             response.raise_for_status()
-            # When retrieving data from the response object, 
+            # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
             # response.content and converts it to unicode.
             data = response.content
@@ -159,7 +163,7 @@ class MWS(object):
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
             try:
-                parsed_response = DictWrapper(data)
+                parsed_response = DictWrapper(data, extra_data.get("Action") + "Result")
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
 
@@ -213,7 +217,7 @@ class MWS(object):
             params['%s%d' % (param, (num + 1))] = value
         return params
 
-        
+
 class Feeds(MWS):
     """ Amazon MWS Feeds API """
 
@@ -288,7 +292,7 @@ class Reports(MWS):
         data.update(self.enumerate_param('ReportTypeList.Type.', report_types))
         return self.make_request(data)
 
-    def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None, 
+    def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None,
                         fromdate=None, todate=None):
         data = dict(Action='GetReportList',
                     Acknowledged=acknowledged,
@@ -333,7 +337,7 @@ class Reports(MWS):
                     EndDate=end_date)
         data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
         return self.make_request(data)
-    
+
 
     ### ReportSchedule ###
 
@@ -341,7 +345,7 @@ class Reports(MWS):
         data = dict(Action='GetReportScheduleList')
         data.update(self.enumerate_param('ReportTypeList.Type.', types))
         return self.make_request(data)
-    
+
     def get_report_schedule_count(self, types=()):
         data = dict(Action='GetReportScheduleCount')
         data.update(self.enumerate_param('ReportTypeList.Type.', types))
