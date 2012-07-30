@@ -423,6 +423,17 @@ class Products(MWS):
         data.update(self.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
+    def get_matching_product_for_id(self, marketplaceid, type, id):
+        """ Returns a list of products and their attributes, based on a list of
+            product identifier values (asin, sellersku, upc, ean, isbn and JAN)
+            Added in Fourth Release, API version 2011-10-01
+        """
+        data = dict(Action='GetMatchingProductForId',
+                    MarketplaceId=marketplaceid,
+                    IdType=type)
+        data.update(self.enumerate_param('IdList.Id', id))
+        return self.make_request(data)
+
     def get_competitive_pricing_for_sku(self, marketplaceid, skus):
         """ Returns the current competitive pricing of a product,
             based on the SellerSKU and MarketplaceId that you specify.
