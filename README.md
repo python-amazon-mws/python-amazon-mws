@@ -72,7 +72,7 @@ MARKETPLACE_ID = 'your marketplaceid'
 UPC = "886039397430"
 
 amazon = mws.Products(MWS_ACCESS_KEY, MWS_SECRET_KEY, MERCHANT_ID)
-response = amazon.list_matching_products(UPC, MARKETPLACE_ID)
+response = amazon.list_matching_products(MARKETPLACE_ID, UPC)
 
 # In shell...
 

@@ -9,7 +9,6 @@ import urllib
 import hashlib
 import hmac
 import base64
-import md5
 import utils
 import re
 from xml.etree.ElementTree import fromstring
@@ -36,7 +35,7 @@ class MWSError(Exception):
 def calc_md5(string):
     """Calculates the MD5 encryption for the given string
     """
-    md = md5.new()
+    md = hashlib.md5()
     md.update(string)
     return base64.encodestring(md.digest()).strip('\n')
 
