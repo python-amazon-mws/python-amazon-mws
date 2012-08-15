@@ -40,7 +40,8 @@ class object_dict(dict):
             return d
 
         # if value is the only key in object, you can omit it
-
+    def __setstate__(self, item):
+        return False
     def __setattr__(self, item, value):
         self.__setitem__(item, value)
 
