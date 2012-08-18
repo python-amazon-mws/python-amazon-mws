@@ -167,7 +167,7 @@ class MWS(object):
                 parsed_response = DataWrapper(data, response.headers)
 
         except HTTPError, e:
-            error = MWSError(e.message)
+            error = MWSError(str(e))
             error.response = getattr(e, 'response')
             raise error
 
