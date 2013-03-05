@@ -4,15 +4,6 @@ All except for the last two APIs ( InboundShipment and OutboundShipment ) are co
 Help towards completing this last two APIs would be greatly appreciated.
 I will mark this as stable 1.0 once all tests have been completed.
 
-# ** OLD REPO **
-Due to a bad commit I was forced to delete the repo. 
-I apologize for the inconvenience, thanks for all your contributions.
-
-
-[bloodywing](https://github.com/bloodywing)
-[shalabhaggarwal](https://github.com/shalabhaggarwal)
-[ojii](https://github.com/ojii)
-
 # Python Amazon MWS
 
 Python Amazon MWS is a python interface for the Amazon MWS API.
