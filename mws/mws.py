@@ -168,7 +168,7 @@ class MWS(object):
 
         except HTTPError, e:
             error = MWSError(str(e))
-            error.response = getattr(e, 'response')
+            error.response = e.response
             raise error
 
         # Store the response object in the parsed_response for quick access
@@ -209,11 +209,11 @@ class MWS(object):
             }
         """
         params = {}
-
-        if not param.endswith('.'):
-            param = "%s." % param
-        for num, value in enumerate(values):
-            params['%s%d' % (param, (num + 1))] = value
+        if values is not None:
+            if not param.endswith('.'):
+                param = "%s." % param
+            for num, value in enumerate(values):
+                params['%s%d' % (param, (num + 1))] = value
         return params
 
 
@@ -222,11 +222,11 @@ class Feeds(MWS):
 
     ACCOUNT_TYPE = "Merchant"
 
-    def submit_feed(self, feed, feed_type, marketplaceids=(),
+    def submit_feed(self, feed, feed_type, marketplaceids=None,
                     content_type="text/xml", purge='false'):
         """
-            Uploads a feed ( xml or .tsv ) to the seller's inventory.
-            Can be used for creating/updating products on amazon.
+        Uploads a feed ( xml or .tsv ) to the seller's inventory.
+        Can be used for creating/updating products on Amazon.
         """
         data = dict(Action='SubmitFeed',
                     FeedType=feed_type,
@@ -236,8 +236,13 @@ class Feeds(MWS):
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type})
 
-    def get_feed_submission_list(self, feedids=(), max_count=None, feedtypes=(),
-                                    processingstatuses=(), fromdate=None, todate=None):
+    def get_feed_submission_list(self, feedids=None, max_count=None, feedtypes=None,
+                                    processingstatuses=None, fromdate=None, todate=None):
+        """
+        Returns a list of all feed submissions submitted in the previous 90 days.
+        That match the query parameters.
+        """
+
         data = dict(Action='GetFeedSubmissionList',
                     MaxCount=max_count,
                     SubmittedFromDate=fromdate,
@@ -251,7 +256,7 @@ class Feeds(MWS):
         data = dict(Action='GetFeedSubmissionListByNextToken', NextToken=token)
         return self.make_request(data)
 
-    def get_feed_submission_count(self, feedtypes=(), processingstatuses=(), fromdate=None, todate=None):
+    def get_feed_submission_count(self, feedtypes=None, processingstatuses=None, fromdate=None, todate=None):
         data = dict(Action='GetFeedSubmissionCount',
                     SubmittedFromDate=fromdate,
                     SubmittedToDate=todate)
@@ -259,7 +264,7 @@ class Feeds(MWS):
         data.update(self.enumerate_param('FeedProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
 
-    def cancel_feed_submissions(self, feedids=(), feedtypes=(), fromdate=None, todate=None):
+    def cancel_feed_submissions(self, feedids=None, feedtypes=None, fromdate=None, todate=None):
         data = dict(Action='CancelFeedSubmissions',
                     SubmittedFromDate=fromdate,
                     SubmittedToDate=todate)
@@ -554,3 +559,9 @@ class OutboundShipments(MWS):
     URI = "/FulfillmentOutboundShipment/2010-10-01"
     VERSION = "2010-10-01"
     # To be completed
+
+
+try:
+    execfile('keys.py', globals(), locals())
+except IOError, err:
+    pass
