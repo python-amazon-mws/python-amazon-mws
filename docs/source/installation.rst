@@ -32,5 +32,9 @@ If everything is good, you can see a response 200 and a list of item matching py
 Install MWS Python API :)
 -------------------------
 
-Currently you have to checkout the git repo and run ./setup.py install
+From PyPi
+
+.. code-block:: bash
+
+    $ pip install python-amazon-mws
 
