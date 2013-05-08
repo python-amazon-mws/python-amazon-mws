@@ -15,69 +15,15 @@ This is still an ongoing project. If you would like to contribute, see below :).
 
 Its based on the [amazon-mws-python](http://code.google.com/p/amazon-mws-python).
 
-# API usage
-
-Make sure you check out the Amazon MWS documentation at https://developer.amazonservices.com/
-
-Here's an exmaple of how to use python-amazon-mws to upload your products to amazon.
-
-
-```python
-from mws import mws
-
-# You can get all these credentials when you sign up for Amazon MWS
-
-MWS_ACCESS_KEY = 'your key'
-MWS_SECRET_KEY = 'your secret'
-MERCHANT_ID = 'your merchantid'
-
-# Amazon supports different file formats for uploading products
-# here i use a simple tsv file.
-
-file_name = "templates/amazon-upload.tsv"
-
-with open(file_name, "r+") as f:
-    data = f.read()
-    f.close()
-    amazon = mws.Feeds(MWS_ACCESS_KEY, MWS_SECRET_KEY, MERCHANT_ID)
-    response = amazon.submit_feed(data, feed_type="_POST_FLAT_FILE_LISTINGS_DATA_", 
-                                    content_type="text/tab-separated-values;charset=iso-8859-1")
-
-# In shell...
-
-print response
-<Element '{http://mws.amazonaws.com/doc/2009-01-01/}SubmitFeedResponse' at 0x8edaa4c>
-
-```
-For more information, check out the [Products API Documentation](https://developer.amazonservices.com/gp/mws/api.html/182-2079318-8524647?ie=UTF8&section=products&group=products&version=latest).
-
-Here's another example in which i use python-amazon-mws to query amazon for a product using the product's UPC
-
-```python
-from mws import mws
-
-MWS_ACCESS_KEY = 'your key'
-MWS_SECRET_KEY = 'your secret'
-MERCHANT_ID = 'your merchantid'
-MARKETPLACE_ID = 'your marketplaceid'
-UPC = "886039397430"
-
-amazon = mws.Products(MWS_ACCESS_KEY, MWS_SECRET_KEY, MERCHANT_ID)
-response = amazon.list_matching_products(MARKETPLACE_ID, UPC)
-
-# In shell...
-
-print response
-<Element '{http://mws.amazonservices.com/schema/Products/2011-10-01}ListMatchingProductsResponse' at 0xa1b188c>
-
-```
+Checkout the documentation [here](http://code.google.com/p/amazon-mws-python).
+You can read the official Amazon MWS documentation [here](https://developer.amazonservices.com/).
 
 # To-Do
 
-* Update README
+* Improve README
 * Create tests
 * Finish InboundShipments & OutboundShipments APIs
-* Build Docs
+* Finish Docs
 
 # Contribute
 

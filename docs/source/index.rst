@@ -3,13 +3,36 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+#############################################
 Welcome to Python Amazon MWS's documentation!
-=============================================
+#############################################
 
-Contents:
+***************
+Getting Started
+***************
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
+
+    installation.rst
+    tutorial_1.rst
+    
+
+********
+APIs
+********
+
+.. toctree::
+    :maxdepth: 1
+       
+    feeds.rst
+    reports.rst
+    fulfillmentInboundShipment.rst
+    fulfillmentInventory.rst
+    fulfillmentOutboundShipment.rst
+    orders.rst
+    products.rst
+    sellers.rst
 
 
 
