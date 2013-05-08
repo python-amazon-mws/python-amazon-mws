@@ -565,3 +565,41 @@ try:
     execfile('keys.py', globals(), locals())
 except IOError, err:
     pass
+
+
+class Recommendations(MWS):
+
+    """ Amazon MWS Recommendations API """
+
+    URI = '/Recommendations/2013-04-01'
+    VERSION = '2013-04-01'
+    NS = "{ttps://mws.amazonservices.com/Recommendations/2013-04-01}"
+
+    def get_last_updated_time_for_recommendations(self, marketplaceid):
+        """
+        Checks whether there are active recommendations for each category for the given marketplace, and if there are,
+        returns the time when recommendations were last updated for each category.
+        """
+
+        data = dict(Action='GetLastUpdatedTimeForRecommendations',
+                    MarketplaceId=marketplaceid)
+        return self.make_request(data, "POST")
+
+    def list_recommendations(self, marketplaceid, recommendationcategory=None):
+        """
+        Returns your active recommendations for a specific category or for all categories for a specific marketplace.
+        """
+
+        data = dict(Action="ListRecommendations",
+                    MarketplaceId=marketplaceid,
+                    RecommendationCategory=recommendationcategory)
+        return self.make_request(data, "POST")
+
+    def list_recommendations_by_next_token(self, token):
+        """
+        Returns the next page of recommendations using the NextToken parameter.
+        """
+
+        data = dict(Action="ListRecommendationsByNextToken",
+                    NextToken=token)
+        return self.make_request(data, "POST")
