@@ -561,12 +561,6 @@ class OutboundShipments(MWS):
     # To be completed
 
 
-try:
-    execfile('keys.py', globals(), locals())
-except IOError, err:
-    pass
-
-
 class Recommendations(MWS):
 
     """ Amazon MWS Recommendations API """
