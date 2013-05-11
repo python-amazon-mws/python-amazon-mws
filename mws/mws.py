@@ -573,7 +573,7 @@ class Recommendations(MWS):
 
     URI = '/Recommendations/2013-04-01'
     VERSION = '2013-04-01'
-    NS = "{ttps://mws.amazonservices.com/Recommendations/2013-04-01}"
+    NS = "{https://mws.amazonservices.com/Recommendations/2013-04-01}"
 
     def get_last_updated_time_for_recommendations(self, marketplaceid):
         """
