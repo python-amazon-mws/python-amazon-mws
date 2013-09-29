@@ -11,7 +11,6 @@ import hmac
 import base64
 import utils
 import re
-from xml.etree.ElementTree import fromstring
 try:
     from xml.etree.ElementTree import ParseError as XMLError
 except ImportError:
