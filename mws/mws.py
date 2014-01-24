@@ -21,6 +21,34 @@ from requests import request
 from requests.exceptions import HTTPError
 
 
+__all__ = [
+    'AmazonTextResponse',
+    'AmazonXMLResponse',
+    'Feeds',
+    'Inventory',
+    'Reports',
+    'Orders',
+    'Products',
+    'Recommendations',
+    'Sellers',
+]
+
+# See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf page 8
+# for a list of the end points and marketplace IDs
+
+MARKETPLACES = {
+    "CA" : "https://mws.amazonservices.ca", #A2EUQ1WTGCTBG2
+    "US" : "https://mws.amazonservices.com", #ATVPDKIKX0DER",
+    "DE" : "https://mws-eu.amazonservices.com", #A1PA6795UKMFR9
+    "ES" : "https://mws-eu.amazonservices.com", #A1RKKUPIHCS9HS
+    "FR" : "https://mws-eu.amazonservices.com", #A13V1IB3VIYZZH
+    "IN" : "https://mws.amazonservices.in", #A21TJRUUN4KGV
+    "IT" : "https://mws-eu.amazonservices.com", #APJ6JRA9NG5V4
+    "UK" : "https://mws-eu.amazonservices.com", #A1F83G8C2ARO7P
+    "JP" : "https://mws.amazonservices.jp", #A1VC38T7YXB528
+    "CN" : "https://mws.amazonservices.com.cn", #AAHKV2X7AFYLW
+}
+
 
 class MWSError(Exception):
     """
@@ -114,40 +142,23 @@ class MWS(object):
     # Which is the name of the parameter for that specific account type.
     ACCOUNT_TYPE = "SellerId"
 
-    def __init__(self, access_key, secret_key, account_id, region = 'US',
-             domain='', uri="", version=""):
+    def __init__(self, access_key, secret_key, account_id, region='US', domain='', uri="", version=""):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
         self.version = version or self.VERSION
-        self.region = region
-        # Get the domain for the default of passed region, or use the passed domain
-        self.domain = domain or self.get_region_endpoint()
         self.uri = uri or self.URI
-                
-    def get_region_endpoint(self):
-        # See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf page 8
-        # for a list of the end points and marketplace IDs
-        try:
-            marketplaces = {
-                "CA" : "https://mws.amazonservices.ca", #A2EUQ1WTGCTBG2
-                "US" : "https://mws.amazonservices.com", #ATVPDKIKX0DER",
-                "DE" : "https://mws-eu.amazonservices.com", #A1PA6795UKMFR9
-                "ES" : "https://mws-eu.amazonservices.com", #A1RKKUPIHCS9HS
-                "FR" : "https://mws-eu.amazonservices.com", #A13V1IB3VIYZZH
-                "IN" : "https://mws.amazonservices.in", #A21TJRUUN4KGV
-                "IT" : "https://mws-eu.amazonservices.com", #APJ6JRA9NG5V4
-                "UK" : "https://mws-eu.amazonservices.com", #A1F83G8C2ARO7P
-                "JP" : "https://mws.amazonservices.jp", #A1VC38T7YXB528
-                "CN" : "https://mws.amazonservices.com.cn", #AAHKV2X7AFYLW
+
+        if domain:
+            self.domain = domain
+        elif region in MARKETPLACES:
+            self.domain = MARKETPLACES[region]
+        else:
+            error_msg = "Incorrect region supplied ('%(region)s'). Must be one of the following: %(marketplaces)s" % {
+                "marketplaces" : ', '.join(MARKETPLACES.keys()),
+                "region" : region,
             }
-            return marketplaces[self.region.upper()]
-        # Didn't pass a valid marketplace location.
-        except KeyError:
-            raise MWSError("Incorrect region supplied ('%(region)s'). Must be one of the following: %(marketplaces)s" % {
-                "marketplaces" : marketplaces.keys(),
-                "region" : self.region,
-            })
+            raise MWSError(error_msg)
 
     def make_request(self, extra_data, method="GET", **kwargs):
         """Make request to Amazon MWS API with these parameters
