@@ -22,8 +22,6 @@ from requests.exceptions import HTTPError
 
 
 __all__ = [
-    'AmazonTextResponse',
-    'AmazonXMLResponse',
     'Feeds',
     'Inventory',
     'Reports',
