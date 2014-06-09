@@ -24,6 +24,7 @@ from requests.exceptions import HTTPError
 __all__ = [
     'Feeds',
     'Inventory',
+    'MWSError',
     'Reports',
     'Orders',
     'Products',
