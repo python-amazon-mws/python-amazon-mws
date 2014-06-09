@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-from mws import __version__
+version = '0.4'
 
 setup(
     name="python-amazon-mws",
-    version=__version__,
+    version=version,
     description="A python interface for Amazon MWS",
     author="Paulo Alvarado",
     author_email="commonzenpython@gmail.com",
