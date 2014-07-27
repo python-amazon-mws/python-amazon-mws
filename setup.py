@@ -1,7 +1,24 @@
-#!/usr/bin/env python
-from setuptools import setup
+# -*- coding: utf-8 -*-
+from setuptools import setup, find_packages
 
 version = '0.5'
+
+REQUIREMENTS = ['requests']
+
+CLASSIFIERS = [
+    'Development Status :: 2 - Pre-Alpha',
+    'Environment :: Web Environment',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: BSD License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+    'Topic :: Software Development',
+    'Topic :: Software Development :: Libraries :: Application Frameworks',
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.6",
+    "Programming Language :: Python :: 2.7",
+]
 
 setup(
     name="python-amazon-mws",
@@ -10,19 +27,11 @@ setup(
     author="Paulo Alvarado",
     author_email="commonzenpython@gmail.com",
     url="http://github.com/czpython/python-amazon-mws",
-    packages=['mws'],
-    download_url = 'https://github.com/czpython/python-amazon-mws/tarball/0.3',
-    classifiers = [
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "Operating System :: OS Independent",
-        "Topic :: Internet",
-        "Natural Language :: English",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.5",
-        "Programming Language :: Python :: 2.6",
-        "Programming Language :: Python :: 2.7"],
-    install_requires=[
-        'requests',
-    ],
+    packages=find_packages(),
+    platforms=['OS Independent'],
+    license='LICENSE.txt',
+    install_requires=REQUIREMENTS,
+    classifiers=CLASSIFIERS,
+    include_package_data=True,
+    zip_safe=False
 )
