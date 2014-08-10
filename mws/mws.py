@@ -462,15 +462,16 @@ class Products(MWS):
         data.update(self.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
-    def get_matching_product_for_id(self, marketplaceid, type, id):
+    def get_matching_product_for_id(self, marketplaceid, type, ids):
         """ Returns a list of products and their attributes, based on a list of
-            product identifier values (asin, sellersku, upc, ean, isbn and JAN)
+            product identifier values (ASIN, SellerSKU, UPC, EAN, ISBN, GCID  and JAN)
+            The identifier type is case sensitive.
             Added in Fourth Release, API version 2011-10-01
         """
         data = dict(Action='GetMatchingProductForId',
                     MarketplaceId=marketplaceid,
                     IdType=type)
-        data.update(self.enumerate_param('IdList.Id', id))
+        data.update(self.enumerate_param('IdList.Id.', ids))
         return self.make_request(data)
 
     def get_competitive_pricing_for_sku(self, marketplaceid, skus):
