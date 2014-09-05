@@ -141,10 +141,11 @@ class MWS(object):
     # Which is the name of the parameter for that specific account type.
     ACCOUNT_TYPE = "SellerId"
 
-    def __init__(self, access_key, secret_key, account_id, region='US', domain='', uri="", version=""):
+    def __init__(self, access_key, secret_key, account_id, region='US', domain='', uri="", version="", auth_token=""):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
+        self.auth_token = auth_token
         self.version = version or self.VERSION
         self.uri = uri or self.URI
 
@@ -175,6 +176,8 @@ class MWS(object):
             'Version': self.version,
             'SignatureMethod': 'HmacSHA256',
         }
+        if self.auth_token:
+            params['MWSAuthToken'] = self.auth_token                    
         params.update(extra_data)
         request_description = '&'.join(['%s=%s' % (k, urllib.quote(params[k], safe='-_.~').encode('utf-8')) for k in sorted(params)])
         signature = self.calc_signature(method, request_description)
