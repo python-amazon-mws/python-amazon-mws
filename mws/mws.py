@@ -177,7 +177,7 @@ class MWS(object):
             'SignatureMethod': 'HmacSHA256',
         }
         if self.auth_token:
-            params['MWSAuthToken'] = self.auth_token                    
+            params['MWSAuthToken'] = self.auth_token
         params.update(extra_data)
         request_description = '&'.join(['%s=%s' % (k, urllib.quote(params[k], safe='-_.~').encode('utf-8')) for k in sorted(params)])
         signature = self.calc_signature(method, request_description)
@@ -205,7 +205,7 @@ class MWS(object):
                 parsed_response = DataWrapper(data, response.headers)
 
         except HTTPError, e:
-            error = MWSError(str(e))
+            error = MWSError(str(e.response.text))
             error.response = e.response
             raise error
 
