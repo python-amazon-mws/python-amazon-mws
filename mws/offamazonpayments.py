@@ -86,7 +86,7 @@ class OffAmazonPayments(MWS):
                 RefundReferenceId=refund_id,
                 SellerRefundNote=notes,
                 **{
-                    "RefundAmount.Amount": amount,
+                    "RefundAmount.Amount": "{:.2f}".format(amount),
                     "RefundAmount.CurrencyCode": currency
                 }
             )
