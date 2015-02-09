@@ -6,13 +6,13 @@ class OffAmazonPayments(MWS):
     URI = "/OffAmazonPayments/2013-01-01/"
     VERSION = "2013-01-01"
 
-    def authorize(self, order_ref, order_total, auth_id):
+    def authorize(self, order_ref, order_total, auth_id, timeout=60):
         return self.make_request(
             extra_data=dict(
                 Action="Authorize",
                 AmazonOrderReferenceId=order_ref,
                 AuthorizationReferenceId=str(auth_id),
-                TransactionTimeout="60",
+                TransactionTimeout=str(timeout),
                 **{
                     "AuthorizationAmount.Amount": "{:.2f}".format(order_total),
                     "AuthorizationAmount.CurrencyCode": "USD"
