@@ -46,6 +46,7 @@ MARKETPLACES = {
     "UK" : "https://mws-eu.amazonservices.com", #A1F83G8C2ARO7P
     "JP" : "https://mws.amazonservices.jp", #A1VC38T7YXB528
     "CN" : "https://mws.amazonservices.com.cn", #AAHKV2X7AFYLW
+    "MX" : "https://mws.amazonservices.com.mx", #A1AM78C64UM0Y8    
 }
 
 
