@@ -398,9 +398,9 @@ class Reports(MWS):
 class Orders(MWS):
     """ Amazon Orders API """
 
-    URI = "/Orders/2011-01-01"
-    VERSION = "2011-01-01"
-    NS = '{https://mws.amazonservices.com/Orders/2011-01-01}'
+    URI = "/Orders/2013-09-01"
+    VERSION = "2013-09-01"
+    NS = '{https://mws.amazonservices.com/Orders/2013-09-01}'
 
     def list_orders(self, marketplaceids, created_after=None, created_before=None, lastupdatedafter=None,
                     lastupdatedbefore=None, orderstatus=(), fulfillment_channels=(),
