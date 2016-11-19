@@ -6,9 +6,10 @@ Borrowed from https://github.com/timotheus/ebaysdk-python
 
 @author: pierre
 """
+from __future__ import absolute_import
 
-import xml.etree.ElementTree as ET
 import re
+import xml.etree.ElementTree as ET
 
 
 class object_dict(dict):
