@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='mws',
-    version='0.7-dev',
+    version='0.7',
     maintainer="James Hiew",
     maintainer_email="james@hiew.net",
     url="http://github.com/jameshiew/mws",
