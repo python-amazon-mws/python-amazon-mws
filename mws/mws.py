@@ -1,24 +1,25 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# Basic interface to Amazon MWS
-# Based on http://code.google.com/p/amazon-mws-python
-#
+from __future__ import absolute_import
 
-import urllib
+import base64
 import hashlib
 import hmac
-import base64
-import utils
 import re
+from time import gmtime, strftime
+
+from requests import request
+from requests.exceptions import HTTPError
+
+from . import utils
+
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 try:
     from xml.etree.ElementTree import ParseError as XMLError
 except ImportError:
     from xml.parsers.expat import ExpatError as XMLError
-from time import strftime, gmtime
-
-from requests import request
-from requests.exceptions import HTTPError
 
 
 __all__ = [
@@ -64,15 +65,19 @@ def calc_md5(string):
     """
     md = hashlib.md5()
     md.update(string)
-    return base64.encodestring(md.digest()).strip('\n')
+    return base64.encodebytes(md.digest()).strip('\n')
 
 
 def remove_empty(d):
+    """Helper function that removes all keys from a dictionary (d), that have an empty value.
+
+    Args:
+        d (dict)
+
+    Return:
+        dict
     """
-        Helper function that removes all keys from a dictionary (d),
-        that have an empty value.
-    """
-    for key in d.keys():
+    for key in set(d.keys()):
         if not d[key]:
             del d[key]
     return d
@@ -88,7 +93,7 @@ class DictWrapper(object):
         self.original = xml
         self._rootkey = rootkey
         self._mydict = utils.xml2dict().fromstring(remove_namespace(xml))
-        self._response_dict = self._mydict.get(self._mydict.keys()[0],
+        self._response_dict = self._mydict.get(list(self._mydict.keys())[0],
                                                self._mydict)
 
     @property
@@ -180,9 +185,9 @@ class MWS(object):
         if self.auth_token:
             params['MWSAuthToken'] = self.auth_token
         params.update(extra_data)
-        request_description = '&'.join(['%s=%s' % (k, urllib.quote(params[k], safe='-_.~').encode('utf-8')) for k in sorted(params)])
+        request_description = '&'.join(['%s=%s' % (k, quote(params[k], safe='-_.~')) for k in sorted(params)])
         signature = self.calc_signature(method, request_description)
-        url = '%s%s?%s&Signature=%s' % (self.domain, self.uri, request_description, urllib.quote(signature))
+        url = '%s%s?%s&Signature=%s' % (self.domain, self.uri, request_description, quote(signature))
         headers = {'User-Agent': 'python-amazon-mws/0.0.1 (Language=Python)'}
         headers.update(kwargs.get('extra_headers', {}))
 
@@ -196,16 +201,18 @@ class MWS(object):
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
             # response.content and converts it to unicode.
-            data = response.content
 
+            data = response.content
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
             try:
                 parsed_response = DictWrapper(data, extra_data.get("Action") + "Result")
+            except TypeError:  # raised when using Python 3 and trying to remove_namespace()
+                parsed_response = DictWrapper(response.text, extra_data.get("Action") + "Result")
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
 
-        except HTTPError, e:
+        except HTTPError as e:
             error = MWSError(str(e.response.text))
             error.response = e.response
             raise error
@@ -224,9 +231,18 @@ class MWS(object):
 
     def calc_signature(self, method, request_description):
         """Calculate MWS signature to interface with Amazon
+
+        Args:
+            method (str)
+            request_description (str)
         """
-        sig_data = method + '\n' + self.domain.replace('https://', '').lower() + '\n' + self.uri + '\n' + request_description
-        return base64.b64encode(hmac.new(str(self.secret_key), sig_data, hashlib.sha256).digest())
+        sig_data = '\n'.join([
+            method,
+            self.domain.replace('https://', '').lower(),
+            self.uri,
+            request_description
+        ])
+        return base64.b64encode(hmac.new(self.secret_key.encode(), sig_data.encode(), hashlib.sha256).digest())
 
     def get_timestamp(self):
         """
@@ -398,9 +414,9 @@ class Reports(MWS):
 class Orders(MWS):
     """ Amazon Orders API """
 
-    URI = "/Orders/2011-01-01"
-    VERSION = "2011-01-01"
-    NS = '{https://mws.amazonservices.com/Orders/2011-01-01}'
+    URI = "/Orders/2013-09-01"
+    VERSION = "2013-09-01"
+    NS = '{https://mws.amazonservices.com/Orders/2013-09-01}'
 
     def list_orders(self, marketplaceids, created_after=None, created_before=None, lastupdatedafter=None,
                     lastupdatedbefore=None, orderstatus=(), fulfillment_channels=(),

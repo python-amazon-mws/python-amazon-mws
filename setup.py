@@ -1,13 +1,22 @@
 # -*- coding: utf-8 -*-
+short_description = 'Python library for interacting with the Amazon MWS API'
+try:
+    from pypandoc import convert
+except (ImportError, OSError):  # either pypandoc or pandoc isn't installed
+    long_description = "See README.md"
+else:
+    long_description = convert("README.md", 'rst')
+
 from setuptools import setup
 
 setup(
     name='mws',
-    version='0.6',
+    version='0.7',
     maintainer="James Hiew",
     maintainer_email="james@hiew.net",
     url="http://github.com/jameshiew/mws",
-    description='A python interface for Amazon MWS',
+    description=short_description,
+    long_description=long_description,
     packages=['mws'],
     install_requires=[
         'requests'
@@ -23,11 +32,14 @@ setup(
         'Topic :: Software Development',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
     ],
     platforms=['OS Independent'],
-    license='LICENSE.txt',
+    license='Unlicense',
     include_package_data=True,
     zip_safe=False
 )
