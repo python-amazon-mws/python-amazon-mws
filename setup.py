@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from pypandoc import convert
 from setuptools import setup
 
 setup(
@@ -7,7 +8,8 @@ setup(
     maintainer="James Hiew",
     maintainer_email="james@hiew.net",
     url="http://github.com/jameshiew/mws",
-    description='A python interface for Amazon MWS',
+    description='Python library for interacting with the Amazon MWS API',
+    long_description=convert("README.md", 'rst'),
     packages=['mws'],
     install_requires=[
         'requests'
@@ -27,7 +29,7 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     platforms=['OS Independent'],
-    license='LICENSE.txt',
+    license='Unlicense',
     include_package_data=True,
     zip_safe=False
 )
