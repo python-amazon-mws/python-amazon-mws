@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from .mws import MWS
 
 
@@ -171,4 +174,3 @@ class OffAmazonPayments(MWS):
                 AmazonOrderReferenceId=order_ref
             )
         )
-
