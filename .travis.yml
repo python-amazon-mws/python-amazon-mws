@@ -7,6 +7,9 @@ python:
   - "3.5"
   - "3.6"
 cache: pip
+before_install:
+  - pip install flake8
+  - flake8
 install:
   - pip install --upgrade pip setuptools wheel
   - pip install -e .
