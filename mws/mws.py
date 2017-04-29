@@ -33,21 +33,22 @@ __all__ = [
     'Sellers',
 ]
 
-# See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf page 8
+# See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
+# page 8
 # for a list of the end points and marketplace IDs
 
 MARKETPLACES = {
-    "CA" : "https://mws.amazonservices.ca", #A2EUQ1WTGCTBG2
-    "US" : "https://mws.amazonservices.com", #ATVPDKIKX0DER",
-    "DE" : "https://mws-eu.amazonservices.com", #A1PA6795UKMFR9
-    "ES" : "https://mws-eu.amazonservices.com", #A1RKKUPIHCS9HS
-    "FR" : "https://mws-eu.amazonservices.com", #A13V1IB3VIYZZH
-    "IN" : "https://mws.amazonservices.in", #A21TJRUUN4KGV
-    "IT" : "https://mws-eu.amazonservices.com", #APJ6JRA9NG5V4
-    "UK" : "https://mws-eu.amazonservices.com", #A1F83G8C2ARO7P
-    "JP" : "https://mws.amazonservices.jp", #A1VC38T7YXB528
-    "CN" : "https://mws.amazonservices.com.cn", #AAHKV2X7AFYLW
-    "MX" : "https://mws.amazonservices.com.mx", #A1AM78C64UM0Y8    
+    "CA": "https://mws.amazonservices.ca",  # A2EUQ1WTGCTBG2
+    "US": "https://mws.amazonservices.com",  # ATVPDKIKX0DER",
+    "DE": "https://mws-eu.amazonservices.com",  # A1PA6795UKMFR9
+    "ES": "https://mws-eu.amazonservices.com",  # A1RKKUPIHCS9HS
+    "FR": "https://mws-eu.amazonservices.com",  # A13V1IB3VIYZZH
+    "IN": "https://mws.amazonservices.in",  # A21TJRUUN4KGV
+    "IT": "https://mws-eu.amazonservices.com",  # APJ6JRA9NG5V4
+    "UK": "https://mws-eu.amazonservices.com",  # A1F83G8C2ARO7P
+    "JP": "https://mws.amazonservices.jp",  # A1VC38T7YXB528
+    "CN": "https://mws.amazonservices.com.cn",  # AAHKV2X7AFYLW
+    "MX": "https://mws.amazonservices.com.mx",  # A1AM78C64UM0Y8
 }
 
 
@@ -161,8 +162,8 @@ class MWS(object):
             self.domain = MARKETPLACES[region]
         else:
             error_msg = "Incorrect region supplied ('%(region)s'). Must be one of the following: %(marketplaces)s" % {
-                "marketplaces" : ', '.join(MARKETPLACES.keys()),
-                "region" : region,
+                "marketplaces": ', '.join(MARKETPLACES.keys()),
+                "region": region,
             }
             raise MWSError(error_msg)
 
@@ -292,7 +293,7 @@ class Feeds(MWS):
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type})
 
     def get_feed_submission_list(self, feedids=None, max_count=None, feedtypes=None,
-                                    processingstatuses=None, fromdate=None, todate=None):
+                                 processingstatuses=None, fromdate=None, todate=None):
         """
         Returns a list of all feed submissions submitted in the previous 90 days.
         That match the query parameters.
@@ -337,7 +338,7 @@ class Reports(MWS):
 
     ACCOUNT_TYPE = "Merchant"
 
-    ## REPORTS ###
+    # * REPORTS * #
 
     def get_report(self, report_id):
         data = dict(Action='GetReport', ReportId=report_id)
@@ -397,8 +398,7 @@ class Reports(MWS):
         data.update(self.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
         return self.make_request(data)
 
-
-    ### ReportSchedule ###
+    # * ReportSchedule * #
 
     def get_report_schedule_list(self, types=()):
         data = dict(Action='GetReportScheduleList')
@@ -595,7 +595,7 @@ class Sellers(MWS):
         return self.make_request(data)
 
 
-#### Fulfillment APIs ####
+# * Fulfillment APIs * #
 
 
 class InboundShipments(MWS):
