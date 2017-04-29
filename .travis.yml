@@ -1,0 +1,13 @@
+dist: trusty
+sudo: false
+language: python
+python:
+  - "2.7"
+  - "3.4"
+  - "3.5"
+  - "3.6"
+cache: pip
+install:
+  - pip install --upgrade pip setuptools wheel
+  - pip install -e .
+script: true
