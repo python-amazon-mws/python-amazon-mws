@@ -66,7 +66,7 @@ def calc_md5(string):
     """
     md = hashlib.md5()
     md.update(string)
-    return base64.encodebytes(md.digest()).strip('\n')
+    return base64.b64encode(md.digest()).strip('\n')
 
 
 def remove_empty(d):
