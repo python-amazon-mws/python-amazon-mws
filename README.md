@@ -27,8 +27,6 @@ Now you can experiment with the API from a shell.
 ...     account_id=os.environ['MWS_ACCOUNT_ID'],
 ...     region='UK',  # if necessary
 ... )
->>> orders_api.get_service_status()
-<mws.mws.DictWrapper object at 0x1053c4630>
 >>> service_status = orders_api.get_service_status()
 >>> service_status
 <mws.mws.DictWrapper object at 0x1063a2160>
