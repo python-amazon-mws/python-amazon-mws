@@ -7,6 +7,7 @@ import hmac
 import re
 from time import gmtime, strftime
 
+import datetime
 from requests import request
 from requests.exceptions import HTTPError
 
@@ -174,6 +175,11 @@ class MWS(object):
         # Remove all keys with an empty value because
         # Amazon's MWS does not allow such a thing.
         extra_data = remove_empty(extra_data)
+
+        # convert all Python date/time objects to isoformat
+        for key, value in extra_data.items():
+            if isinstance(value, (datetime.datetime, datetime.date)):
+                extra_data[key] = value.isoformat()
 
         params = {
             'AWSAccessKeyId': self.access_key,
