@@ -12,7 +12,7 @@ else:
 
 setup(
     name='mws',
-    version='0.7',
+    version='0.8-dev',
     maintainer="James Hiew",
     maintainer_email="james@hiew.net",
     url="http://github.com/jameshiew/mws",
@@ -20,7 +20,7 @@ setup(
     long_description=long_description,
     packages=['mws'],
     install_requires=[
-        'requests'
+        'requests',
     ],
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -42,5 +42,5 @@ setup(
     platforms=['OS Independent'],
     license='Unlicense',
     include_package_data=True,
-    zip_safe=False
+    zip_safe=False,
 )
