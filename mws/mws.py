@@ -79,10 +79,7 @@ def remove_empty(d):
     Return:
         dict
     """
-    for key in set(d.keys()):
-        if not d[key]:
-            del d[key]
-    return d
+    return {k: v for k, v in d.items() if v}
 
 
 def remove_namespace(xml):
