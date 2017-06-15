@@ -4,3 +4,4 @@ sphinx>=1.4
 flake8
 
 pytest
+pytest-cov
