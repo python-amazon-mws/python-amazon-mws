@@ -12,5 +12,7 @@ before_install:
   - flake8
 install:
   - pip install --upgrade pip setuptools wheel
+  - pip install -r requirements.txt
   - pip install -e .
-script: true
+script:
+  - pytest
