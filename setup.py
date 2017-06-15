@@ -5,10 +5,9 @@ short_description = 'Python library for interacting with the Amazon MWS API'
 
 try:
     from pypandoc import convert
+    long_description = convert("README.md", 'rst')
 except (ImportError, OSError):  # either pypandoc or pandoc isn't installed
     long_description = "See README.md"
-else:
-    long_description = convert("README.md", 'rst')
 
 setup(
     name='mws',
