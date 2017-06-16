@@ -209,12 +209,13 @@ class MWS(object):
             data = response.content
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
+            rootkey = kwargs.get('rootkey', extra_data.get("Action") + "Result")
             try:
                 try:
-                    parsed_response = DictWrapper(data, extra_data.get("Action") + "Result")
+                    parsed_response = DictWrapper(data, rootkey)
                 except TypeError:  # raised when using Python 3 and trying to remove_namespace()
                     # When we got CSV as result, we will got error on this
-                    parsed_response = DictWrapper(response.text, extra_data.get("Action") + "Result")
+                    parsed_response = DictWrapper(response.text, rootkey)
 
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
@@ -336,7 +337,7 @@ class Feeds(MWS):
 
     def get_feed_submission_result(self, feedid):
         data = dict(Action='GetFeedSubmissionResult', FeedSubmissionId=feedid)
-        return self.make_request(data)
+        return self.make_request(data, rootkey='Message')
 
 
 class Reports(MWS):
