@@ -114,7 +114,7 @@ class DataWrapper(object):
         self.original = data
         if 'content-md5' in header:
             hash_ = calc_md5(self.original)
-            if header['content-md5'] != hash_:
+            if header['content-md5'].encode() != hash_:
                 raise MWSError("Wrong Contentlength, maybe amazon error...")
 
     @property
@@ -213,9 +213,12 @@ class MWS(object):
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
             try:
-                parsed_response = DictWrapper(data, extra_data.get("Action") + "Result")
-            except TypeError:  # raised when using Python 3 and trying to remove_namespace()
-                parsed_response = DictWrapper(response.text, extra_data.get("Action") + "Result")
+                try:
+                    parsed_response = DictWrapper(data, extra_data.get("Action") + "Result")
+                except TypeError:  # raised when using Python 3 and trying to remove_namespace()
+                    # When we got CSV as result, we will got error on this
+                    parsed_response = DictWrapper(response.text, extra_data.get("Action") + "Result")
+
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
 
