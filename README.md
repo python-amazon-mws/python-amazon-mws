@@ -3,11 +3,11 @@
 
 This is a fork and continuation of https://github.com/czpython/python-amazon-mws with preliminary Python 2/3 support.
 
-Install from PyPI with `pip install mws`.
-
-Pull requests welcome.
+The main aim is to provide a *backwards-compatible* drop in replacement for the original package (i.e. same method signatures, class names, etc) with some extra features and anything that was obviously broken fixed.
 
 ## Quickstart
+
+Install from PyPI with `pip install mws`.
 
 Put your API credentials in your environment.
 
@@ -38,3 +38,7 @@ GetServiceStatusResponse>\n'
 >>> service_status.response
 <Response [200]>
 ```
+
+## Contributing
+
+Pull requests welcome.
