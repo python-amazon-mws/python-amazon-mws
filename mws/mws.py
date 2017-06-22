@@ -144,15 +144,19 @@ class MWS(object):
     # like "Merchant" in which case you define it like so.
     # ACCOUNT_TYPE = "Merchant"
     # Which is the name of the parameter for that specific account type.
+    # For using proxy you need to init this class with one more parameter proxies. It must look like 'ip_address:port'
+    # if proxy without auth and 'login:password@ip_address:port' if proxy with auth
     ACCOUNT_TYPE = "SellerId"
 
-    def __init__(self, access_key, secret_key, account_id, region='US', domain='', uri="", version="", auth_token=""):
+    def __init__(self, access_key, secret_key, account_id, region='US', domain='', uri="", version="", auth_token="",
+                 proxies=None):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
         self.auth_token = auth_token
         self.version = version or self.VERSION
         self.uri = uri or self.URI
+        self.proxies = proxies
 
         if domain:
             self.domain = domain
@@ -188,6 +192,11 @@ class MWS(object):
         }
         if self.auth_token:
             params['MWSAuthToken'] = self.auth_token
+        if self.proxies:
+            proxies = {"http": "http://{}".format(self.proxies),
+                       "https": "https://{}".format(self.proxies)}
+        else:
+            proxies = {"http": self.proxies, "https": self.proxies}
         params.update(extra_data)
         request_description = '&'.join(['%s=%s' % (k, quote(params[k], safe='-_.~')) for k in sorted(params)])
         signature = self.calc_signature(method, request_description)
@@ -200,7 +209,7 @@ class MWS(object):
             # My answer is, here i have to get the url parsed string of params in order to sign it, so
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
-            response = request(method, url, data=kwargs.get('body', ''), headers=headers)
+            response = request(method, url, data=kwargs.get('body', ''), headers=headers, proxies=proxies)
             response.raise_for_status()
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
@@ -606,10 +615,28 @@ class Sellers(MWS):
 
 
 class InboundShipments(MWS):
-    URI = "/FulfillmentInboundShipment/2010-10-01"
+    NS = '{http://mws.amazonaws.com/FulfillmentInboundShipment/2010-10-01/}'
     VERSION = '2010-10-01'
+    URI = "/FulfillmentInboundShipment/2010-10-01"
 
-    # To be completed
+    def get_inbound_guidance_for_sku(self, sku_list):
+        if not isinstance(sku_list, tuple):
+            sku_list = tuple(sku_list)
+        data = dict(Action='GetInboundGuidanceForSKU',
+                    SellerSKUList=sku_list)
+        return self.make_request(extra_data=data)
+
+    def get_inbound_guidance_for_asin(self, asin_list):
+        if not isinstance(asin_list, tuple):
+            asin_list = tuple(asin_list)
+        data = dict(Action='GetInboundGuidanceForASIN',
+                    SellerSKUList=asin_list)
+        return self.make_request(extra_data=data)
+
+    def list_inbound_shipments(self, inbound_shipment_id):
+        data = dict(Action='ListInboundShipmentItems',
+                    ShipmentId=inbound_shipment_id)
+        return self.make_request(extra_data=data)
 
 
 class Inventory(MWS):
