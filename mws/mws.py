@@ -144,8 +144,10 @@ class MWS(object):
     # like "Merchant" in which case you define it like so.
     # ACCOUNT_TYPE = "Merchant"
     # Which is the name of the parameter for that specific account type.
+
     # For using proxy you need to init this class with one more parameter proxies. It must look like 'ip_address:port'
     # if proxy without auth and 'login:password@ip_address:port' if proxy with auth
+
     ACCOUNT_TYPE = "SellerId"
 
     def __init__(self, access_key, secret_key, account_id, region='US', domain='', uri="", version="", auth_token="",
@@ -613,8 +615,14 @@ class Sellers(MWS):
 
 # * Fulfillment APIs * #
 
-
 class InboundShipments(MWS):
+
+    """
+    Almost of requests for work with inbound shipments, more details on official docs
+    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipment.html
+    """
+    # todo: CreateInboundShipmentPlan, CreateInboundShipment, UpdateInboundShipment
+
     NS = '{http://mws.amazonaws.com/FulfillmentInboundShipment/2010-10-01/}'
     VERSION = '2010-10-01'
     URI = "/FulfillmentInboundShipment/2010-10-01"
@@ -633,9 +641,109 @@ class InboundShipments(MWS):
                     SellerSKUList=asin_list)
         return self.make_request(extra_data=data)
 
-    def list_inbound_shipments(self, inbound_shipment_id):
+    def get_bill_of_lading(self, shipment_id):
+        data = dict(Action='GetBillOfLading',
+                    ShipmentId=shipment_id)
+        return self.make_request(extra_data=data)
+
+    def get_pallet_labels(self, shipment_id, page_type, number_of_pallets):
+        data = dict(Action='GetPalletLabels',
+                    ShipmentId=shipment_id,
+                    PageType=page_type,
+                    NumberOfPallets=number_of_pallets)
+        return self.make_request(extra_data=data)
+
+    def get_unique_package_labels(self, package_label):
+        data = dict(Action='GetUniquePackageLabels')
+        data.update(self.enumerate_param('PackageLabelsToPrint.member.', package_label))
+        return self.make_request(extra_data=data)
+
+    def get_package_labels(self, shipment_id, page_type):
+        data = dict(Action='GetPackageLabels',
+                    ShipmentId=shipment_id,
+                    PageType=page_type)
+        return self.make_request(extra_data=data)
+
+    def void_transport_request(self, shipment_id):
+        data = dict(Action='VoidTransportRequest',
+                    ShipmentId=shipment_id)
+        return self.make_request(extra_data=data)
+
+    def confirm_transport_request(self, shipment_id):
+        data = dict(Action='ConfirmTransportRequest',
+                    ShipmentId=shipment_id)
+        return self.make_request(extra_data=data)
+
+    def get_transport_content(self, shipment_id):
+        data = dict(Action='GetTransportContent',
+                    ShipmentId=shipment_id)
+        return self.make_request(extra_data=data)
+
+    def estimate_transport_request(self, shipment_id):
+        data = dict(Action='EstimateTransportRequest',
+                    ShipmentId=shipment_id)
+        return self.make_request(extra_data=data)
+
+    def list_inbound_shipment_items(self, inbound_shipment_id):
         data = dict(Action='ListInboundShipmentItems',
                     ShipmentId=inbound_shipment_id)
+        return self.make_request(extra_data=data)
+
+    def list_inbound_shipments_items_by_next_token(self, next_token):
+        data = dict(Action='ListInboundShipmentItemsByNextToken',
+                    NextToken=next_token)
+        return self.make_request(extra_data=data)
+
+    def list_inbound_shipment(self, inbound_shipment_id, status):
+        data = dict(Action='ListInboundShipments')
+        data.update(self.enumerate_param('ShipmentStatusList.member.', status))
+        data.update(self.enumerate_param('ShipmentIdList.member.', inbound_shipment_id))
+        return self.make_request(extra_data=data)
+
+    def list_inbound_shipments_by_next_token(self, next_token):
+        data = dict(Action='ListInboundShipmentsByNextToken',
+                    NextToken=next_token)
+        return self.make_request(extra_data=data)
+
+    def get_service_status(self):
+        data = dict(Action='GetServiceStatus')
+        return self.make_request(extra_data=data)
+
+    def put_transport_content(self, shipment_id, is_partnered, shipment_type, carrier_name, tracking_id):
+        data = dict(Action='PutTransportContent',
+                    ShipmentId=shipment_id,
+                    IsPartnered=is_partnered,
+                    ShipmentType=shipment_type)
+        data['TransportDetails.NonPartneredSmallParcelData.CarrierName'] = carrier_name
+        if isinstance(tracking_id, tuple):
+            count = 0
+            for track in tracking_id:
+                data[
+                    'TransportDetails.NonPartneredSmallParcelData.PackageList.member.{}.TrackingId'.format(count + 1)
+                ] = track
+        return self.make_request(extra_data=data)
+
+    def get_prep_instructions_for_asin(self, asin, ship_to_country):
+        data = dict(Action='GetPrepInstructionsForASIN',
+                    ShipToCountryCode=ship_to_country)
+        data.update(self.enumerate_param('ASINList.Id.', asin))
+        return self.make_request(extra_data=data)
+
+    def get_prep_instructions_for_sku(self, sku, ship_to_country):
+        data = dict(Action='GetPrepInstructionsForSKU',
+                    ShipToCountryCode=ship_to_country)
+        data.update(self.enumerate_param('SellerSKUList.Id.', sku))
+        return self.make_request(extra_data=data)
+
+    def confirm_preorder(self, shipment_id, need_by_date):
+        data = dict(Action='ConfirmPreorder',
+                    ShipmentId=shipment_id,
+                    NeedByDate=need_by_date)
+        return self.make_request(extra_data=data)
+
+    def get_preorder_info(self, shipment_id):
+        data = dict(Action='GetPreorderInfo',
+                    ShipmentId=shipment_id)
         return self.make_request(extra_data=data)
 
 
