@@ -194,11 +194,7 @@ class MWS(object):
         }
         if self.auth_token:
             params['MWSAuthToken'] = self.auth_token
-        if self.proxies:
-            proxies = {"http": "http://{}".format(self.proxies),
-                       "https": "https://{}".format(self.proxies)}
-        else:
-            proxies = {"http": self.proxies, "https": self.proxies}
+        proxies = self.set_proxies()
         params.update(extra_data)
         request_description = '&'.join(['%s=%s' % (k, quote(params[k], safe='-_.~')) for k in sorted(params)])
         signature = self.calc_signature(method, request_description)
@@ -239,6 +235,13 @@ class MWS(object):
         # Store the response object in the parsed_response for quick access
         parsed_response.response = response
         return parsed_response
+
+    def set_proxies(self):
+        proxies = {"http": None, "https": None}
+        if self.proxies:
+            proxies = {"http": "http://{}".format(self.proxies),
+                       "https": "https://{}".format(self.proxies)}
+        return proxies
 
     def get_service_status(self):
         """
