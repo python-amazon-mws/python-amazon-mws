@@ -692,12 +692,12 @@ class InboundShipments(MWS):
                     ShipmentId=inbound_shipment_id)
         return self.make_request(extra_data=data)
 
-    def list_inbound_shipments_items_by_next_token(self, next_token):
+    def list_inbound_shipment_items_by_next_token(self, next_token):
         data = dict(Action='ListInboundShipmentItemsByNextToken',
                     NextToken=next_token)
         return self.make_request(extra_data=data)
 
-    def list_inbound_shipment(self, inbound_shipment_id, status):
+    def list_inbound_shipments(self, inbound_shipment_id, status):
         data = dict(Action='ListInboundShipments')
         data.update(self.enumerate_param('ShipmentStatusList.member.', status))
         data.update(self.enumerate_param('ShipmentIdList.member.', inbound_shipment_id))
