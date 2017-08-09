@@ -152,14 +152,14 @@ class MWS(object):
     ACCOUNT_TYPE = "SellerId"
 
     def __init__(self, access_key, secret_key, account_id, region='US', domain='', uri="", version="", auth_token="",
-                 proxies=None):
+                 proxy=None):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
         self.auth_token = auth_token
         self.version = version or self.VERSION
         self.uri = uri or self.URI
-        self.proxies = proxies
+        self.proxy = proxy
 
         if domain:
             self.domain = domain
@@ -239,9 +239,9 @@ class MWS(object):
 
     def get_proxies(self):
         proxies = {"http": None, "https": None}
-        if self.proxies:
-            proxies = {"http": "http://{}".format(self.proxies),
-                       "https": "https://{}".format(self.proxies)}
+        if self.proxy:
+            proxies = {"http": "http://{}".format(self.proxy),
+                       "https": "https://{}".format(self.proxy)}
         return proxies
 
     def get_service_status(self):
