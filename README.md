@@ -38,8 +38,24 @@ GetServiceStatusResponse>\n'
 ```
 
 # Development
+All dependencies for working on `mws` are in `requirements.txt` and `docs/requirements.txt`.
+
 ## Tests
 Tests are run with pytest. We test against Python 2.7 and supported Python 3.x versions with Travis.
+
+## Documentation
+Docs are built using Sphinx. Change into the `docs/` directory and install any dependencies from the `requirements.txt` there.
+
+To build HTML documentation, run:
+```
+make html
+```
+The output HTML documentation will be in `docs/build/`.
+
+To run a live reloading server serving the HTML documentation (on port 8000 by default):
+```
+make livehtml
+```
 
 ## Contributing
 Please make pull requests to `develop`. Code coverage isn't necessary but encouraged where possible (especially for anything which might behave differently between Python 2/3).
