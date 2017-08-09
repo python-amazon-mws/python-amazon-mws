@@ -5,9 +5,10 @@ This is a fork and continuation of https://github.com/czpython/python-amazon-mws
 
 The main aim is to provide a *backwards-compatible* drop in replacement for the original package (i.e. same method signatures, class names, etc) with some extra features and anything that was obviously broken fixed.
 
-## Quickstart
-
+# Installation
 Install from PyPI with `pip install mws`.
+
+# Quickstart
 
 Put your API credentials in your environment.
 
@@ -39,6 +40,25 @@ GetServiceStatusResponse>\n'
 <Response [200]>
 ```
 
-## Contributing
+# Development
+All dependencies for working on `mws` are in `requirements.txt` and `docs/requirements.txt`.
 
-Pull requests welcome.
+## Tests
+Tests are run with pytest. We test against Python 2.7 and supported Python 3.x versions with Travis.
+
+## Documentation
+Docs are built using Sphinx. Change into the `docs/` directory and install any dependencies from the `requirements.txt` there.
+
+To build HTML documentation, run:
+```
+make html
+```
+The output HTML documentation will be in `docs/build/`.
+
+To run a live reloading server serving the HTML documentation (on port 8000 by default):
+```
+make livehtml
+```
+
+## Contributing
+Please make pull requests to `develop`. Code coverage isn't necessary but encouraged where possible (especially for anything which might behave differently between Python 2/3).
