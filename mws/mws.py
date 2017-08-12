@@ -70,6 +70,10 @@ def calc_md5(string):
     return base64.b64encode(md.digest()).strip(b'\n')
 
 
+def calc_request_description(params):
+    return '&'.join(['%s=%s' % (k, quote(params[k], safe='-_.~')) for k in sorted(params)])
+
+
 def remove_empty(d):
     """Helper function that removes all keys from a dictionary (d), that have an empty value.
 
@@ -189,7 +193,7 @@ class MWS(object):
         if self.auth_token:
             params['MWSAuthToken'] = self.auth_token
         params.update(extra_data)
-        request_description = '&'.join(['%s=%s' % (k, quote(params[k], safe='-_.~')) for k in sorted(params)])
+        request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
         url = '%s%s?%s&Signature=%s' % (self.domain, self.uri, request_description, quote(signature))
         headers = {'User-Agent': 'python-amazon-mws/0.0.1 (Language=Python)'}
