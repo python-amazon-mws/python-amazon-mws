@@ -169,6 +169,20 @@ class MWS(object):
             }
             raise MWSError(error_msg)
 
+    def get_params(self):
+        """Get the parameters required in all MWS requests"""
+        params = {
+            'AWSAccessKeyId': self.access_key,
+            self.ACCOUNT_TYPE: self.account_id,
+            'SignatureVersion': '2',
+            'Timestamp': self.get_timestamp(),
+            'Version': self.version,
+            'SignatureMethod': 'HmacSHA256',
+        }
+        if self.auth_token:
+            params['MWSAuthToken'] = self.auth_token
+        return params
+
     def make_request(self, extra_data, method="GET", **kwargs):
         """Make request to Amazon MWS API with these parameters
         """
@@ -182,16 +196,7 @@ class MWS(object):
             if isinstance(value, (datetime.datetime, datetime.date)):
                 extra_data[key] = value.isoformat()
 
-        params = {
-            'AWSAccessKeyId': self.access_key,
-            self.ACCOUNT_TYPE: self.account_id,
-            'SignatureVersion': '2',
-            'Timestamp': self.get_timestamp(),
-            'Version': self.version,
-            'SignatureMethod': 'HmacSHA256',
-        }
-        if self.auth_token:
-            params['MWSAuthToken'] = self.auth_token
+        params = self.get_params()
         params.update(extra_data)
         request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
