@@ -2,12 +2,12 @@
 from __future__ import absolute_import
 
 import base64
+import datetime
 import hashlib
 import hmac
 import re
 from time import gmtime, strftime
 
-import datetime
 from requests import request
 from requests.exceptions import HTTPError
 
