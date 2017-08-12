@@ -71,7 +71,11 @@ def calc_md5(string):
 
 
 def calc_request_description(params):
-    return '&'.join(['%s=%s' % (k, quote(params[k], safe='-_.~')) for k in sorted(params)])
+    request_description = ''
+    for key in sorted(params):
+        encoded_value = quote(params[key], safe='-_.~')
+        request_description += '&{}={}'.format(key, encoded_value)
+    return request_description
 
 
 def remove_empty(d):
