@@ -16,7 +16,7 @@ using the python-amazon-mws wrapper.
 
     sku = 'sku id' #replace with sku id
 
-    inventory = mws.mws.Inventory(access_key=access_key, secret_key=secret_key, account_id=merchant_id)
+    inventory = mws.Inventory(access_key=access_key, secret_key=secret_key, account_id=merchant_id)
     result = inventory.list_inventory_supply(skus=[sku])
     response_data = result.original
     print response_data
