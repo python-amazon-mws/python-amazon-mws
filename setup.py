@@ -11,7 +11,7 @@ except (ImportError, OSError):  # either pypandoc or pandoc isn't installed
 
 setup(
     name='mws',
-    version='0.7.3',
+    version='0.7.4-dev',
     maintainer="James Hiew",
     maintainer_email="james@hiew.net",
     url="http://github.com/jameshiew/mws",
