@@ -75,7 +75,7 @@ def calc_request_description(params):
     for key in sorted(params):
         encoded_value = quote(params[key], safe='-_.~')
         request_description += '&{}={}'.format(key, encoded_value)
-    return request_description
+    return request_description[1:]  # don't include leading ampersand
 
 
 def remove_empty(d):
