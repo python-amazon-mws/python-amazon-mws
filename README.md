@@ -1,30 +1,64 @@
-# ** DISCLAIMER **
-This API is in constant development. Do not rely on it too much until its in stable release.
-All except for the last two APIs ( InboundShipment and OutboundShipment ) are complete.
-Help towards completing this last two APIs would be greatly appreciated.
-I will mark this as stable 1.0 once all tests have been completed.
+# mws
+[![Requirements Status](https://requires.io/github/jameshiew/mws/requirements.svg)](https://requires.io/github/jameshiew/mws/requirements/) [![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws) [![Build Status](https://travis-ci.org/jameshiew/mws.svg)](https://travis-ci.org/jameshiew/mws) [![codecov](https://codecov.io/gh/jameshiew/mws/branch/develop/graph/badge.svg)](https://codecov.io/gh/jameshiew/mws)
 
-# Python Amazon MWS
+This is a fork and continuation of https://github.com/czpython/python-amazon-mws with preliminary Python 2/3 support.
 
-Python Amazon MWS is a python interface for the Amazon MWS API.
-I wrote it to help me upload my products to amazon. However, seeing its potential i decided
-to expand it in order for it to cover most ( if not all ) operations in the Amazon MWS.
+The main aim is to provide a *backwards-compatible* drop in replacement for the original package (i.e. same method signatures, class names, etc) with some extra features and anything that was obviously broken fixed.
 
-This is still an ongoing project. If you would like to contribute, see below :).
+# Installation
+Install from PyPI with `pip install mws`.
 
+# Quickstart
 
-Its based on the [amazon-mws-python](http://code.google.com/p/amazon-mws-python).
+Put your API credentials in your environment.
 
-Checkout the documentation [here](https://python-amazon-mws.readthedocs.org/latest/).
-You can read the official Amazon MWS documentation [here](https://developer.amazonservices.com/).
+```bash
+$ export MWS_ACCOUNT_ID=...
+$ export MWS_ACCESS_KEY=...
+$ export MWS_SECRET_KEY=...
+```
 
-# To-Do
+Now you can experiment with the API from a shell.
 
-* Improve README
-* Create tests
-* Finish InboundShipments & OutboundShipments APIs
-* Finish Docs
+```python
+>>> import mws, os
+>>> orders_api = mws.Orders(
+...     access_key=os.environ['MWS_ACCESS_KEY'],
+...     secret_key=os.environ['MWS_SECRET_KEY'],
+...     account_id=os.environ['MWS_ACCOUNT_ID'],
+...     region='UK',  # if necessary
+... )
+>>> service_status = orders_api.get_service_status()
+>>> service_status
+<mws.mws.DictWrapper object at 0x1063a2160>
+>>> service_status.original
+'<?xml version="1.0"?>\n<GetServiceStatusResponse xmlns="https://mws.amazonservices.com/Orders/2013-09-01">\n  <GetServiceStatusResult>\n    <Status>GREEN</Status>\n    <Timestamp>2017-06-14T16:39:12.765Z</Timestamp>\n  </GetServiceStatusResult>\n  <ResponseMetadata>\n    <RequestId>affdec68-05d2-4bc5-a8a4-bb40f307dd6b</RequestId>\n  </ResponseMetadata>\n</
+GetServiceStatusResponse>\n'
+>>> service_status.parsed
+{'value': '\n    ', 'Status': {'value': 'GREEN'}, 'Timestamp': {'value': '2017-06-14T16:39:12.765Z'}}
+>>> service_status.response
+<Response [200]>
+```
 
-# Contribute
+# Development
+All dependencies for working on `mws` are in `requirements.txt` and `docs/requirements.txt`.
 
-If you like the project, please, contact me at commonzenpython@gmail.com (gtalk and email) and help me improve it.
+## Tests
+Tests are run with pytest. We test against Python 2.7 and supported Python 3.x versions with Travis.
+
+## Documentation
+Docs are built using Sphinx. Change into the `docs/` directory and install any dependencies from the `requirements.txt` there.
+
+To build HTML documentation, run:
+```
+make html
+```
+The output HTML documentation will be in `docs/build/`.
+
+To run a live reloading server serving the HTML documentation (on port 8000 by default):
+```
+make livehtml
+```
+
+## Contributing
+Please make pull requests to `develop`. Code coverage isn't necessary but encouraged where possible (especially for anything which might behave differently between Python 2/3).

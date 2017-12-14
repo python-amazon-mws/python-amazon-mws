@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from .mws import MWS
 
 
@@ -106,7 +109,7 @@ class OffAmazonPayments(MWS):
         )
 
     def get_billing_agreement_details(self, order_ref,
-            address_consent_token):
+                                      address_consent_token):
         return self.make_request(
             extra_data=dict(
                 Action="GetBillingAgreementDetails",
@@ -116,7 +119,7 @@ class OffAmazonPayments(MWS):
         )
 
     def get_order_reference_details(self, order_ref,
-            address_consent_token=""):
+                                    address_consent_token=""):
         kwargs = {}
         if address_consent_token:
             kwargs['AddressConsentToken'] = address_consent_token
@@ -130,7 +133,7 @@ class OffAmazonPayments(MWS):
         )
 
     def set_order_reference_details(self, order_ref, order_total,
-            store_name, order_id=None, note=None, currency="USD"):
+                                    store_name, order_id=None, note=None, currency="USD"):
         params = {
             "OrderReferenceAttributes.OrderTotal.Amount": str(order_total),
             "OrderReferenceAttributes.OrderTotal.CurrencyCode": currency,
@@ -171,4 +174,3 @@ class OffAmazonPayments(MWS):
                 AmazonOrderReferenceId=order_ref
             )
         )
-

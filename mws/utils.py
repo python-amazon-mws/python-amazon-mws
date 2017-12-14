@@ -6,9 +6,10 @@ Borrowed from https://github.com/timotheus/ebaysdk-python
 
 @author: pierre
 """
+from __future__ import absolute_import
 
-import xml.etree.ElementTree as ET
 import re
+import xml.etree.ElementTree as ET
 
 
 class object_dict(dict):
@@ -61,9 +62,9 @@ class xml2dict(object):
         if node.text:
             node_tree.value = node.text
         for (k, v) in node.attrib.items():
-            k, v = self._namespace_split(k, object_dict({'value':v}))
+            k, v = self._namespace_split(k, object_dict({'value': v}))
             node_tree[k] = v
-        #Save childrens
+        # Save childrens
         for child in node.getchildren():
             tag, tree = self._namespace_split(child.tag,
                                               self._parse_node(child))
