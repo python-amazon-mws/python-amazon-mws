@@ -121,7 +121,6 @@ class DataWrapper(object):
 
 class MWS(object):
     """ Base Amazon API class """
-    # test
 
     # This is used to post/get to the different uris used by amazon per api
     # ie. /Orders/2011-01-01
