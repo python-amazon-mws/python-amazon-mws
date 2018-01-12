@@ -102,3 +102,98 @@ class XML2Dict(object):
         text = ET.fromstring(str_)
         root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
         return ObjectDict({root_tag: root_tree})
+
+
+def _enumerate_param(param, values):
+    """
+    Builds a dictionary of an enumerated parameter, using the param string and some values.
+    If values is not a list, tuple, or set, it will be coerced to a list
+    with a single item.
+
+    Example:
+        _enumerate_param('MarketplaceIdList.Id', (123, 345, 4343))
+    Returns:
+        {
+            MarketplaceIdList.Id.1: 123,
+            MarketplaceIdList.Id.2: 345,
+            MarketplaceIdList.Id.3: 4343
+        }
+    """
+    if not values:
+        # Shortcut for empty values
+        return {}
+    if not isinstance(values, (list, tuple, set)):
+        # Coerces a single value to a list before continuing.
+        values = [values,]
+    if not param.endswith('.'):
+        # Ensure this enumerated param ends in '.'
+        param += '.'
+    # Return final output: dict comprehension of the enumerated param and values.
+    return {
+        '{}{}'.format(param, idx+1): val
+        for idx, val in enumerate(values)
+    }
+
+
+def enumerate_params(params=None):
+    """
+
+    For each param and values, runs _enumerate_param,
+    returning a flat dict of all results
+    """
+    if params is None or not isinstance(params, dict):
+        return {}
+    params_output = {}
+    for param, values in params.items():
+        params_output.update(_enumerate_param(param, values))
+    return params_output
+
+
+def enumerate_keyed_param(param, values):
+    """
+    Given a param string and a dict of values, returns a flat dict of keyed, enumerated params.
+    Each dict in the values list must pertain to a single item and its data points.
+
+    Example:
+        param = "InboundShipmentPlanRequestItems.member"
+        values = [
+            {'SellerSKU': 'Football2415',
+            'Quantity': 3},
+            {'SellerSKU': 'TeeballBall3251',
+            'Quantity': 5},
+            ...
+        ]
+
+    Returns:
+        {
+            'InboundShipmentPlanRequestItems.member.1.SellerSKU': 'Football2415',
+            'InboundShipmentPlanRequestItems.member.1.Quantity': 3,
+            'InboundShipmentPlanRequestItems.member.2.SellerSKU': 'TeeballBall3251',
+            'InboundShipmentPlanRequestItems.member.2.Quantity': 5,
+            ...
+        }
+    """
+    if not values:
+        # Shortcut for empty values
+        return {}
+    if not param.endswith('.'):
+        # Ensure the enumerated param ends in '.'
+        param += '.'
+    if not isinstance(values, list) and not isinstance(values, tuple):
+        # If it's a single value, convert it to a list first
+        values = [values,]
+    if not isinstance(values[0], dict):
+        # Value is not a dict: can't work on it here.
+        raise ValueError((
+            "Values must be in the form of either a list or "
+            "tuple of dictionaries."
+        ))
+    params = {}
+    for idx, val_dict in enumerate(values):
+        # Build the final output.
+        params.update({
+            '{param}{idx}.{key}'.format(param=param, idx=idx+1, key=k): v
+            for k, v in val_dict.items()
+        })
+    return params
+
