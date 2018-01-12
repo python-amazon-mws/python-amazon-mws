@@ -439,7 +439,8 @@ class Reports(MWS):
 
     @utils.next_token_action('GetReportRequestList')
     def get_report_request_list(self, requestids=(), types=(), processingstatuses=(),
-                                max_count=None, fromdate=None, todate=None, next_token=None):  # pylint: disable=unused-argument
+                                max_count=None, fromdate=None, todate=None, next_token=None):  \
+                                # pylint: disable=unused-argument
         data = dict(Action='GetReportRequestList',
                     MaxCount=max_count,
                     RequestedFromDate=fromdate,
