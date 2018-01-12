@@ -428,7 +428,8 @@ class Reports(MWS):
         )
         return self.get_report_list(next_token=token)
 
-    def get_report_request_count(self, report_types=(), processingstatuses=(), fromdate=None, todate=None):
+    def get_report_request_count(self, report_types=(), processingstatuses=(),
+                                 fromdate=None, todate=None):
         data = dict(Action='GetReportRequestCount',
                     RequestedFromDate=fromdate,
                     RequestedToDate=todate)
