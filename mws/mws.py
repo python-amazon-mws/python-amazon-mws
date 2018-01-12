@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+from time import gmtime, strftime
 import base64
 import datetime
 import hashlib
 import hmac
 import re
-from time import gmtime, strftime
 
 from requests import request
 from requests.exceptions import HTTPError
@@ -63,26 +63,26 @@ class MWSError(Exception):
 
 
 def calc_md5(string):
-    """Calculates the MD5 encryption for the given string
     """
-    md = hashlib.md5()
-    md.update(string)
-    return base64.b64encode(md.digest()).strip(b'\n')
-
-
-def remove_empty(d):
-    """Helper function that removes all keys from a dictionary (d), that have an empty value.
-
-    Args:
-        d (dict)
-
-    Return:
-        dict
+    Calculates the MD5 encryption for the given string
     """
-    return {k: v for k, v in d.items() if v}
+    md5_hash = hashlib.md5()
+    md5_hash.update(string)
+    return base64.b64encode(md5_hash.digest()).strip(b'\n')
+
+
+def remove_empty(dict_):
+    """
+    Returns dict_ with all empty values removed.
+    """
+    return {k: v for k, v in dict_.items() if v}
 
 
 def remove_namespace(xml):
+    """
+    Strips the namespace from XML document contained in a string.
+    Returns the stripped string.
+    """
     regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
     return regex.sub('', xml)
 
@@ -91,15 +91,13 @@ class DictWrapper(object):
     def __init__(self, xml, rootkey=None):
         self.original = xml
         self._rootkey = rootkey
-        self._mydict = utils.xml2dict().fromstring(remove_namespace(xml))
-        self._response_dict = self._mydict.get(list(self._mydict.keys())[0],
-                                               self._mydict)
+        self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
+        self._response_dict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
 
     @property
     def parsed(self):
         if self._rootkey:
             return self._response_dict.get(self._rootkey)
-        else:
             return self._response_dict
 
 
@@ -120,7 +118,9 @@ class DataWrapper(object):
 
 
 class MWS(object):
-    """ Base Amazon API class """
+    """
+    Base Amazon API class
+    """
 
     # This is used to post/get to the different uris used by amazon per api
     # ie. /Orders/2011-01-01
@@ -132,9 +132,9 @@ class MWS(object):
 
     # There seem to be some xml namespace issues. therefore every api subclass
     # is recommended to define its namespace, so that it can be referenced
-    # like so AmazonAPISubclass.NS.
+    # like so AmazonAPISubclass.NAMESPACE.
     # For more information see http://stackoverflow.com/a/8719461/389453
-    NS = ''
+    NAMESPACE = ''
 
     # Some APIs are available only to either a "Merchant" or "Seller"
     # the type of account needs to be sent in every call to the amazon MWS.
@@ -146,7 +146,9 @@ class MWS(object):
     # Which is the name of the parameter for that specific account type.
     ACCOUNT_TYPE = "SellerId"
 
-    def __init__(self, access_key, secret_key, account_id, region='US', domain='', uri="", version="", auth_token=""):
+    def __init__(self, access_key, secret_key, account_id,
+                 region='US', domain='', uri="",
+                 version="", auth_token=""):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
@@ -166,7 +168,8 @@ class MWS(object):
             raise MWSError(error_msg)
 
     def make_request(self, extra_data, method="GET", **kwargs):
-        """Make request to Amazon MWS API with these parameters
+        """
+        Make request to Amazon MWS API with these parameters
         """
 
         # Remove all keys with an empty value because
@@ -238,7 +241,8 @@ class MWS(object):
         return self.make_request(extra_data=dict(Action='GetServiceStatus'))
 
     def calc_signature(self, method, request_description):
-        """Calculate MWS signature to interface with Amazon
+        """
+        Calculate MWS signature to interface with Amazon
 
         Args:
             method (str)
@@ -281,8 +285,9 @@ class MWS(object):
 
 
 class Feeds(MWS):
-    """ Amazon MWS Feeds API """
-
+    """
+    Amazon MWS Feeds API
+    """
     ACCOUNT_TYPE = "Merchant"
 
     def submit_feed(self, feed, feed_type, marketplaceids=None,
@@ -341,8 +346,9 @@ class Feeds(MWS):
 
 
 class Reports(MWS):
-    """ Amazon MWS Reports API """
-
+    """
+    Amazon MWS Reports API
+    """
     ACCOUNT_TYPE = "Merchant"
 
     # * REPORTS * #
@@ -423,7 +429,7 @@ class Orders(MWS):
 
     URI = "/Orders/2013-09-01"
     VERSION = "2013-09-01"
-    NS = '{https://mws.amazonservices.com/Orders/2013-09-01}'
+    NAMESPACE = '{https://mws.amazonservices.com/Orders/2013-09-01}'
 
     def list_orders(self, marketplaceids, created_after=None, created_before=None, lastupdatedafter=None,
                     lastupdatedbefore=None, orderstatus=(), fulfillment_channels=(),
@@ -463,14 +469,17 @@ class Orders(MWS):
 
 
 class Products(MWS):
-    """ Amazon MWS Products API """
+    """
+    Amazon MWS Products API
+    """
 
     URI = '/Products/2011-10-01'
     VERSION = '2011-10-01'
-    NS = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
+    NAMESPACE = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
 
     def list_matching_products(self, marketplaceid, query, contextid=None):
-        """ Returns a list of products and their attributes, ordered by
+        """
+        Returns a list of products and their attributes, ordered by
             relevancy, based on a search query that you specify.
             Your search query can be a phrase that describes the product
             or it can be a product identifier such as a UPC, EAN, ISBN, or JAN.
@@ -482,15 +491,17 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_matching_product(self, marketplaceid, asins):
-        """ Returns a list of products and their attributes, based on a list of
+        """
+        Returns a list of products and their attributes, based on a list of
             ASIN values that you specify.
         """
         data = dict(Action='GetMatchingProduct', MarketplaceId=marketplaceid)
         data.update(self.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
-    def get_matching_product_for_id(self, marketplaceid, type, ids):
-        """ Returns a list of products and their attributes, based on a list of
+    def get_matching_product_for_id(self, marketplaceid, type_, ids):
+        """
+        Returns a list of products and their attributes, based on a list of
             product identifier values (ASIN, SellerSKU, UPC, EAN, ISBN, GCID  and JAN)
             The identifier type is case sensitive.
             Added in Fourth Release, API version 2011-10-01
@@ -502,7 +513,8 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_competitive_pricing_for_sku(self, marketplaceid, skus):
-        """ Returns the current competitive pricing of a product,
+        """
+        Returns the current competitive pricing of a product,
             based on the SellerSKU and MarketplaceId that you specify.
         """
         data = dict(Action='GetCompetitivePricingForSKU', MarketplaceId=marketplaceid)
@@ -510,7 +522,8 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_competitive_pricing_for_asin(self, marketplaceid, asins):
-        """ Returns the current competitive pricing of a product,
+        """
+        Returns the current competitive pricing of a product,
             based on the ASIN and MarketplaceId that you specify.
         """
         data = dict(Action='GetCompetitivePricingForASIN', MarketplaceId=marketplaceid)
@@ -577,19 +590,23 @@ class Products(MWS):
 
 
 class Sellers(MWS):
-    """ Amazon MWS Sellers API """
+    """
+    Amazon MWS Sellers API
+    """
 
     URI = '/Sellers/2011-07-01'
     VERSION = '2011-07-01'
-    NS = '{http://mws.amazonservices.com/schema/Sellers/2011-07-01}'
+    NAMESPACE = '{http://mws.amazonservices.com/schema/Sellers/2011-07-01}'
 
     def list_marketplace_participations(self):
         """
             Returns a list of marketplaces a seller can participate in and
             a list of participations that include seller-specific information in that marketplace.
-            The operation returns only those marketplaces where the seller's account is in an active state.
-        """
+        The operation returns only those marketplaces where the seller's account is
+        in an active state.
 
+        Run with `next_token` kwarg to call related "ByNextToken" action.
+        """
         data = dict(Action='ListMarketplaceParticipations')
         return self.make_request(data)
 
@@ -606,18 +623,24 @@ class Sellers(MWS):
 
 
 class InboundShipments(MWS):
+    """
+    Amazon MWS FulfillmentInboundShipment API
+    """
     URI = "/FulfillmentInboundShipment/2010-10-01"
     VERSION = '2010-10-01'
+    NAMESPACE = '{http://mws.amazonaws.com/FulfillmentInboundShipment/2010-10-01/}'
 
     # To be completed
 
 
 class Inventory(MWS):
-    """ Amazon MWS Inventory Fulfillment API """
+    """
+    Amazon MWS Inventory Fulfillment API
+    """
 
     URI = '/FulfillmentInventory/2010-10-01'
     VERSION = '2010-10-01'
-    NS = "{http://mws.amazonaws.com/FulfillmentInventory/2010-10-01}"
+    NAMESPACE = "{http://mws.amazonaws.com/FulfillmentInventory/2010-10-01}"
 
     def list_inventory_supply(self, skus=(), datetime=None, response_group='Basic'):
         """ Returns information on available inventory """
@@ -635,25 +658,27 @@ class Inventory(MWS):
 
 
 class OutboundShipments(MWS):
+    """
+    Amazon MWS Fulfillment Outbound Shipments API
+    """
     URI = "/FulfillmentOutboundShipment/2010-10-01"
     VERSION = "2010-10-01"
     # To be completed
 
 
 class Recommendations(MWS):
-
-    """ Amazon MWS Recommendations API """
-
+    """
+    Amazon MWS Recommendations API
+    """
     URI = '/Recommendations/2013-04-01'
     VERSION = '2013-04-01'
-    NS = "{https://mws.amazonservices.com/Recommendations/2013-04-01}"
+    NAMESPACE = "{https://mws.amazonservices.com/Recommendations/2013-04-01}"
 
     def get_last_updated_time_for_recommendations(self, marketplaceid):
         """
         Checks whether there are active recommendations for each category for the given marketplace, and if there are,
         returns the time when recommendations were last updated for each category.
         """
-
         data = dict(Action='GetLastUpdatedTimeForRecommendations',
                     MarketplaceId=marketplaceid)
         return self.make_request(data, "POST")
@@ -662,7 +687,6 @@ class Recommendations(MWS):
         """
         Returns your active recommendations for a specific category or for all categories for a specific marketplace.
         """
-
         data = dict(Action="ListRecommendations",
                     MarketplaceId=marketplaceid,
                     RecommendationCategory=recommendationcategory)
@@ -672,7 +696,6 @@ class Recommendations(MWS):
         """
         Returns the next page of recommendations using the NextToken parameter.
         """
-
         data = dict(Action="ListRecommendationsByNextToken",
                     NextToken=token)
         return self.make_request(data, "POST")
