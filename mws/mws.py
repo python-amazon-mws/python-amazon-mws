@@ -137,6 +137,12 @@ class MWS(object):
     # For more information see http://stackoverflow.com/a/8719461/389453
     NAMESPACE = ''
 
+    # In here we name each of the operations available to the subclass
+    # that have 'ByNextToken' operations associated with them.
+    # If the Operation is not listed here, self.action_by_next_token
+    # will raise an error.
+    NEXT_TOKEN_OPERATIONS = []
+
     # Some APIs are available only to either a "Merchant" or "Seller"
     # the type of account needs to be sent in every call to the amazon MWS.
     # This constant defines the exact name of the parameter Amazon expects
@@ -241,6 +247,27 @@ class MWS(object):
 
         return self.make_request(extra_data=dict(Action='GetServiceStatus'))
 
+    def action_by_next_token(self, action, next_token):
+        """
+        Run a '...ByNextToken' action for the given action.
+        If the action is not listed in self.NEXT_TOKEN_OPERATIONS, MWSError is raised.
+        Action is expected NOT to include 'ByNextToken'
+        at the end of its name for this call: function will add that by itself.
+        """
+        if action not in self.NEXT_TOKEN_OPERATIONS:
+            raise MWSError((
+                "{} action not listed in this API's NEXT_TOKEN_OPERATIONS. "
+                "Please refer to documentation."
+            ).format(action))
+
+        action = '{}ByNextToken'.format(action)
+
+        data = dict(
+            Action=action,
+            NextToken=next_token
+        )
+        return self.make_request(data, method="POST")
+
     def calc_signature(self, method, request_description):
         """
         Calculate MWS signature to interface with Amazon
@@ -259,7 +286,7 @@ class MWS(object):
 
     def get_timestamp(self):
         """
-            Returns the current timestamp in proper format.
+        Returns the current timestamp in proper format.
         """
         return strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
 
@@ -282,6 +309,10 @@ class Feeds(MWS):
     """
     ACCOUNT_TYPE = "Merchant"
 
+    NEXT_TOKEN_OPERATIONS = [
+        'GetFeedSubmissionList',
+    ]
+
     def submit_feed(self, feed, feed_type, marketplaceids=None,
                     content_type="text/xml", purge='false'):
         """
@@ -296,8 +327,9 @@ class Feeds(MWS):
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type})
 
-    def get_feed_submission_list(self, feedids=None, max_count=None, feedtypes=None,
-                                 processingstatuses=None, fromdate=None, todate=None):
+    @utils.next_token_action('GetFeedSubmissionList')
+    def get_feed_submission_list(self, feedids=None, max_count=None, feedtypes=None, # pylint: disable=unused-argument
+                                 processingstatuses=None, fromdate=None, todate=None, **kwargs):
         """
         Returns a list of all feed submissions submitted in the previous 90 days.
         That match the query parameters.
@@ -313,8 +345,17 @@ class Feeds(MWS):
         return self.make_request(data)
 
     def get_submission_list_by_next_token(self, token):
-        data = dict(Action='GetFeedSubmissionListByNextToken', NextToken=token)
-        return self.make_request(data)
+        """
+        Deprecated.
+        Use `get_feed_submission_list(next_token=token)` instead.
+        """
+        # data = dict(Action='GetFeedSubmissionListByNextToken', NextToken=token)
+        # return self.make_request(data)
+        warnings.warn(
+            "Use `get_feed_submission_list(next_token=token)` instead.",
+            DeprecationWarning,
+        )
+        return self.get_feed_submission_list(next_token=token)
 
     def get_feed_submission_count(self, feedtypes=None, processingstatuses=None, fromdate=None, todate=None):
         data = dict(Action='GetFeedSubmissionCount',
@@ -342,6 +383,10 @@ class Reports(MWS):
     Amazon MWS Reports API
     """
     ACCOUNT_TYPE = "Merchant"
+    NEXT_TOKEN_OPERATIONS = [
+        'GetReportRequestList',
+        'GetReportScheduleList',
+    ]
 
     # * REPORTS * #
 
@@ -357,8 +402,9 @@ class Reports(MWS):
         data.update(utils.enumerate_param('ReportTypeList.Type.', report_types))
         return self.make_request(data)
 
-    def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None,
-                        fromdate=None, todate=None):
+    @utils.next_token_action('GetReportList')
+    def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None, # pylint: disable=unused-argument
+                        fromdate=None, todate=None, **kwargs):
         data = dict(Action='GetReportList',
                     Acknowledged=acknowledged,
                     AvailableFromDate=fromdate,
@@ -369,8 +415,17 @@ class Reports(MWS):
         return self.make_request(data)
 
     def get_report_list_by_next_token(self, token):
-        data = dict(Action='GetReportListByNextToken', NextToken=token)
-        return self.make_request(data)
+        """
+        Deprecated.
+        Use `get_report_list(next_token=token)` instead.
+        """
+        # data = dict(Action='GetReportListByNextToken', NextToken=token)
+        # return self.make_request(data)
+        warnings.warn(
+            "Use `get_report_list(next_token=token)` instead.",
+            DeprecationWarning,
+        )
+        return self.get_report_list(next_token=token)
 
     def get_report_request_count(self, report_types=(), processingstatuses=(), fromdate=None, todate=None):
         data = dict(Action='GetReportRequestCount',
@@ -380,8 +435,9 @@ class Reports(MWS):
         data.update(utils.enumerate_param('ReportProcessingStatusList.Status.', processingstatuses))
         return self.make_request(data)
 
-    def get_report_request_list(self, requestids=(), types=(), processingstatuses=(),
-                                max_count=None, fromdate=None, todate=None):
+    @utils.next_token_action('GetReportRequestList')
+    def get_report_request_list(self, requestids=(), types=(), processingstatuses=(), # pylint: disable=unused-argument
+                                max_count=None, fromdate=None, todate=None, **kwargs):
         data = dict(Action='GetReportRequestList',
                     MaxCount=max_count,
                     RequestedFromDate=fromdate,
@@ -392,8 +448,17 @@ class Reports(MWS):
         return self.make_request(data)
 
     def get_report_request_list_by_next_token(self, token):
-        data = dict(Action='GetReportRequestListByNextToken', NextToken=token)
-        return self.make_request(data)
+        """
+        Deprecated.
+        Use `get_report_request_list(next_token=token)` instead.
+        """
+        # data = dict(Action='GetReportRequestListByNextToken', NextToken=token)
+        # return self.make_request(data)
+        warnings.warn(
+            "Use `get_report_request_list(next_token=token)` instead.",
+            DeprecationWarning,
+        )
+        return self.get_report_request_list(next_token=token)
 
     def request_report(self, report_type, start_date=None, end_date=None, marketplaceids=()):
         data = dict(Action='RequestReport',
@@ -424,6 +489,10 @@ class Orders(MWS):
     URI = "/Orders/2013-09-01"
     VERSION = "2013-09-01"
     NAMESPACE = '{https://mws.amazonservices.com/Orders/2013-09-01}'
+    NEXT_TOKEN_OPERATIONS = [
+        'ListOrders',
+        'ListOrderItems',
+    ]
 
     def list_orders(self, marketplaceids, created_after=None, created_before=None, lastupdatedafter=None,
                     lastupdatedbefore=None, orderstatus=(), fulfillment_channels=(),
@@ -470,6 +539,7 @@ class Products(MWS):
     URI = '/Products/2011-10-01'
     VERSION = '2011-10-01'
     NAMESPACE = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
+    # NEXT_TOKEN_OPERATIONS = []
 
     def list_matching_products(self, marketplaceid, query, contextid=None):
         """
@@ -592,27 +662,35 @@ class Sellers(MWS):
     URI = '/Sellers/2011-07-01'
     VERSION = '2011-07-01'
     NAMESPACE = '{http://mws.amazonservices.com/schema/Sellers/2011-07-01}'
+    NEXT_TOKEN_OPERATIONS = [
+        'ListMarketplaceParticipations',
+    ]
 
-    def list_marketplace_participations(self):
+    @utils.next_token_action('ListMarketplaceParticipations')
+    def list_marketplace_participations(self, **kwargs): # pylint: disable=unused-argument
         """
-            Returns a list of marketplaces a seller can participate in and
-            a list of participations that include seller-specific information in that marketplace.
+        Returns a list of marketplaces a seller can participate in and
+        a list of participations that include seller-specific information in that marketplace.
         The operation returns only those marketplaces where the seller's account is
         in an active state.
+
+        Run with `next_token` kwarg to call related "ByNextToken" action.
         """
         data = dict(Action='ListMarketplaceParticipations')
         return self.make_request(data)
 
     def list_marketplace_participations_by_next_token(self, token):
         """
-            Takes a "NextToken" and returns the same information as "list_marketplace_participations".
-            Based on the "NextToken".
+        Deprecated.
+        Use `list_marketplace_participations(next_token=token)` instead.
         """
-        data = dict(Action='ListMarketplaceParticipations', NextToken=token)
-        return self.make_request(data)
-
-
-# * Fulfillment APIs * #
+        # data = dict(Action='ListMarketplaceParticipations', NextToken=token)
+        # return self.make_request(data)
+        warnings.warn(
+            "Use `list_marketplace_participations(next_token=token)` instead.",
+            DeprecationWarning,
+        )
+        return self.list_marketplace_participations(next_token=token)
 
 
 class InboundShipments(MWS):
@@ -622,8 +700,428 @@ class InboundShipments(MWS):
     URI = "/FulfillmentInboundShipment/2010-10-01"
     VERSION = '2010-10-01'
     NAMESPACE = '{http://mws.amazonaws.com/FulfillmentInboundShipment/2010-10-01/}'
+    NEXT_TOKEN_OPERATIONS = [
+        'ListInboundShipments',
+        'ListInboundShipmentItems',
+    ]
+    SHIPMENT_STATUSES = ['WORKING', 'SHIPPED', 'CANCELLED']
+    DEFAULT_SHIP_STATUS = 'WORKING'
+    LABEL_PREFERENCES = ['SELLER_LABEL',
+                         'AMAZON_LABEL_ONLY',
+                         'AMAZON_LABEL_PREFERRED']
 
-    # To be completed
+    def __init__(self, *args, **kwargs):
+        """
+        Allow the addition of a from_address dict during object initialization.
+        kwarg "from_address" is caught and popped here,
+        then calls set_ship_from_address.
+        If empty or left out, empty dict is set by default.
+        """
+        self.from_address = {}
+        addr = kwargs.pop('from_address', None)
+        if addr is not None:
+            self.from_address = self.set_ship_from_address(addr)
+        super().__init__(*args, **kwargs)
+
+    def set_ship_from_address(self, address):
+        """
+        Verifies the structure of an address dictionary.
+        Once verified against the KEY_CONFIG, saves a parsed version
+        of that dictionary, ready to send to requests.
+        """
+        # Clear existing
+        self.from_address = None
+
+        if not address:
+            raise MWSError('Missing required `address` dict.')
+        if not isinstance(address, dict):
+            raise MWSError("`address` must be a dict")
+
+        key_config = [
+            # Sets composed of:
+            # (input_key, output_key, is_required, default_value)
+            ('name', 'Name', True, None),
+            ('address_1', 'AddressLine1', True, None),
+            ('address_2', 'AddressLine2', False, None),
+            ('city', 'City', True, None),
+            ('district_or_county', 'DistrictOrCounty', False, None),
+            ('state_or_province', 'StateOrProvinceCode', False, None),
+            ('postal_code', 'PostalCode', False, None),
+            ('country', 'CountryCode', False, 'US'),
+        ]
+
+        # Check if all REQUIRED keys in address exist:
+        if not all(k in address for k in
+                   [c[0] for c in key_config if c[2]]):
+            # Required parts of address missing
+            raise MWSError((
+                "`address` dict missing required keys: {required}."
+                "\n- Optional keys: {optional}."
+            ).format(
+                required=", ".join([c[0] for c in key_config if c[2]]),
+                optional=", ".join([c[0] for c in key_config if not c[2]]),
+            ))
+
+        # Passed tests. Assign values
+        addr = {'ShipFromAddress.{}'.format(c[1]): address.get(c[0], c[3])
+                for c in key_config}
+        self.from_address = addr
+
+    def _parse_item_args(self, item_args, operation):
+        if not item_args:
+            raise MWSError("One or more `item` dict arguments required.")
+
+        # KEY_CONFIG to contain sets composed of:
+        # (input_key, output_key, is_required, default_value)
+        if operation == 'CreateInboundShipmentPlan':
+            key_config = [
+                ('sku', 'SellerSKU', True, None),
+                ('quantity', 'Quantity', True, None),
+                ('quantity_in_case', 'QuantityInCase', False, None),
+                ('asin', 'ASIN', False, None),
+                ('condition', 'Condition', False, None),
+            ]
+            quantity_key = 'Quantity'
+        else:
+            key_config = [
+                ('sku', 'SellerSKU', True, None),
+                ('quantity', 'QuantityShipped', True, None),
+                ('quantity_in_case', 'QuantityInCase', False, None),
+            ]
+            quantity_key = 'QuantityShipped'
+
+        items = []
+        for item in item_args:
+            if not isinstance(item, dict):
+                raise MWSError("`item` argument must be a dict.")
+            if not all(k in item for k in
+                       [c[0] for c in key_config if c[2]]):
+                # Required keys of an item line missing
+                raise MWSError((
+                    "`item` dict missing required keys: {required}."
+                    "\n- Optional keys: {optional}."
+                ).format(
+                    required=', '.join([c[0] for c in key_config if c[2]]),
+                    optional=', '.join([c[0] for c in key_config if not c[2]]),
+                ))
+
+            quantity = item.get('quantity')
+            if quantity is not None:
+                quantity = str(quantity)
+
+            quantity_in_case = item.get('quantity_in_case')
+            if quantity_in_case is not None:
+                quantity_in_case = str(quantity_in_case)
+
+            item_dict = {
+                'SellerSKU': item.get('sku'),
+                quantity_key: quantity,
+                'QuantityInCase': quantity_in_case,
+            }
+            item_dict.update({
+                c[1]: item.get(c[0], c[3])
+                for c in key_config
+                if c[0] not in ['sku', 'quantity', 'quantity_in_case']
+            })
+            items.append(item_dict)
+
+        return items
+
+    def create_inbound_shipment_plan(self, items, country_code='US',
+                                     subdivision_code='', label_preference=''):
+        """
+        Returns one or more inbound shipment plans, which provide the
+        information you need to create inbound shipments.
+
+        At least one dictionary must be passed as `args`. Each dictionary
+        should contain the following keys:
+          REQUIRED: 'sku', 'quantity'
+          OPTIONAL: 'asin', 'condition', 'quantity_in_case'
+
+        'from_address' is required. Call 'set_ship_from_address' first before
+        using this operation.
+        """
+        if not items:
+            raise MWSError("One or more `item` dict arguments required.")
+        subdivision_code = subdivision_code or None
+        label_preference = label_preference or None
+
+        items = self._parse_item_args(items, 'CreateInboundShipmentPlan')
+        if not self.from_address:
+            raise MWSError((
+                "ShipFromAddress has not been set. "
+                "Please use `.set_ship_from_address()` first."
+            ))
+
+        data = dict(
+            Action='CreateInboundShipmentPlan',
+            ShipToCountryCode=country_code,
+            ShipToCountrySubdivisionCode=subdivision_code,
+            LabelPrepPreference=label_preference,
+        )
+        data.update(self.from_address)
+        data.update(utils.enumerate_keyed_param(
+            'InboundShipmentPlanRequestItems.member', items,
+        ))
+        return self.make_request(data, method="POST")
+
+    def create_inbound_shipment(self, shipment_id, shipment_name,
+                                destination, items, shipment_status='',
+                                label_preference='', case_required=False,
+                                box_contents_source=None):
+        """
+        Creates an inbound shipment to Amazon's fulfillment network.
+
+        At least one dictionary must be passed as `items`. Each dictionary
+        should contain the following keys:
+          REQUIRED: 'sku', 'quantity'
+          OPTIONAL: 'quantity_in_case'
+
+        'from_address' is required. Call 'set_ship_from_address' first before
+        using this operation.
+        """
+        assert isinstance(shipment_id, str), "`shipment_id` must be a string."
+        assert isinstance(shipment_name, str), "`shipment_name` must be a string."
+        assert isinstance(destination, str), "`destination` must be a string."
+
+        if not items:
+            raise MWSError("One or more `item` dict arguments required.")
+
+        items = self._parse_item_args(items, 'CreateInboundShipment')
+
+        if not self.from_address:
+            raise MWSError((
+                "ShipFromAddress has not been set. "
+                "Please use `.set_ship_from_address()` first."
+            ))
+        from_address = self.from_address
+        from_address = {'InboundShipmentHeader.{}'.format(k): v
+                        for k, v in from_address.items()}
+
+        if shipment_status not in self.SHIPMENT_STATUSES:
+            # Status is required for `create` request.
+            # Set it to default.
+            shipment_status = self.DEFAULT_SHIP_STATUS
+
+        if label_preference not in self.LABEL_PREFERENCES:
+            # Label preference not required. Set to None
+            label_preference = None
+
+        # Explict True/False for case_required,
+        # written as the strings MWS expects.
+        case_required = 'true' if case_required else 'false'
+
+        data = {
+            'Action': 'CreateInboundShipment',
+            'ShipmentId': shipment_id,
+            'InboundShipmentHeader.ShipmentName': shipment_name,
+            'InboundShipmentHeader.DestinationFulfillmentCenterId': destination,
+            'InboundShipmentHeader.LabelPrepPreference': label_preference,
+            'InboundShipmentHeader.AreCasesRequired': case_required,
+            'InboundShipmentHeader.ShipmentStatus': shipment_status,
+            'InboundShipmentHeader.IntendedBoxContentsSource': box_contents_source,
+        }
+        data.update(from_address)
+        data.update(utils.enumerate_keyed_param(
+            'InboundShipmentItems.member', items,
+        ))
+        return self.make_request(data, method="POST")
+
+    def update_inbound_shipment(self, shipment_id, shipment_name,
+                                destination, items=None, shipment_status='',
+                                label_preference='', case_required=False,
+                                box_contents_source=None):
+        """
+        Updates an existing inbound shipment in Amazon FBA.
+        'from_address' is required. Call 'set_ship_from_address' first before
+        using this operation.
+        """
+        # Assert these are strings, error out if not.
+        assert isinstance(shipment_id, str), "`shipment_id` must be a string."
+        assert isinstance(shipment_name, str), "`shipment_name` must be a string."
+        assert isinstance(destination, str), "`destination` must be a string."
+
+        # Parse item args
+        if items:
+            items = self._parse_item_args(items, 'UpdateInboundShipment')
+        else:
+            items = None
+
+        # Raise exception if no from_address has been set prior to calling
+        if not self.from_address:
+            raise MWSError((
+                "ShipFromAddress has not been set. "
+                "Please use `.set_ship_from_address()` first."
+            ))
+        # Assemble the from_address using operation-specific header
+        from_address = self.from_address
+        from_address = {'InboundShipmentHeader.{}'.format(k): v
+                        for k, v in from_address.items()}
+
+        if shipment_status not in self.SHIPMENT_STATUSES:
+            # Passed shipment status is an invalid choice.
+            # Remove it from this request by setting it to None.
+            shipment_status = None
+
+        if label_preference not in self.LABEL_PREFERENCES:
+            # Passed label preference is an invalid choice.
+            # Remove it from this request by setting it to None.
+            label_preference = None
+
+        case_required = 'true' if case_required else 'false'
+
+        data = {
+            'Action': 'UpdateInboundShipment',
+            'ShipmentId': shipment_id,
+            'InboundShipmentHeader.ShipmentName': shipment_name,
+            'InboundShipmentHeader.DestinationFulfillmentCenterId': destination,
+            'InboundShipmentHeader.LabelPrepPreference': label_preference,
+            'InboundShipmentHeader.AreCasesRequired': case_required,
+            'InboundShipmentHeader.ShipmentStatus': shipment_status,
+            'InboundShipmentHeader.IntendedBoxContentsSource': box_contents_source,
+        }
+        data.update(from_address)
+        if items:
+            # Update with an items paramater only if they exist.
+            data.update(utils.enumerate_keyed_param(
+                'InboundShipmentItems.member', items,
+            ))
+        return self.make_request(data, method="POST")
+
+    def get_prep_instructions_for_sku(self, skus=None, country_code=None):
+        """
+        Returns labeling requirements and item preparation instructions
+        to help you prepare items for an inbound shipment.
+        """
+        country_code = country_code or 'US'
+        skus = skus or []
+
+        # 'skus' should be a unique list, or there may be an error returned.
+        skus = utils.unique_list_order_preserved(skus)
+
+        data = dict(
+            Action='GetPrepInstructionsForSKU',
+            ShipToCountryCode=country_code,
+        )
+        data.update(utils.enumerate_params({
+            'SellerSKUList.ID.': skus,
+        }))
+        return self.make_request(data, method="POST")
+
+    def get_prep_instructions_for_asin(self, asins=None, country_code=None):
+        """
+        Returns item preparation instructions to help with
+        item sourcing decisions.
+        """
+        country_code = country_code or 'US'
+        asins = asins or []
+
+        # 'asins' should be a unique list, or there may be an error returned.
+        asins = utils.unique_list_order_preserved(asins)
+
+        data = dict(
+            Action='GetPrepInstructionsForASIN',
+            ShipToCountryCode=country_code,
+        )
+        data.update(utils.enumerate_params({
+            'ASINList.ID.': asins,
+        }))
+        return self.make_request(data, method="POST")
+
+    def get_package_labels(self, shipment_id, num_packages, page_type=None):
+        """
+        Returns PDF document data for printing package labels for
+        an inbound shipment.
+        """
+        data = dict(
+            Action='GetPackageLabels',
+            ShipmentId=shipment_id,
+            PageType=page_type,
+            NumberOfPackages=str(num_packages),
+        )
+        return self.make_request(data, method="POST")
+
+    def get_transport_content(self, shipment_id):
+        """
+        Returns current transportation information about an
+        inbound shipment.
+        """
+        data = dict(
+            Action='GetTransportContent',
+            ShipmentId=shipment_id
+        )
+        return self.make_request(data, method="POST")
+
+    def estimate_transport_request(self, shipment_id):
+        """
+        Requests an estimate of the shipping cost for an inbound shipment.
+        """
+        data = dict(
+            Action='EstimateTransportRequest',
+            ShipmentId=shipment_id,
+        )
+        return self.make_request(data, method="POST")
+
+    def void_transport_request(self, shipment_id):
+        """
+        Voids a previously-confirmed request to ship your inbound shipment
+        using an Amazon-partnered carrier.
+        """
+        data = dict(
+            Action='VoidTransportRequest',
+            ShipmentId=shipment_id
+        )
+        return self.make_request(data, method="POST")
+
+    def get_bill_of_lading(self, shipment_id):
+        """
+        Returns PDF document data for printing a bill of lading
+        for an inbound shipment.
+        """
+        data = dict(
+            Action='GetBillOfLading',
+            ShipmentId=shipment_id,
+        )
+        return self.make_request(data, "POST")
+
+    @utils.next_token_action('ListInboundShipments')
+    def list_inbound_shipments(self, shipment_ids=None, shipment_statuses=None,
+                               last_updated_after=None, last_updated_before=None,):
+        """
+        Returns list of shipments based on statuses, IDs, and/or
+        before/after datetimes.
+        """
+        last_updated_after = utils.dt_iso_or_none(last_updated_after)
+        last_updated_before = utils.dt_iso_or_none(last_updated_before)
+
+        data = dict(
+            Action='ListInboundShipments',
+            LastUpdatedAfter=last_updated_after,
+            LastUpdatedBefore=last_updated_before,
+        )
+        data.update(utils.enumerate_params({
+            'ShipmentStatusList.member.': shipment_statuses,
+            'ShipmentIdList.member.': shipment_ids,
+        }))
+        return self.make_request(data, method="POST")
+
+    @utils.next_token_action('ListInboundShipmentItems')
+    def list_inbound_shipment_items(self, shipment_id=None, last_updated_after=None,
+                                    last_updated_before=None,):
+        """
+        Returns list of items within inbound shipments and/or
+        before/after datetimes.
+        """
+        last_updated_after = utils.dt_iso_or_none(last_updated_after)
+        last_updated_before = utils.dt_iso_or_none(last_updated_before)
+
+        data = dict(
+            Action='ListInboundShipmentItems',
+            ShipmentId=shipment_id,
+            LastUpdatedAfter=last_updated_after,
+            LastUpdatedBefore=last_updated_before,
+        )
+        return self.make_request(data, method="POST")
 
 
 class Inventory(MWS):
@@ -634,8 +1132,13 @@ class Inventory(MWS):
     URI = '/FulfillmentInventory/2010-10-01'
     VERSION = '2010-10-01'
     NAMESPACE = "{http://mws.amazonaws.com/FulfillmentInventory/2010-10-01}"
+    NEXT_TOKEN_OPERATIONS = [
+        'ListInventorySupply',
+    ]
 
-    def list_inventory_supply(self, skus=(), datetime_=None, response_group='Basic'):
+
+    @utils.next_token_action('ListInventorySupply')
+    def list_inventory_supply(self, skus=(), datetime_=None, response_group='Basic', **kwargs): # pylint: disable=unused-argument
         """
         Returns information on available inventory
         """
@@ -648,8 +1151,17 @@ class Inventory(MWS):
         return self.make_request(data, "POST")
 
     def list_inventory_supply_by_next_token(self, token):
-        data = dict(Action='ListInventorySupplyByNextToken', NextToken=token)
-        return self.make_request(data, "POST")
+        """
+        Deprecated.
+        Use `list_inventory_supply(next_token=token)` instead.
+        """
+        # data = dict(Action='ListInventorySupplyByNextToken', NextToken=token)
+        # return self.make_request(data, "POST")
+        warnings.warn(
+            "Use `list_inventory_supply(next_token=token)` instead.",
+            DeprecationWarning,
+        )
+        return self.list_inventory_supply(next_token=token)
 
 
 class OutboundShipments(MWS):
@@ -658,6 +1170,9 @@ class OutboundShipments(MWS):
     """
     URI = "/FulfillmentOutboundShipment/2010-10-01"
     VERSION = "2010-10-01"
+    NEXT_TOKEN_OPERATIONS = [
+        'ListAllFulfillmentOrders',
+    ]
     # TODO: Complete this class section
 
 
@@ -668,6 +1183,7 @@ class Recommendations(MWS):
     URI = '/Recommendations/2013-04-01'
     VERSION = '2013-04-01'
     NAMESPACE = "{https://mws.amazonservices.com/Recommendations/2013-04-01}"
+    # NEXT_TOKEN_OPERATIONS = []
 
     def get_last_updated_time_for_recommendations(self, marketplaceid):
         """

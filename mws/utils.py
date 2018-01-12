@@ -7,8 +7,9 @@ Borrowed from https://github.com/timotheus/ebaysdk-python
 @author: pierre
 """
 from __future__ import absolute_import
-
+from functools import wraps
 import re
+import datetime
 import xml.etree.ElementTree as ET
 
 
@@ -197,3 +198,50 @@ def enumerate_keyed_param(param, values):
         })
     return params
 
+
+def unique_list_order_preserved(seq):
+    """
+    Returns a unique list of items from the sequence
+    while preserving original ordering.
+    The first occurence of an item is returned in the new sequence:
+    any subsequent occurrences of the same item are ignored.
+    """
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
+
+
+def dt_iso_or_none(dt_obj):
+    """
+    If dt_obj is a datetime, return isoformat()
+    TODO: if dt_obj is a string in iso8601 already, return it back
+    Otherwise, return None
+    """
+    # If d is a datetime object, format it to iso and return
+    if isinstance(dt_obj, datetime.datetime):
+        return dt_obj.isoformat()
+
+    # TODO: if dt_obj is a string in iso8601 already, return it
+
+    # none of the above: return None
+    return None
+
+def next_token_action(action_name):
+    """
+    Decorator that designates an action as having a "...ByNextToken" associated request.
+    Checks for a `next_token` kwargs in the request and, if present, redirects the call
+    to `action_by_next_token` using the given `action_name`.
+
+    Only the `next_token` kwarg is consumed by the "next" call:
+    all other args and kwargs are ignored and not required.
+    """
+    def _decorator(request_func):
+        @wraps(request_func)
+        def _wrapped_func(self, *args, **kwargs):
+            next_token = kwargs.pop('next_token', None)
+            if next_token is not None:
+                # Token captured: run the "next" action.
+                return self.action_by_next_token(action_name, next_token)
+            return request_func(self, *args, **kwargs)
+        return _wrapped_func
+    return _decorator
