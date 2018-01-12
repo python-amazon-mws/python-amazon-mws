@@ -53,6 +53,7 @@ MARKETPLACES = {
     "MX": "https://mws.amazonservices.com.mx",  # A1AM78C64UM0Y8
 }
 
+
 class MWSError(Exception):
     """
     Main MWS Exception class
@@ -404,7 +405,7 @@ class Reports(MWS):
 
     @utils.next_token_action('GetReportList')
     def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None,
-                        fromdate=None, todate=None, next_token=None): # pylint: disable=unused-argument
+                        fromdate=None, todate=None, next_token=None):  # pylint: disable=unused-argument
         data = dict(Action='GetReportList',
                     Acknowledged=acknowledged,
                     AvailableFromDate=fromdate,
@@ -534,7 +535,7 @@ class Orders(MWS):
         return self.make_request(data)
 
     @utils.next_token_action('ListOrderItems')
-    def list_order_items(self, amazon_order_id=None, next_token=None): # pylint: disable=unused-argument
+    def list_order_items(self, amazon_order_id=None, next_token=None):  # pylint: disable=unused-argument
         data = dict(Action='ListOrderItems', AmazonOrderId=amazon_order_id)
         return self.make_request(data)
 
@@ -688,7 +689,7 @@ class Sellers(MWS):
     ]
 
     @utils.next_token_action('ListMarketplaceParticipations')
-    def list_marketplace_participations(self, next_token=None): # pylint: disable=unused-argument
+    def list_marketplace_participations(self, next_token=None):  # pylint: disable=unused-argument
         """
         Returns a list of marketplaces a seller can participate in and
         a list of participations that include seller-specific information in that marketplace.
@@ -1157,10 +1158,9 @@ class Inventory(MWS):
         'ListInventorySupply',
     ]
 
-
     @utils.next_token_action('ListInventorySupply')
     def list_inventory_supply(self, skus=(), datetime_=None,
-                              response_group='Basic', next_token=None): # pylint: disable=unused-argument
+                              response_group='Basic', next_token=None):  # pylint: disable=unused-argument
         """
         Returns information on available inventory
         """
@@ -1220,7 +1220,7 @@ class Recommendations(MWS):
 
     @utils.next_token_action('ListRecommendations')
     def list_recommendations(self, marketplaceid=None,
-                             recommendationcategory=None, next_token=None): # pylint: disable=unused-argument
+                             recommendationcategory=None, next_token=None):  # pylint: disable=unused-argument
         """
         Returns your active recommendations for a specific category or for all categories for a specific marketplace.
         """

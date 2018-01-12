@@ -125,7 +125,7 @@ def enumerate_param(param, values):
         return {}
     if not isinstance(values, (list, tuple, set)):
         # Coerces a single value to a list before continuing.
-        values = [values,]
+        values = [values, ]
     if not param.endswith('.'):
         # Ensure this enumerated param ends in '.'
         param += '.'
@@ -182,7 +182,7 @@ def enumerate_keyed_param(param, values):
         param += '.'
     if not isinstance(values, list) and not isinstance(values, tuple):
         # If it's a single value, convert it to a list first
-        values = [values,]
+        values = [values, ]
     if not isinstance(values[0], dict):
         # Value is not a dict: can't work on it here.
         raise ValueError((
@@ -225,6 +225,7 @@ def dt_iso_or_none(dt_obj):
 
     # none of the above: return None
     return None
+
 
 def next_token_action(action_name):
     """
