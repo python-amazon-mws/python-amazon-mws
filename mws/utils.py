@@ -105,14 +105,14 @@ class XML2Dict(object):
         return ObjectDict({root_tag: root_tree})
 
 
-def _enumerate_param(param, values):
+def enumerate_param(param, values):
     """
     Builds a dictionary of an enumerated parameter, using the param string and some values.
     If values is not a list, tuple, or set, it will be coerced to a list
     with a single item.
 
     Example:
-        _enumerate_param('MarketplaceIdList.Id', (123, 345, 4343))
+        enumerate_param('MarketplaceIdList.Id', (123, 345, 4343))
     Returns:
         {
             MarketplaceIdList.Id.1: 123,
@@ -139,14 +139,14 @@ def _enumerate_param(param, values):
 def enumerate_params(params=None):
     """
 
-    For each param and values, runs _enumerate_param,
+    For each param and values, runs enumerate_param,
     returning a flat dict of all results
     """
     if params is None or not isinstance(params, dict):
         return {}
     params_output = {}
     for param, values in params.items():
-        params_output.update(_enumerate_param(param, values))
+        params_output.update(enumerate_param(param, values))
     return params_output
 
 

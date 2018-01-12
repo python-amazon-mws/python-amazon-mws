@@ -53,7 +53,6 @@ MARKETPLACES = {
     "MX": "https://mws.amazonservices.com.mx",  # A1AM78C64UM0Y8
 }
 
-
 class MWSError(Exception):
     """
     Main MWS Exception class
