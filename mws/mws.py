@@ -330,7 +330,7 @@ class Feeds(MWS):
     @utils.next_token_action('GetFeedSubmissionList')
     def get_feed_submission_list(self, feedids=None, max_count=None, feedtypes=None,
                                  processingstatuses=None, fromdate=None, todate=None,
-                                 next_token=None):  # pylint: disable=unused-argument
+                                 next_token=None):
         """
         Returns a list of all feed submissions submitted in the previous 90 days.
         That match the query parameters.
@@ -405,7 +405,7 @@ class Reports(MWS):
 
     @utils.next_token_action('GetReportList')
     def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None,
-                        fromdate=None, todate=None, next_token=None):  # pylint: disable=unused-argument
+                        fromdate=None, todate=None, next_token=None):
         data = dict(Action='GetReportList',
                     Acknowledged=acknowledged,
                     AvailableFromDate=fromdate,
@@ -439,8 +439,7 @@ class Reports(MWS):
 
     @utils.next_token_action('GetReportRequestList')
     def get_report_request_list(self, requestids=(), types=(), processingstatuses=(),
-                                max_count=None, fromdate=None, todate=None, next_token=None):  \
-                                # pylint: disable=unused-argument
+                                max_count=None, fromdate=None, todate=None, next_token=None):
         data = dict(Action='GetReportRequestList',
                     MaxCount=max_count,
                     RequestedFromDate=fromdate,
@@ -501,7 +500,7 @@ class Orders(MWS):
     def list_orders(self, marketplaceids=None, created_after=None, created_before=None,
                     lastupdatedafter=None, lastupdatedbefore=None, orderstatus=(),
                     fulfillment_channels=(), payment_methods=(), buyer_email=None,
-                    seller_orderid=None, max_results='100', next_token=None):  # pylint: disable=unused-argument
+                    seller_orderid=None, max_results='100', next_token=None):
 
         data = dict(Action='ListOrders',
                     CreatedAfter=created_after,
@@ -537,7 +536,7 @@ class Orders(MWS):
         return self.make_request(data)
 
     @utils.next_token_action('ListOrderItems')
-    def list_order_items(self, amazon_order_id=None, next_token=None):  # pylint: disable=unused-argument
+    def list_order_items(self, amazon_order_id=None, next_token=None):
         data = dict(Action='ListOrderItems', AmazonOrderId=amazon_order_id)
         return self.make_request(data)
 
@@ -691,7 +690,7 @@ class Sellers(MWS):
     ]
 
     @utils.next_token_action('ListMarketplaceParticipations')
-    def list_marketplace_participations(self, next_token=None):  # pylint: disable=unused-argument
+    def list_marketplace_participations(self, next_token=None):
         """
         Returns a list of marketplaces a seller can participate in and
         a list of participations that include seller-specific information in that marketplace.
@@ -1162,7 +1161,7 @@ class Inventory(MWS):
 
     @utils.next_token_action('ListInventorySupply')
     def list_inventory_supply(self, skus=(), datetime_=None,
-                              response_group='Basic', next_token=None):  # pylint: disable=unused-argument
+                              response_group='Basic', next_token=None):
         """
         Returns information on available inventory
         """
@@ -1222,7 +1221,7 @@ class Recommendations(MWS):
 
     @utils.next_token_action('ListRecommendations')
     def list_recommendations(self, marketplaceid=None,
-                             recommendationcategory=None, next_token=None):  # pylint: disable=unused-argument
+                             recommendationcategory=None, next_token=None):
         """
         Returns your active recommendations for a specific category or for all categories for a specific marketplace.
         """
