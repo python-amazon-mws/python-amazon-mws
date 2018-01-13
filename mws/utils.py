@@ -180,15 +180,17 @@ def enumerate_keyed_param(param, values):
     if not param.endswith('.'):
         # Ensure the enumerated param ends in '.'
         param += '.'
-    if not isinstance(values, list) and not isinstance(values, tuple):
+    if not isinstance(values, (list, tuple, set)):
         # If it's a single value, convert it to a list first
         values = [values, ]
-    if not isinstance(values[0], dict):
-        # Value is not a dict: can't work on it here.
-        raise ValueError((
-            "Values must be in the form of either a list or "
-            "tuple of dictionaries."
-        ))
+    for val in values:
+        # Every value in the list must be a dict.
+        if not isinstance(val, dict):
+            # Value is not a dict: can't work on it here.
+            raise ValueError((
+                "Non-dict value detected. "
+                "`values` must be a list, tuple, or set; containing only dicts."
+            ))
     params = {}
     for idx, val_dict in enumerate(values):
         # Build the final output.
