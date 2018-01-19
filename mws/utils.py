@@ -47,6 +47,12 @@ class object_dict(dict):
     def __setattr__(self, item, value):
         self.__setitem__(item, value)
 
+    def __iter__(self):
+        if isinstance(self, list):
+            return self
+        else:
+            return iter([self])
+
     def getvalue(self, item, value=None):
         return self.get(item, {}).get('value', value)
 
