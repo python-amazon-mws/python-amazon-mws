@@ -73,6 +73,14 @@ def calc_md5(string):
     return base64.b64encode(md5_hash.digest()).strip(b'\n')
 
 
+def calc_request_description(params):
+    request_description = ''
+    for key in sorted(params):
+        encoded_value = quote(params[key], safe='-_.~')
+        request_description += '&{}={}'.format(key, encoded_value)
+    return request_description[1:]  # don't include leading ampersand
+
+
 def remove_empty(dict_):
     """
     Returns dict_ with all empty values removed.
@@ -175,6 +183,20 @@ class MWS(object):
             }
             raise MWSError(error_msg)
 
+    def get_params(self):
+        """Get the parameters required in all MWS requests"""
+        params = {
+            'AWSAccessKeyId': self.access_key,
+            self.ACCOUNT_TYPE: self.account_id,
+            'SignatureVersion': '2',
+            'Timestamp': self.get_timestamp(),
+            'Version': self.version,
+            'SignatureMethod': 'HmacSHA256',
+        }
+        if self.auth_token:
+            params['MWSAuthToken'] = self.auth_token
+        return params
+
     def make_request(self, extra_data, method="GET", **kwargs):
         """
         Make request to Amazon MWS API with these parameters
@@ -189,18 +211,9 @@ class MWS(object):
             if isinstance(value, (datetime.datetime, datetime.date)):
                 extra_data[key] = value.isoformat()
 
-        params = {
-            'AWSAccessKeyId': self.access_key,
-            self.ACCOUNT_TYPE: self.account_id,
-            'SignatureVersion': '2',
-            'Timestamp': self.get_timestamp(),
-            'Version': self.version,
-            'SignatureMethod': 'HmacSHA256',
-        }
-        if self.auth_token:
-            params['MWSAuthToken'] = self.auth_token
+        params = self.get_params()
         params.update(extra_data)
-        request_description = '&'.join(['%s=%s' % (k, quote(params[k], safe='-_.~')) for k in sorted(params)])
+        request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
         url = '%s%s?%s&Signature=%s' % (self.domain, self.uri, request_description, quote(signature))
         headers = {'User-Agent': 'python-amazon-mws/0.0.1 (Language=Python)'}
