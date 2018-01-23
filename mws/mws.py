@@ -874,7 +874,7 @@ class InboundShipments(MWS):
         """
         Parses item arguments sent to create_inbound_shipment_plan, create_inbound_shipment,
         and update_inbound_shipment methods.
-        
+
         `item_args` is expected as an iterable containing dicts.
         Each dict should have the following keys:
           For `create_inbound_shipment_plan`:
@@ -885,7 +885,7 @@ class InboundShipments(MWS):
             OPTIONAL: 'quantity_in_case'
         If a required key is missing, throws MWSError.
         All extra keys are ignored.
-        
+
         Keys (above) are converted to the appropriate MWS key according to `key_config` (below)
         based on the particular operation required.
         """
