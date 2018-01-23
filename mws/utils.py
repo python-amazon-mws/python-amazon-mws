@@ -16,7 +16,7 @@ import xml.etree.ElementTree as ET
 class ObjectDict(dict):
     """
     Extension of dict to allow accessing keys as attributes.
-    
+
     Example:
     >>> a = ObjectDict()
     >>> a.fish = 'fish'
