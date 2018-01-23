@@ -836,7 +836,7 @@ class InboundShipments(MWS):
             raise MWSError("`address` must be a dict")
 
         key_config = [
-            # Sets composed of:
+            # Tuples composed of:
             # (input_key, output_key, is_required, default_value)
             ('name', 'Name', True, None),
             ('address_1', 'AddressLine1', True, None),
