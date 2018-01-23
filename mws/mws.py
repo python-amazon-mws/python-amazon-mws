@@ -134,7 +134,6 @@ class MWS(object):
     """
     Base Amazon API class
     """
-
     # This is used to post/get to the different uris used by amazon per api
     # ie. /Orders/2011-01-01
     # All subclasses must define their own URI only if needed
@@ -504,7 +503,6 @@ class Orders(MWS):
     """
     Amazon Orders API
     """
-
     URI = "/Orders/2013-09-01"
     VERSION = "2013-09-01"
     NAMESPACE = '{https://mws.amazonservices.com/Orders/2013-09-01}'
@@ -575,7 +573,6 @@ class Products(MWS):
     """
     Amazon MWS Products API
     """
-
     URI = '/Products/2011-10-01'
     VERSION = '2011-10-01'
     NAMESPACE = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
@@ -698,7 +695,6 @@ class Sellers(MWS):
     """
     Amazon MWS Sellers API
     """
-
     URI = '/Sellers/2011-07-01'
     VERSION = '2011-07-01'
     NAMESPACE = '{http://mws.amazonservices.com/schema/Sellers/2011-07-01}'
@@ -734,8 +730,9 @@ class Sellers(MWS):
 
 
 class Finances(MWS):
-    """Amazon Finances API"""
-
+    """
+    Amazon MWS Finances API
+    """
     URI = "/Finances/2015-05-01"
     VERSION = "2015-05-01"
     NS = '{https://mws.amazonservices.com/Finances/2015-05-01}'
