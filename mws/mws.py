@@ -736,14 +736,16 @@ class Finances(MWS):
     URI = "/Finances/2015-05-01"
     VERSION = "2015-05-01"
     NS = '{https://mws.amazonservices.com/Finances/2015-05-01}'
+    NEXT_TOKEN_OPERATIONS = [
+        'ListFinancialEventGroups',
+        'ListFinancialEvents',
+    ]
 
-    def list_financial_event_groups(
-        self,
-        created_after=None,
-        created_before=None,
-        max_results=None
-    ):
-        """Returns a list of financial event groups"""
+    @utils.next_token_action('ListFinancialEventGroups')
+    def list_financial_event_groups(self, created_after=None, created_before=None, max_results=None, next_token=None):
+        """
+        Returns a list of financial event groups
+        """
         data = dict(Action='ListFinancialEventGroups',
                     FinancialEventGroupStartedAfter=created_after,
                     FinancialEventGroupStartedBefore=created_before,
@@ -752,22 +754,21 @@ class Finances(MWS):
         return self.make_request(data)
 
     def list_financial_event_groups_by_next_token(self, token):
-        """Returns a list of financial event groups"""
-        data = dict(Action='ListFinancialEventGroupsByNextToken',
-                    NextToken=token
-                    )
-        return self.make_request(data)
+        """
+        Deprecated.
+        Use `list_financial_event_groups(next_token=token)` instead.
+        """
+        warnings.warn(
+            "Use `list_financial_event_groups(next_token=token)` instead.",
+            DeprecationWarning,
+        )
+        return self.list_financial_event_groups(next_token=token)
 
-    def list_financial_events(
-        self,
-        financial_event_group_id=None,
-        amazon_order_id=None,
-        posted_after=None,
-        posted_before=None,
-        max_results=None
-    ):
-        """ Returns financial events for a user-provided FinancialEventGroupId
-            or AmazonOrderId
+    @utils.next_token_action('ListFinancialEvents')
+    def list_financial_events(self, financial_event_group_id=None, amazon_order_id=None, posted_after=None,
+                              posted_before=None, max_results=None, next_token=None):
+        """
+        Returns financial events for a user-provided FinancialEventGroupId or AmazonOrderId
         """
         data = dict(Action='ListFinancialEvents',
                     FinancialEventGroupId=financial_event_group_id,
@@ -779,13 +780,15 @@ class Finances(MWS):
         return self.make_request(data)
 
     def list_financial_events_by_next_token(self, token):
-        """ Returns financial events for a user-provided FinancialEventGroupId
-            or AmazonOrderId
         """
-        data = dict(Action='ListFinancialEventsByNextToken',
-                    NextToken=token
-                    )
-        return self.make_request(data)
+        Deprecated.
+        Use `list_financial_events(next_token=token)` instead.
+        """
+        warnings.warn(
+            "Use `list_financial_events(next_token=token)` instead.",
+            DeprecationWarning,
+        )
+        return self.list_financial_events(next_token=token)
 
 
 # * Fulfillment APIs * #
