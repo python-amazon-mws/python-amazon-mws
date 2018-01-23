@@ -27,6 +27,7 @@ except ImportError:
 __all__ = [
     'Feeds',
     'Inventory',
+    'InboundShipments',
     'MWSError',
     'Reports',
     'Orders',
