@@ -101,6 +101,7 @@ def remove_namespace(xml):
 class DictWrapper(object):
     def __init__(self, xml, rootkey=None):
         self.original = xml
+        self.response = None
         self._rootkey = rootkey
         self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
         self._response_dict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
@@ -118,6 +119,7 @@ class DataWrapper(object):
     """
     def __init__(self, data, header):
         self.original = data
+        self.response = None
         if 'content-md5' in header:
             hash_ = calc_md5(self.original)
             if header['content-md5'].encode() != hash_:
