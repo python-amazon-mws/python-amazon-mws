@@ -29,3 +29,5 @@ pip-log.txt
 
 # VS Code Settings
 .vscode/settings.json
+
+.travis.yml
