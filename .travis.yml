@@ -19,19 +19,3 @@ script:
 after_success:
   - pip install codecov
   - codecov
-deploy:
-  - provider: pypi
-    server: https://test.pypi.org/legacy/
-    user: jameshiew
-    password:
-      secure: yzWwoA/uUkNbioPLAKZNEHK9UKJ39F8s81tER2XEfOOY1TNIAjOrT1jwdKuBDu6y0hDf5IySjIV63GcW2q3e0q2b3UyQTUTezknPyw1zLNY/jVA/dmaY7QemZBV2dmLpCc3tzjrhpLCNcZQB1Thai9rDxjJaq10KU3av8XpQEDO68+4OFh78lLWRK/6VYqjl2UJ+RPb1J0LxM02aMSwOyehLOaE+NWvqmzLBTEOEm97HJ4FqgLDpnJ0cU1pH0QqwAUTtkVSF0LEGr2lJjg9ag9Uf1JfZlO0eS8kexM5hb5NsW5YCzCgwxgtTWv4574Sq7ZYJgLAMSoUV5C8xQ5EQ0VL89Tjshxi/5svD2ssOL21SBiZi+/VtL8WTjyUWAxGviuFnvjGGiPPs/cCGQQiEU5SRoTW4WeO7JBvTeCxZRh9gixWkrKaACUsx1Md2q4XF/RrwjEOvlZWxSiwkB+jp35axK4hjsW0UspO7lf8vGpuLgywN38h/kvB05dMILpMiWGxIre9UYjBuRnudYI0U/Td4uNTtCYgApCeuVz9i+gd3dBHYoP09Vvz0DPrEolE4WvssR61e3bazFUoo4/U79gn6TyR8Dg+pgZe/wlRQ9MqDC6XKX8q6T/uuJAlNSWtTTv6Fnz5OWayQjwv0Fag7b238knFdX3qxmwiL9xzL2ig=
-    on:
-      branch: develop
-      python: 3.6
-  - provider: pypi
-    user: jameshiew
-    password:
-      secure: znPqVWZrTzMHVyGMf2F38LCNPpnHw/DyCbTh1c6Lt2L4drgTdYN/mrPg8/EVwab2Fmdjud2lWkNNlREs5vdcTyQbsEZQbqAtiVenpFy2UFTwS8dlsKd7nnqblpgOB83CCKUs38Gv/7T4noM4zFSYQAC+1iAZvntsvNGmxfLqPXJfS+xnmDwZHW2PCbq2/YJ7MiNwFOin9c2fNNy7m9w3SB9G8rgpBori4xWLyv7nw0DAATvIpg1Ac2sQynqqCzSu9t2o+QnleSKa5KHqWGCl2m/pt1/UPXR0qdDiYNq7eYyIy9mQjmRCiSgSxix5duFV2dQsmVE0gjt0CIY+G9hVUWDUHy4yGuIPgKSy4mC3pVVQhhmJmhQ+dvBp6LFfjlj7KkZP83jeDWKfPuQxcUelD/apwZ2aWk+7b65MtCV8riTn5iP8jnonPHsf+337KnonLOcv4vddy2ROQYWeo3CdzaThkbw2iomchLRQjHHrl/aPMiQLqEUVAsYpl8ENEnPbKp1swsZPdigMRBA5gp/TBXCutaey775Og5L9G7mV49zngsTpR55EFXZdefTSJMJvTOep08WCot6xl+xvtGSZRSB429pZd+i7wKAqSqjh6gbhgadzKEx2dpMl60N6kowrVMkGcXo9SQzh2u84A0YqvbpZXxluKXCbF0HnKr0NwzE=
-    on:
-      branch: master
-      python: 3.6
