@@ -186,7 +186,9 @@ class MWS(object):
             raise MWSError(error_msg)
 
     def get_params(self):
-        """Get the parameters required in all MWS requests"""
+        """
+        Get the parameters required in all MWS requests
+        """
         params = {
             'AWSAccessKeyId': self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
@@ -869,12 +871,30 @@ class InboundShipments(MWS):
         self.from_address = addr
 
     def _parse_item_args(self, item_args, operation):
+        """
+        Parses item arguments sent to create_inbound_shipment_plan, create_inbound_shipment,
+        and update_inbound_shipment methods.
+
+        `item_args` is expected as an iterable containing dicts.
+        Each dict should have the following keys:
+          For `create_inbound_shipment_plan`:
+            REQUIRED: 'sku', 'quantity'
+            OPTIONAL: 'quantity_in_case', 'asin', 'condition'
+          Other operations:
+            REQUIRED: 'sku', 'quantity'
+            OPTIONAL: 'quantity_in_case'
+        If a required key is missing, throws MWSError.
+        All extra keys are ignored.
+
+        Keys (above) are converted to the appropriate MWS key according to `key_config` (below)
+        based on the particular operation required.
+        """
         if not item_args:
             raise MWSError("One or more `item` dict arguments required.")
 
-        # KEY_CONFIG to contain sets composed of:
-        # (input_key, output_key, is_required, default_value)
         if operation == 'CreateInboundShipmentPlan':
+            # `key_config` composed of list of tuples, each tuple compose of:
+            # (input_key, output_key, is_required, default_value)
             key_config = [
                 ('sku', 'SellerSKU', True, None),
                 ('quantity', 'Quantity', True, None),
@@ -882,6 +902,8 @@ class InboundShipments(MWS):
                 ('asin', 'ASIN', False, None),
                 ('condition', 'Condition', False, None),
             ]
+            # The expected MWS key for quantity is different for this operation.
+            # This ensures we use the right key later on.
             quantity_key = 'Quantity'
         else:
             key_config = [
@@ -906,6 +928,8 @@ class InboundShipments(MWS):
                     optional=', '.join([c[0] for c in key_config if not c[2]]),
                 ))
 
+            # Get data from the item.
+            # Convert to str if present, or leave as None if missing
             quantity = item.get('quantity')
             if quantity is not None:
                 quantity = str(quantity)

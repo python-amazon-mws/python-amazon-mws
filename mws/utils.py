@@ -14,7 +14,10 @@ import xml.etree.ElementTree as ET
 
 
 class ObjectDict(dict):
-    """object view of dict, you can
+    """
+    Extension of dict to allow accessing keys as attributes.
+
+    Example:
     >>> a = ObjectDict()
     >>> a.fish = 'fish'
     >>> a['fish']
@@ -22,10 +25,6 @@ class ObjectDict(dict):
     >>> a['water'] = 'water'
     >>> a.water
     'water'
-    >>> a.test = {'value': 1}
-    >>> a.test2 = ObjectDict({'name': 'test2', 'value': 2})
-    >>> a.test, a.test2.name, a.test2.value
-    (1, 'test2', 2)
     """
     def __init__(self, initd=None):
         if initd is None:
@@ -94,12 +93,16 @@ class XML2Dict(object):
         return (tag, value)
 
     def parse(self, filename):
-        """parse a xml file to a dict"""
+        """
+        Parse XML file to a dict.
+        """
         file_ = open(filename, 'r')
         return self.fromstring(file_.read())
 
     def fromstring(self, str_):
-        """parse a string"""
+        """
+        Parse a string
+        """
         text = ET.fromstring(str_)
         root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
         return ObjectDict({root_tag: root_tree})
@@ -138,7 +141,6 @@ def enumerate_param(param, values):
 
 def enumerate_params(params=None):
     """
-
     For each param and values, runs enumerate_param,
     returning a flat dict of all results
     """
