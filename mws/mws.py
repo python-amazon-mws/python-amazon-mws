@@ -205,7 +205,6 @@ class MWS(object):
         """
         Make request to Amazon MWS API with these parameters
         """
-
         # Remove all keys with an empty value because
         # Amazon's MWS does not allow such a thing.
         extra_data = remove_empty(extra_data)
@@ -262,7 +261,6 @@ class MWS(object):
         Returns a GREEN, GREEN_I, YELLOW or RED status.
         Depending on the status/availability of the API its being called from.
         """
-
         return self.make_request(extra_data=dict(Action='GetServiceStatus'))
 
     def action_by_next_token(self, action, next_token):
@@ -353,7 +351,6 @@ class Feeds(MWS):
         Returns a list of all feed submissions submitted in the previous 90 days.
         That match the query parameters.
         """
-
         data = dict(Action='GetFeedSubmissionList',
                     MaxCount=max_count,
                     SubmittedFromDate=fromdate,
@@ -1253,7 +1250,6 @@ class Inventory(MWS):
     """
     Amazon MWS Inventory Fulfillment API
     """
-
     URI = '/FulfillmentInventory/2010-10-01'
     VERSION = '2010-10-01'
     NAMESPACE = "{http://mws.amazonaws.com/FulfillmentInventory/2010-10-01}"
@@ -1267,7 +1263,6 @@ class Inventory(MWS):
         """
         Returns information on available inventory
         """
-
         data = dict(Action='ListInventorySupply',
                     QueryStartDateTime=datetime_,
                     ResponseGroup=response_group,
