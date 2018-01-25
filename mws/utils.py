@@ -119,7 +119,7 @@ class XML2Dict(object):
 
     def fromstring(self, str_):
         """
-        Parse a string
+        Convert XML-formatted string to an ObjectDict.
         """
         text = ET.fromstring(str_)
         root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
