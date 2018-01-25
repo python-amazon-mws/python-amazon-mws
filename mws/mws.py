@@ -247,9 +247,9 @@ class MWS(object):
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
 
-        except HTTPError as e:
-            error = MWSError(str(e.response.text))
-            error.response = e.response
+        except HTTPError as exc:
+            error = MWSError(str(exc.response.text))
+            error.response = exc.response
             raise error
 
         # Store the response object in the parsed_response for quick access
@@ -339,9 +339,9 @@ class Feeds(MWS):
                     FeedType=feed_type,
                     PurgeAndReplace=purge)
         data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
-        md = calc_md5(feed)
+        md5_hash = calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
-                                 extra_headers={'Content-MD5': md, 'Content-Type': content_type})
+                                 extra_headers={'Content-MD5': md5_hash, 'Content-Type': content_type})
 
     @utils.next_token_action('GetFeedSubmissionList')
     def get_feed_submission_list(self, feedids=None, max_count=None, feedtypes=None,
