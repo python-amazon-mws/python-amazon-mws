@@ -31,15 +31,15 @@ except ImportError:
 
 __all__ = [
     'Feeds',
-    'Inventory',
+    'Finances',
     'InboundShipments',
+    'Inventory',
     'MWSError',
-    'Reports',
     'Orders',
     'Products',
     'Recommendations',
+    'Reports',
     'Sellers',
-    'Finances',
 ]
 
 # See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
