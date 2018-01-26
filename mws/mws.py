@@ -235,11 +235,12 @@ class MWS(object):
         """
         Get the parameters required in all MWS requests
         """
+        timestamp = datetime.datetime.utcnow().replace(microsecond=0).isoformat()
         params = {
             'AWSAccessKeyId': self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
             'SignatureVersion': '2',
-            'Timestamp': datetime.datetime.utcnow().isoformat(timespec='seconds'),
+            'Timestamp': timestamp,
             'Version': self.version,
             'SignatureMethod': 'HmacSHA256',
         }
