@@ -1036,7 +1036,7 @@ class InboundShipments(MWS):
                 for c in key_config}
         self.from_address = addr
 
-    def _parse_item_args(self, item_args, operation):
+    def parse_item_args(self, item_args, operation):
         """
         Parses item arguments sent to create_inbound_shipment_plan, create_inbound_shipment,
         and update_inbound_shipment methods.
@@ -1139,7 +1139,7 @@ class InboundShipments(MWS):
         subdivision_code = subdivision_code or None
         label_preference = label_preference or None
 
-        items = self._parse_item_args(items, 'CreateInboundShipmentPlan')
+        items = self.parse_item_args(items, 'CreateInboundShipmentPlan')
         if not self.from_address:
             raise MWSError((
                 "ShipFromAddress has not been set. "
@@ -1180,7 +1180,7 @@ class InboundShipments(MWS):
         if not items:
             raise MWSError("One or more `item` dict arguments required.")
 
-        items = self._parse_item_args(items, 'CreateInboundShipment')
+        items = self.parse_item_args(items, 'CreateInboundShipment')
 
         if not self.from_address:
             raise MWSError((
@@ -1247,7 +1247,7 @@ class InboundShipments(MWS):
 
         # Parse item args
         if items:
-            items = self._parse_item_args(items, 'UpdateInboundShipment')
+            items = self.parse_item_args(items, 'UpdateInboundShipment')
         else:
             items = None
 
