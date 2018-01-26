@@ -92,11 +92,11 @@ def calc_request_description(params):
     Returns:
       "bar=4&baz=potato&foo=1"
     """
-    request_description = ''
-    for key in sorted(params):
-        encoded_value = quote(params[key], safe='-_.~')
-        request_description += '&{}={}'.format(key, encoded_value)
-    return request_description[1:]  # don't include leading ampersand
+    description_items = []
+    for key, val in params.items():
+        encoded_val = quote(str(val), safe='-_.~')
+        description_items.append('{}={}'.format(key, encoded_val))
+    return '&'.join(sorted(description_items))
 
 
 def remove_empty(dict_):
