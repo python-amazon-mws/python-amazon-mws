@@ -32,4 +32,3 @@ class CommonRequestTestTools(object):
         response = self.api.get_service_status()
         # Only key we care about here is GetServiceStatus
         assert response['Action'] == 'GetServiceStatus'
-        self.api._test_request_params = False
