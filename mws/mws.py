@@ -239,7 +239,7 @@ class MWS(object):
             'AWSAccessKeyId': self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
             'SignatureVersion': '2',
-            'Timestamp': datetime.datetime.utcnow().isoformat(),
+            'Timestamp': datetime.datetime.utcnow().isoformat(timespec='seconds'),
             'Version': self.version,
             'SignatureMethod': 'HmacSHA256',
         }
