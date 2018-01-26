@@ -2,22 +2,14 @@ import unittest
 import datetime
 import mws
 from .utils import clean_redundant_params
+from .utils import CommonTests
 
 
-class InventoryTestCase(unittest.TestCase):
+class InventoryTestCase(unittest.TestCase, CommonTests):
     def setUp(self):
         credentials = ['access', 'secret', 'account']
         self.api = mws.Inventory(*credentials)
         self.api._test_request_params = True
-
-    def test_service_status(self):
-        response = self.api.get_service_status()
-        response = clean_redundant_params(response)
-        expected = {
-            'Action': 'GetServiceStatus',
-            'Version': '2010-10-01',
-        }
-        assert response == expected
 
     def test_list_inventory_supply(self):
         now = datetime.datetime.utcnow()
