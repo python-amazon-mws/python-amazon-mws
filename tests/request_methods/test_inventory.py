@@ -1,14 +1,17 @@
 import unittest
 import datetime
 import mws
-from .utils import clean_redundant_params
-from .utils import CommonTests
+from .utils import CommonRequestTestTools
 
 
-class InventoryTestCase(unittest.TestCase, CommonTests):
+class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):
     def setUp(self):
-        credentials = ['access', 'secret', 'account']
-        self.api = mws.Inventory(*credentials)
+        self.api = mws.Inventory(
+            self.CREDENTIAL_ACCESS,
+            self.CREDENTIAL_SECRET,
+            self.CREDENTIAL_ACCOUNT,
+            auth_token=self.CREDENTIAL_TOKEN
+        )
         self.api._test_request_params = True
 
     def test_list_inventory_supply(self):
@@ -16,26 +19,17 @@ class InventoryTestCase(unittest.TestCase, CommonTests):
         now_timestamp = now.isoformat()
         skus = ['thing1', 'thing2']
         response_group = 'Detailed'
-        response = self.api.list_inventory_supply(skus, now, response_group=response_group)
-        response = clean_redundant_params(response)
-
-        expected = {
-            'Action': 'ListInventorySupply',
-            'QueryStartDateTime': now_timestamp,
-            'ResponseGroup': 'Detailed',
-            'SellerSkus.member.1': 'thing1',
-            'SellerSkus.member.2': 'thing2',
-            'Version': '2010-10-01',
-        }
-        assert response == expected
+        params = self.api.list_inventory_supply(skus, now, response_group=response_group)
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListInventorySupply'
+        assert params['QueryStartDateTime'] == now_timestamp
+        assert params['ResponseGroup'] == 'Detailed'
+        assert params['SellerSkus.member.1'] == 'thing1'
+        assert params['SellerSkus.member.2'] == 'thing2'
 
     def test_list_inventory_supply_by_next_token(self):
         next_token = 'token_foobar'
-        response = self.api.list_inventory_supply(next_token=next_token)
-        response = clean_redundant_params(response)
-        expected = {
-            'Action': 'ListInventorySupplyByNextToken',
-            'NextToken': next_token,
-            'Version': '2010-10-01',
-        }
-        assert response == expected
+        params = self.api.list_inventory_supply(next_token=next_token)
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListInventorySupplyByNextToken'
+        assert params['NextToken'] == next_token
