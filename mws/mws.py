@@ -115,6 +115,21 @@ def remove_namespace(xml):
     return regex.sub('', xml)
 
 
+def assert_no_token(token):
+    """
+    We allow passing a next_token as an argument to request methods that have an associated
+    "...ByNextToken" operation. This token should be captured by `utils.next_token_action` and handled
+    accordingly, bypassing the original request method.
+
+    If a non-None token propagates to the original method, then something has gone awry.
+    This ensures we get notified when/if that happens (which it shouldn't).
+    """
+    assert token is None, (
+        "`next_token` passed to request method. "
+        "Should have been parsed by `next_token_action` decorator."
+    )
+
+
 class DictWrapper(object):
     """
     Main class that converts XML data to a parsed response object as a tree of ObjectDicts,
@@ -376,6 +391,7 @@ class Feeds(MWS):
         That match the query parameters.
         See: http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionList.html
         """
+        assert_no_token(next_token)
         data = dict(Action='GetFeedSubmissionList',
                     MaxCount=max_count,
                     SubmittedFromDate=fromdate,
@@ -475,6 +491,7 @@ class Reports(MWS):
 
         Pass `next_token` to send a GetReportListByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='GetReportList',
                     Acknowledged=acknowledged,
                     AvailableFromDate=fromdate,
@@ -517,6 +534,7 @@ class Reports(MWS):
 
         Pass `next_token` to send a GetReportRequestListByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='GetReportRequestList',
                     MaxCount=max_count,
                     RequestedFromDate=fromdate,
@@ -560,6 +578,7 @@ class Reports(MWS):
 
         Pass `next_token` to send a GetReportScheduleListByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='GetReportScheduleList')
         data.update(utils.enumerate_param('ReportTypeList.Type.', types))
         return self.make_request(data)
@@ -598,6 +617,7 @@ class Orders(MWS):
 
         Pass `next_token` to send a ListOrdersByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='ListOrders',
                     CreatedAfter=created_after,
                     CreatedBefore=created_before,
@@ -640,6 +660,7 @@ class Orders(MWS):
 
         Pass `next_token` to send a ListOrderItemsByNextToken request
         """
+        assert_no_token(next_token)
         data = dict(Action='ListOrderItems', AmazonOrderId=amazon_order_id)
         return self.make_request(data)
 
@@ -840,6 +861,7 @@ class Sellers(MWS):
 
         Pass `next_token` to send a ListMarketplaceParticipationsByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='ListMarketplaceParticipations')
         return self.make_request(data)
 
@@ -876,6 +898,7 @@ class Finances(MWS):
 
         Pass `next_token` to send a ListFinancialEventGroupsByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='ListFinancialEventGroups',
                     FinancialEventGroupStartedAfter=created_after,
                     FinancialEventGroupStartedBefore=created_before,
@@ -902,6 +925,7 @@ class Finances(MWS):
 
         Pass `next_token` to send a ListFinancialEventsByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='ListFinancialEvents',
                     FinancialEventGroupId=financial_event_group_id,
                     AmazonOrderId=amazon_order_id,
@@ -1385,6 +1409,7 @@ class InboundShipments(MWS):
 
         Pass `next_token` to send a ListInboundShipmentsByNextToken request.
         """
+        assert_no_token(next_token)
         last_updated_after = utils.dt_iso_or_none(last_updated_after)
         last_updated_before = utils.dt_iso_or_none(last_updated_before)
 
@@ -1408,6 +1433,7 @@ class InboundShipments(MWS):
 
         Pass `next_token` to send a ListInboundShipmentItemsByNextToken request.
         """
+        assert_no_token(next_token)
         last_updated_after = utils.dt_iso_or_none(last_updated_after)
         last_updated_before = utils.dt_iso_or_none(last_updated_before)
 
@@ -1441,6 +1467,7 @@ class Inventory(MWS):
 
         Pass `next_token` to send a ListInventorySupplyByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='ListInventorySupply',
                     QueryStartDateTime=datetime_,
                     ResponseGroup=response_group)
@@ -1452,8 +1479,6 @@ class Inventory(MWS):
         Deprecated.
         Use `list_inventory_supply(next_token=token)` instead.
         """
-        # data = dict(Action='ListInventorySupplyByNextToken', NextToken=token)
-        # return self.make_request(data, "POST")
         warnings.warn(
             "Use `list_inventory_supply(next_token=token)` instead.",
             DeprecationWarning,
@@ -1514,6 +1539,7 @@ class Recommendations(MWS):
 
         Pass `next_token` to send a ListRecommendationsByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action="ListRecommendations",
                     MarketplaceId=marketplaceid,
                     RecommendationCategory=recommendationcategory)
