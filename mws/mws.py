@@ -209,13 +209,16 @@ class MWS(object):
 
     def __init__(self, access_key, secret_key, account_id,
                  region='US', domain='', uri="",
-                 version="", auth_token=""):
+                 version="", auth_token="", ):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
         self.auth_token = auth_token
         self.version = version or self.VERSION
         self.uri = uri or self.URI
+
+        # * TESTING FLAGS * #
+        self._test_request_params = False
 
         if domain:
             self.domain = domain
@@ -259,6 +262,10 @@ class MWS(object):
 
         params = self.get_params()
         params.update(extra_data)
+        if self._test_request_params:
+            # Testing method: return the params from this request before the request is made.
+            return params
+
         request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
         url = '%s%s?%s&Signature=%s' % (self.domain, self.uri, request_description, quote(signature))
