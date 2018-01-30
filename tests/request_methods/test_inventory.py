@@ -1,3 +1,6 @@
+"""
+Tests for the MWS.Inventory API class.
+"""
 import unittest
 import datetime
 import mws
@@ -5,6 +8,9 @@ from .utils import CommonRequestTestTools
 
 
 class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):
+    """
+    Test cases for Inventory.
+    """
     def setUp(self):
         self.api = mws.Inventory(
             self.CREDENTIAL_ACCESS,
@@ -15,6 +21,9 @@ class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):
         self.api._test_request_params = True
 
     def test_list_inventory_supply(self):
+        """
+        ListInventorySupply operation
+        """
         now = datetime.datetime.utcnow()
         now_timestamp = now.isoformat()
         skus = ['thing1', 'thing2']
@@ -28,6 +37,9 @@ class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):
         assert params['SellerSkus.member.2'] == 'thing2'
 
     def test_list_inventory_supply_by_next_token(self):
+        """
+        ListInventorySupplyByNextToken operation
+        """
         next_token = 'token_foobar'
         params = self.api.list_inventory_supply(next_token=next_token)
         self.assert_common_params(params)
