@@ -691,6 +691,20 @@ class Products(MWS):
                     ItemCondition=condition)
         data.update(utils.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
+    
+    def get_my_fees_estimate(self, marketplaceid, asin, price, is_fba=False):
+        data = dict(Action='GetMyFeesEstimate')
+        data.update({
+            'FeesEstimateRequestList.FeesEstimateRequest.1.MarketplaceId': marketplaceid,
+            'FeesEstimateRequestList.FeesEstimateRequest.1.IdType':'ASIN',
+            'FeesEstimateRequestList.FeesEstimateRequest.1.IdValue':asin,
+            'FeesEstimateRequestList.FeesEstimateRequest.1.IsAmazonFulfilled':'true' if is_fba else 'false',
+            'FeesEstimateRequestList.FeesEstimateRequest.1.Identifier':'42',
+            'FeesEstimateRequestList.FeesEstimateRequest.1.PriceToEstimateFees.ListingPrice.Amount':str(price),
+            'FeesEstimateRequestList.FeesEstimateRequest.1.PriceToEstimateFees.ListingPrice.CurrencyCode':'USD'
+        })
+        return self.make_request(data)
+
 
 
 class Sellers(MWS):
