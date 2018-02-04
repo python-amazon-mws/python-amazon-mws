@@ -250,3 +250,11 @@ def next_token_action(action_name):
             return request_func(self, *args, **kwargs)
         return _wrapped_func
     return _decorator
+
+
+# DEPRECATION: these are old names for these objects, which have been updated
+# to more idiomatic naming convention. Leaving these names in place in case
+# anyone is using the old object names.
+# TODO: remove in 1.0.0
+object_dict = ObjectDict
+xml2dict = XML2Dict
