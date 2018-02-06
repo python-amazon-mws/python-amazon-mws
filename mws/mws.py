@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
+"""
+Main module for python-amazon-mws package.
+"""
+# TODO: Add Subscriptions class
+# TODO: Add Merchant Fulfillment class
+
 from __future__ import absolute_import
 
-from time import gmtime, strftime
 import base64
 import datetime
 import hashlib
@@ -26,15 +31,15 @@ except ImportError:
 
 __all__ = [
     'Feeds',
-    'Inventory',
+    'Finances',
     'InboundShipments',
+    'Inventory',
     'MWSError',
-    'Reports',
     'Orders',
     'Products',
     'Recommendations',
+    'Reports',
     'Sellers',
-    'Finances',
 ]
 
 # See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
@@ -75,11 +80,23 @@ def calc_md5(string):
 
 
 def calc_request_description(params):
-    request_description = ''
-    for key in sorted(params):
-        encoded_value = quote(params[key], safe='-_.~')
-        request_description += '&{}={}'.format(key, encoded_value)
-    return request_description[1:]  # don't include leading ampersand
+    """
+    Builds the request description as a single string from the set of params.
+
+    Each key-value pair takes the form "key=value"
+    Sets of "key=value" pairs are joined by "&".
+    Keys should appear in alphabetical order in the result string.
+
+    Example:
+      params = {'foo': 1, 'bar': 4, 'baz': 'potato'}
+    Returns:
+      "bar=4&baz=potato&foo=1"
+    """
+    description_items = []
+    for key, val in params.items():
+        encoded_val = quote(str(val), safe='-_.~')
+        description_items.append('{}={}'.format(key, encoded_val))
+    return '&'.join(sorted(description_items))
 
 
 def remove_empty(dict_):
@@ -98,7 +115,26 @@ def remove_namespace(xml):
     return regex.sub('', xml)
 
 
+def assert_no_token(token):
+    """
+    We allow passing a next_token as an argument to request methods that have an associated
+    "...ByNextToken" operation. This token should be captured by `utils.next_token_action` and handled
+    accordingly, bypassing the original request method.
+
+    If a non-None token propagates to the original method, then something has gone awry.
+    This ensures we get notified when/if that happens (which it shouldn't).
+    """
+    assert token is None, (
+        "`next_token` passed to request method. "
+        "Should have been parsed by `next_token_action` decorator."
+    )
+
+
 class DictWrapper(object):
+    """
+    Main class that converts XML data to a parsed response object as a tree of ObjectDicts,
+    stored in the .parsed property.
+    """
     def __init__(self, xml, rootkey=None):
         self.original = xml
         self.response = None
@@ -108,6 +144,9 @@ class DictWrapper(object):
 
     @property
     def parsed(self):
+        """
+        Provides access to the parsed contents of an XML response as a tree of ObjectDicts.
+        """
         if self._rootkey:
             return self._response_dict.get(self._rootkey)
         return self._response_dict
@@ -127,6 +166,10 @@ class DataWrapper(object):
 
     @property
     def parsed(self):
+        """
+        Similar to the `parsed` property of DictWrapper, this provides a similar interface for a data response
+        that could not be parsed as XML.
+        """
         return self.original
 
 
@@ -166,13 +209,16 @@ class MWS(object):
 
     def __init__(self, access_key, secret_key, account_id,
                  region='US', domain='', uri="",
-                 version="", auth_token=""):
+                 version="", auth_token="", ):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
         self.auth_token = auth_token
         self.version = version or self.VERSION
         self.uri = uri or self.URI
+
+        # * TESTING FLAGS * #
+        self._test_request_params = False
 
         if domain:
             self.domain = domain
@@ -189,11 +235,12 @@ class MWS(object):
         """
         Get the parameters required in all MWS requests
         """
+        timestamp = datetime.datetime.utcnow().replace(microsecond=0).isoformat()
         params = {
             'AWSAccessKeyId': self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
             'SignatureVersion': '2',
-            'Timestamp': self.get_timestamp(),
+            'Timestamp': timestamp,
             'Version': self.version,
             'SignatureMethod': 'HmacSHA256',
         }
@@ -205,7 +252,6 @@ class MWS(object):
         """
         Make request to Amazon MWS API with these parameters
         """
-
         # Remove all keys with an empty value because
         # Amazon's MWS does not allow such a thing.
         extra_data = remove_empty(extra_data)
@@ -217,6 +263,10 @@ class MWS(object):
 
         params = self.get_params()
         params.update(extra_data)
+        if self._test_request_params:
+            # Testing method: return the params from this request before the request is made.
+            return params
+
         request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
         url = '%s%s?%s&Signature=%s' % (self.domain, self.uri, request_description, quote(signature))
@@ -248,9 +298,9 @@ class MWS(object):
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
 
-        except HTTPError as e:
-            error = MWSError(str(e.response.text))
-            error.response = e.response
+        except HTTPError as exc:
+            error = MWSError(str(exc.response.text))
+            error.response = exc.response
             raise error
 
         # Store the response object in the parsed_response for quick access
@@ -262,7 +312,6 @@ class MWS(object):
         Returns a GREEN, GREEN_I, YELLOW or RED status.
         Depending on the status/availability of the API its being called from.
         """
-
         return self.make_request(extra_data=dict(Action='GetServiceStatus'))
 
     def action_by_next_token(self, action, next_token):
@@ -302,12 +351,6 @@ class MWS(object):
         ])
         return base64.b64encode(hmac.new(self.secret_key.encode(), sig_data.encode(), hashlib.sha256).digest())
 
-    def get_timestamp(self):
-        """
-        Returns the current timestamp in proper format.
-        """
-        return strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
-
     def enumerate_param(self, param, values):
         """
         DEPRECATED.
@@ -324,6 +367,7 @@ class MWS(object):
 class Feeds(MWS):
     """
     Amazon MWS Feeds API
+    See: http://docs.developer.amazonservices.com/en_US/feeds/Feeds_Overview.html
     """
     ACCOUNT_TYPE = "Merchant"
 
@@ -336,14 +380,15 @@ class Feeds(MWS):
         """
         Uploads a feed ( xml or .tsv ) to the seller's inventory.
         Can be used for creating/updating products on Amazon.
+        See: http://docs.developer.amazonservices.com/en_US/feeds/Feeds_SubmitFeed.html
         """
         data = dict(Action='SubmitFeed',
                     FeedType=feed_type,
                     PurgeAndReplace=purge)
         data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
-        md = calc_md5(feed)
+        md5_hash = calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
-                                 extra_headers={'Content-MD5': md, 'Content-Type': content_type})
+                                 extra_headers={'Content-MD5': md5_hash, 'Content-Type': content_type})
 
     @utils.next_token_action('GetFeedSubmissionList')
     def get_feed_submission_list(self, feedids=None, max_count=None, feedtypes=None,
@@ -352,12 +397,13 @@ class Feeds(MWS):
         """
         Returns a list of all feed submissions submitted in the previous 90 days.
         That match the query parameters.
+        See: http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionList.html
         """
-
+        assert_no_token(next_token)
         data = dict(Action='GetFeedSubmissionList',
                     MaxCount=max_count,
                     SubmittedFromDate=fromdate,
-                    SubmittedToDate=todate,)
+                    SubmittedToDate=todate)
         data.update(utils.enumerate_param('FeedSubmissionIdList.Id', feedids))
         data.update(utils.enumerate_param('FeedTypeList.Type.', feedtypes))
         data.update(utils.enumerate_param('FeedProcessingStatusList.Status.', processingstatuses))
@@ -368,8 +414,6 @@ class Feeds(MWS):
         Deprecated.
         Use `get_feed_submission_list(next_token=token)` instead.
         """
-        # data = dict(Action='GetFeedSubmissionListByNextToken', NextToken=token)
-        # return self.make_request(data)
         warnings.warn(
             "Use `get_feed_submission_list(next_token=token)` instead.",
             DeprecationWarning,
@@ -377,6 +421,10 @@ class Feeds(MWS):
         return self.get_feed_submission_list(next_token=token)
 
     def get_feed_submission_count(self, feedtypes=None, processingstatuses=None, fromdate=None, todate=None):
+        """
+        Returns a count of the feeds submitted, defaulting to previous 90 days.
+        See: http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionCount.html
+        """
         data = dict(Action='GetFeedSubmissionCount',
                     SubmittedFromDate=fromdate,
                     SubmittedToDate=todate)
@@ -385,6 +433,10 @@ class Feeds(MWS):
         return self.make_request(data)
 
     def cancel_feed_submissions(self, feedids=None, feedtypes=None, fromdate=None, todate=None):
+        """
+        Cancels one or more feed submissions and returns a count of the feed submissions that were canceled.
+        See: http://docs.developer.amazonservices.com/en_US/feeds/Feeds_CancelFeedSubmissions.html
+        """
         data = dict(Action='CancelFeedSubmissions',
                     SubmittedFromDate=fromdate,
                     SubmittedToDate=todate)
@@ -393,6 +445,10 @@ class Feeds(MWS):
         return self.make_request(data)
 
     def get_feed_submission_result(self, feedid):
+        """
+        Returns the feed processing report and the Content-MD5 header.
+        See: http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionResult.html
+        """
         data = dict(Action='GetFeedSubmissionResult', FeedSubmissionId=feedid)
         return self.make_request(data, rootkey='Message')
 
@@ -400,7 +456,11 @@ class Feeds(MWS):
 class Reports(MWS):
     """
     Amazon MWS Reports API
+    See: http://docs.developer.amazonservices.com/en_US/reports/Reports_Overview.html
     """
+    # TODO: add CancelReportRequests -> Reports.cancel_report_requests
+    # TODO: add ManageReportSchedule -> Reports.manage_report_schedule
+    # TODO: add UpdateReportAcknowledgements -> Reports.update_report_acknowledgements
     ACCOUNT_TYPE = "Merchant"
     NEXT_TOKEN_OPERATIONS = [
         'GetReportRequestList',
@@ -410,10 +470,19 @@ class Reports(MWS):
     # * REPORTS * #
 
     def get_report(self, report_id):
+        """
+        Returns the contents of a report and the Content-MD5 header for the returned report body.
+        See: http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReport.html
+        """
         data = dict(Action='GetReport', ReportId=report_id)
         return self.make_request(data)
 
     def get_report_count(self, report_types=(), acknowledged=None, fromdate=None, todate=None):
+        """
+        Returns a count of the reports, created in the previous 90 days,
+        with a status of _DONE_ and that are available for download.
+        See: http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportCount.html
+        """
         data = dict(Action='GetReportCount',
                     Acknowledged=acknowledged,
                     AvailableFromDate=fromdate,
@@ -424,6 +493,13 @@ class Reports(MWS):
     @utils.next_token_action('GetReportList')
     def get_report_list(self, requestids=(), max_count=None, types=(), acknowledged=None,
                         fromdate=None, todate=None, next_token=None):
+        """
+        Returns a list of reports that were created, defaulting to the previous 90 days.
+        See: http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportList.html
+
+        Pass `next_token` to send a GetReportListByNextToken request.
+        """
+        assert_no_token(next_token)
         data = dict(Action='GetReportList',
                     Acknowledged=acknowledged,
                     AvailableFromDate=fromdate,
@@ -438,8 +514,6 @@ class Reports(MWS):
         Deprecated.
         Use `get_report_list(next_token=token)` instead.
         """
-        # data = dict(Action='GetReportListByNextToken', NextToken=token)
-        # return self.make_request(data)
         warnings.warn(
             "Use `get_report_list(next_token=token)` instead.",
             DeprecationWarning,
@@ -448,6 +522,10 @@ class Reports(MWS):
 
     def get_report_request_count(self, report_types=(), processingstatuses=(),
                                  fromdate=None, todate=None):
+        """
+        Returns a count of report requests that have been submitted to Amazon MWS for processing.
+        See: http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportRequestCount.html
+        """
         data = dict(Action='GetReportRequestCount',
                     RequestedFromDate=fromdate,
                     RequestedToDate=todate)
@@ -458,6 +536,13 @@ class Reports(MWS):
     @utils.next_token_action('GetReportRequestList')
     def get_report_request_list(self, requestids=(), types=(), processingstatuses=(),
                                 max_count=None, fromdate=None, todate=None, next_token=None):
+        """
+        Returns a list of report requests that you can use to get the ReportRequestId for a report.
+        See: http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportRequestList.html
+
+        Pass `next_token` to send a GetReportRequestListByNextToken request.
+        """
+        assert_no_token(next_token)
         data = dict(Action='GetReportRequestList',
                     MaxCount=max_count,
                     RequestedFromDate=fromdate,
@@ -472,8 +557,6 @@ class Reports(MWS):
         Deprecated.
         Use `get_report_request_list(next_token=token)` instead.
         """
-        # data = dict(Action='GetReportRequestListByNextToken', NextToken=token)
-        # return self.make_request(data)
         warnings.warn(
             "Use `get_report_request_list(next_token=token)` instead.",
             DeprecationWarning,
@@ -481,6 +564,10 @@ class Reports(MWS):
         return self.get_report_request_list(next_token=token)
 
     def request_report(self, report_type, start_date=None, end_date=None, marketplaceids=()):
+        """
+        Creates a report request and submits the request to Amazon MWS.
+        See: http://docs.developer.amazonservices.com/en_US/reports/Reports_RequestReport.html
+        """
         data = dict(Action='RequestReport',
                     ReportType=report_type,
                     StartDate=start_date,
@@ -490,12 +577,25 @@ class Reports(MWS):
 
     # * ReportSchedule * #
 
-    def get_report_schedule_list(self, types=()):
+    @utils.next_token_action('GetReportScheduleList')
+    def get_report_schedule_list(self, types=(), next_token=None):
+        """
+        Returns a list of order report requests that are scheduled to be submitted
+        to Amazon MWS for processing.
+        See: http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleList.html
+
+        Pass `next_token` to send a GetReportScheduleListByNextToken request.
+        """
+        assert_no_token(next_token)
         data = dict(Action='GetReportScheduleList')
         data.update(utils.enumerate_param('ReportTypeList.Type.', types))
         return self.make_request(data)
 
     def get_report_schedule_count(self, types=()):
+        """
+        Returns a count of order report requests that are scheduled to be submitted to Amazon MWS.
+        See: http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleCount.html
+        """
         data = dict(Action='GetReportScheduleCount')
         data.update(utils.enumerate_param('ReportTypeList.Type.', types))
         return self.make_request(data)
@@ -504,6 +604,7 @@ class Reports(MWS):
 class Orders(MWS):
     """
     Amazon Orders API
+    See: http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_Overview.html
     """
     URI = "/Orders/2013-09-01"
     VERSION = "2013-09-01"
@@ -518,7 +619,13 @@ class Orders(MWS):
                     lastupdatedafter=None, lastupdatedbefore=None, orderstatus=(),
                     fulfillment_channels=(), payment_methods=(), buyer_email=None,
                     seller_orderid=None, max_results='100', next_token=None):
+        """
+        Returns orders created or updated during a time frame that you specify.
+        See: http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrders.html
 
+        Pass `next_token` to send a ListOrdersByNextToken request.
+        """
+        assert_no_token(next_token)
         data = dict(Action='ListOrders',
                     CreatedAfter=created_after,
                     CreatedBefore=created_before,
@@ -526,8 +633,7 @@ class Orders(MWS):
                     LastUpdatedBefore=lastupdatedbefore,
                     BuyerEmail=buyer_email,
                     SellerOrderId=seller_orderid,
-                    MaxResultsPerPage=max_results,
-                    )
+                    MaxResultsPerPage=max_results)
         data.update(utils.enumerate_param('OrderStatus.Status.', orderstatus))
         data.update(utils.enumerate_param('MarketplaceId.Id.', marketplaceids))
         data.update(utils.enumerate_param('FulfillmentChannel.Channel.', fulfillment_channels))
@@ -539,8 +645,6 @@ class Orders(MWS):
         Deprecated.
         Use `list_orders(next_token=token)` instead.
         """
-        # data = dict(Action='ListOrdersByNextToken', NextToken=token)
-        # return self.make_request(data)
         warnings.warn(
             "Use `list_orders(next_token=token)` instead.",
             DeprecationWarning,
@@ -548,12 +652,23 @@ class Orders(MWS):
         return self.list_orders(next_token=token)
 
     def get_order(self, amazon_order_ids):
+        """
+        Returns orders based on the AmazonOrderId values that you specify.
+        See: http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_GetOrder.html
+        """
         data = dict(Action='GetOrder')
         data.update(utils.enumerate_param('AmazonOrderId.Id.', amazon_order_ids))
         return self.make_request(data)
 
     @utils.next_token_action('ListOrderItems')
     def list_order_items(self, amazon_order_id=None, next_token=None):
+        """
+        Returns order items based on the AmazonOrderId that you specify.
+        See: http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrderItems.html
+
+        Pass `next_token` to send a ListOrderItemsByNextToken request
+        """
+        assert_no_token(next_token)
         data = dict(Action='ListOrderItems', AmazonOrderId=amazon_order_id)
         return self.make_request(data)
 
@@ -562,8 +677,6 @@ class Orders(MWS):
         Deprecated.
         Use `list_order_items(next_token=token)` instead.
         """
-        # data = dict(Action='ListOrderItemsByNextToken', NextToken=token)
-        # return self.make_request(data)
         warnings.warn(
             "Use `list_order_items(next_token=token)` instead.",
             DeprecationWarning,
@@ -574,7 +687,9 @@ class Orders(MWS):
 class Products(MWS):
     """
     Amazon MWS Products API
+    See: http://docs.developer.amazonservices.com/en_US/products/Products_Overview.html
     """
+    # TODO: add GetMyFeesEstimate -> Products.get_my_fees_estimate
     URI = '/Products/2011-10-01'
     VERSION = '2011-10-01'
     NAMESPACE = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
@@ -586,6 +701,7 @@ class Products(MWS):
         relevancy, based on a search query that you specify.
         Your search query can be a phrase that describes the product
         or it can be a product identifier such as a UPC, EAN, ISBN, or JAN.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_ListMatchingProducts.html
         """
         data = dict(Action='ListMatchingProducts',
                     MarketplaceId=marketplaceid,
@@ -597,6 +713,7 @@ class Products(MWS):
         """
         Returns a list of products and their attributes, based on a list of
         ASIN values that you specify.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProduct.html
         """
         data = dict(Action='GetMatchingProduct', MarketplaceId=marketplaceid)
         data.update(utils.enumerate_param('ASINList.ASIN.', asins))
@@ -607,7 +724,7 @@ class Products(MWS):
         Returns a list of products and their attributes, based on a list of
         product identifier values (ASIN, SellerSKU, UPC, EAN, ISBN, GCID  and JAN)
         The identifier type is case sensitive.
-        Added in Fourth Release, API version 2011-10-01
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProductForId.html
         """
         data = dict(Action='GetMatchingProductForId',
                     MarketplaceId=marketplaceid,
@@ -620,6 +737,7 @@ class Products(MWS):
         """
         Returns the current competitive pricing of a product,
         based on the SellerSKU and MarketplaceId that you specify.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForSKU.html
         """
         data = dict(Action='GetCompetitivePricingForSKU', MarketplaceId=marketplaceid)
         data.update(utils.enumerate_param('SellerSKUList.SellerSKU.', skus))
@@ -629,12 +747,18 @@ class Products(MWS):
         """
         Returns the current competitive pricing of a product,
         based on the ASIN and MarketplaceId that you specify.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForASIN.html
         """
         data = dict(Action='GetCompetitivePricingForASIN', MarketplaceId=marketplaceid)
         data.update(utils.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
     def get_lowest_offer_listings_for_sku(self, marketplaceid, skus, condition="Any", excludeme="False"):
+        """
+        Returns pricing information for the lowest-price active offer listings
+        for up to 20 products, based on SellerSKU.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForSKU.html
+        """
         data = dict(Action='GetLowestOfferListingsForSKU',
                     MarketplaceId=marketplaceid,
                     ItemCondition=condition,
@@ -643,6 +767,11 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_lowest_offer_listings_for_asin(self, marketplaceid, asins, condition="Any", excludeme="False"):
+        """
+        Returns pricing information for the lowest-price active offer listings
+        for up to 20 products, based on ASIN.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForASIN.html
+        """
         data = dict(Action='GetLowestOfferListingsForASIN',
                     MarketplaceId=marketplaceid,
                     ItemCondition=condition,
@@ -651,6 +780,10 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_lowest_priced_offers_for_sku(self, marketplaceid, sku, condition="New", excludeme="False"):
+        """
+        Returns lowest priced offers for a single product, based on SellerSKU.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForSKU.html
+        """
         data = dict(Action='GetLowestPricedOffersForSKU',
                     MarketplaceId=marketplaceid,
                     SellerSKU=sku,
@@ -659,6 +792,10 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_lowest_priced_offers_for_asin(self, marketplaceid, asin, condition="New", excludeme="False"):
+        """
+        Returns lowest priced offers for a single product, based on ASIN.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForASIN.html
+        """
         data = dict(Action='GetLowestPricedOffersForASIN',
                     MarketplaceId=marketplaceid,
                     ASIN=asin,
@@ -667,18 +804,30 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_product_categories_for_sku(self, marketplaceid, sku):
+        """
+        Returns the parent product categories that a product belongs to, based on SellerSKU.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForSKU.html
+        """
         data = dict(Action='GetProductCategoriesForSKU',
                     MarketplaceId=marketplaceid,
                     SellerSKU=sku)
         return self.make_request(data)
 
     def get_product_categories_for_asin(self, marketplaceid, asin):
+        """
+        Returns the parent product categories that a product belongs to, based on ASIN.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForASIN.html
+        """
         data = dict(Action='GetProductCategoriesForASIN',
                     MarketplaceId=marketplaceid,
                     ASIN=asin)
         return self.make_request(data)
 
     def get_my_price_for_sku(self, marketplaceid, skus, condition=None):
+        """
+        Returns pricing information for your own offer listings, based on SellerSKU.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForSKU.html
+        """
         data = dict(Action='GetMyPriceForSKU',
                     MarketplaceId=marketplaceid,
                     ItemCondition=condition)
@@ -686,6 +835,10 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_my_price_for_asin(self, marketplaceid, asins, condition=None):
+        """
+        Returns pricing information for your own offer listings, based on ASIN.
+        See: http://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForASIN.html
+        """
         data = dict(Action='GetMyPriceForASIN',
                     MarketplaceId=marketplaceid,
                     ItemCondition=condition)
@@ -696,6 +849,7 @@ class Products(MWS):
 class Sellers(MWS):
     """
     Amazon MWS Sellers API
+    See: http://docs.developer.amazonservices.com/en_US/sellers/Sellers_Overview.html
     """
     URI = '/Sellers/2011-07-01'
     VERSION = '2011-07-01'
@@ -711,9 +865,11 @@ class Sellers(MWS):
         a list of participations that include seller-specific information in that marketplace.
         The operation returns only those marketplaces where the seller's account is
         in an active state.
+        See: http://docs.developer.amazonservices.com/en_US/sellers/Sellers_ListMarketplaceParticipations.html
 
-        Run with `next_token` kwarg to call related "ByNextToken" action.
+        Pass `next_token` to send a ListMarketplaceParticipationsByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='ListMarketplaceParticipations')
         return self.make_request(data)
 
@@ -722,8 +878,6 @@ class Sellers(MWS):
         Deprecated.
         Use `list_marketplace_participations(next_token=token)` instead.
         """
-        # data = dict(Action='ListMarketplaceParticipations', NextToken=token)
-        # return self.make_request(data)
         warnings.warn(
             "Use `list_marketplace_participations(next_token=token)` instead.",
             DeprecationWarning,
@@ -734,6 +888,7 @@ class Sellers(MWS):
 class Finances(MWS):
     """
     Amazon MWS Finances API
+    See: http://docs.developer.amazonservices.com/en_US/finances/Finances_Overview.html
     """
     URI = "/Finances/2015-05-01"
     VERSION = "2015-05-01"
@@ -746,13 +901,16 @@ class Finances(MWS):
     @utils.next_token_action('ListFinancialEventGroups')
     def list_financial_event_groups(self, created_after=None, created_before=None, max_results=None, next_token=None):
         """
-        Returns a list of financial event groups
+        Returns financial event groups for a given date range.
+        See: http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventGroups.html
+
+        Pass `next_token` to send a ListFinancialEventGroupsByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='ListFinancialEventGroups',
                     FinancialEventGroupStartedAfter=created_after,
                     FinancialEventGroupStartedBefore=created_before,
-                    MaxResultsPerPage=max_results,
-                    )
+                    MaxResultsPerPage=max_results)
         return self.make_request(data)
 
     def list_financial_event_groups_by_next_token(self, token):
@@ -771,14 +929,17 @@ class Finances(MWS):
                               posted_before=None, max_results=None, next_token=None):
         """
         Returns financial events for a user-provided FinancialEventGroupId or AmazonOrderId
+        See: http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEvents.html
+
+        Pass `next_token` to send a ListFinancialEventsByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action='ListFinancialEvents',
                     FinancialEventGroupId=financial_event_group_id,
                     AmazonOrderId=amazon_order_id,
                     PostedAfter=posted_after,
                     PostedBefore=posted_before,
-                    MaxResultsPerPage=max_results,
-                    )
+                    MaxResultsPerPage=max_results)
         return self.make_request(data)
 
     def list_financial_events_by_next_token(self, token):
@@ -799,6 +960,7 @@ class Finances(MWS):
 class InboundShipments(MWS):
     """
     Amazon MWS FulfillmentInboundShipment API
+    See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Overview.html
     """
     URI = "/FulfillmentInboundShipment/2010-10-01"
     VERSION = '2010-10-01'
@@ -826,11 +988,23 @@ class InboundShipments(MWS):
             self.from_address = self.set_ship_from_address(addr)
         super(InboundShipments, self).__init__(*args, **kwargs)
 
+    # * HELPER METHODS * #
+
     def set_ship_from_address(self, address):
         """
-        Verifies the structure of an address dictionary.
-        Once verified against the KEY_CONFIG, saves a parsed version
-        of that dictionary, ready to send to requests.
+        Parses an `address` dict into the appropriate MWS keys
+        to provide to requests for creating inbound shipments, storing this data
+        on self.from_address.
+
+        Input keys expected:
+          REQUIRED: 'name', 'address_1', 'city'
+          OPTIONAL: 'address_2', 'district_or_county', 'state_or_province', 'postal_code', 'country'
+        Note 1: optional keys may still be required by MWS in specific combinations.
+        Refer to Address data type documentation for details:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#Address
+
+        Note 2: 'country_code' is technically a required field, but a default ('US') is provided.
+        Please adjust as needed for your purposes.
         """
         # Clear existing
         self.from_address = None
@@ -870,7 +1044,7 @@ class InboundShipments(MWS):
                 for c in key_config}
         self.from_address = addr
 
-    def _parse_item_args(self, item_args, operation):
+    def parse_item_args(self, item_args, operation):
         """
         Parses item arguments sent to create_inbound_shipment_plan, create_inbound_shipment,
         and update_inbound_shipment methods.
@@ -952,26 +1126,28 @@ class InboundShipments(MWS):
 
         return items
 
+    # * REQUEST METHODS * #
+
     def create_inbound_shipment_plan(self, items, country_code='US',
                                      subdivision_code='', label_preference=''):
         """
         Returns one or more inbound shipment plans, which provide the
         information you need to create inbound shipments.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipmentPlan.html
 
-        At least one dictionary must be passed as `args`. Each dictionary
-        should contain the following keys:
-          REQUIRED: 'sku', 'quantity'
-          OPTIONAL: 'asin', 'condition', 'quantity_in_case'
+        `items` must be an iterable containing dicts.
+        See `InboundShipments.parse_item_args` for details.
 
-        'from_address' is required. Call 'set_ship_from_address' first before
-        using this operation.
+        A `from_address` is required. Call `InboundShipments.set_ship_from_address`
+        or pass a `from_address` kwarg when initializing InboundShipments to set up
+        the address BEFORE calling this method!
         """
         if not items:
-            raise MWSError("One or more `item` dict arguments required.")
+            raise MWSError("no items provided for create_inbound_shipment_plan call.")
         subdivision_code = subdivision_code or None
         label_preference = label_preference or None
 
-        items = self._parse_item_args(items, 'CreateInboundShipmentPlan')
+        items = self.parse_item_args(items, 'CreateInboundShipmentPlan')
         if not self.from_address:
             raise MWSError((
                 "ShipFromAddress has not been set. "
@@ -996,14 +1172,14 @@ class InboundShipments(MWS):
                                 box_contents_source=None):
         """
         Creates an inbound shipment to Amazon's fulfillment network.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipment.html
 
-        At least one dictionary must be passed as `items`. Each dictionary
-        should contain the following keys:
-          REQUIRED: 'sku', 'quantity'
-          OPTIONAL: 'quantity_in_case'
+        `items` must be an iterable containing dicts.
+        See `InboundShipments.parse_item_args` for details.
 
-        'from_address' is required. Call 'set_ship_from_address' first before
-        using this operation.
+        A `from_address` is required. Call `InboundShipments.set_ship_from_address`
+        or pass a `from_address` kwarg when initializing InboundShipments to set up
+        the address BEFORE calling this method!
         """
         assert isinstance(shipment_id, str), "`shipment_id` must be a string."
         assert isinstance(shipment_name, str), "`shipment_name` must be a string."
@@ -1012,7 +1188,7 @@ class InboundShipments(MWS):
         if not items:
             raise MWSError("One or more `item` dict arguments required.")
 
-        items = self._parse_item_args(items, 'CreateInboundShipment')
+        items = self.parse_item_args(items, 'CreateInboundShipment')
 
         if not self.from_address:
             raise MWSError((
@@ -1058,8 +1234,19 @@ class InboundShipments(MWS):
                                 box_contents_source=None):
         """
         Updates an existing inbound shipment in Amazon FBA.
-        'from_address' is required. Call 'set_ship_from_address' first before
-        using this operation.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_UpdateInboundShipment.html
+
+        `items` (optional), if provided, must be an iterable containing dicts.
+        See `InboundShipments.parse_item_args` for details.
+
+        A `from_address` is required. Call `InboundShipments.set_ship_from_address`
+        or pass a `from_address` kwarg when initializing InboundShipments to set up
+        the address BEFORE calling this method!
+
+        Note: yes, a from_address IS required for sending an update request, even if the address is not being altered.
+        If you use multiple from_addresses, to ensure you are not overwriting the from_address of an existing shipment,
+        we recommend querying for shipment data using list_inbound_shipments and copying the shipment's from_address
+        from Amazon's response.
         """
         # Assert these are strings, error out if not.
         assert isinstance(shipment_id, str), "`shipment_id` must be a string."
@@ -1068,7 +1255,7 @@ class InboundShipments(MWS):
 
         # Parse item args
         if items:
-            items = self._parse_item_args(items, 'UpdateInboundShipment')
+            items = self.parse_item_args(items, 'UpdateInboundShipment')
         else:
             items = None
 
@@ -1117,6 +1304,7 @@ class InboundShipments(MWS):
         """
         Returns labeling requirements and item preparation instructions
         to help you prepare items for an inbound shipment.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForSKU.html
         """
         country_code = country_code or 'US'
         skus = skus or []
@@ -1135,8 +1323,8 @@ class InboundShipments(MWS):
 
     def get_prep_instructions_for_asin(self, asins=None, country_code=None):
         """
-        Returns item preparation instructions to help with
-        item sourcing decisions.
+        Returns item preparation instructions to help with item sourcing decisions.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForASIN.html
         """
         country_code = country_code or 'US'
         asins = asins or []
@@ -1155,9 +1343,14 @@ class InboundShipments(MWS):
 
     def get_package_labels(self, shipment_id, num_packages, page_type=None):
         """
-        Returns PDF document data for printing package labels for
-        an inbound shipment.
+        Returns PDF document data for printing package labels for an inbound shipment.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPackageLabels.html
+
+        Response content will contain a base64-encoded string. When decoded, this will produce a ZIP file.
+        Inside this ZIP file object, you should find a single PDF file. This PDF file will contain
+        the printable labels requested.
         """
+        # TODO: build helper method for extracting PDF file contents from this and other, similar requests.
         data = dict(
             Action='GetPackageLabels',
             ShipmentId=shipment_id,
@@ -1168,8 +1361,8 @@ class InboundShipments(MWS):
 
     def get_transport_content(self, shipment_id):
         """
-        Returns current transportation information about an
-        inbound shipment.
+        Returns current transportation information about an inbound shipment.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetTransportContent.html
         """
         data = dict(
             Action='GetTransportContent',
@@ -1180,6 +1373,7 @@ class InboundShipments(MWS):
     def estimate_transport_request(self, shipment_id):
         """
         Requests an estimate of the shipping cost for an inbound shipment.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_EstimateTransportRequest.html
         """
         data = dict(
             Action='EstimateTransportRequest',
@@ -1191,6 +1385,7 @@ class InboundShipments(MWS):
         """
         Voids a previously-confirmed request to ship your inbound shipment
         using an Amazon-partnered carrier.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_VoidTransportRequest.html
         """
         data = dict(
             Action='VoidTransportRequest',
@@ -1200,8 +1395,12 @@ class InboundShipments(MWS):
 
     def get_bill_of_lading(self, shipment_id):
         """
-        Returns PDF document data for printing a bill of lading
-        for an inbound shipment.
+        Returns PDF document data for printing a bill of lading for an inbound shipment.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetBillOfLading.html
+
+        Response content will contain a base64-encoded string. When decoded, this will produce a ZIP file.
+        Inside this ZIP file object, you should find a single PDF file. This PDF file will contain
+        the printable labels requested.
         """
         data = dict(
             Action='GetBillOfLading',
@@ -1211,11 +1410,14 @@ class InboundShipments(MWS):
 
     @utils.next_token_action('ListInboundShipments')
     def list_inbound_shipments(self, shipment_ids=None, shipment_statuses=None,
-                               last_updated_after=None, last_updated_before=None,):
+                               last_updated_after=None, last_updated_before=None, next_token=None):
         """
-        Returns list of shipments based on statuses, IDs, and/or
-        before/after datetimes.
+        Returns list of shipments based on statuses, IDs, and/or before/after datetimes.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipments.html
+
+        Pass `next_token` to send a ListInboundShipmentsByNextToken request.
         """
+        assert_no_token(next_token)
         last_updated_after = utils.dt_iso_or_none(last_updated_after)
         last_updated_before = utils.dt_iso_or_none(last_updated_before)
 
@@ -1232,11 +1434,14 @@ class InboundShipments(MWS):
 
     @utils.next_token_action('ListInboundShipmentItems')
     def list_inbound_shipment_items(self, shipment_id=None, last_updated_after=None,
-                                    last_updated_before=None,):
+                                    last_updated_before=None, next_token=None):
         """
-        Returns list of items within inbound shipments and/or
-        before/after datetimes.
+        Returns list of items within inbound shipments and/or before/after datetimes.
+        See: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItems.html
+
+        Pass `next_token` to send a ListInboundShipmentItemsByNextToken request.
         """
+        assert_no_token(next_token)
         last_updated_after = utils.dt_iso_or_none(last_updated_after)
         last_updated_before = utils.dt_iso_or_none(last_updated_before)
 
@@ -1251,9 +1456,9 @@ class InboundShipments(MWS):
 
 class Inventory(MWS):
     """
-    Amazon MWS Inventory Fulfillment API
+    Amazon MWS Fulfillment Inventory API
+    http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_Overview.html
     """
-
     URI = '/FulfillmentInventory/2010-10-01'
     VERSION = '2010-10-01'
     NAMESPACE = "{http://mws.amazonaws.com/FulfillmentInventory/2010-10-01}"
@@ -1266,12 +1471,14 @@ class Inventory(MWS):
                               response_group='Basic', next_token=None):
         """
         Returns information on available inventory
-        """
+        See: http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupply.html
 
+        Pass `next_token` to send a ListInventorySupplyByNextToken request.
+        """
+        assert_no_token(next_token)
         data = dict(Action='ListInventorySupply',
                     QueryStartDateTime=datetime_,
-                    ResponseGroup=response_group,
-                    )
+                    ResponseGroup=response_group)
         data.update(utils.enumerate_param('SellerSkus.member.', skus))
         return self.make_request(data, "POST")
 
@@ -1280,8 +1487,6 @@ class Inventory(MWS):
         Deprecated.
         Use `list_inventory_supply(next_token=token)` instead.
         """
-        # data = dict(Action='ListInventorySupplyByNextToken', NextToken=token)
-        # return self.make_request(data, "POST")
         warnings.warn(
             "Use `list_inventory_supply(next_token=token)` instead.",
             DeprecationWarning,
@@ -1292,18 +1497,28 @@ class Inventory(MWS):
 class OutboundShipments(MWS):
     """
     Amazon MWS Fulfillment Outbound Shipments API
+    See: http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_Overview.html
     """
     URI = "/FulfillmentOutboundShipment/2010-10-01"
     VERSION = "2010-10-01"
     NEXT_TOKEN_OPERATIONS = [
         'ListAllFulfillmentOrders',
     ]
-    # TODO: Complete this class section
+    # TODO: add GetFulfillmentPreview
+    # TODO: add CreateFulfillmentPreview
+    # TODO: add UpdateFulfillmentPreview
+    # TODO: add GetFulfillmentOrder
+    # TODO: add ListAllFulfillmentOrders (with next token)
+    # TODO: add GetPackageTrackingDetails
+    # TODO: add CancelFulfillmentOrder
+    # TODO: add ListReturnReasonCodes
+    # TODO: add CreateFulfillmentReturn
 
 
 class Recommendations(MWS):
     """
     Amazon MWS Recommendations API
+    See: http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_Overview.html
     """
     URI = '/Recommendations/2013-04-01'
     VERSION = '2013-04-01'
@@ -1316,6 +1531,8 @@ class Recommendations(MWS):
         """
         Checks whether there are active recommendations for each category for the given marketplace, and if there are,
         returns the time when recommendations were last updated for each category.
+        See:
+        http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_GetLastUpdatedTimeForRecommendations.html
         """
         data = dict(Action='GetLastUpdatedTimeForRecommendations',
                     MarketplaceId=marketplaceid)
@@ -1326,7 +1543,11 @@ class Recommendations(MWS):
                              recommendationcategory=None, next_token=None):
         """
         Returns your active recommendations for a specific category or for all categories for a specific marketplace.
+        See: http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_ListRecommendations.html
+
+        Pass `next_token` to send a ListRecommendationsByNextToken request.
         """
+        assert_no_token(next_token)
         data = dict(Action="ListRecommendations",
                     MarketplaceId=marketplaceid,
                     RecommendationCategory=recommendationcategory)
@@ -1337,9 +1558,6 @@ class Recommendations(MWS):
         Deprecated.
         Use `list_recommendations(next_token=token)` instead.
         """
-        # data = dict(Action="ListRecommendationsByNextToken",
-        #             NextToken=token)
-        # return self.make_request(data, "POST")
         warnings.warn(
             "Use `list_recommendations(next_token=token)` instead.",
             DeprecationWarning,

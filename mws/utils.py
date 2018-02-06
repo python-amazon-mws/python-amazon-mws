@@ -45,6 +45,24 @@ class ObjectDict(dict):
     def __setattr__(self, item, value):
         self.__setitem__(item, value)
 
+    def __iter__(self):
+        """
+        A fix for instances where we expect a list, but get a single item.
+
+        If the parser finds multiple keys by the same name under the same parent node,
+        the node will create a list of ObjectDicts to that key. However, if we expect a list
+        in downstream code when only a single item is returned, we will find a single ObjectDict.
+        Attempting to iterate over that object will iterate through dict keys,
+        which is not what we want.
+
+        This override will send back an iterator of a list with a single element if necessary
+        to allow iteration of any node with a single element. If accessing directly, we will
+        still get a list or ObjectDict, as originally expected.
+        """
+        if not isinstance(self, list):
+            return iter([self, ])
+        return self
+
     def getvalue(self, item, value=None):
         """
         Old Python 2-compatible getter method for default value.
@@ -101,7 +119,7 @@ class XML2Dict(object):
 
     def fromstring(self, str_):
         """
-        Parse a string
+        Convert XML-formatted string to an ObjectDict.
         """
         text = ET.fromstring(str_)
         root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
