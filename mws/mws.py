@@ -219,8 +219,13 @@ class MWS(object):
         params.update(extra_data)
         request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
-        url = '%s%s?%s&Signature=%s' % (self.domain, self.uri, request_description, quote(signature))
-        headers = {'User-Agent': 'python-amazon-mws/0.0.1 (Language=Python)'}
+        url = "{domain}{uri}?{description}&Signature={signature}".format(
+            domain=self.domain,
+            uri=self.uri,
+            description=request_description,
+            signature=quote(signature),
+        )
+        headers = {'User-Agent': 'python-amazon-mws/0.8.0 (Language=Python)'}
         headers.update(kwargs.get('extra_headers', {}))
 
         try:
