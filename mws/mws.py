@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from time import gmtime, strftime
 import base64
 import datetime
 import hashlib
@@ -193,7 +192,7 @@ class MWS(object):
             'AWSAccessKeyId': self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
             'SignatureVersion': '2',
-            'Timestamp': self.get_timestamp(),
+            'Timestamp': utils.get_utc_timestamp(),
             'Version': self.version,
             'SignatureMethod': 'HmacSHA256',
         }
@@ -306,12 +305,6 @@ class MWS(object):
             request_description
         ])
         return base64.b64encode(hmac.new(self.secret_key.encode(), sig_data.encode(), hashlib.sha256).digest())
-
-    def get_timestamp(self):
-        """
-        Returns the current timestamp in proper format.
-        """
-        return strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
 
     def enumerate_param(self, param, values):
         """

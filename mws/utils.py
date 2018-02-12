@@ -252,6 +252,13 @@ def next_token_action(action_name):
     return _decorator
 
 
+def get_utc_timestamp():
+    """
+    Returns the current UTC timestamp in ISO-8601 format.
+    """
+    return datetime.datetime.utcnow().replace(microsecond=0).isoformat()
+
+
 # DEPRECATION: these are old names for these objects, which have been updated
 # to more idiomatic naming convention. Leaving these names in place in case
 # anyone is using the old object names.
