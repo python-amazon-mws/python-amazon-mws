@@ -12,6 +12,7 @@ from requests import request
 from requests.exceptions import HTTPError
 
 from . import utils
+from . import __version__ as package_version
 
 try:
     from urllib.parse import quote
@@ -224,7 +225,7 @@ class MWS(object):
             description=request_description,
             signature=quote(signature),
         )
-        headers = {'User-Agent': 'python-amazon-mws/0.8.0 (Language=Python)'}
+        headers = {'User-Agent': 'python-amazon-mws/{} (Language=Python)'.format(package_version)}
         headers.update(kwargs.get('extra_headers', {}))
 
         try:
