@@ -184,7 +184,7 @@ class MWS(object):
             }
             raise MWSError(error_msg)
 
-    def get_params(self):
+    def get_default_params(self):
         """
         Get the parameters required in all MWS requests
         """
@@ -214,7 +214,7 @@ class MWS(object):
             if isinstance(value, (datetime.datetime, datetime.date)):
                 extra_data[key] = value.isoformat()
 
-        params = self.get_params()
+        params = self.get_default_params()
         params.update(extra_data)
         request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
@@ -252,9 +252,9 @@ class MWS(object):
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)
 
-        except HTTPError as e:
-            error = MWSError(str(e.response.text))
-            error.response = e.response
+        except HTTPError as exc:
+            error = MWSError(str(exc.response.text))
+            error.response = exc.response
             raise error
 
         # Store the response object in the parsed_response for quick access
@@ -339,9 +339,9 @@ class Feeds(MWS):
                     FeedType=feed_type,
                     PurgeAndReplace=purge)
         data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
-        md = calc_md5(feed)
+        md5_hash = calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
-                                 extra_headers={'Content-MD5': md, 'Content-Type': content_type})
+                                 extra_headers={'Content-MD5': md5_hash, 'Content-Type': content_type})
 
     @utils.next_token_action('GetFeedSubmissionList')
     def get_feed_submission_list(self, feedids=None, max_count=None, feedtypes=None,
@@ -868,7 +868,7 @@ class InboundShipments(MWS):
                 for c in key_config}
         self.from_address = addr
 
-    def _parse_item_args(self, item_args, operation):
+    def parse_item_args(self, item_args, operation):
         """
         Parses item arguments sent to create_inbound_shipment_plan, create_inbound_shipment,
         and update_inbound_shipment methods.
@@ -969,7 +969,7 @@ class InboundShipments(MWS):
         subdivision_code = subdivision_code or None
         label_preference = label_preference or None
 
-        items = self._parse_item_args(items, 'CreateInboundShipmentPlan')
+        items = self.parse_item_args(items, 'CreateInboundShipmentPlan')
         if not self.from_address:
             raise MWSError((
                 "ShipFromAddress has not been set. "
@@ -1010,7 +1010,7 @@ class InboundShipments(MWS):
         if not items:
             raise MWSError("One or more `item` dict arguments required.")
 
-        items = self._parse_item_args(items, 'CreateInboundShipment')
+        items = self.parse_item_args(items, 'CreateInboundShipment')
 
         if not self.from_address:
             raise MWSError((
@@ -1066,7 +1066,7 @@ class InboundShipments(MWS):
 
         # Parse item args
         if items:
-            items = self._parse_item_args(items, 'UpdateInboundShipment')
+            items = self.parse_item_args(items, 'UpdateInboundShipment')
         else:
             items = None
 
