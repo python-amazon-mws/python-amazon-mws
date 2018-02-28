@@ -203,6 +203,31 @@ def enumerate_keyed_param(param, values):
     return params
 
 
+def dict_keyed_param(param, dict_from):
+    """
+    Given a param string and a dict, returns a flat dict of keyed params without enumerate.
+
+    Example:
+        param = "ShipmentRequestDetails.PackageDimensions"
+        dict_from = {'Length': 5, 'Width': 5, 'Height': 5, 'Unit': 'inches'}
+
+    Returns:
+        {
+            'ShipmentRequestDetails.PackageDimensions.Length': 5,
+            'ShipmentRequestDetails.PackageDimensions.Width': 5,
+            'ShipmentRequestDetails.PackageDimensions.Height': 5,
+            'ShipmentRequestDetails.PackageDimensions.Unit': 'inches',
+            ...
+        }
+    """
+    params = {}
+    for k, v in dict_from.items():
+        params.update({
+            "{param}.{key}".format(param=param, key=k): v
+        })
+    return params
+
+
 def unique_list_order_preserved(seq):
     """
     Returns a unique list of items from the sequence
