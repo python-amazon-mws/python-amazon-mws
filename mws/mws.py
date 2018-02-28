@@ -35,6 +35,7 @@ __all__ = [
     'Recommendations',
     'Sellers',
     'Finances',
+    'MerchantFulfillment'
 ]
 
 # See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
@@ -1356,78 +1357,58 @@ class Recommendations(MWS):
 
 
 class MerchantFulfillment(MWS):
-    """ Amazon Merchant Fulfillment API """
-
+    """
+    Amazon MWS Merchant Fulfillment API
+    """
     URI = "/MerchantFulfillment/2015-06-01"
     VERSION = "2015-06-01"
     NS = '{https://mws.amazonservices.com/MerchantFulfillment/2015-06-01}'
 
-    # marketplaceids=None, created_after=None, created_before=None,
-    # lastupdatedafter=None, lastupdatedbefore=None, orderstatus=(),
-    # fulfillment_channels=(), payment_methods=(), buyer_email=None,
-    # seller_orderid=None, max_results='100', next_token=None
-
-    ##  EXAMPLE PARAMS
-    # &Action=GetEligibleShippingServices
-    # &SellerId=A09087172RPFTMV0PGAN2
-    # &SignatureVersion=2
-    # &Timestamp=2015-09-23T18%3A36%3A26Z
-    # &Version=2015-06-01
-    # &Signature=vMf6thsqGxfVy2EZBsH5sBPJxQe6VzKL9jli8eS7tvM%3D
-    # &SignatureMethod=HmacSHA256
-
-    # &ShipmentRequestDetails.AmazonOrderId=903-9939455-1336669
-    # &ShipmentRequestDetails.MustArriveByDate=2015-09-28T07%3A00%3A00Z
-    
-    # &ShipmentRequestDetails.PackageDimensions.Length=5
-    # &ShipmentRequestDetails.PackageDimensions.Width=5
-    # &ShipmentRequestDetails.PackageDimensions.Height=5
-    # &ShipmentRequestDetails.PackageDimensions.Unit=inches
-
-    # &ShipmentRequestDetails.Weight.Value=10
-    # &ShipmentRequestDetails.Weight.Unit=ounces
-
-    # &ShipmentRequestDetails.ShipDate=2015-09-23T19%3A32%3A08.727Z
-
-    # &ShipmentRequestDetails.ShipFromAddress.Name=John%20Doe
-    # &ShipmentRequestDetails.ShipFromAddress.AddressLine1=1234%20Westlake%20Ave%20N
-    # &ShipmentRequestDetails.ShipFromAddress.City=Seattle
-    # &ShipmentRequestDetails.ShipFromAddress.StateOrProvinceCode=WA
-    # &ShipmentRequestDetails.ShipFromAddress.PostalCode=98121
-    # &ShipmentRequestDetails.ShipFromAddress.CountryCode=US
-    # &ShipmentRequestDetails.ShipFromAddress.Email=example%40example.com
-    # &ShipmentRequestDetails.ShipFromAddress.Phone=2061234567
-
-    # &ShipmentRequestDetails.ShippingServiceOptions.DeliveryExperience=DeliveryConfirmationWithoutSignature
-    # &ShipmentRequestDetails.ShippingServiceOptions.CarrierWillPickUp=false
-    # &ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.CurrencyCode=USD
-    # &ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.Amount=10.00
-
-    # &ShipmentRequestDetails.ItemList.Item.1.OrderItemId=28207139993814
-    # &ShipmentRequestDetails.ItemList.Item.1.Quantity=1
-
-    # &ShipmentRequestDetails.LabelCustomization.CustomTextForLabel=Custom text for my label
-    # &ShipmentRequestDetails.LabelCustomization.StandardIdForLabel=903-9939455-1336669
-
     def get_eligible_shipping_services(self, amazon_order_id=None, seller_orderid=None, item_list=[], ship_from_address={},
                                        package_dimensions={}, weight={}, must_arrive_by_date=None, ship_date=None,
                                        shipping_service_options={}, label_customization={}):
-        """ Get eligible shipping services - Merchant fulfillment API """
 
         data = {
+            "Action"                                  : "GetEligibleShippingServices",
             "ShipmentRequestDetails.AmazonOrderId"    : amazon_order_id,
             "ShipmentRequestDetails.SellerOrderId"    : seller_orderid,
             "ShipmentRequestDetails.MustArriveByDate" : must_arrive_by_date,
             "ShipmentRequestDetails.ShipDate"         : ship_date
         }
-        
-        # "ShipmentRequestDetails.ItemList"
-        # "ShipmentRequestDetails.ShipFromAddress",
-        # "ShipmentRequestDetails.PackageDimensions",
-        # "ShipmentRequestDetails.Weight",
-        # "ShipmentRequestDetails.ShippingServiceOptions",
-        # "ShipmentRequestDetails.LabelCustomization"
+        data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList", item_list))
+        data.update(utils.dict_keyed_param("ShipmentRequestDetails.ShipFromAddress", ship_from_address))
+        data.update(utils.dict_keyed_param("ShipmentRequestDetails.PackageDimensions", package_dimensions))
+        data.update(utils.dict_keyed_param("ShipmentRequestDetails.Weight", weight))
+        data.update(utils.dict_keyed_param("ShipmentRequestDetails.ShippingServiceOptions", shipping_service_options))
+        data.update(utils.dict_keyed_param("ShipmentRequestDetails.LabelCustomization", label_customization))
+        return self.make_request(data)
 
-        # data.update(utils.enumerate_param('MarketplaceId.Id.', marketplaceids))
+    def create_shipment(self, amazon_order_id=None, seller_orderid=None, item_list=[], ship_from_address={}, package_dimensions={},
+                        weight={}, must_arrive_by_date=None, ship_date=None, shipping_service_options={}, label_customization={},
+                        shipping_service_id=None, shipping_service_offer_id=None, hazmat_type=None):
 
+        data = {
+            "Action"                                  : "CreateShipment",
+            "ShipmentRequestDetails.AmazonOrderId"    : amazon_order_id,
+            "ShipmentRequestDetails.SellerOrderId"    : seller_orderid,
+            "ShipmentRequestDetails.MustArriveByDate" : must_arrive_by_date,
+            "ShipmentRequestDetails.ShipDate"         : ship_date,
+            "ShippingServiceId"                       : shipping_service_id,
+            "ShippingServiceOfferId"                  : shipping_service_offer_id,
+            "HazmatType"                              : hazmat_type
+        }
+        data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList", item_list))
+        data.update(utils.dict_keyed_param("ShipmentRequestDetails.ShipFromAddress", ship_from_address))
+        data.update(utils.dict_keyed_param("ShipmentRequestDetails.PackageDimensions", package_dimensions))
+        data.update(utils.dict_keyed_param("ShipmentRequestDetails.Weight", weight))
+        data.update(utils.dict_keyed_param("ShipmentRequestDetails.ShippingServiceOptions", shipping_service_options))
+        data.update(utils.dict_keyed_param("ShipmentRequestDetails.LabelCustomization", label_customization))
+        return self.make_request(data)
+
+    def get_shipment(self, shipment_id=None):
+        data = dict(Action="GetShipment", ShipmentId=shipment_id)
+        return self.make_request(data)
+
+    def cancel_shipment(self, shipment_id=None):
+        data = dict(Action="CancelShipment", ShipmentId=shipment_id)
         return self.make_request(data)
