@@ -1350,3 +1350,84 @@ class Recommendations(MWS):
             DeprecationWarning,
         )
         return self.list_recommendations(next_token=token)
+
+
+# * Merchant Fulfillment API * #
+
+
+class MerchantFulfillment(MWS):
+    """ Amazon Merchant Fulfillment API """
+
+    URI = "/MerchantFulfillment/2015-06-01"
+    VERSION = "2015-06-01"
+    NS = '{https://mws.amazonservices.com/MerchantFulfillment/2015-06-01}'
+
+    # marketplaceids=None, created_after=None, created_before=None,
+    # lastupdatedafter=None, lastupdatedbefore=None, orderstatus=(),
+    # fulfillment_channels=(), payment_methods=(), buyer_email=None,
+    # seller_orderid=None, max_results='100', next_token=None
+
+    ##  EXAMPLE PARAMS
+    # &Action=GetEligibleShippingServices
+    # &SellerId=A09087172RPFTMV0PGAN2
+    # &SignatureVersion=2
+    # &Timestamp=2015-09-23T18%3A36%3A26Z
+    # &Version=2015-06-01
+    # &Signature=vMf6thsqGxfVy2EZBsH5sBPJxQe6VzKL9jli8eS7tvM%3D
+    # &SignatureMethod=HmacSHA256
+
+    # &ShipmentRequestDetails.AmazonOrderId=903-9939455-1336669
+    # &ShipmentRequestDetails.MustArriveByDate=2015-09-28T07%3A00%3A00Z
+    
+    # &ShipmentRequestDetails.PackageDimensions.Length=5
+    # &ShipmentRequestDetails.PackageDimensions.Width=5
+    # &ShipmentRequestDetails.PackageDimensions.Height=5
+    # &ShipmentRequestDetails.PackageDimensions.Unit=inches
+
+    # &ShipmentRequestDetails.Weight.Value=10
+    # &ShipmentRequestDetails.Weight.Unit=ounces
+
+    # &ShipmentRequestDetails.ShipDate=2015-09-23T19%3A32%3A08.727Z
+
+    # &ShipmentRequestDetails.ShipFromAddress.Name=John%20Doe
+    # &ShipmentRequestDetails.ShipFromAddress.AddressLine1=1234%20Westlake%20Ave%20N
+    # &ShipmentRequestDetails.ShipFromAddress.City=Seattle
+    # &ShipmentRequestDetails.ShipFromAddress.StateOrProvinceCode=WA
+    # &ShipmentRequestDetails.ShipFromAddress.PostalCode=98121
+    # &ShipmentRequestDetails.ShipFromAddress.CountryCode=US
+    # &ShipmentRequestDetails.ShipFromAddress.Email=example%40example.com
+    # &ShipmentRequestDetails.ShipFromAddress.Phone=2061234567
+
+    # &ShipmentRequestDetails.ShippingServiceOptions.DeliveryExperience=DeliveryConfirmationWithoutSignature
+    # &ShipmentRequestDetails.ShippingServiceOptions.CarrierWillPickUp=false
+    # &ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.CurrencyCode=USD
+    # &ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.Amount=10.00
+
+    # &ShipmentRequestDetails.ItemList.Item.1.OrderItemId=28207139993814
+    # &ShipmentRequestDetails.ItemList.Item.1.Quantity=1
+
+    # &ShipmentRequestDetails.LabelCustomization.CustomTextForLabel=Custom text for my label
+    # &ShipmentRequestDetails.LabelCustomization.StandardIdForLabel=903-9939455-1336669
+
+    def get_eligible_shipping_services(self, amazon_order_id=None, seller_orderid=None, item_list=[], ship_from_address={},
+                                       package_dimensions={}, weight={}, must_arrive_by_date=None, ship_date=None,
+                                       shipping_service_options={}, label_customization={}):
+        """ Get eligible shipping services - Merchant fulfillment API """
+
+        data = {
+            "ShipmentRequestDetails.AmazonOrderId"    : amazon_order_id,
+            "ShipmentRequestDetails.SellerOrderId"    : seller_orderid,
+            "ShipmentRequestDetails.MustArriveByDate" : must_arrive_by_date,
+            "ShipmentRequestDetails.ShipDate"         : ship_date
+        }
+        
+        # "ShipmentRequestDetails.ItemList"
+        # "ShipmentRequestDetails.ShipFromAddress",
+        # "ShipmentRequestDetails.PackageDimensions",
+        # "ShipmentRequestDetails.Weight",
+        # "ShipmentRequestDetails.ShippingServiceOptions",
+        # "ShipmentRequestDetails.LabelCustomization"
+
+        # data.update(utils.enumerate_param('MarketplaceId.Id.', marketplaceids))
+
+        return self.make_request(data)
