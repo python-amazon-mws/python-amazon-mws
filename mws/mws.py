@@ -1376,7 +1376,7 @@ class MerchantFulfillment(MWS):
             "ShipmentRequestDetails.MustArriveByDate": must_arrive_by_date,
             "ShipmentRequestDetails.ShipDate": ship_date
         }
-        data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList", item_list))
+        data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", item_list))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.ShipFromAddress", ship_from_address))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.PackageDimensions", package_dimensions))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.Weight", weight))
@@ -1399,7 +1399,7 @@ class MerchantFulfillment(MWS):
             "ShippingServiceOfferId": shipping_service_offer_id,
             "HazmatType": hazmat_type
         }
-        data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList", item_list))
+        data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", item_list))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.ShipFromAddress", ship_from_address))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.PackageDimensions", package_dimensions))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.Weight", weight))
