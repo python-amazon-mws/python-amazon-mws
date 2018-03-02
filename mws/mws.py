@@ -1364,16 +1364,17 @@ class MerchantFulfillment(MWS):
     VERSION = "2015-06-01"
     NS = '{https://mws.amazonservices.com/MerchantFulfillment/2015-06-01}'
 
-    def get_eligible_shipping_services(self, amazon_order_id=None, seller_orderid=None, item_list=[], ship_from_address={},
-                                       package_dimensions={}, weight={}, must_arrive_by_date=None, ship_date=None,
+    def get_eligible_shipping_services(self, amazon_order_id=None, seller_orderid=None, item_list=[],
+                                       ship_from_address={}, package_dimensions={}, weight={},
+                                       must_arrive_by_date=None, ship_date=None,
                                        shipping_service_options={}, label_customization={}):
 
         data = {
-            "Action"                                  : "GetEligibleShippingServices",
-            "ShipmentRequestDetails.AmazonOrderId"    : amazon_order_id,
-            "ShipmentRequestDetails.SellerOrderId"    : seller_orderid,
-            "ShipmentRequestDetails.MustArriveByDate" : must_arrive_by_date,
-            "ShipmentRequestDetails.ShipDate"         : ship_date
+            "Action": "GetEligibleShippingServices",
+            "ShipmentRequestDetails.AmazonOrderId": amazon_order_id,
+            "ShipmentRequestDetails.SellerOrderId": seller_orderid,
+            "ShipmentRequestDetails.MustArriveByDate": must_arrive_by_date,
+            "ShipmentRequestDetails.ShipDate": ship_date
         }
         data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList", item_list))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.ShipFromAddress", ship_from_address))
@@ -1383,19 +1384,20 @@ class MerchantFulfillment(MWS):
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.LabelCustomization", label_customization))
         return self.make_request(data)
 
-    def create_shipment(self, amazon_order_id=None, seller_orderid=None, item_list=[], ship_from_address={}, package_dimensions={},
-                        weight={}, must_arrive_by_date=None, ship_date=None, shipping_service_options={}, label_customization={},
-                        shipping_service_id=None, shipping_service_offer_id=None, hazmat_type=None):
+    def create_shipment(self, amazon_order_id=None, seller_orderid=None, item_list=[], ship_from_address={},
+                        package_dimensions={}, weight={}, must_arrive_by_date=None, ship_date=None,
+                        shipping_service_options={}, label_customization={}, shipping_service_id=None,
+                        shipping_service_offer_id=None, hazmat_type=None):
 
         data = {
-            "Action"                                  : "CreateShipment",
-            "ShipmentRequestDetails.AmazonOrderId"    : amazon_order_id,
-            "ShipmentRequestDetails.SellerOrderId"    : seller_orderid,
-            "ShipmentRequestDetails.MustArriveByDate" : must_arrive_by_date,
-            "ShipmentRequestDetails.ShipDate"         : ship_date,
-            "ShippingServiceId"                       : shipping_service_id,
-            "ShippingServiceOfferId"                  : shipping_service_offer_id,
-            "HazmatType"                              : hazmat_type
+            "Action": "CreateShipment",
+            "ShipmentRequestDetails.AmazonOrderId": amazon_order_id,
+            "ShipmentRequestDetails.SellerOrderId": seller_orderid,
+            "ShipmentRequestDetails.MustArriveByDate": must_arrive_by_date,
+            "ShipmentRequestDetails.ShipDate": ship_date,
+            "ShippingServiceId": shipping_service_id,
+            "ShippingServiceOfferId": shipping_service_offer_id,
+            "HazmatType": hazmat_type
         }
         data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList", item_list))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.ShipFromAddress", ship_from_address))
