@@ -532,8 +532,8 @@ class Orders(MWS):
                     LastUpdatedBefore=lastupdatedbefore,
                     BuyerEmail=buyer_email,
                     SellerOrderId=seller_orderid,
-                    MaxResultsPerPage=max_results,
-                    )
+                    MaxResultsPerPage=max_results,)
+
         data.update(utils.enumerate_param('OrderStatus.Status.', orderstatus))
         data.update(utils.enumerate_param('MarketplaceId.Id.', marketplaceids))
         data.update(utils.enumerate_param('FulfillmentChannel.Channel.', fulfillment_channels))
@@ -757,8 +757,8 @@ class Finances(MWS):
         data = dict(Action='ListFinancialEventGroups',
                     FinancialEventGroupStartedAfter=created_after,
                     FinancialEventGroupStartedBefore=created_before,
-                    MaxResultsPerPage=max_results,
-                    )
+                    MaxResultsPerPage=max_results,)
+
         return self.make_request(data)
 
     def list_financial_event_groups_by_next_token(self, token):
@@ -783,8 +783,8 @@ class Finances(MWS):
                     AmazonOrderId=amazon_order_id,
                     PostedAfter=posted_after,
                     PostedBefore=posted_before,
-                    MaxResultsPerPage=max_results,
-                    )
+                    MaxResultsPerPage=max_results,)
+
         return self.make_request(data)
 
     def list_financial_events_by_next_token(self, token):
@@ -794,8 +794,8 @@ class Finances(MWS):
         """
         warnings.warn(
             "Use `list_financial_events(next_token=token)` instead.",
-            DeprecationWarning,
-        )
+            DeprecationWarning,)
+
         return self.list_financial_events(next_token=token)
 
 
@@ -1276,8 +1276,8 @@ class Inventory(MWS):
 
         data = dict(Action='ListInventorySupply',
                     QueryStartDateTime=datetime_,
-                    ResponseGroup=response_group,
-                    )
+                    ResponseGroup=response_group,)
+
         data.update(utils.enumerate_param('SellerSkus.member.', skus))
         return self.make_request(data, "POST")
 
