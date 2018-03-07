@@ -1396,7 +1396,6 @@ class MerchantFulfillment(MWS):
         if label_customization is None:
             label_customization = {}
 
-
         data = {
             "Action": "GetEligibleShippingServices",
             "ShipmentRequestDetails.AmazonOrderId": amazon_order_id,
@@ -1436,7 +1435,7 @@ class MerchantFulfillment(MWS):
         """
 
         if item_list is None:
-           item_list = []
+            item_list = []
         if ship_from_address is None:
             ship_from_address = {}
         if package_dimensions is None:
