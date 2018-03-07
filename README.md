@@ -1,5 +1,11 @@
 # mws
-[![Requirements Status](https://requires.io/github/jameshiew/mws/requirements.svg)](https://requires.io/github/jameshiew/mws/requirements/) [![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws) [![Build Status](https://travis-ci.org/jameshiew/mws.svg)](https://travis-ci.org/jameshiew/mws) [![codecov](https://codecov.io/gh/jameshiew/mws/branch/develop/graph/badge.svg)](https://codecov.io/gh/jameshiew/mws)
+[![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws)
+
+master: 
+[![Requirements Status](https://requires.io/github/celery/celery/requirements.svg?branch=master)](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements/) [![Build Status](https://travis-ci.org/python-amazon-mws/python-amazon-mws.svg?branch=master)](https://travis-ci.org/python-amazon-mws/python-amazon-mws?branch=master) [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master)
+
+develop: 
+[![Requirements Status](https://requires.io/github/celery/celery/requirements.svg?branch=develop)](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements/) [![Build Status](https://travis-ci.org/python-amazon-mws/python-amazon-mws.svg?branch=develop)](https://travis-ci.org/python-amazon-mws/python-amazon-mws?branch=develop) [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop)
 
 This is a fork and continuation of https://github.com/czpython/python-amazon-mws with preliminary Python 2/3 support.
 
