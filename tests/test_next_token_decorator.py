@@ -32,6 +32,7 @@ class ToyClass(object):
         """
         Toy request method, used as the target for our test.
         """
+        mws.mws.assert_no_token(next_token)
         self.method_run = 'target_function'
         return ACTION, next_token
 

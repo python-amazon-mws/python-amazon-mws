@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+Main module for python-amazon-mws package.
+"""
+# TODO: Add Subscriptions class
+# TODO: Add Merchant Fulfillment class
+
 from __future__ import absolute_import
 
 import base64
@@ -24,6 +30,7 @@ except ImportError:
 
 
 __version__ = '1.0.0dev0'
+
 
 # See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
 # page 8
@@ -58,11 +65,23 @@ def calc_request_description(params):
     Returns a flatted string with the request description, built from the params dict.
     Entries are escaped with urllib quote method, formatted as "key=value", and joined with "&".
     """
-    request_description = ''
-    for key in sorted(params):
-        encoded_value = quote(params[key], safe='-_.~')
-        request_description += '&{}={}'.format(key, encoded_value)
-    return request_description[1:]  # don't include leading ampersand
+    """
+    Builds the request description as a single string from the set of params.
+
+    Each key-value pair takes the form "key=value"
+    Sets of "key=value" pairs are joined by "&".
+    Keys should appear in alphabetical order in the result string.
+
+    Example:
+      params = {'foo': 1, 'bar': 4, 'baz': 'potato'}
+    Returns:
+      "bar=4&baz=potato&foo=1"
+    """
+    description_items = []
+    for key, val in params.items():
+        encoded_val = quote(str(val), safe='-_.~')
+        description_items.append('{}={}'.format(key, encoded_val))
+    return '&'.join(sorted(description_items))
 
 
 def remove_empty(dict_):
@@ -81,7 +100,26 @@ def remove_namespace(xml):
     return regex.sub('', xml)
 
 
+def assert_no_token(token):
+    """
+    We allow passing a next_token as an argument to request methods that have an associated
+    "...ByNextToken" operation. This token should be captured by `utils.next_token_action` and handled
+    accordingly, bypassing the original request method.
+
+    If a non-None token propagates to the original method, then something has gone awry.
+    This ensures we get notified when/if that happens (which it shouldn't).
+    """
+    assert token is None, (
+        "`next_token` passed to request method. "
+        "Should have been parsed by `next_token_action` decorator."
+    )
+
+
 class DictWrapper(object):
+    """
+    Main class that converts XML data to a parsed response object as a tree of ObjectDicts,
+    stored in the .parsed property.
+    """
     def __init__(self, xml, rootkey=None):
         self.original = xml
         self.response = None
@@ -91,6 +129,9 @@ class DictWrapper(object):
 
     @property
     def parsed(self):
+        """
+        Provides access to the parsed contents of an XML response as a tree of ObjectDicts.
+        """
         if self._rootkey:
             return self._response_dict.get(self._rootkey)
         return self._response_dict
@@ -110,6 +151,10 @@ class DataWrapper(object):
 
     @property
     def parsed(self):
+        """
+        Similar to the `parsed` property of DictWrapper, this provides a similar interface for a data response
+        that could not be parsed as XML.
+        """
         return self.original
 
 
@@ -162,6 +207,9 @@ class MWS(object):
         self.uri = uri or self.URI
         self.proxy = proxy
 
+        # * TESTING FLAGS * #
+        self._test_request_params = False
+
         if domain:
             self.domain = domain
         elif region in MARKETPLACES:
@@ -193,7 +241,6 @@ class MWS(object):
         """
         Make request to Amazon MWS API with these parameters
         """
-
         # Remove all keys with an empty value because
         # Amazon's MWS does not allow such a thing.
         extra_data = remove_empty(extra_data)
@@ -206,6 +253,10 @@ class MWS(object):
         params = self.get_default_params()
         proxies = self.get_proxies()
         params.update(extra_data)
+        if self._test_request_params:
+            # Testing method: return the params from this request before the request is made.
+            return params
+
         request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
         url = "{domain}{uri}?{description}&Signature={signature}".format(
@@ -263,7 +314,6 @@ class MWS(object):
         Returns a GREEN, GREEN_I, YELLOW or RED status.
         Depending on the status/availability of the API its being called from.
         """
-
         return self.make_request(extra_data=dict(Action='GetServiceStatus'))
 
     def action_by_next_token(self, action, next_token):

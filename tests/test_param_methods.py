@@ -21,16 +21,23 @@ class TestParamsRaiseExceptions(unittest.TestCase):
             mws.utils.enumerate_keyed_param(param, values)
 
 
-def test_single_param_default():
+def test_param_defaults():
     """
     Test each method type for their default empty dicts.
     """
-    # Single
+    # * SINGLE * #
+    # Sending a param and an empty list == empty dict
     assert mws.utils.enumerate_param("something", []) == {}
-    # Multi
+
+    # * MULTI * #
+    # Sending no params == empty dict
     assert mws.utils.enumerate_params() == {}
+    # Sending anything other than a dict containing the param settings == empty dict
     assert mws.utils.enumerate_params("antler") == {}
-    # Keyed
+
+    # * KEYED * #
+    # Sending a param with an empty list == empty dict
+    # (The case for the list not empty and not containing dicts as expected is handled by TestParamsRaiseExceptions)
     assert mws.utils.enumerate_keyed_param("acorn", []) == {}
 
 
@@ -99,23 +106,23 @@ def test_keyed_params():
     Asserting the result through enumerate_keyed_param is as expected.
     """
     # Example:
-    #     param = "InboundShipmentPlanRequestItems.member"
-    #     values = [
-    #         {'SellerSKU': 'Football2415',
-    #         'Quantity': 3},
-    #         {'SellerSKU': 'TeeballBall3251',
-    #         'Quantity': 5},
-    #         ...
-    #     ]
+    #   param = "InboundShipmentPlanRequestItems.member"
+    #   values = [
+    #     {'SellerSKU': 'Football2415',
+    #     'Quantity': 3},
+    #     {'SellerSKU': 'TeeballBall3251',
+    #     'Quantity': 5},
+    #     ...
+    #   ]
 
     # Returns:
-    #     {
-    #         'InboundShipmentPlanRequestItems.member.1.SellerSKU': 'Football2415',
-    #         'InboundShipmentPlanRequestItems.member.1.Quantity': 3,
-    #         'InboundShipmentPlanRequestItems.member.2.SellerSKU': 'TeeballBall3251',
-    #         'InboundShipmentPlanRequestItems.member.2.Quantity': 5,
-    #         ...
-    #     }
+    #   {
+    #     'InboundShipmentPlanRequestItems.member.1.SellerSKU': 'Football2415',
+    #     'InboundShipmentPlanRequestItems.member.1.Quantity': 3,
+    #     'InboundShipmentPlanRequestItems.member.2.SellerSKU': 'TeeballBall3251',
+    #     'InboundShipmentPlanRequestItems.member.2.Quantity': 5,
+    #     ...
+    #   }
     param = "AthingToKeyUp.member"
     item1 = {
         "thing": "stuff",
@@ -139,4 +146,20 @@ def test_keyed_params():
         "AthingToKeyUp.member.2.bar": "hello",
         "AthingToKeyUp.member.3.stuff": "foobarbazmatazz",
         "AthingToKeyUp.member.3.stuff2": "foobarbazmatazz5",
+    }
+
+
+def test_dict_keyed_param():
+    """
+    Testing results of utils.dict_keyed_param.
+    """
+    param = "ShipmentRequestDetails.PackageDimensions"
+    dict_from = {'Length': 5, 'Width': 5, 'Height': 5, 'Unit': 'inches'}
+    result = mws.utils.dict_keyed_param(param, dict_from)
+
+    assert result == {
+        'ShipmentRequestDetails.PackageDimensions.Length': 5,
+        'ShipmentRequestDetails.PackageDimensions.Width': 5,
+        'ShipmentRequestDetails.PackageDimensions.Height': 5,
+        'ShipmentRequestDetails.PackageDimensions.Unit': 'inches',
     }

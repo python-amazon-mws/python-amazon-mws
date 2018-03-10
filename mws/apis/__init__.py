@@ -9,6 +9,7 @@ from .products import Products
 from .recommendations import Recommendations
 from .reports import Reports
 from .sellers import Sellers
+from .outbound_shipments import OutboundShipments
 
 __all__ = [
     'Feeds',
@@ -18,6 +19,7 @@ __all__ = [
     'MerchantFulfillment',
     'OffAmazonPayments',
     'Orders',
+    'OutboundShipments',
     'Products',
     'Recommendations',
     'Reports',
