@@ -66,7 +66,7 @@ class XML2Dict(object):
             key, val = self._namespace_split(key, ObjectDict({'value': val}))
             node_tree[key] = val
         # Save childrens
-        for child in node.getchildren():
+        for child in node:
             tag, tree = self._namespace_split(child.tag,
                                               self._parse_node(child))
             if tag not in node_tree:  # the first time, so store it in dict
@@ -208,6 +208,34 @@ def enumerate_keyed_param(param, values):
         params.update({
             '{param}{idx}.{key}'.format(param=param, idx=idx+1, key=k): v
             for k, v in val_dict.items()
+        })
+    return params
+
+
+def dict_keyed_param(param, dict_from):
+    """
+    Given a param string and a dict, returns a flat dict of keyed params without enumerate.
+
+    Example:
+        param = "ShipmentRequestDetails.PackageDimensions"
+        dict_from = {'Length': 5, 'Width': 5, 'Height': 5, 'Unit': 'inches'}
+
+    Returns:
+        {
+            'ShipmentRequestDetails.PackageDimensions.Length': 5,
+            'ShipmentRequestDetails.PackageDimensions.Width': 5,
+            'ShipmentRequestDetails.PackageDimensions.Height': 5,
+            'ShipmentRequestDetails.PackageDimensions.Unit': 'inches',
+            ...
+        }
+    """
+    params = {}
+    if not param.endswith('.'):
+        # Ensure the enumerated param ends in '.'
+        param += '.'
+    for k, v in dict_from.items():
+        params.update({
+            "{param}{key}".format(param=param, key=k): v
         })
     return params
 
