@@ -21,8 +21,14 @@ pip-log.txt
 .coverage
 .tox
 
-#Translations
+# Translations
 *.mo
 
-#Mr Developer
+# Mr Developer
 .mr.developer.cfg
+
+# VS Code Settings
+.vscode/settings.json
+
+.travis.yml
+.editorconfig
