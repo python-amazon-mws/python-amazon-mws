@@ -7,9 +7,10 @@ Borrowed from https://github.com/timotheus/ebaysdk-python
 @author: pierre
 """
 from __future__ import absolute_import
-from functools import wraps
 import re
+import base64
 import datetime
+import hashlib
 import xml.etree.ElementTree as ET
 
 
@@ -53,7 +54,6 @@ class ObjectDict(dict):
 
 
 class XML2Dict(object):
-
     def __init__(self):
         pass
 
@@ -106,6 +106,15 @@ class XML2Dict(object):
         text = ET.fromstring(str_)
         root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
         return ObjectDict({root_tag: root_tree})
+
+
+def calc_md5(string):
+    """
+    Calculates the MD5 encryption for the given string
+    """
+    md5_hash = hashlib.md5()
+    md5_hash.update(string)
+    return base64.b64encode(md5_hash.digest()).strip(b'\n')
 
 
 def enumerate_param(param, values):
@@ -260,25 +269,11 @@ def dt_iso_or_none(dt_obj):
     return None
 
 
-def next_token_action(action_name):
+def get_utc_timestamp():
     """
-    Decorator that designates an action as having a "...ByNextToken" associated request.
-    Checks for a `next_token` kwargs in the request and, if present, redirects the call
-    to `action_by_next_token` using the given `action_name`.
-
-    Only the `next_token` kwarg is consumed by the "next" call:
-    all other args and kwargs are ignored and not required.
+    Returns the current UTC timestamp in ISO-8601 format.
     """
-    def _decorator(request_func):
-        @wraps(request_func)
-        def _wrapped_func(self, *args, **kwargs):
-            next_token = kwargs.pop('next_token', None)
-            if next_token is not None:
-                # Token captured: run the "next" action.
-                return self.action_by_next_token(action_name, next_token)
-            return request_func(self, *args, **kwargs)
-        return _wrapped_func
-    return _decorator
+    return datetime.datetime.utcnow().replace(microsecond=0).isoformat()
 
 
 # DEPRECATION: these are old names for these objects, which have been updated

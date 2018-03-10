@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from .mws import MWS
+from ..mws import MWS
 
 
 class OffAmazonPayments(MWS):
+    """
+    Amazon OffAmazonPayments Sandbox API.
+    """
     SANDBOX_URI = "/OffAmazonPayments_Sandbox/2013-01-01/"
     URI = "/OffAmazonPayments/2013-01-01/"
     VERSION = "2013-01-01"
@@ -137,8 +140,7 @@ class OffAmazonPayments(MWS):
         params = {
             "OrderReferenceAttributes.OrderTotal.Amount": str(order_total),
             "OrderReferenceAttributes.OrderTotal.CurrencyCode": currency,
-            "OrderReferenceAttributes.SellerOrderAttributes.SellerOrderId": str(
-                order_id),
+            "OrderReferenceAttributes.SellerOrderAttributes.SellerOrderId": str(order_id),
             "OrderReferenceAttributes.SellerOrderAttributes.StoreName": store_name,
             "OrderReferenceAttributes.SellerNote": note,
         }
