@@ -244,7 +244,7 @@ def dict_keyed_param(param, dict_from):
         param += '.'
     for k, v in dict_from.items():
         params.update({
-            "{param}.{key}".format(param=param, key=k): v
+            "{param}{key}".format(param=param, key=k): v
         })
     return params
 
