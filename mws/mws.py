@@ -163,17 +163,22 @@ class MWS(object):
     # like "Merchant" in which case you define it like so.
     # ACCOUNT_TYPE = "Merchant"
     # Which is the name of the parameter for that specific account type.
+
+    # For using proxy you need to init this class with one more parameter proxies. It must look like 'ip_address:port'
+    # if proxy without auth and 'login:password@ip_address:port' if proxy with auth
+
     ACCOUNT_TYPE = "SellerId"
 
     def __init__(self, access_key, secret_key, account_id,
                  region='US', domain='', uri="",
-                 version="", auth_token=""):
+                 version="", auth_token="", proxy=None):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
         self.auth_token = auth_token
         self.version = version or self.VERSION
         self.uri = uri or self.URI
+        self.proxy = proxy
 
         if domain:
             self.domain = domain
@@ -217,6 +222,7 @@ class MWS(object):
                 extra_data[key] = value.isoformat()
 
         params = self.get_params()
+        proxies = self.get_proxies()
         params.update(extra_data)
         request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
@@ -234,7 +240,7 @@ class MWS(object):
             # My answer is, here i have to get the url parsed string of params in order to sign it, so
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
-            response = request(method, url, data=kwargs.get('body', ''), headers=headers)
+            response = request(method, url, data=kwargs.get('body', ''), headers=headers, proxies=proxies)
             response.raise_for_status()
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
@@ -262,6 +268,13 @@ class MWS(object):
         # Store the response object in the parsed_response for quick access
         parsed_response.response = response
         return parsed_response
+
+    def get_proxies(self):
+        proxies = {"http": None, "https": None}
+        if self.proxy:
+            proxies = {"http": "http://{}".format(self.proxy),
+                       "https": "https://{}".format(self.proxy)}
+        return proxies
 
     def get_service_status(self):
         """
@@ -801,7 +814,6 @@ class Finances(MWS):
 
 # * Fulfillment APIs * #
 
-
 class InboundShipments(MWS):
     """
     Amazon MWS FulfillmentInboundShipment API
@@ -1253,6 +1265,123 @@ class InboundShipments(MWS):
             LastUpdatedBefore=last_updated_before,
         )
         return self.make_request(data, method="POST")
+
+    def get_inbound_guidance_for_sku(self, sku_list, marketplace_id):
+        if not isinstance(sku_list, (list, tuple, set)):
+            sku_list = [sku_list]
+        data = dict(
+            Action='GetInboundGuidanceForSKU',
+            MarketplaceId=marketplace_id,
+        )
+        data.update(utils.enumerate_param('SellerSKUList.Id', sku_list))
+        return self.make_request(data)
+
+    def get_inbound_guidance_for_asin(self, asin_list, marketplace_id):
+        if not isinstance(asin_list, (list, tuple, set)):
+            asin_list = [asin_list]
+        data = dict(
+            Action='GetInboundGuidanceForASIN',
+            MarketplaceId=marketplace_id,
+        )
+        data.update(utils.enumerate_param('ASINList.Id', asin_list))
+        return self.make_request(data)
+
+    def get_pallet_labels(self, shipment_id, page_type, num_pallets):
+        """
+        Returns pallet labels.
+        `shipment_id` must match a valid, current shipment.
+        `page_type` expected to be string matching one of following (not checked, in case Amazon requirements change):
+            PackageLabel_Letter_2
+            PackageLabel_Letter_6
+            PackageLabel_A4_2
+            PackageLabel_A4_4
+            PackageLabel_Plain_Pape
+        `num_pallets` is integer, number of labels to create.
+
+        Documentation:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPalletLabels.html
+        """
+        data = dict(
+            Action='GetPalletLabels',
+            ShipmentId=shipment_id,
+            PageType=page_type,
+            NumberOfPallets=num_pallets,
+        )
+        return self.make_request(data)
+
+    def get_unique_package_labels(self, shipment_id, page_type, package_ids):
+        """
+        Returns unique package labels for faster and more accurate shipment processing at the Amazon fulfillment center.
+
+        `shipment_id` must match a valid, current shipment.
+        `page_type` expected to be string matching one of following (not checked, in case Amazon requirements change):
+            PackageLabel_Letter_2
+            PackageLabel_Letter_6
+            PackageLabel_A4_2
+            PackageLabel_A4_4
+            PackageLabel_Plain_Pape
+        `package_ids` a single package identifier, or a list/tuple/set of identifiers, specifying for which package(s)
+            you want package labels printed.
+
+        Documentation:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetUniquePackageLabels.html
+        """
+        data = dict(
+            Action='GetUniquePackageLabels',
+            ShipmentId=shipment_id,
+            PageType=page_type,
+        )
+        if not isinstance(package_ids, (list, tuple, set)):
+            package_ids = [package_ids]
+        data.update(utils.enumerate_param('PackageLabelsToPrint.member.', package_ids))
+        return self.make_request(data)
+
+    def confirm_transport_request(self, shipment_id):
+        """
+        Confirms that you accept the Amazon-partnered shipping estimate and you request that the
+        Amazon-partnered carrier ship your inbound shipment.
+
+        Documentation:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmTransportRequest.html
+        """
+        data = dict(
+            Action='ConfirmTransportRequest',
+            ShipmentId=shipment_id,
+        )
+        return self.make_request(data)
+
+    # TODO this method is incomplete: it should be able to account for all TransportDetailInput types
+    # docs: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#TransportDetailInput
+    # def put_transport_content(self, shipment_id, is_partnered, shipment_type, carrier_name, tracking_id):
+    #     data = dict(
+    #         Action='PutTransportContent',
+    #         ShipmentId=shipment_id,
+    #         IsPartnered=is_partnered,
+    #         ShipmentType=shipment_type,
+    #     )
+    #     data['TransportDetails.NonPartneredSmallParcelData.CarrierName'] = carrier_name
+    #     if isinstance(tracking_id, tuple):
+    #         count = 0
+    #         for track in tracking_id:
+    #             data[
+    #                 'TransportDetails.NonPartneredSmallParcelData.PackageList.member.{}.TrackingId'.format(count + 1)
+    #             ] = track
+    #     return self.make_request(data)
+
+    def confirm_preorder(self, shipment_id, need_by_date):
+        data = dict(
+            Action='ConfirmPreorder',
+            ShipmentId=shipment_id,
+            NeedByDate=need_by_date,
+        )
+        return self.make_request(data)
+
+    def get_preorder_info(self, shipment_id):
+        data = dict(
+            Action='GetPreorderInfo',
+            ShipmentId=shipment_id,
+        )
+        return self.make_request(data)
 
 
 class Inventory(MWS):
