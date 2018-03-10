@@ -32,7 +32,6 @@ except ImportError:
 __version__ = '1.0.0dev0'
 
 
-
 # See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
 # page 8
 # for a list of the end points and marketplace IDs
@@ -226,12 +225,11 @@ class MWS(object):
         """
         Get the parameters required in all MWS requests
         """
-        timestamp = datetime.datetime.utcnow().replace(microsecond=0).isoformat()
         params = {
             'AWSAccessKeyId': self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
             'SignatureVersion': '2',
-            'Timestamp': timestamp,
+            'Timestamp': utils.get_utc_timestamp(),
             'Version': self.version,
             'SignatureMethod': 'HmacSHA256',
         }
@@ -366,4 +364,3 @@ class MWS(object):
             "`utils.enumerate_params` for multiple params."
         ), DeprecationWarning)
         return utils.enumerate_param(param, values)
-
