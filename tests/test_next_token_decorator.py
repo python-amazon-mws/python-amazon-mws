@@ -27,7 +27,7 @@ class ToyClass(object):
         modified_action = "{}ByNextToken".format(action)
         return modified_action, token
 
-    @mws.utils.next_token_action(ACTION)
+    @mws.decorators.next_token_action(ACTION)
     def target_request_method(self, next_token=None):
         """
         Toy request method, used as the target for our test.
