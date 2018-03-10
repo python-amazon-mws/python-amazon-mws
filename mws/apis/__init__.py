@@ -2,6 +2,7 @@ from .feeds import Feeds
 from .finances import Finances
 from .inbound_shipments import InboundShipments
 from .inventory import Inventory
+from .merchant_fulfillment import MerchantFulfillment
 from .offamazonpayments import OffAmazonPayments
 from .orders import Orders
 from .products import Products
@@ -14,6 +15,7 @@ __all__ = [
     'Finances',
     'InboundShipments',
     'Inventory',
+    'MerchantFulfillment',
     'OffAmazonPayments',
     'Orders',
     'Products',
