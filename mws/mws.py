@@ -545,8 +545,8 @@ class Orders(MWS):
                     LastUpdatedBefore=lastupdatedbefore,
                     BuyerEmail=buyer_email,
                     SellerOrderId=seller_orderid,
-                    MaxResultsPerPage=max_results,
-                    )
+                    MaxResultsPerPage=max_results,)
+
         data.update(utils.enumerate_param('OrderStatus.Status.', orderstatus))
         data.update(utils.enumerate_param('MarketplaceId.Id.', marketplaceids))
         data.update(utils.enumerate_param('FulfillmentChannel.Channel.', fulfillment_channels))
@@ -770,8 +770,8 @@ class Finances(MWS):
         data = dict(Action='ListFinancialEventGroups',
                     FinancialEventGroupStartedAfter=created_after,
                     FinancialEventGroupStartedBefore=created_before,
-                    MaxResultsPerPage=max_results,
-                    )
+                    MaxResultsPerPage=max_results,)
+
         return self.make_request(data)
 
     def list_financial_event_groups_by_next_token(self, token):
@@ -796,8 +796,8 @@ class Finances(MWS):
                     AmazonOrderId=amazon_order_id,
                     PostedAfter=posted_after,
                     PostedBefore=posted_before,
-                    MaxResultsPerPage=max_results,
-                    )
+                    MaxResultsPerPage=max_results,)
+
         return self.make_request(data)
 
     def list_financial_events_by_next_token(self, token):
@@ -807,8 +807,8 @@ class Finances(MWS):
         """
         warnings.warn(
             "Use `list_financial_events(next_token=token)` instead.",
-            DeprecationWarning,
-        )
+            DeprecationWarning,)
+
         return self.list_financial_events(next_token=token)
 
 
@@ -1405,8 +1405,8 @@ class Inventory(MWS):
 
         data = dict(Action='ListInventorySupply',
                     QueryStartDateTime=datetime_,
-                    ResponseGroup=response_group,
-                    )
+                    ResponseGroup=response_group,)
+
         data.update(utils.enumerate_param('SellerSkus.member.', skus))
         return self.make_request(data, "POST")
 
@@ -1491,10 +1491,39 @@ class MerchantFulfillment(MWS):
     VERSION = "2015-06-01"
     NS = '{https://mws.amazonservices.com/MerchantFulfillment/2015-06-01}'
 
-    def get_eligible_shipping_services(self, amazon_order_id=None, seller_orderid=None, item_list=[],
-                                       ship_from_address={}, package_dimensions={}, weight={},
+    def get_eligible_shipping_services(self, amazon_order_id=None, seller_orderid=None, item_list=None,
+                                       ship_from_address=None, package_dimensions=None, weight=None,
                                        must_arrive_by_date=None, ship_date=None,
-                                       shipping_service_options={}, label_customization={}):
+                                       shipping_service_options=None, label_customization=None):
+
+        """
+        http://docs.developer.amazonservices.com/en_UK/merch_fulfill/MerchFulfill_GetEligibleShippingServices.html
+
+        :param amazon_order_id: Required
+        :param seller_orderid:
+        :param item_list: Required
+        :param ship_from_address: Required
+        :param package_dimensions: Required
+        :param weight: Required
+        :param must_arrive_by_date:
+        :param ship_date:
+        :param shipping_service_options: Required
+        :param label_customization:
+        :return:
+        """
+
+        if ship_from_address is None:
+            ship_from_address = {}
+        if package_dimensions is None:
+            package_dimensions = {}
+        if weight is None:
+            weight = {}
+        if item_list is None:
+            item_list = []
+        if shipping_service_options is None:
+            shipping_service_options = {}
+        if label_customization is None:
+            label_customization = {}
 
         data = {
             "Action": "GetEligibleShippingServices",
@@ -1511,10 +1540,41 @@ class MerchantFulfillment(MWS):
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.LabelCustomization", label_customization))
         return self.make_request(data)
 
-    def create_shipment(self, amazon_order_id=None, seller_orderid=None, item_list=[], ship_from_address={},
-                        package_dimensions={}, weight={}, must_arrive_by_date=None, ship_date=None,
-                        shipping_service_options={}, label_customization={}, shipping_service_id=None,
+    def create_shipment(self, amazon_order_id=None, seller_orderid=None, item_list=None, ship_from_address=None,
+                        package_dimensions=None, weight=None, must_arrive_by_date=None, ship_date=None,
+                        shipping_service_options=None, label_customization=None, shipping_service_id=None,
                         shipping_service_offer_id=None, hazmat_type=None):
+        """
+        http://docs.developer.amazonservices.com/en_UK/merch_fulfill/MerchFulfill_CreateShipment.html
+
+        :param amazon_order_id: Required
+        :param seller_orderid:
+        :param item_list: Required
+        :param ship_from_address: Required
+        :param package_dimensions: Required
+        :param weight: Required
+        :param must_arrive_by_date:
+        :param ship_date:
+        :param shipping_service_options:
+        :param label_customization:
+        :param shipping_service_id: Required
+        :param shipping_service_offer_id:
+        :param hazmat_type:
+        :return:
+        """
+
+        if item_list is None:
+            item_list = []
+        if ship_from_address is None:
+            ship_from_address = {}
+        if package_dimensions is None:
+            package_dimensions = {}
+        if weight is None:
+            weight = {}
+        if shipping_service_options is None:
+            shipping_service_options = {}
+        if label_customization is None:
+            label_customization = {}
 
         data = {
             "Action": "CreateShipment",

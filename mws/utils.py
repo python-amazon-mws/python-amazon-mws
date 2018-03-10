@@ -221,6 +221,7 @@ def dict_keyed_param(param, dict_from):
         }
     """
     params = {}
+
     if not param.endswith('.'):
         # Ensure the enumerated param ends in '.'
         param += '.'
