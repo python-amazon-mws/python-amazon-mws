@@ -221,6 +221,9 @@ def dict_keyed_param(param, dict_from):
         }
     """
     params = {}
+    if not param.endswith('.'):
+        # Ensure the enumerated param ends in '.'
+        param += '.'
     for k, v in dict_from.items():
         params.update({
             "{param}.{key}".format(param=param, key=k): v
