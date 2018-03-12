@@ -68,20 +68,10 @@ def parse_item_args(item_args, operation):
                 optional=', '.join([c[0] for c in key_config if not c[2]]),
             ))
 
-        # Get data from the item.
-        # Convert to str if present, or leave as None if missing
-        quantity = item.get('quantity')
-        if quantity is not None:
-            quantity = str(quantity)
-
-        quantity_in_case = item.get('quantity_in_case')
-        if quantity_in_case is not None:
-            quantity_in_case = str(quantity_in_case)
-
         item_dict = {
             'SellerSKU': item.get('sku'),
-            quantity_key: quantity,
-            'QuantityInCase': quantity_in_case,
+            quantity_key: item.get('quantity'),
+            'QuantityInCase': item.get('quantity_in_case'),
         }
         item_dict.update({
             c[1]: item.get(c[0], c[3])
@@ -531,7 +521,7 @@ class InboundShipments(MWS):
             'Action': 'GetPackageLabels',
             'ShipmentId': shipment_id,
             'PageType': page_type,
-            'NumberOfPackages': str(num_packages),
+            'NumberOfPackages': num_packages,
         }
         return self.make_request(data, method="POST")
 
