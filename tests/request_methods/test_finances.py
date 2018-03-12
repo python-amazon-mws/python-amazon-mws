@@ -39,7 +39,7 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
         assert params['Action'] == 'ListFinancialEventGroups'
         assert params['FinancialEventGroupStartedAfter'] == created_after_stamp
         assert params['FinancialEventGroupStartedBefore'] == created_before_stamp
-        assert params['MaxResultsPerPage'] == str(max_results)
+        assert params['MaxResultsPerPage'] == max_results
 
     def test_list_financial_event_groups_by_next_token(self):
         """
@@ -85,7 +85,7 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
         assert params['AmazonOrderId'] == amazon_order_id
         assert params['PostedAfter'] == posted_after_stamp
         assert params['PostedBefore'] == posted_before_stamp
-        assert params['MaxResultsPerPage'] == str(max_results)
+        assert params['MaxResultsPerPage'] == max_results
 
     def test_list_financial_events_by_next_token(self):
         """
