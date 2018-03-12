@@ -43,7 +43,7 @@ class RecommendationsTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assert_common_params(params)
         assert params['Action'] == 'ListRecommendations'
         assert params['MarketplaceId'] == marketplace_id
-        assert params['RecommendationCategory'] == recommendationcategory
+        assert params['RecommendationCategory'] == recommendation_category
 
     def test_list_recommendations_by_next_token(self):
         """
