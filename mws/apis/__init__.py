@@ -5,11 +5,12 @@ from .inventory import Inventory
 from .merchant_fulfillment import MerchantFulfillment
 from .offamazonpayments import OffAmazonPayments
 from .orders import Orders
+from .outbound_shipments import OutboundShipments
 from .products import Products
 from .recommendations import Recommendations
 from .reports import Reports
 from .sellers import Sellers
-from .outbound_shipments import OutboundShipments
+from .subscriptions import Subscriptions
 
 __all__ = [
     'Feeds',
@@ -24,4 +25,5 @@ __all__ = [
     'Recommendations',
     'Reports',
     'Sellers',
+    'Subscriptions',
 ]
