@@ -44,8 +44,8 @@ class Feeds(MWS):
                                  extra_headers={'Content-MD5': md5_hash, 'Content-Type': content_type})
 
     @next_token_action('GetFeedSubmissionList')
-    def get_feed_submission_list(self, feedids=None, max_count=None, feedtypes=None,
-                                 processingstatuses=None, fromdate=None, todate=None,
+    def get_feed_submission_list(self, feed_ids=None, max_count=None, feed_types=None,
+                                 processing_statuses=None, from_date=None, to_date=None,
                                  next_token=None):
         """
         Returns a list of all feed submissions submitted between `fromdate` and `todate`.
@@ -59,12 +59,12 @@ class Feeds(MWS):
         data = {
             'Action': 'GetFeedSubmissionList',
             'MaxCount': max_count,
-            'SubmittedFromDate': fromdate,
-            'SubmittedToDate': todate,
+            'SubmittedFromDate': from_date,
+            'SubmittedToDate': to_date,
         }
-        data.update(utils.enumerate_param('FeedSubmissionIdList.Id', feedids))
-        data.update(utils.enumerate_param('FeedTypeList.Type.', feedtypes))
-        data.update(utils.enumerate_param('FeedProcessingStatusList.Status.', processingstatuses))
+        data.update(utils.enumerate_param('FeedSubmissionIdList.Id', feed_ids))
+        data.update(utils.enumerate_param('FeedTypeList.Type.', feed_types))
+        data.update(utils.enumerate_param('FeedProcessingStatusList.Status.', processing_statuses))
         return self.make_request(data)
 
     def get_submission_list_by_next_token(self, token):
