@@ -21,7 +21,7 @@ class Recommendations(MWS):
         "ListRecommendations",
     ]
 
-    def get_last_updated_time_for_recommendations(self, marketplaceid):
+    def get_last_updated_time_for_recommendations(self, marketplace_id):
         """
         Checks whether there are active recommendations for each category for the given marketplace, and if there are,
         returns the time when recommendations were last updated for each category.
@@ -31,12 +31,12 @@ class Recommendations(MWS):
         """
         data = {
             'Action': 'GetLastUpdatedTimeForRecommendations',
-            'MarketplaceId': marketplaceid,
+            'MarketplaceId': marketplace_id,
         }
         return self.make_request(data, "POST")
 
     @next_token_action('ListRecommendations')
-    def list_recommendations(self, marketplaceid=None, recommendationcategory=None, next_token=None):
+    def list_recommendations(self, marketplace_id=None, recommendation_category=None, next_token=None):
         """
         Returns your active recommendations for a specific category or for all categories for a specific marketplace.
 
@@ -47,8 +47,8 @@ class Recommendations(MWS):
         """
         data = {
             'Action': "ListRecommendations",
-            'MarketplaceId': marketplaceid,
-            'RecommendationCategory': recommendationcategory,
+            'MarketplaceId': marketplace_id,
+            'RecommendationCategory': recommendation_category,
         }
         return self.make_request(data, "POST")
 
