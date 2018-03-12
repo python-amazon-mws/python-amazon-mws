@@ -27,7 +27,7 @@ class RecommendationsTestCase(unittest.TestCase, CommonRequestTestTools):
         marketplace_id = "marketplace_foobar"
         params = self.api.get_last_updated_time_for_recommendations(marketplace_id)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListRecommendations'
+        assert params['Action'] == 'GetLastUpdatedTimeForRecommendations'
         assert params['MarketplaceId'] == marketplace_id
 
     def test_list_recommendations(self):
