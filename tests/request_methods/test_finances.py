@@ -30,7 +30,7 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
         created_before = datetime.datetime.utcnow()
         created_before_stamp = created_before.iso_format()
         max_results = 659
-        params = api.list_financial_event_groups(
+        params = self.api.list_financial_event_groups(
             created_after=created_after,
             created_before=created_before,
             max_results=max_results,
@@ -72,7 +72,7 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
         amazon_order_id = '123-4567890-1234567'
         financial_event_group_id = '22YgYW55IGNhcm5hbCBwbGVhEXAMPLE'
         max_results = 156
-        params = api.list_financial_events(
+        params = self.api.list_financial_events(
             financial_event_group_id=financial_event_group_id,
             amazon_order_id=amazon_order_id,
             posted_after=posted_after,
