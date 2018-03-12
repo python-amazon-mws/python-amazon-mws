@@ -26,9 +26,9 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
         ListFinancialEventGroups operation.
         """
         created_after = datetime.datetime.utcnow()
-        created_after_stamp = created_after.iso_format()
+        created_after_stamp = created_after.isoformat()
         created_before = datetime.datetime.utcnow()
-        created_before_stamp = created_before.iso_format()
+        created_before_stamp = created_before.isoformat()
         max_results = 659
         params = self.api.list_financial_event_groups(
             created_after=created_after,
@@ -66,9 +66,9 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
         ListFinancialEvents operation.
         """
         posted_after = datetime.datetime.utcnow()
-        posted_after_stamp = posted_after.iso_format()
+        posted_after_stamp = posted_after.isoformat()
         posted_before = datetime.datetime.utcnow()
-        posted_before_stamp = posted_before.iso_format()
+        posted_before_stamp = posted_before.isoformat()
         amazon_order_id = '123-4567890-1234567'
         financial_event_group_id = '22YgYW55IGNhcm5hbCBwbGVhEXAMPLE'
         max_results = 156
