@@ -1,5 +1,5 @@
 """
-Tests for the MWS.Sellers API class.
+Tests for the Sellers API class.
 """
 import unittest
 import mws
@@ -19,3 +19,31 @@ class SellersTestCase(unittest.TestCase, CommonRequestTestTools):
             auth_token=self.CREDENTIAL_TOKEN
         )
         self.api._test_request_params = True
+
+    def test_list_marketplace_participations(self):
+        """
+        ListMarketplaceParticipations operation
+        """
+        params = self.api.list_marketplace_participations()
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListMarketplaceParticipations'
+
+    def test_list_marketplace_participations_by_next_token(self):
+        """
+        ListMarketplaceParticipationsByNextToken operation, by way of method decorator.
+        """
+        next_token = 'token_foobar'
+        params = self.api.list_marketplace_participations(next_token=next_token)
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListMarketplaceParticipationsByNextToken'
+        assert params['NextToken'] == next_token
+
+    def test_list_marketplace_participations_by_next_token_alias(self):
+        """
+        ListMarketplaceParticipationsByNextToken operation, by way of alias method.
+        """
+        next_token = 'token_foobar'
+        params = self.api.list_marketplace_participations_by_next_token(next_token)
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListMarketplaceParticipationsByNextToken'
+        assert params['NextToken'] == next_token
