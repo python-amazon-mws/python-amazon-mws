@@ -4,7 +4,7 @@ from __future__ import absolute_import
 from .mws import MWS, MWSError
 from .apis import Feeds, Finances, InboundShipments, Inventory, MerchantFulfillment,\
                   OffAmazonPayments, Orders, OutboundShipments, Products, Recommendations,\
-                  Reports, Sellers
+                  Reports, Sellers, Subscriptions
 __all__ = [
     'Feeds',
     'Finances',
@@ -20,5 +20,5 @@ __all__ = [
     'Recommendations',
     'Reports',
     'Sellers',
-    # TODO Add Subscriptions
+    'Subscriptions',
 ]
