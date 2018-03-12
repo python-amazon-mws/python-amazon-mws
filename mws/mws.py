@@ -215,10 +215,10 @@ class MWS(object):
         elif region in MARKETPLACES:
             self.domain = MARKETPLACES[region]
         else:
-            error_msg = "Incorrect region supplied ('%(region)s'). Must be one of the following: %(marketplaces)s" % {
-                "marketplaces": ', '.join(MARKETPLACES.keys()),
-                "region": region,
-            }
+            error_msg = "Incorrect region supplied ('{region}'). Must be one of the following: {marketplaces}".format(
+                marketplaces=', '.join(MARKETPLACES.keys()),
+                region=region,
+            )
             raise MWSError(error_msg)
 
     def get_default_params(self):
@@ -305,8 +305,10 @@ class MWS(object):
     def get_proxies(self):
         proxies = {"http": None, "https": None}
         if self.proxy:
-            proxies = {"http": "http://{}".format(self.proxy),
-                       "https": "https://{}".format(self.proxy)}
+            proxies = {
+                "http": "http://{}".format(self.proxy),
+                "https": "https://{}".format(self.proxy),
+            }
         return proxies
 
     def get_service_status(self):
@@ -331,10 +333,10 @@ class MWS(object):
 
         action = '{}ByNextToken'.format(action)
 
-        data = dict(
-            Action=action,
-            NextToken=next_token
-        )
+        data = {
+            'Action': action,
+            'NextToken': next_token,
+        }
         return self.make_request(data, method="POST")
 
     def calc_signature(self, method, request_description):

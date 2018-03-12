@@ -10,6 +10,9 @@ from .. import utils
 class MerchantFulfillment(MWS):
     """
     Amazon MWS Merchant Fulfillment API
+
+    Docs:
+    http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_Overview.html
     """
     URI = "/MerchantFulfillment/2015-06-01"
     VERSION = "2015-06-01"
@@ -21,7 +24,7 @@ class MerchantFulfillment(MWS):
                                        shipping_service_options=None, label_customization=None):
 
         """
-        http://docs.developer.amazonservices.com/en_UK/merch_fulfill/MerchFulfill_GetEligibleShippingServices.html
+        Returns a list of shipping service offers.
 
         :param amazon_order_id: Required
         :param seller_orderid:
@@ -34,6 +37,9 @@ class MerchantFulfillment(MWS):
         :param shipping_service_options: Required
         :param label_customization:
         :return:
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_UK/merch_fulfill/MerchFulfill_GetEligibleShippingServices.html
         """
 
         if ship_from_address is None:
@@ -69,7 +75,8 @@ class MerchantFulfillment(MWS):
                         shipping_service_options=None, label_customization=None, shipping_service_id=None,
                         shipping_service_offer_id=None, hazmat_type=None):
         """
-        http://docs.developer.amazonservices.com/en_UK/merch_fulfill/MerchFulfill_CreateShipment.html
+        Purchases shipping and returns PDF, PNG, or ZPL document data for a shipping label, depending on the carrier;
+        as well as a Base64-encoded MD5 hash to validate the document data.
 
         :param amazon_order_id: Required
         :param seller_orderid:
@@ -85,6 +92,9 @@ class MerchantFulfillment(MWS):
         :param shipping_service_offer_id:
         :param hazmat_type:
         :return:
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_UK/merch_fulfill/MerchFulfill_CreateShipment.html
         """
 
         if item_list is None:
@@ -119,9 +129,27 @@ class MerchantFulfillment(MWS):
         return self.make_request(data)
 
     def get_shipment(self, shipment_id=None):
-        data = dict(Action="GetShipment", ShipmentId=shipment_id)
+        """
+        Returns an existing shipment for a given identifier.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_GetShipment.html
+        """
+        data = {
+            'Action': "GetShipment",
+            'ShipmentId': shipment_id,
+        }
         return self.make_request(data)
 
     def cancel_shipment(self, shipment_id=None):
-        data = dict(Action="CancelShipment", ShipmentId=shipment_id)
+        """
+        Cancels an existing shipment.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_CancelShipment.html
+        """
+        data = {
+            'Action': "CancelShipment",
+            'ShipmentId': shipment_id,
+        }
         return self.make_request(data)

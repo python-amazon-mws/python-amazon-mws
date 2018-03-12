@@ -7,6 +7,9 @@ from ..mws import MWS
 class OffAmazonPayments(MWS):
     """
     Amazon OffAmazonPayments Sandbox API.
+
+    Docs:
+    https://pay.amazon.com/us/developer/documentation/apireference/201751630
     """
     SANDBOX_URI = "/OffAmazonPayments_Sandbox/2013-01-01/"
     URI = "/OffAmazonPayments/2013-01-01/"

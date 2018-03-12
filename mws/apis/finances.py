@@ -2,7 +2,6 @@
 Amazon MWS Finances API
 """
 from __future__ import absolute_import
-import warnings
 
 from ..mws import MWS
 # from .. import utils
@@ -12,6 +11,9 @@ from ..decorators import next_token_action
 class Finances(MWS):
     """
     Amazon MWS Finances API
+
+    Docs:
+    http://docs.developer.amazonservices.com/en_US/finances/Finances_Overview.html
     """
     URI = "/Finances/2015-05-01"
     VERSION = "2015-05-01"
@@ -24,25 +26,29 @@ class Finances(MWS):
     @next_token_action('ListFinancialEventGroups')
     def list_financial_event_groups(self, created_after=None, created_before=None, max_results=None, next_token=None):
         """
-        Returns a list of financial event groups
+        Returns financial event groups for a given date range.
+        If `created_before` is ommitted, defaults to now minus 2 minutes.
+
+        Pass `next_token` to call "ListFinancialEventGroupsByNextToken" instead.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventGroups.html
         """
-        data = dict(
-            Action='ListFinancialEventGroups',
-            FinancialEventGroupStartedAfter=created_after,
-            FinancialEventGroupStartedBefore=created_before,
-            MaxResultsPerPage=max_results,
-        )
+        data = {
+            'Action': 'ListFinancialEventGroups',
+            'FinancialEventGroupStartedAfter': created_after,
+            'FinancialEventGroupStartedBefore': created_before,
+            'MaxResultsPerPage': max_results,
+        }
         return self.make_request(data)
 
     def list_financial_event_groups_by_next_token(self, token):
         """
-        Deprecated.
-        Use `list_financial_event_groups(next_token=token)` instead.
+        Alias for `list_financial_event_groups(next_token=token)`
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventGroupsByNextToken.html
         """
-        warnings.warn(
-            "Use `list_financial_event_groups(next_token=token)` instead.",
-            DeprecationWarning,
-        )
         return self.list_financial_event_groups(next_token=token)
 
     @next_token_action('ListFinancialEvents')
@@ -50,24 +56,27 @@ class Finances(MWS):
                               posted_before=None, max_results=None, next_token=None):
         """
         Returns financial events for a user-provided FinancialEventGroupId or AmazonOrderId
+
+        Pass `next_token` to call "ListFinancialEventsByNextToken" instead
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEvents.html
         """
-        data = dict(
-            Action='ListFinancialEvents',
-            FinancialEventGroupId=financial_event_group_id,
-            AmazonOrderId=amazon_order_id,
-            PostedAfter=posted_after,
-            PostedBefore=posted_before,
-            MaxResultsPerPage=max_results,
-        )
+        data = {
+            'Action': 'ListFinancialEvents',
+            'FinancialEventGroupId': financial_event_group_id,
+            'AmazonOrderId': amazon_order_id,
+            'PostedAfter': posted_after,
+            'PostedBefore': posted_before,
+            'MaxResultsPerPage': max_results,
+        }
         return self.make_request(data)
 
     def list_financial_events_by_next_token(self, token):
         """
-        Deprecated.
-        Use `list_financial_events(next_token=token)` instead.
+        Alias for `list_financial_events(next_token=token)`
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventsByNextToken.html
         """
-        warnings.warn(
-            "Use `list_financial_events(next_token=token)` instead.",
-            DeprecationWarning,
-        )
         return self.list_financial_events(next_token=token)

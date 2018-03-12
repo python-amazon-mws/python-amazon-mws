@@ -2,11 +2,13 @@
 Amazon MWS FulfillmentInboundShipment API
 """
 from __future__ import absolute_import
-# import warnings
 
 from ..mws import MWS, MWSError
 from .. import utils
 from ..decorators import next_token_action
+
+# TODO Add label type enumeration
+# TODO Add helper method for extracting PDF file object from label requests
 
 
 def parse_item_args(item_args, operation):
@@ -94,6 +96,9 @@ def parse_item_args(item_args, operation):
 class InboundShipments(MWS):
     """
     Amazon MWS FulfillmentInboundShipment API
+
+    Docs:
+    http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Overview.html
     """
     URI = "/FulfillmentInboundShipment/2010-10-01"
     VERSION = '2010-10-01'
@@ -108,6 +113,7 @@ class InboundShipments(MWS):
                          'AMAZON_LABEL_ONLY',
                          'AMAZON_LABEL_PREFERRED']
 
+    # # HELPER METHODS # #
     def __init__(self, *args, **kwargs):
         """
         Allow the addition of a from_address dict during object initialization.
@@ -165,8 +171,40 @@ class InboundShipments(MWS):
                 for c in key_config}
         self.from_address = addr
 
-    def create_inbound_shipment_plan(self, items, country_code='US',
-                                     subdivision_code='', label_preference=''):
+    # # REQUEST METHODS # #
+    def get_inbound_guidance_for_sku(self, sku_list, marketplace_id):
+        """
+        Returns inbound guidance for a list of items by Seller SKU.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForSKU.html
+        """
+        if not isinstance(sku_list, (list, tuple, set)):
+            sku_list = [sku_list]
+        data = {
+            'Action': 'GetInboundGuidanceForSKU',
+            'MarketplaceId': marketplace_id,
+        }
+        data.update(utils.enumerate_param('SellerSKUList.Id', sku_list))
+        return self.make_request(data)
+
+    def get_inbound_guidance_for_asin(self, asin_list, marketplace_id):
+        """
+        Returns inbound guidance for a list of items by ASIN.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForASIN.html
+        """
+        if not isinstance(asin_list, (list, tuple, set)):
+            asin_list = [asin_list]
+        data = {
+            'Action': 'GetInboundGuidanceForASIN',
+            'MarketplaceId': marketplace_id,
+        }
+        data.update(utils.enumerate_param('ASINList.Id', asin_list))
+        return self.make_request(data)
+
+    def create_inbound_shipment_plan(self, items, country_code='US', subdivision_code='', label_preference=''):
         """
         Returns one or more inbound shipment plans, which provide the
         information you need to create inbound shipments.
@@ -178,6 +216,9 @@ class InboundShipments(MWS):
 
         'from_address' is required. Call 'set_ship_from_address' first before
         using this operation.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipmentPlan.html
         """
         if not items:
             raise MWSError("One or more `item` dict arguments required.")
@@ -191,22 +232,20 @@ class InboundShipments(MWS):
                 "Please use `.set_ship_from_address()` first."
             ))
 
-        data = dict(
-            Action='CreateInboundShipmentPlan',
-            ShipToCountryCode=country_code,
-            ShipToCountrySubdivisionCode=subdivision_code,
-            LabelPrepPreference=label_preference,
-        )
+        data = {
+            'Action': 'CreateInboundShipmentPlan',
+            'ShipToCountryCode': country_code,
+            'ShipToCountrySubdivisionCode': subdivision_code,
+            'LabelPrepPreference': label_preference,
+        }
         data.update(self.from_address)
         data.update(utils.enumerate_keyed_param(
             'InboundShipmentPlanRequestItems.member', items,
         ))
         return self.make_request(data, method="POST")
 
-    def create_inbound_shipment(self, shipment_id, shipment_name,
-                                destination, items, shipment_status='',
-                                label_preference='', case_required=False,
-                                box_contents_source=None):
+    def create_inbound_shipment(self, shipment_id, shipment_name, destination, items, shipment_status='',
+                                label_preference='', case_required=False, box_contents_source=None):
         """
         Creates an inbound shipment to Amazon's fulfillment network.
 
@@ -217,6 +256,9 @@ class InboundShipments(MWS):
 
         'from_address' is required. Call 'set_ship_from_address' first before
         using this operation.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipment.html
         """
         assert isinstance(shipment_id, str), "`shipment_id` must be a string."
         assert isinstance(shipment_name, str), "`shipment_name` must be a string."
@@ -271,8 +313,10 @@ class InboundShipments(MWS):
                                 box_contents_source=None):
         """
         Updates an existing inbound shipment in Amazon FBA.
-        'from_address' is required. Call 'set_ship_from_address' first before
-        using this operation.
+        'from_address' is required. Call 'set_ship_from_address' first before using this operation.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_UpdateInboundShipment.html
         """
         # Assert these are strings, error out if not.
         assert isinstance(shipment_id, str), "`shipment_id` must be a string."
@@ -326,10 +370,41 @@ class InboundShipments(MWS):
             ))
         return self.make_request(data, method="POST")
 
+    def get_preorder_info(self, shipment_id):
+        """
+        Returns pre-order information, including dates, that a seller needs before confirming a shipment for pre-order.
+        Also indicates if a shipment has already been confirmed for pre-order.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPreorderInfo.html
+        """
+        data = {
+            'Action': 'GetPreorderInfo',
+            'ShipmentId': shipment_id,
+        }
+        return self.make_request(data)
+
+    def confirm_preorder(self, shipment_id, need_by_date):
+        """
+        Confirms a shipment for pre-order.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmPreorder.html
+        """
+        data = {
+            'Action': 'ConfirmPreorder',
+            'ShipmentId': shipment_id,
+            'NeedByDate': need_by_date,
+        }
+        return self.make_request(data)
+
     def get_prep_instructions_for_sku(self, skus=None, country_code=None):
         """
         Returns labeling requirements and item preparation instructions
         to help you prepare items for an inbound shipment.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForSKU.html
         """
         country_code = country_code or 'US'
         skus = skus or []
@@ -337,10 +412,10 @@ class InboundShipments(MWS):
         # 'skus' should be a unique list, or there may be an error returned.
         skus = utils.unique_list_order_preserved(skus)
 
-        data = dict(
-            Action='GetPrepInstructionsForSKU',
-            ShipToCountryCode=country_code,
-        )
+        data = {
+            'Action': 'GetPrepInstructionsForSKU',
+            'ShipToCountryCode': country_code,
+        }
         data.update(utils.enumerate_params({
             'SellerSKUList.ID.': skus,
         }))
@@ -348,8 +423,10 @@ class InboundShipments(MWS):
 
     def get_prep_instructions_for_asin(self, asins=None, country_code=None):
         """
-        Returns item preparation instructions to help with
-        item sourcing decisions.
+        Returns item preparation instructions to help with item sourcing decisions.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForASIN.html
         """
         country_code = country_code or 'US'
         asins = asins or []
@@ -357,152 +434,106 @@ class InboundShipments(MWS):
         # 'asins' should be a unique list, or there may be an error returned.
         asins = utils.unique_list_order_preserved(asins)
 
-        data = dict(
-            Action='GetPrepInstructionsForASIN',
-            ShipToCountryCode=country_code,
-        )
+        data = {
+            'Action': 'GetPrepInstructionsForASIN',
+            'ShipToCountryCode': country_code,
+        }
         data.update(utils.enumerate_params({
             'ASINList.ID.': asins,
         }))
         return self.make_request(data, method="POST")
 
-    def get_package_labels(self, shipment_id, num_packages, page_type=None):
-        """
-        Returns PDF document data for printing package labels for
-        an inbound shipment.
-        """
-        data = dict(
-            Action='GetPackageLabels',
-            ShipmentId=shipment_id,
-            PageType=page_type,
-            NumberOfPackages=str(num_packages),
-        )
-        return self.make_request(data, method="POST")
+    # # TODO this method is incomplete: it should be able to account for all TransportDetailInput types
+    # def put_transport_content(self, shipment_id, is_partnered, shipment_type, carrier_name, tracking_id):
+    #     """
+    #     Sends transportation information to Amazon about an inbound shipment.
 
-    def get_transport_content(self, shipment_id):
-        """
-        Returns current transportation information about an
-        inbound shipment.
-        """
-        data = dict(
-            Action='GetTransportContent',
-            ShipmentId=shipment_id
-        )
-        return self.make_request(data, method="POST")
+    #     Docs:
+    #     http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#TransportDetailInput
+    #     """
+    #     data = {
+    #         'Action': 'PutTransportContent',
+    #         'ShipmentId': shipment_id,
+    #         'IsPartnered': is_partnered,
+    #         'ShipmentType': shipment_type,
+    #     }
+    #     data['TransportDetails.NonPartneredSmallParcelData.CarrierName'] = carrier_name
+    #     if isinstance(tracking_id, tuple):
+    #         count = 0
+    #         for track in tracking_id:
+    #             data[
+    #                 'TransportDetails.NonPartneredSmallParcelData.PackageList.member.{}.TrackingId'.format(count + 1)
+    #             ] = track
+    #     return self.make_request(data)
 
     def estimate_transport_request(self, shipment_id):
         """
         Requests an estimate of the shipping cost for an inbound shipment.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_EstimateTransportRequest.html
         """
-        data = dict(
-            Action='EstimateTransportRequest',
-            ShipmentId=shipment_id,
-        )
+        data = {
+            'Action': 'EstimateTransportRequest',
+            'ShipmentId': shipment_id,
+        }
         return self.make_request(data, method="POST")
+
+    def get_transport_content(self, shipment_id):
+        """
+        Returns current transportation information about an inbound shipment.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetTransportContent.html
+        """
+        data = {
+            'Action': 'GetTransportContent',
+            'ShipmentId': shipment_id,
+        }
+        return self.make_request(data, method="POST")
+
+    def confirm_transport_request(self, shipment_id):
+        """
+        Confirms that you accept the Amazon-partnered shipping estimate and you request that the
+        Amazon-partnered carrier ship your inbound shipment.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmTransportRequest.html
+        """
+        data = {
+            'Action': 'ConfirmTransportRequest',
+            'ShipmentId': shipment_id,
+        }
+        return self.make_request(data)
 
     def void_transport_request(self, shipment_id):
         """
         Voids a previously-confirmed request to ship your inbound shipment
         using an Amazon-partnered carrier.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_VoidTransportRequest.html
         """
-        data = dict(
-            Action='VoidTransportRequest',
-            ShipmentId=shipment_id
-        )
+        data = {
+            'Action': 'VoidTransportRequest',
+            'ShipmentId': shipment_id,
+        }
         return self.make_request(data, method="POST")
 
-    def get_bill_of_lading(self, shipment_id):
+    def get_package_labels(self, shipment_id, num_packages, page_type=None):
         """
-        Returns PDF document data for printing a bill of lading
-        for an inbound shipment.
-        """
-        data = dict(
-            Action='GetBillOfLading',
-            ShipmentId=shipment_id,
-        )
-        return self.make_request(data, "POST")
+        Returns PDF document data for printing package labels for an inbound shipment.
 
-    @next_token_action('ListInboundShipments')
-    def list_inbound_shipments(self, shipment_ids=None, shipment_statuses=None,
-                               last_updated_after=None, last_updated_before=None,):
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPackageLabels.html
         """
-        Returns list of shipments based on statuses, IDs, and/or
-        before/after datetimes.
-        """
-        last_updated_after = utils.dt_iso_or_none(last_updated_after)
-        last_updated_before = utils.dt_iso_or_none(last_updated_before)
-
-        data = dict(
-            Action='ListInboundShipments',
-            LastUpdatedAfter=last_updated_after,
-            LastUpdatedBefore=last_updated_before,
-        )
-        data.update(utils.enumerate_params({
-            'ShipmentStatusList.member.': shipment_statuses,
-            'ShipmentIdList.member.': shipment_ids,
-        }))
+        data = {
+            'Action': 'GetPackageLabels',
+            'ShipmentId': shipment_id,
+            'PageType': page_type,
+            'NumberOfPackages': str(num_packages),
+        }
         return self.make_request(data, method="POST")
-
-    @next_token_action('ListInboundShipmentItems')
-    def list_inbound_shipment_items(self, shipment_id=None, last_updated_after=None,
-                                    last_updated_before=None,):
-        """
-        Returns list of items within inbound shipments and/or
-        before/after datetimes.
-        """
-        last_updated_after = utils.dt_iso_or_none(last_updated_after)
-        last_updated_before = utils.dt_iso_or_none(last_updated_before)
-
-        data = dict(
-            Action='ListInboundShipmentItems',
-            ShipmentId=shipment_id,
-            LastUpdatedAfter=last_updated_after,
-            LastUpdatedBefore=last_updated_before,
-        )
-        return self.make_request(data, method="POST")
-
-    def get_inbound_guidance_for_sku(self, sku_list, marketplace_id):
-        if not isinstance(sku_list, (list, tuple, set)):
-            sku_list = [sku_list]
-        data = dict(
-            Action='GetInboundGuidanceForSKU',
-            MarketplaceId=marketplace_id,
-        )
-        data.update(utils.enumerate_param('SellerSKUList.Id', sku_list))
-        return self.make_request(data)
-
-    def get_inbound_guidance_for_asin(self, asin_list, marketplace_id):
-        if not isinstance(asin_list, (list, tuple, set)):
-            asin_list = [asin_list]
-        data = dict(
-            Action='GetInboundGuidanceForASIN',
-            MarketplaceId=marketplace_id,
-        )
-        data.update(utils.enumerate_param('ASINList.Id', asin_list))
-        return self.make_request(data)
-
-    def get_pallet_labels(self, shipment_id, page_type, num_pallets):
-        """
-        Returns pallet labels.
-        `shipment_id` must match a valid, current shipment.
-        `page_type` expected to be string matching one of following (not checked, in case Amazon requirements change):
-            PackageLabel_Letter_2
-            PackageLabel_Letter_6
-            PackageLabel_A4_2
-            PackageLabel_A4_4
-            PackageLabel_Plain_Pape
-        `num_pallets` is integer, number of labels to create.
-
-        Documentation:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPalletLabels.html
-        """
-        data = dict(
-            Action='GetPalletLabels',
-            ShipmentId=shipment_id,
-            PageType=page_type,
-            NumberOfPallets=num_pallets,
-        )
-        return self.make_request(data)
 
     def get_unique_package_labels(self, shipment_id, page_type, package_ids):
         """
@@ -518,62 +549,118 @@ class InboundShipments(MWS):
         `package_ids` a single package identifier, or a list/tuple/set of identifiers, specifying for which package(s)
             you want package labels printed.
 
-        Documentation:
+        Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetUniquePackageLabels.html
         """
-        data = dict(
-            Action='GetUniquePackageLabels',
-            ShipmentId=shipment_id,
-            PageType=page_type,
-        )
+        data = {
+            'Action': 'GetUniquePackageLabels',
+            'ShipmentId': shipment_id,
+            'PageType': page_type,
+        }
         if not isinstance(package_ids, (list, tuple, set)):
             package_ids = [package_ids]
         data.update(utils.enumerate_param('PackageLabelsToPrint.member.', package_ids))
         return self.make_request(data)
 
-    def confirm_transport_request(self, shipment_id):
+    def get_pallet_labels(self, shipment_id, page_type, num_pallets):
         """
-        Confirms that you accept the Amazon-partnered shipping estimate and you request that the
-        Amazon-partnered carrier ship your inbound shipment.
+        Returns pallet labels.
+        `shipment_id` must match a valid, current shipment.
+        `page_type` expected to be string matching one of following (not checked, in case Amazon requirements change):
+            PackageLabel_Letter_2
+            PackageLabel_Letter_6
+            PackageLabel_A4_2
+            PackageLabel_A4_4
+            PackageLabel_Plain_Pape
+        `num_pallets` is integer, number of labels to create.
 
-        Documentation:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmTransportRequest.html
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPalletLabels.html
         """
-        data = dict(
-            Action='ConfirmTransportRequest',
-            ShipmentId=shipment_id,
-        )
+        data = {
+            'Action': 'GetPalletLabels',
+            'ShipmentId': shipment_id,
+            'PageType': page_type,
+            'NumberOfPallets': num_pallets,
+        }
         return self.make_request(data)
 
-    # TODO this method is incomplete: it should be able to account for all TransportDetailInput types
-    # docs: http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#TransportDetailInput
-    # def put_transport_content(self, shipment_id, is_partnered, shipment_type, carrier_name, tracking_id):
-    #     data = dict(
-    #         Action='PutTransportContent',
-    #         ShipmentId=shipment_id,
-    #         IsPartnered=is_partnered,
-    #         ShipmentType=shipment_type,
-    #     )
-    #     data['TransportDetails.NonPartneredSmallParcelData.CarrierName'] = carrier_name
-    #     if isinstance(tracking_id, tuple):
-    #         count = 0
-    #         for track in tracking_id:
-    #             data[
-    #                 'TransportDetails.NonPartneredSmallParcelData.PackageList.member.{}.TrackingId'.format(count + 1)
-    #             ] = track
-    #     return self.make_request(data)
+    def get_bill_of_lading(self, shipment_id):
+        """
+        Returns PDF document data for printing a bill of lading for an inbound shipment.
 
-    def confirm_preorder(self, shipment_id, need_by_date):
-        data = dict(
-            Action='ConfirmPreorder',
-            ShipmentId=shipment_id,
-            NeedByDate=need_by_date,
-        )
-        return self.make_request(data)
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetBillOfLading.html
+        """
+        data = {
+            'Action': 'GetBillOfLading',
+            'ShipmentId': shipment_id,
+        }
+        return self.make_request(data, "POST")
 
-    def get_preorder_info(self, shipment_id):
-        data = dict(
-            Action='GetPreorderInfo',
-            ShipmentId=shipment_id,
-        )
-        return self.make_request(data)
+    @next_token_action('ListInboundShipments')
+    def list_inbound_shipments(self, shipment_ids=None, shipment_statuses=None,
+                               last_updated_after=None, last_updated_before=None, next_token=None):
+        """
+        Returns list of shipments based on statuses, IDs, and/or
+        before/after datetimes.
+
+        Pass `next_token` to call "ListInboundShipmentsByNextToken" instead.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipments.html
+        """
+        last_updated_after = utils.dt_iso_or_none(last_updated_after)
+        last_updated_before = utils.dt_iso_or_none(last_updated_before)
+
+        data = {
+            'Action': 'ListInboundShipments',
+            'LastUpdatedAfter': last_updated_after,
+            'LastUpdatedBefore': last_updated_before,
+        }
+        data.update(utils.enumerate_params({
+            'ShipmentStatusList.member.': shipment_statuses,
+            'ShipmentIdList.member.': shipment_ids,
+        }))
+        return self.make_request(data, method="POST")
+
+    def list_inbound_shipments_by_next_token(self, token):
+        """
+        Alias for `list_inbound_shipments(next_token=token)`
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentsByNextToken.html
+        """
+        return self.list_inbound_shipments(next_token=token)
+
+    @next_token_action('ListInboundShipmentItems')
+    def list_inbound_shipment_items(self, shipment_id=None, last_updated_after=None,
+                                    last_updated_before=None, next_token=None):
+        """
+        Returns list of items within inbound shipments and/or
+        before/after datetimes.
+
+        Pass `next_token` to call "ListInboundShipmentItemsByNextToken" instead.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItems.html
+        """
+        last_updated_after = utils.dt_iso_or_none(last_updated_after)
+        last_updated_before = utils.dt_iso_or_none(last_updated_before)
+
+        data = {
+            'Action': 'ListInboundShipmentItems',
+            'ShipmentId': shipment_id,
+            'LastUpdatedAfter': last_updated_after,
+            'LastUpdatedBefore': last_updated_before,
+        }
+        return self.make_request(data, method="POST")
+
+    def list_inbound_shipment_items_by_next_token(self, token):
+        """
+        Alias for `list_inbound_shipment_items(next_token=token)`
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItemsByNextToken.html
+        """
+        return self.list_inbound_shipment_items(next_token=token)

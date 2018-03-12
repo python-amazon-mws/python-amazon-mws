@@ -2,16 +2,17 @@
 Amazon MWS Recommendations API
 """
 from __future__ import absolute_import
-import warnings
 
 from ..mws import MWS
-# from .. import utils
 from ..decorators import next_token_action
 
 
 class Recommendations(MWS):
     """
     Amazon MWS Recommendations API
+
+    Docs:
+    http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_Overview.html
     """
     URI = '/Recommendations/2013-04-01'
     VERSION = '2013-04-01'
@@ -24,32 +25,38 @@ class Recommendations(MWS):
         """
         Checks whether there are active recommendations for each category for the given marketplace, and if there are,
         returns the time when recommendations were last updated for each category.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_GetLastUpdatedTimeForRecommendations.html
         """
-        data = dict(Action='GetLastUpdatedTimeForRecommendations',
-                    MarketplaceId=marketplaceid)
+        data = {
+            'Action': 'GetLastUpdatedTimeForRecommendations',
+            'MarketplaceId': marketplaceid,
+        }
         return self.make_request(data, "POST")
 
     @next_token_action('ListRecommendations')
-    def list_recommendations(self, marketplaceid=None,
-                             recommendationcategory=None, next_token=None):
+    def list_recommendations(self, marketplaceid=None, recommendationcategory=None, next_token=None):
         """
         Returns your active recommendations for a specific category or for all categories for a specific marketplace.
+
+        Pass `next_token` to call "ListRecommendationsByNextToken" instead.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_ListRecommendations.html
         """
-        data = dict(Action="ListRecommendations",
-                    MarketplaceId=marketplaceid,
-                    RecommendationCategory=recommendationcategory)
+        data = {
+            'Action': "ListRecommendations",
+            'MarketplaceId': marketplaceid,
+            'RecommendationCategory': recommendationcategory,
+        }
         return self.make_request(data, "POST")
 
     def list_recommendations_by_next_token(self, token):
         """
-        Deprecated.
-        Use `list_recommendations(next_token=token)` instead.
+        Alias for `list_recommendations(next_token=token)` instead.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_ListRecommendationsByNextToken.html
         """
-        # data = dict(Action="ListRecommendationsByNextToken",
-        #             NextToken=token)
-        # return self.make_request(data, "POST")
-        warnings.warn(
-            "Use `list_recommendations(next_token=token)` instead.",
-            DeprecationWarning,
-        )
         return self.list_recommendations(next_token=token)
