@@ -45,3 +45,14 @@ class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assert_common_params(params)
         assert params['Action'] == 'ListInventorySupplyByNextToken'
         assert params['NextToken'] == next_token
+
+    def test_list_inventory_supply_by_next_token_alias(self):
+        """
+        ListInventorySupplyByNextToken operation by way of the alias method
+        list_inventory_supply_by_next_token
+        """
+        next_token = 'token_foobar'
+        params = self.api.list_inventory_supply_by_next_token(next_token)
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListInventorySupplyByNextToken'
+        assert params['NextToken'] == next_token
