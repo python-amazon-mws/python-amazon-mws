@@ -35,10 +35,10 @@ class RecommendationsTestCase(unittest.TestCase, CommonRequestTestTools):
         ListRecommendations operation
         """
         marketplace_id = "marketplace_bazbar"
-        recommendationcategory = "muffin balls"
+        recommendation_category = "muffin balls"
         params = self.api.list_recommendations(
             marketplace_id=marketplace_id,
-            recommendationcategory=recommendationcategory,
+            recommendation_category=recommendation_category,
         )
         self.assert_common_params(params)
         assert params['Action'] == 'ListRecommendations'
