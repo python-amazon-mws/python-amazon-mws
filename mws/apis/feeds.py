@@ -67,7 +67,7 @@ class Feeds(MWS):
         data.update(utils.enumerate_param('FeedProcessingStatusList.Status.', processing_statuses))
         return self.make_request(data)
 
-    def get_submission_list_by_next_token(self, token):
+    def get_feed_submission_list_by_next_token(self, token):
         """
         Alias for `get_feed_submission_list(next_token=token)`
 
