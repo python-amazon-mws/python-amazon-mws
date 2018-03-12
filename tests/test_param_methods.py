@@ -137,8 +137,8 @@ def test_keyed_params():
         "stuff": "foobarbazmatazz",
         "stuff2": "foobarbazmatazz5",
     }
-    result = mws.utils.enumerate_keyed_param(param, [item1, item2, item3])
-    assert result == {
+    result_1 = mws.utils.enumerate_keyed_param(param, [item1, item2, item3])
+    assert result_1 == {
         "AthingToKeyUp.member.1.thing": "stuff",
         "AthingToKeyUp.member.1.foo": "baz",
         "AthingToKeyUp.member.2.thing": 123,
@@ -146,6 +146,13 @@ def test_keyed_params():
         "AthingToKeyUp.member.2.bar": "hello",
         "AthingToKeyUp.member.3.stuff": "foobarbazmatazz",
         "AthingToKeyUp.member.3.stuff2": "foobarbazmatazz5",
+    }
+    # Test param with single value, which should work similarly
+    # (value should auto-convert to list with one element)
+    result_2 = mws.utils.enumerate_keyed_param(param, item3)
+    assert result_1 == {
+        "AthingToKeyUp.member.1.stuff": "foobarbazmatazz",
+        "AthingToKeyUp.member.1.stuff2": "foobarbazmatazz5",
     }
 
 
