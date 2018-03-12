@@ -33,7 +33,7 @@ class Subscriptions(MWS):
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_RegisterDestination.html
         """
         raise NotImplementedError
-    
+
     def deregister_destination(self):
         """
         Removes an existing destination from the list of registered destinations.
@@ -51,7 +51,7 @@ class Subscriptions(MWS):
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListRegisteredDestinations.html
         """
         raise NotImplementedError
-        
+
     def send_test_notification_to_destination(self):
         """
         Sends a test notification to an existing destination.
@@ -60,7 +60,7 @@ class Subscriptions(MWS):
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_SendTestNotificationToDestination.html
         """
         raise NotImplementedError
-    
+
     def create_subscription(self):
         """
         Creates a new subscription for the specified notification type and destination.
@@ -69,7 +69,7 @@ class Subscriptions(MWS):
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_CreateSubscription.html
         """
         raise NotImplementedError
-        
+
     def get_subscription(self):
         """
         Gets the subscription for the specified notification type and destination.
@@ -78,7 +78,7 @@ class Subscriptions(MWS):
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_GetSubscription.html
         """
         raise NotImplementedError
-    
+
     def delete_subscription(self):
         """
         Deletes the subscription for the specified notification type and destination.
@@ -87,7 +87,7 @@ class Subscriptions(MWS):
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_DeleteSubscription.html
         """
         raise NotImplementedError
-        
+
     def list_subscriptions(self, marketplace_id):
         """
         Returns a list of all your current subscriptions.
@@ -100,7 +100,7 @@ class Subscriptions(MWS):
             'MarketplaceId': marketplace_id,
         }
         return self.make_request(data, 'POST')
-    
+
     def update_subscription(self):
         """
         Updates the subscription for the specified notification type and destination.
