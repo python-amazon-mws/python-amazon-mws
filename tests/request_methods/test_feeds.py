@@ -35,7 +35,7 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         from_date = datetime.datetime.utcnow()
         from_date_stamp = from_date.isoformat()
         to_date = datetime.datetime.utcnow()
-        to_date_stamp = from_date.isoformat()
+        to_date_stamp = to_date.isoformat()
         feed_ids = [
             '1058369303',
             '1228369302',
