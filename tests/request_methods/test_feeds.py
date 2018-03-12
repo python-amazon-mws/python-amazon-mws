@@ -74,7 +74,6 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         assert params['FeedProcessingStatusList.Status.1'] == processing_statuses[0]
         assert params['FeedProcessingStatusList.Status.2'] == processing_statuses[1]
         assert params['FeedProcessingStatusList.Status.3'] == processing_statuses[2]
-        
 
     def test_get_feed_submission_list_by_next_token(self):
         """
@@ -85,7 +84,6 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assert_common_params(params)
         assert params['Action'] == 'GetFeedSubmissionListByNextToken'
         assert params['NextToken'] == next_token
-
 
     def test_get_feed_submission_list_by_next_token_alias(self):
         """
