@@ -193,19 +193,54 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         """
         GetReportCount operation.
         """
-        pass
+        report_types = [
+            '_GET_AMAZON_FULFILLED_SHIPMENTS_DATA_',
+            '_GET_AFN_INVENTORY_DATA_BY_COUNTRY_',
+        ]
+        acknowledged = True
+        from_date = datetime.datetime.utcnow()
+        to_date = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        params = self.api.get_report_count(
+            report_types=report_types,
+            acknowledged=acknowledged,
+            from_date=from_date,
+            to_date=to_date,
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'GetReportCount')
+        self.assertEqual(params['Acknowledged'], acknowledged)
+        self.assertEqual(params['AvailableFromDate'], from_date.isoformat())
+        self.assertEqual(params['AvailableToDate'], to_date.isoformat())
+        self.assertEqual(params['ReportTypeList.Type.1'], report_types[0])
+        self.assertEqual(params['ReportTypeList.Type.2'], report_types[1])
 
     def test_get_report(self):
         """
         GetReport operation.
         """
-        pass
+        report_id = 'wwqrl4bHvD'
+        params = self.api.get_report(
+            report_id=report_id
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'GetReport')
+        self.assertEqual(params['ReportId'], report_id)
 
     def test_get_report_schedule_list(self):
         """
         GetReportScheduleList operation.
         """
-        pass
+        report_types = [
+            '_GET_FBA_FULFILLMENT_INBOUND_NONCOMPLIANCE_DATA_',
+            '_GET_RESTOCK_INVENTORY_RECOMMENDATIONS_REPORT_',
+        ]
+        params = self.api.get_report_schedule_list(
+            report_types=report_types
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'GetReportScheduleList')
+        self.assertEqual(params['ReportTypeList.Type.1'], report_types[0])
+        self.assertEqual(params['ReportTypeList.Type.2'], report_types[1])
 
     def test_get_report_schedule_list_by_next_token(self):
         """
@@ -231,7 +266,17 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         """
         GetReportScheduleCount operation.
         """
-        pass
+        report_types = [
+            '_GET_STRANDED_INVENTORY_UI_DATA_',
+            '_GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA_',
+        ]
+        params = self.api.get_report_schedule_list(
+            report_types=report_types
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'GetReportScheduleCount')
+        self.assertEqual(params['ReportTypeList.Type.1'], report_types[0])
+        self.assertEqual(params['ReportTypeList.Type.2'], report_types[1])
 
     # # TODO Complete when method is available in Reports
     # def test_update_report_acknowledgements(self):
