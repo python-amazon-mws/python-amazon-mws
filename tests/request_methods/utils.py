@@ -14,14 +14,14 @@ class CommonRequestTestTools(object):
         """
         Tests the common parameters expected in every call.
         """
-        assert params['AWSAccessKeyId'] == self.CREDENTIAL_ACCESS
-        assert params[self.api.ACCOUNT_TYPE] == self.CREDENTIAL_ACCOUNT
-        assert params['MWSAuthToken'] == self.CREDENTIAL_TOKEN
+        self.assertEqual(params['AWSAccessKeyId'], self.CREDENTIAL_ACCESS)
+        self.assertEqual(params[self.api.ACCOUNT_TYPE], self.CREDENTIAL_ACCOUNT)
+        self.assertEqual(params['MWSAuthToken'], self.CREDENTIAL_TOKEN)
 
         # Signature keys (below) are defined with string literals in MWS.get_params
         # If test fails here, check that method.
-        assert params['SignatureMethod'] == 'HmacSHA256'
-        assert params['SignatureVersion'] == '2'
+        self.assertEqual(params['SignatureMethod'], 'HmacSHA256')
+        self.assertEqual(params['SignatureVersion'], '2')
         isoformat_str = "%Y-%m-%dT%H:%M:%S"
         try:
             datetime.datetime.strptime(params['Timestamp'], isoformat_str)
@@ -31,4 +31,4 @@ class CommonRequestTestTools(object):
     def test_service_status(self):
         response = self.api.get_service_status()
         # Only key we care about here is GetServiceStatus
-        assert response['Action'] == 'GetServiceStatus'
+        self.assertEqual(response['Action'], 'GetServiceStatus')
