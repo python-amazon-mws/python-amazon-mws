@@ -89,7 +89,6 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         assert params['Action'] == 'GetFeedSubmissionListByNextToken'
         assert params['NextToken'] == next_token
 
-    # TODO Complete these later
     def test_get_feed_submission_count(self):
         """
         GetFeedSubmissionCount operation
