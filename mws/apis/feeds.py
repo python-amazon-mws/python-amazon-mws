@@ -48,7 +48,7 @@ class Feeds(MWS):
                                  processing_statuses=None, from_date=None, to_date=None,
                                  next_token=None):
         """
-        Returns a list of all feed submissions submitted between `fromdate` and `todate`.
+        Returns a list of all feed submissions submitted between `from_date` and `to_date`.
         If these parameters are ommitted, defaults to the previous 90 days.
 
         Pass `next_token` to call "GetFeedSubmissionListByNextToken" instead.
@@ -76,9 +76,9 @@ class Feeds(MWS):
         """
         return self.get_feed_submission_list(next_token=token)
 
-    def get_feed_submission_count(self, feedtypes=None, processingstatuses=None, fromdate=None, todate=None):
+    def get_feed_submission_count(self, feed_types=None, processing_statuses=None, from_date=None, to_date=None):
         """
-        Returns a count of the feeds submitted between `fromdate` and `todate`.
+        Returns a count of the feeds submitted between `from_date` and `to_date`.
         If these parameters are ommitted, defaults to the previous 90 days.
 
         Docs:
@@ -86,14 +86,14 @@ class Feeds(MWS):
         """
         data = {
             'Action': 'GetFeedSubmissionCount',
-            'SubmittedFromDate': fromdate,
-            'SubmittedToDate': todate,
+            'SubmittedFromDate': from_date,
+            'SubmittedToDate': to_date,
         }
-        data.update(utils.enumerate_param('FeedTypeList.Type.', feedtypes))
-        data.update(utils.enumerate_param('FeedProcessingStatusList.Status.', processingstatuses))
+        data.update(utils.enumerate_param('FeedTypeList.Type.', feed_types))
+        data.update(utils.enumerate_param('FeedProcessingStatusList.Status.', processing_statuses))
         return self.make_request(data)
 
-    def cancel_feed_submissions(self, feedids=None, feedtypes=None, fromdate=None, todate=None):
+    def cancel_feed_submissions(self, feed_ids=None, feed_types=None, from_date=None, to_date=None):
         """
         Cancels one or more feed submissions and returns a count of the feed submissions that were canceled.
 
@@ -102,14 +102,14 @@ class Feeds(MWS):
         """
         data = {
             'Action': 'CancelFeedSubmissions',
-            'SubmittedFromDate': fromdate,
-            'SubmittedToDate': todate,
+            'SubmittedFromDate': from_date,
+            'SubmittedToDate': to_date,
         }
-        data.update(utils.enumerate_param('FeedSubmissionIdList.Id.', feedids))
-        data.update(utils.enumerate_param('FeedTypeList.Type.', feedtypes))
+        data.update(utils.enumerate_param('FeedSubmissionIdList.Id.', feed_ids))
+        data.update(utils.enumerate_param('FeedTypeList.Type.', feed_types))
         return self.make_request(data)
 
-    def get_feed_submission_result(self, feedid):
+    def get_feed_submission_result(self, feed_id):
         """
         Returns the feed processing report and the Content-MD5 header.
 
@@ -118,6 +118,6 @@ class Feeds(MWS):
         """
         data = {
             'Action': 'GetFeedSubmissionResult',
-            'FeedSubmissionId': feedid,
+            'FeedSubmissionId': feed_id,
         }
         return self.make_request(data, rootkey='Message')
