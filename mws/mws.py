@@ -225,7 +225,7 @@ class MWS(object):
             description=request_description,
             signature=quote(signature),
         )
-        headers = {'User-Agent': 'python-amazon-mws/0.8.0 (Language=Python)'}
+        headers = {'User-Agent': 'python-amazon-mws/0.8.2 (Language=Python)'}
         headers.update(kwargs.get('extra_headers', {}))
 
         try:
