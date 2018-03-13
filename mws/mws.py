@@ -409,6 +409,7 @@ class Reports(MWS):
     ACCOUNT_TYPE = "Merchant"
     NEXT_TOKEN_OPERATIONS = [
         'GetReportRequestList',
+        'GetReportList',
         'GetReportScheduleList',
     ]
 
