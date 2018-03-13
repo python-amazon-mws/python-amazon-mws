@@ -39,12 +39,12 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
             marketplace_ids=marketplace_ids,
         )
         self.assert_common_params(params)
-        self.assertEqual(param['Action'], 'RequestReport')
-        self.assertEqual(param['ReportType'], report_type)
-        self.assertEqual(param['StartDate'], start_date.isoformat())
-        self.assertEqual(param['EndDate'], end_date.isoformat())
-        self.assertEqual(param['MarketplaceIdList.Id.1'], marketplace_ids[0])
-        self.assertEqual(param['MarketplaceIdList.Id.2'], marketplace_ids[1])
+        self.assertEqual(params['Action'], 'RequestReport')
+        self.assertEqual(params['ReportType'], report_type)
+        self.assertEqual(params['StartDate'], start_date.isoformat())
+        self.assertEqual(params['EndDate'], end_date.isoformat())
+        self.assertEqual(params['MarketplaceIdList.Id.1'], marketplace_ids[0])
+        self.assertEqual(params['MarketplaceIdList.Id.2'], marketplace_ids[1])
 
     def test_get_report_request_list(self):
         """
@@ -140,7 +140,7 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         """
         request_ids = [
             'c4eik8sxXC',
-            'NIVgnbHXe0,
+            'NIVgnbHXe0',
         ]
         report_types = [
             '_GET_V1_SELLER_PERFORMANCE_REPORT_',
