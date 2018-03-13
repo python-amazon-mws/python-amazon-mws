@@ -58,16 +58,16 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
             to_date=to_date,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'GetFeedSubmissionList'
-        assert params['SubmittedFromDate'] == from_date_stamp
-        assert params['SubmittedToDate'] == to_date_stamp
-        assert params['MaxCount'] == max_count
-        assert params['FeedSubmissionIdList.Id.1'] == feed_ids[0]
-        assert params['FeedSubmissionIdList.Id.2'] == feed_ids[1]
-        assert params['FeedTypeList.Type.1'] == feed_types[0]
-        assert params['FeedTypeList.Type.2'] == feed_types[1]
-        assert params['FeedProcessingStatusList.Status.1'] == processing_statuses[0]
-        assert params['FeedProcessingStatusList.Status.2'] == processing_statuses[1]
+        self.assertEqual(params['Action'], 'GetFeedSubmissionList')
+        self.assertEqual(params['SubmittedFromDate'], from_date_stamp)
+        self.assertEqual(params['SubmittedToDate'], to_date_stamp)
+        self.assertEqual(params['MaxCount'], max_count)
+        self.assertEqual(params['FeedSubmissionIdList.Id.1'], feed_ids[0])
+        self.assertEqual(params['FeedSubmissionIdList.Id.2'], feed_ids[1])
+        self.assertEqual(params['FeedTypeList.Type.1'], feed_types[0])
+        self.assertEqual(params['FeedTypeList.Type.2'], feed_types[1])
+        self.assertEqual(params['FeedProcessingStatusList.Status.1'], processing_statuses[0])
+        self.assertEqual(params['FeedProcessingStatusList.Status.2'], processing_statuses[1])
 
     def test_get_feed_submission_list_by_next_token(self):
         """
@@ -76,8 +76,8 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = '0Ys0j83sOL'
         params = self.api.get_feed_submission_list(next_token=next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'GetFeedSubmissionListByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'GetFeedSubmissionListByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
 
     def test_get_feed_submission_list_by_next_token_alias(self):
         """
@@ -86,8 +86,8 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = 'pcq5ZXlm1e'
         params = self.api.get_feed_submission_list_by_next_token(next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'GetFeedSubmissionListByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'GetFeedSubmissionListByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
 
     def test_get_feed_submission_count(self):
         """
@@ -112,13 +112,13 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
             to_date=to_date,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'GetFeedSubmissionCount'
-        assert params['SubmittedFromDate'] == from_date_stamp
-        assert params['SubmittedToDate'] == to_date_stamp
-        assert params['FeedTypeList.Type.1'] == feed_types[0]
-        assert params['FeedTypeList.Type.2'] == feed_types[1]
-        assert params['FeedProcessingStatusList.Status.1'] == processing_statuses[0]
-        assert params['FeedProcessingStatusList.Status.2'] == processing_statuses[1]
+        self.assertEqual(params['Action'], 'GetFeedSubmissionCount')
+        self.assertEqual(params['SubmittedFromDate'], from_date_stamp)
+        self.assertEqual(params['SubmittedToDate'], to_date_stamp)
+        self.assertEqual(params['FeedTypeList.Type.1'], feed_types[0])
+        self.assertEqual(params['FeedTypeList.Type.2'], feed_types[1])
+        self.assertEqual(params['FeedProcessingStatusList.Status.1'], processing_statuses[0])
+        self.assertEqual(params['FeedProcessingStatusList.Status.2'], processing_statuses[1])
 
     def test_cancel_feed_submissions(self):
         """
@@ -143,13 +143,13 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
             to_date=to_date,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'CancelFeedSubmissions'
-        assert params['SubmittedFromDate'] == from_date_stamp
-        assert params['SubmittedToDate'] == to_date_stamp
-        assert params['FeedSubmissionIdList.Id.1'] == feed_ids[0]
-        assert params['FeedSubmissionIdList.Id.2'] == feed_ids[1]
-        assert params['FeedTypeList.Type.1'] == feed_types[0]
-        assert params['FeedTypeList.Type.2'] == feed_types[1]
+        self.assertEqual(params['Action'], 'CancelFeedSubmissions')
+        self.assertEqual(params['SubmittedFromDate'], from_date_stamp)
+        self.assertEqual(params['SubmittedToDate'], to_date_stamp)
+        self.assertEqual(params['FeedSubmissionIdList.Id.1'], feed_ids[0])
+        self.assertEqual(params['FeedSubmissionIdList.Id.2'], feed_ids[1])
+        self.assertEqual(params['FeedTypeList.Type.1'], feed_types[0])
+        self.assertEqual(params['FeedTypeList.Type.2'], feed_types[1])
 
     def test_get_feed_submission_result(self):
         """
@@ -158,5 +158,5 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         feed_id = 'SJT63jt6M3'
         params = self.api.get_feed_submission_result(feed_id)
         self.assert_common_params(params)
-        assert params['Action'] == 'GetFeedSubmissionResult'
-        assert params['FeedSubmissionId'] == feed_id
+        self.assertEqual(params['Action'], 'GetFeedSubmissionResult')
+        self.assertEqual(params['FeedSubmissionId'], feed_id)
