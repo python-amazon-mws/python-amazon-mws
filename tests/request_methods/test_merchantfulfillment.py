@@ -26,7 +26,7 @@ class MerchantFulfillmentTestCase(unittest.TestCase, CommonRequestTestTools):
     #     """
     #     params = self.api.get_eligible_shipping_services()
     #     self.assert_common_params(params)
-    #     assert params['Action'] == 'GetEligibleShippingServices'
+    #     self.assertEqual(params['Action'], 'GetEligibleShippingServices')
 
     # def test_create_shipment(self):
     #     """
@@ -34,7 +34,7 @@ class MerchantFulfillmentTestCase(unittest.TestCase, CommonRequestTestTools):
     #     """
     #     params = self.api.create_shipment()
     #     self.assert_common_params(params)
-    #     assert params['Action'] == 'CreateShipment'
+    #     self.assertEqual(params['Action'], 'CreateShipment')
 
     def test_get_shipment(self):
         """
@@ -45,8 +45,8 @@ class MerchantFulfillmentTestCase(unittest.TestCase, CommonRequestTestTools):
             shipment_id=shipment_id,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'GetShipment'
-        assert params['ShipmentId'] == shipment_id
+        self.assertEqual(params['Action'], 'GetShipment')
+        self.assertEqual(params['ShipmentId'], shipment_id)
 
     def test_cancel_shipment(self):
         """
@@ -57,5 +57,5 @@ class MerchantFulfillmentTestCase(unittest.TestCase, CommonRequestTestTools):
             shipment_id=shipment_id,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'CancelShipment'
-        assert params['ShipmentId'] == shipment_id
+        self.assertEqual(params['Action'], 'CancelShipment')
+        self.assertEqual(params['ShipmentId'], shipment_id)
