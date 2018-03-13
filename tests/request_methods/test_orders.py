@@ -71,24 +71,24 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
             tfm_shipment_statuses=tfm_shipment_statuses,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'ListOrders'
-        assert params['CreatedAfter'] == created_after_stamp
-        assert params['CreatedBefore'] == created_before_stamp
-        assert params['LastUpdatedAfter'] == last_updated_after_stamp
-        assert params['LastUpdatedBefore'] == last_updated_before_stamp
-        assert params['BuyerEmail'] == buyer_email
-        assert params['SellerOrderId'] == seller_order_id
-        assert params['MaxResultsPerPage'] == max_results
-        assert params['OrderStatus.Status.1'] == order_statuses[0]
-        assert params['OrderStatus.Status.2'] == order_statuses[1]
-        assert params['MarketplaceId.Id.1'] == marketplace_ids[0]
-        assert params['MarketplaceId.Id.2'] == marketplace_ids[1]
-        assert params['FulfillmentChannel.Channel.1'] == fulfillment_channels[0]
-        assert params['FulfillmentChannel.Channel.2'] == fulfillment_channels[1]
-        assert params['PaymentMethod.Method.1'] == payment_methods[0]
-        assert params['PaymentMethod.Method.2'] == payment_methods[1]
-        assert params['TFMShipmentStatus.Status.1'] == tfm_shipment_statuses[0]
-        assert params['TFMShipmentStatus.Status.2'] == tfm_shipment_statuses[1]
+        self.assertEqual(params['Action'], 'ListOrders')
+        self.assertEqual(params['CreatedAfter'], created_after_stamp)
+        self.assertEqual(params['CreatedBefore'], created_before_stamp)
+        self.assertEqual(params['LastUpdatedAfter'], last_updated_after_stamp)
+        self.assertEqual(params['LastUpdatedBefore'], last_updated_before_stamp)
+        self.assertEqual(params['BuyerEmail'], buyer_email)
+        self.assertEqual(params['SellerOrderId'], seller_order_id)
+        self.assertEqual(params['MaxResultsPerPage'], max_results)
+        self.assertEqual(params['OrderStatus.Status.1'], order_statuses[0])
+        self.assertEqual(params['OrderStatus.Status.2'], order_statuses[1])
+        self.assertEqual(params['MarketplaceId.Id.1'], marketplace_ids[0])
+        self.assertEqual(params['MarketplaceId.Id.2'], marketplace_ids[1])
+        self.assertEqual(params['FulfillmentChannel.Channel.1'], fulfillment_channels[0])
+        self.assertEqual(params['FulfillmentChannel.Channel.2'], fulfillment_channels[1])
+        self.assertEqual(params['PaymentMethod.Method.1'], payment_methods[0])
+        self.assertEqual(params['PaymentMethod.Method.2'], payment_methods[1])
+        self.assertEqual(params['TFMShipmentStatus.Status.1'], tfm_shipment_statuses[0])
+        self.assertEqual(params['TFMShipmentStatus.Status.2'], tfm_shipment_statuses[1])
 
     def test_list_orders_by_next_token(self):
         """
@@ -97,8 +97,8 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = 'Wk8EzX62bL'
         params = self.api.list_orders(next_token=next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListOrdersByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListOrdersByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
 
     def test_list_orders_by_next_token_alias(self):
         """
@@ -107,8 +107,8 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = '2tgLTgIrr7'
         params = self.api.list_orders_by_next_token(next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListOrdersByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListOrdersByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
 
     def test_get_order(self):
         """
@@ -121,10 +121,10 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
         ]
         params = self.api.get_order(amazon_order_ids)
         self.assert_common_params(params)
-        assert params['Action'] == 'GetOrder'
-        assert params['AmazonOrderId.Id.1'] == amazon_order_ids[0]
-        assert params['AmazonOrderId.Id.2'] == amazon_order_ids[1]
-        assert params['AmazonOrderId.Id.3'] == amazon_order_ids[2]
+        self.assertEqual(params['Action'], 'GetOrder')
+        self.assertEqual(params['AmazonOrderId.Id.1'], amazon_order_ids[0])
+        self.assertEqual(params['AmazonOrderId.Id.2'], amazon_order_ids[1])
+        self.assertEqual(params['AmazonOrderId.Id.3'], amazon_order_ids[2])
 
     def test_list_order_items(self):
         """
@@ -133,8 +133,8 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
         amazon_order_id = '695-3659745-3659863'
         params = self.api.list_order_items(amazon_order_id=amazon_order_id)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListOrderItems'
-        assert params['AmazonOrderId'] == amazon_order_id
+        self.assertEqual(params['Action'], 'ListOrderItems')
+        self.assertEqual(params['AmazonOrderId'], amazon_order_id)
 
     def test_list_order_items_by_next_token(self):
         """
@@ -143,8 +143,8 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = 'BaAzLiYLgM'
         params = self.api.list_order_items(next_token=next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListOrderItemsByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListOrderItemsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
 
     def test_list_order_items_by_next_token_alias(self):
         """
@@ -153,5 +153,5 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = 'JuS3AvTNaW'
         params = self.api.list_order_items_by_next_token(next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListOrderItemsByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListOrderItemsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
