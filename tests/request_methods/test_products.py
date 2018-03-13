@@ -26,7 +26,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         """
         marketplace_id = 'ALDERAAN'
         query = 'hokey religions and ancient weapons'
-        query_context_id = 'ArtsAndCrafts'
+        context_id = 'ArtsAndCrafts'
         params = self.api.list_matching_products(
             marketplace_id=marketplace_id,
             query=query,
@@ -36,7 +36,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         assert params['Action'] == 'ListMatchingProducts'
         assert params['MarketplaceId'] == marketplace_id
         assert params['Query'] == query
-        assert params['QueryContextId'] == query_context_id
+        assert params['QueryContextId'] == context_id
 
     def test_get_matching_product(self):
         """
