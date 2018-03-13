@@ -26,7 +26,7 @@ class SellersTestCase(unittest.TestCase, CommonRequestTestTools):
         """
         params = self.api.list_marketplace_participations()
         self.assert_common_params(params)
-        assert params['Action'] == 'ListMarketplaceParticipations'
+        self.assertEqual(params['Action'], 'ListMarketplaceParticipations')
 
     def test_list_marketplace_participations_by_next_token(self):
         """
@@ -35,8 +35,8 @@ class SellersTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = 'token_foobar'
         params = self.api.list_marketplace_participations(next_token=next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListMarketplaceParticipationsByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListMarketplaceParticipationsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
 
     def test_list_marketplace_participations_by_next_token_alias(self):
         """
@@ -45,5 +45,5 @@ class SellersTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = 'token_foobar'
         params = self.api.list_marketplace_participations_by_next_token(next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListMarketplaceParticipationsByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListMarketplaceParticipationsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
