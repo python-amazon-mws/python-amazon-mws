@@ -270,7 +270,7 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
             '_GET_STRANDED_INVENTORY_UI_DATA_',
             '_GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA_',
         ]
-        params = self.api.get_report_schedule_list(
+        params = self.api.get_report_schedule_count(
             report_types=report_types
         )
         self.assert_common_params(params)
