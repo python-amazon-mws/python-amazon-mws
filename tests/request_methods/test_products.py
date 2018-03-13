@@ -44,8 +44,8 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         """
         marketplace_id = 'TATOOINE'
         asins = [
-            'pibMZnNRoS'
-            'nTuCCevqaZ'
+            'pibMZnNRoS',
+            'nTuCCevqaZ',
         ]
         params = self.api.get_matching_product(
             marketplace_id=marketplace_id,
