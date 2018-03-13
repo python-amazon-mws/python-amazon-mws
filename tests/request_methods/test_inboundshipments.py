@@ -21,7 +21,7 @@ class TestParseItemArgsExceptions(unittest.TestCase):
         operation = 'dummy'
         with self.assertRaises(MWSError):
             parse_item_args(item_args, operation)
-    
+
     def test_item_not_a_dict(self):
         """
         Should raise `MWSError` if item arguments are not all dict objects
@@ -30,7 +30,7 @@ class TestParseItemArgsExceptions(unittest.TestCase):
         operation = 'dummy'
         with self.assertRaises(MWSError):
             parse_item_args(item_args, operation)
-    
+
     def test_required_keys_missing_CreateInboundShipmentPlan(self):
         """
         Should raise `MWSError` if a required key is missing from at least one item dict
@@ -53,7 +53,7 @@ class TestParseItemArgsExceptions(unittest.TestCase):
         ]
         with self.assertRaises(MWSError):
             parse_item_args(item_args_2, operation)
-    
+
     def test_required_keys_missing_other_operation(self):
         """
         Should raise `MWSError` if a required key is missing from at least one item dict
@@ -76,7 +76,7 @@ class TestParseItemArgsExceptions(unittest.TestCase):
         ]
         with self.assertRaises(MWSError):
             parse_item_args(item_args_2, operation)
-    
+
     def test_args_built_CreateInboundShipmentPlan(self):
         """
         Item args should build successfully for the CreateInboundShipmentPlan operation.
@@ -115,7 +115,7 @@ class TestParseItemArgsExceptions(unittest.TestCase):
         ]
         self.assertEqual(parsed_items[0], expected[0])
         self.assertEqual(parsed_items[1], expected[1])
-    
+
     def test_args_built_other_operation(self):
         """
         Item args should build successfully for operations other than CreateInboundShipmentPlan.
