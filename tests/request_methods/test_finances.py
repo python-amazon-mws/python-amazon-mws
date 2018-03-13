@@ -36,10 +36,10 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
             max_results=max_results,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'ListFinancialEventGroups'
-        assert params['FinancialEventGroupStartedAfter'] == created_after_stamp
-        assert params['FinancialEventGroupStartedBefore'] == created_before_stamp
-        assert params['MaxResultsPerPage'] == max_results
+        self.assertEqual(params['Action'], 'ListFinancialEventGroups')
+        self.assertEqual(params['FinancialEventGroupStartedAfter'], created_after_stamp)
+        self.assertEqual(params['FinancialEventGroupStartedBefore'], created_before_stamp)
+        self.assertEqual(params['MaxResultsPerPage'], max_results)
 
     def test_list_financial_event_groups_by_next_token(self):
         """
@@ -48,8 +48,8 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = 'VcNq06R0dO'
         params = self.api.list_financial_event_groups(next_token=next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListFinancialEventGroupsByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListFinancialEventGroupsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
 
     def test_list_financial_event_groups_by_next_token_alias(self):
         """
@@ -58,8 +58,8 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = 'uhEPBAvUYR'
         params = self.api.list_financial_event_groups_by_next_token(next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListFinancialEventGroupsByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListFinancialEventGroupsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
 
     def test_list_financial_events(self):
         """
@@ -80,12 +80,12 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
             max_results=max_results,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'ListFinancialEvents'
-        assert params['FinancialEventGroupId'] == financial_event_group_id
-        assert params['AmazonOrderId'] == amazon_order_id
-        assert params['PostedAfter'] == posted_after_stamp
-        assert params['PostedBefore'] == posted_before_stamp
-        assert params['MaxResultsPerPage'] == max_results
+        self.assertEqual(params['Action'], 'ListFinancialEvents')
+        self.assertEqual(params['FinancialEventGroupId'], financial_event_group_id)
+        self.assertEqual(params['AmazonOrderId'], amazon_order_id)
+        self.assertEqual(params['PostedAfter'], posted_after_stamp)
+        self.assertEqual(params['PostedBefore'], posted_before_stamp)
+        self.assertEqual(params['MaxResultsPerPage'], max_results)
 
     def test_list_financial_events_by_next_token(self):
         """
@@ -94,8 +94,8 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = '2t1DdnGqgf'
         params = self.api.list_financial_events(next_token=next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListFinancialEventsByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListFinancialEventsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
 
     def test_list_financial_events_by_next_token_alias(self):
         """
@@ -104,5 +104,5 @@ class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = '7Ijm9Kmrgp'
         params = self.api.list_financial_events_by_next_token(next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListFinancialEventsByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListFinancialEventsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
