@@ -1,6 +1,7 @@
 """
-Tests for the MWS.Orders API class.
+Tests for the Orders API class.
 """
+import datetime
 import unittest
 import mws
 from .utils import CommonRequestTestTools
@@ -19,3 +20,138 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
             auth_token=self.CREDENTIAL_TOKEN
         )
         self.api._test_request_params = True
+
+    def test_list_orders(self):
+        """
+        ListOrders operation.
+        """
+        created_after = datetime.datetime.utcnow()
+        created_after_stamp = created_after.isoformat()
+        created_before = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        created_before_stamp = created_before.isoformat()
+        last_updated_after = datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+        last_updated_after_stamp = last_updated_after.isoformat()
+        last_updated_before = datetime.datetime.utcnow() + datetime.timedelta(hours=3)
+        last_updated_before_stamp = last_updated_before.isoformat()
+        max_results = 83
+        marketplace_ids = [
+            'DV1t7ZOrjM',
+            'LbGcgtGwEe',
+        ]
+        order_statuses = [
+            'PendingAvailability',
+            'Unshipped',
+        ]
+        fulfillment_channels = [
+            'AFN',
+            'MFN',
+        ]
+        payment_methods = [
+            'COD',
+            'CVS',
+        ]
+        buyer_email = 'dudley.do.right@example.com'
+        seller_order_id = 'LbGcgtGwEe'
+        tfm_shipment_statuses = [
+            'PendingPickUp',
+            'AtDestinationFC',
+        ]
+        params = self.api.list_orders(
+            marketplace_ids=marketplace_ids,
+            created_after=created_after,
+            created_before=created_before,
+            last_updated_after=last_updated_after,
+            last_updated_before=last_updated_before,
+            order_statuses=order_statuses,
+            fulfillment_channels=fulfillment_channels,
+            payment_methods=payment_methods,
+            buyer_email=buyer_email,
+            seller_order_id=seller_order_id,
+            max_results=max_results,
+            tfm_shipment_statuses=tfm_shipment_statuses,
+        )
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListOrders'
+        assert params['CreatedAfter'] == created_after_stamp
+        assert params['CreatedBefore'] == created_before_stamp
+        assert params['LastUpdatedAfter'] == last_updated_after_stamp
+        assert params['LastUpdatedBefore'] == last_updated_before_stamp
+        assert params['BuyerEmail'] == buyer_email
+        assert params['SellerOrderId'] == seller_order_id
+        assert params['MaxResultsPerPage'] == max_results
+        assert params['OrderStatus.Status.1'] == order_statuses[0]
+        assert params['OrderStatus.Status.2'] == order_statuses[1]
+        assert params['MarketplaceId.Id.1'] == marketplace_ids[0]
+        assert params['MarketplaceId.Id.2'] == marketplace_ids[1]
+        assert params['FulfillmentChannel.Channel.1'] == fulfillment_channels[0]
+        assert params['FulfillmentChannel.Channel.2'] == fulfillment_channels[1]
+        assert params['PaymentMethod.Method.1'] == payment_methods[0]
+        assert params['PaymentMethod.Method.2'] == payment_methods[1]
+        assert params['TFMShipmentStatus.Status.1'] == tfm_shipment_statuses[0]
+        assert params['TFMShipmentStatus.Status.2'] == tfm_shipment_statuses[1]
+
+    def test_list_orders_by_next_token(self):
+        """
+        ListOrdersByNextToken operation, via method decorator.
+        """
+        next_token = 'Wk8EzX62bL'
+        params = self.api.list_orders(next_token=next_token)
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListOrdersByNextToken'
+        assert params['NextToken'] == next_token
+
+    def test_list_orders_by_next_token_alias(self):
+        """
+        ListOrdersByNextToken operation, via alias method.
+        """
+        next_token = '2tgLTgIrr7'
+        params = self.api.list_orders_by_next_token(next_token)
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListOrdersByNextToken'
+        assert params['NextToken'] == next_token
+
+    def test_get_order(self):
+        """
+        GetOrder operation.
+        """
+        amazon_order_ids = [
+            '983-3553534-8677372',
+            '663-9447020-5093135',
+            '918-0947007-5135971',
+        ]
+        params = self.api.get_order(amazon_order_ids)
+        self.assert_common_params(params)
+        assert params['Action'] == 'GetOrder'
+        assert params['AmazonOrderId.Id.1'] == amazon_order_ids[0]
+        assert params['AmazonOrderId.Id.2'] == amazon_order_ids[1]
+        assert params['AmazonOrderId.Id.3'] == amazon_order_ids[2]
+
+    def test_list_order_items(self):
+        """
+        ListOrderItems operation.
+        """
+        amazon_order_id = '695-3659745-3659863'
+        params = self.api.list_order_items(amazon_order_id=amazon_order_id)
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListOrderItems'
+        assert params['AmazonOrderId'] == amazon_order_id
+
+    def test_list_order_items_by_next_token(self):
+        """
+        ListOrderItemsByNextToken operation, via method decorator.
+        """
+        next_token = 'BaAzLiYLgM'
+        params = self.api.list_order_items(next_token=next_token)
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListOrderItemsByNextToken'
+        assert params['NextToken'] == next_token
+
+    def test_list_order_items_by_next_token_alias(self):
+        """
+        ListOrderItemsByNextToken operation, via alias method.
+        """
+        next_token = 'JuS3AvTNaW'
+        params = self.api.list_order_items_by_next_token(next_token)
+        self.assert_common_params(params)
+        assert params['Action'] == 'ListOrderItemsByNextToken'
+        assert params['NextToken'] == next_token
