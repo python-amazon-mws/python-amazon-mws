@@ -24,8 +24,8 @@ class Orders(MWS):
     ]
 
     @next_token_action('ListOrders')
-    def list_orders(self, marketplaceids=None, created_after=None, created_before=None,
-                    lastupdatedafter=None, lastupdatedbefore=None, orderstatus=(),
+    def list_orders(self, marketplace_ids=None, created_after=None, created_before=None,
+                    last_updated_after=None, last_updated_before=None, order_status=(),
                     fulfillment_channels=(), payment_methods=(), buyer_email=None,
                     seller_orderid=None, max_results='100', next_token=None):
         """
@@ -40,15 +40,15 @@ class Orders(MWS):
             'Action': 'ListOrders',
             'CreatedAfter': created_after,
             'CreatedBefore': created_before,
-            'LastUpdatedAfter': lastupdatedafter,
-            'LastUpdatedBefore': lastupdatedbefore,
+            'LastUpdatedAfter': last_updated_after,
+            'LastUpdatedBefore': last_updated_before,
             'BuyerEmail': buyer_email,
             'SellerOrderId': seller_orderid,
             'MaxResultsPerPage': max_results,
         }
         data.update(utils.enumerate_params({
-            'OrderStatus.Status.': orderstatus,
-            'MarketplaceId.Id.': marketplaceids,
+            'OrderStatus.Status.': order_status,
+            'MarketplaceId.Id.': marketplace_ids,
             'FulfillmentChannel.Channel.': fulfillment_channels,
             'PaymentMethod.Method.': payment_methods,
         }))
