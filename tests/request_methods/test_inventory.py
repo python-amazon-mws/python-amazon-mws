@@ -30,11 +30,11 @@ class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):
         response_group = 'Detailed'
         params = self.api.list_inventory_supply(skus, now, response_group=response_group)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListInventorySupply'
-        assert params['QueryStartDateTime'] == now_timestamp
-        assert params['ResponseGroup'] == 'Detailed'
-        assert params['SellerSkus.member.1'] == 'thing1'
-        assert params['SellerSkus.member.2'] == 'thing2'
+        self.assertEqual(params['Action'], 'ListInventorySupply')
+        self.assertEqual(params['QueryStartDateTime'], now_timestamp)
+        self.assertEqual(params['ResponseGroup'], 'Detailed')
+        self.assertEqual(params['SellerSkus.member.1'], 'thing1')
+        self.assertEqual(params['SellerSkus.member.2'], 'thing2')
 
     def test_list_inventory_supply_by_next_token(self):
         """
@@ -43,8 +43,8 @@ class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = 'token_foobar'
         params = self.api.list_inventory_supply(next_token=next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListInventorySupplyByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListInventorySupplyByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
 
     def test_list_inventory_supply_by_next_token_alias(self):
         """
@@ -54,5 +54,5 @@ class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):
         next_token = 'token_foobar'
         params = self.api.list_inventory_supply_by_next_token(next_token)
         self.assert_common_params(params)
-        assert params['Action'] == 'ListInventorySupplyByNextToken'
-        assert params['NextToken'] == next_token
+        self.assertEqual(params['Action'], 'ListInventorySupplyByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
