@@ -265,7 +265,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
             condition=condition,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'GetMyPriceForASIN"
+        assert params['Action'] == 'GetMyPriceForASIN'
         assert params['MarketplaceId'] == marketplace_id
         assert params['ItemCondition'] == condition
         assert params['ASINList.ASIN.1'] == asins[0]
@@ -282,7 +282,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
             sku=sku,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'GetProductCategoriesForSKU"
+        assert params['Action'] == 'GetProductCategoriesForSKU'
         assert params['MarketplaceId'] == marketplace_id
         assert params['SellerSKU'] == sku
 
@@ -297,6 +297,6 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
             asin=asin,
         )
         self.assert_common_params(params)
-        assert params['Action'] == 'GetProductCategoriesForASIN"
+        assert params['Action'] == 'GetProductCategoriesForASIN'
         assert params['MarketplaceId'] == marketplace_id
         assert params['ASIN'] == asin
