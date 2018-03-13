@@ -25,9 +25,10 @@ class Orders(MWS):
 
     @next_token_action('ListOrders')
     def list_orders(self, marketplace_ids=None, created_after=None, created_before=None,
-                    last_updated_after=None, last_updated_before=None, order_status=(),
-                    fulfillment_channels=(), payment_methods=(), buyer_email=None,
-                    seller_orderid=None, max_results='100', next_token=None):
+                    last_updated_after=None, last_updated_before=None, order_statuses=None,
+                    fulfillment_channels=None, payment_methods=None, buyer_email=None,
+                    seller_order_id=None, max_results=None, tfm_shipment_statuses=None,
+                    next_token=None):
         """
         Returns orders created or updated during a time frame that you specify.
 
@@ -36,6 +37,11 @@ class Orders(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrders.html
         """
+        marketplace_ids = marketplace_ids or []
+        order_statuses = order_statuses or []
+        fulfillment_channels = fulfillment_channels or []
+        payment_methods = payment_methods or []
+        tfm_shipment_statuses = tfm_shipment_statuses or []
         data = {
             'Action': 'ListOrders',
             'CreatedAfter': created_after,
@@ -43,14 +49,15 @@ class Orders(MWS):
             'LastUpdatedAfter': last_updated_after,
             'LastUpdatedBefore': last_updated_before,
             'BuyerEmail': buyer_email,
-            'SellerOrderId': seller_orderid,
+            'SellerOrderId': seller_order_id,
             'MaxResultsPerPage': max_results,
         }
         data.update(utils.enumerate_params({
-            'OrderStatus.Status.': order_status,
+            'OrderStatus.Status.': order_statuses,
             'MarketplaceId.Id.': marketplace_ids,
             'FulfillmentChannel.Channel.': fulfillment_channels,
             'PaymentMethod.Method.': payment_methods,
+            'TFMShipmentStatus.Status.': tfm_shipment_statuses,
         }))
         return self.make_request(data)
 
