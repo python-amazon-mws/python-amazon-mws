@@ -43,7 +43,7 @@ class Reports(mws.MWS):
         return self.make_request(data)
 
     @next_token_action('GetReportRequestList')
-    def get_report_request_list(self, request_ids=(), types=(), processing_statuses=(),
+    def get_report_request_list(self, request_ids=None, report_types=None, processing_statuses=None,
                                 max_count=None, from_date=None, to_date=None, next_token=None):
         """
         Returns a list of report requests that you can use to get the ReportRequestId for a report.
@@ -53,6 +53,9 @@ class Reports(mws.MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportRequestList.html
         """
+        request_ids = request_ids or []
+        report_types = report_types or []
+        processing_statuses = processing_statuses or []
         data = {
             'Action': 'GetReportRequestList',
             'MaxCount': max_count,
@@ -61,7 +64,7 @@ class Reports(mws.MWS):
         }
         data.update(utils.enumerate_params({
             'ReportRequestIdList.Id.': request_ids,
-            'ReportTypeList.Type.': types,
+            'ReportTypeList.Type.': report_types,
             'ReportProcessingStatusList.Status.': processing_statuses,
         }))
         return self.make_request(data)
@@ -75,7 +78,7 @@ class Reports(mws.MWS):
         """
         return self.get_report_request_list(next_token=token)
 
-    def get_report_request_count(self, report_types=(), processing_statuses=(),
+    def get_report_request_count(self, report_types=None, processing_statuses=None,
                                  from_date=None, to_date=None):
         """
         Returns a count of report requests that have been submitted to Amazon MWS for processing.
@@ -83,6 +86,8 @@ class Reports(mws.MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportRequestCount.html
         """
+        report_types = report_types or []
+        processing_statuses = processing_statuses or []
         data = {
             'Action': 'GetReportRequestCount',
             'RequestedFromDate': from_date,
@@ -99,7 +104,7 @@ class Reports(mws.MWS):
     #     pass
 
     @next_token_action('GetReportList')
-    def get_report_list(self, request_ids=(), max_count=None, types=(), acknowledged=None,
+    def get_report_list(self, request_ids=None, max_count=None, report_types=None, acknowledged=None,
                         from_date=None, to_date=None, next_token=None):
         """
         Returns a list of reports that were created between fromdate and todate
@@ -110,6 +115,8 @@ class Reports(mws.MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportList.html
         """
+        request_ids = request_ids or []
+        report_types = report_types or []
         data = {
             'Action': 'GetReportList',
             'Acknowledged': acknowledged,
@@ -119,7 +126,7 @@ class Reports(mws.MWS):
         }
         data.update(utils.enumerate_params({
             'ReportRequestIdList.Id.': request_ids,
-            'ReportTypeList.Type.': types,
+            'ReportTypeList.Type.': report_types,
         }))
         return self.make_request(data)
 
@@ -132,7 +139,7 @@ class Reports(mws.MWS):
         """
         return self.get_report_list(next_token=token)
 
-    def get_report_count(self, report_types=(), acknowledged=None, from_date=None, to_date=None):
+    def get_report_count(self, report_types=None, acknowledged=None, from_date=None, to_date=None):
         """
         Returns a count of the reports, created in the previous 90 days,
         with a status of _DONE_ and that are available for download.
@@ -140,6 +147,7 @@ class Reports(mws.MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportCount.html
         """
+        report_types = report_types or []
         data = {
             'Action': 'GetReportCount',
             'Acknowledged': acknowledged,
@@ -167,7 +175,7 @@ class Reports(mws.MWS):
     #     pass
 
     @next_token_action('GetReportScheduleList')
-    def get_report_schedule_list(self, types=(), next_token=None):
+    def get_report_schedule_list(self, report_types=None, next_token=None):
         """
         Returns a list of order report requests that are scheduled to be submitted to Amazon MWS for processing.
 
@@ -176,10 +184,11 @@ class Reports(mws.MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleList.html
         """
+        report_types = report_types or []
         data = {
             'Action': 'GetReportScheduleList',
         }
-        data.update(utils.enumerate_param('ReportTypeList.Type.', types))
+        data.update(utils.enumerate_param('ReportTypeList.Type.', report_types))
         return self.make_request(data)
 
     def get_report_schedule_list_by_next_token(self, token):
@@ -191,17 +200,18 @@ class Reports(mws.MWS):
         """
         return self.get_report_schedule_list(next_token=token)
 
-    def get_report_schedule_count(self, types=()):
+    def get_report_schedule_count(self, report_types=None):
         """
         Returns a count of order report requests that are scheduled to be submitted to Amazon MWS.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleCount.html
         """
+        report_types = report_types or []
         data = {
             'Action': 'GetReportScheduleCount',
         }
-        data.update(utils.enumerate_param('ReportTypeList.Type.', types))
+        data.update(utils.enumerate_param('ReportTypeList.Type.', report_types))
         return self.make_request(data)
 
     # # TODO Add:
