@@ -8,7 +8,6 @@ from mws.mws import MWSError
 from .utils import CommonRequestTestTools
 
 
-def test_parse_item_args()
 class TestParseItemArgsExceptions(unittest.TestCase):
     """
     Test cases that ensure `parse_item_args` raises exceptions where appropriate.
