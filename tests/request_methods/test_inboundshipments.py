@@ -248,6 +248,30 @@ class SetShipFromAddressTestCase(unittest.TestCase):
         }
         self.assertEqual(self.inbound.from_address, expected)
 
+    def test_set_address_with_constructor(self):
+        """
+        An address passed to the InboundShipments constructor as a `from_address` kwarg
+        should automatically set the `from_address` attribute accordingly.
+        (Ignoring the self.inbound attribute in this case.)
+        """
+        address = {
+            'name': 'Roland Deschain',
+            'address_1': '500 Summat Cully Lane',
+            'city': 'Gilead',
+        }
+        inbound = mws.InboundShipments('', '', '', from_address=address)
+        expected = {
+            'ShipFromAddress.Name': 'Roland Deschain',
+            'ShipFromAddress.AddressLine1': '500 Summat Cully Lane',
+            'ShipFromAddress.AddressLine2': None,
+            'ShipFromAddress.City': 'Gilead',
+            'ShipFromAddress.DistrictOrCounty': None,
+            'ShipFromAddress.StateOrProvinceCode': None,
+            'ShipFromAddress.PostalCode': None,
+            'ShipFromAddress.CountryCode': 'US',
+        }
+        self.assertEqual(inbound.from_address, expected)
+
 
 class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools):
     """
