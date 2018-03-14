@@ -106,6 +106,7 @@ def assert_no_token(token):
     If a non-None token propagates to the original method, then something has gone awry.
     This ensures we get notified when/if that happens (which it shouldn't).
     """
+    # TODO Check if still needed, propagate to all methods or to none.
     assert token is None, (
         "`next_token` passed to request method. "
         "Should have been parsed by `next_token_action` decorator."
@@ -117,6 +118,9 @@ class DictWrapper(object):
     Main class that converts XML data to a parsed response object as a tree of ObjectDicts,
     stored in the .parsed property.
     """
+    # TODO create a base class for DictWrapper and DataWrapper with all the keys we expect in responses.
+    # This will make it easier to use either class in place of each other.
+    # Either this, or pile everything into DataWrapper and make it able to handle all cases.
     def __init__(self, xml, rootkey=None):
         self.original = xml
         self.response = None
@@ -208,10 +212,12 @@ class MWS(object):
         self._test_request_params = False
 
         if domain:
+            # TODO test needed to enter here.
             self.domain = domain
         elif region in MARKETPLACES:
             self.domain = MARKETPLACES[region]
         else:
+            # TODO test needed to enter here.
             error_msg = "Incorrect region supplied ('{region}'). Must be one of the following: {marketplaces}".format(
                 marketplaces=', '.join(MARKETPLACES.keys()),
                 region=region,
@@ -232,6 +238,8 @@ class MWS(object):
         }
         if self.auth_token:
             params['MWSAuthToken'] = self.auth_token
+        # TODO current tests only check for auth_token being set.
+        # need a branch test to check for auth_token being skipped (no key present)
         return params
 
     def make_request(self, extra_data, method="GET", **kwargs):
@@ -253,6 +261,7 @@ class MWS(object):
         if self._test_request_params:
             # Testing method: return the params from this request before the request is made.
             return params
+        # TODO: All current testing stops here. More branches needed.
 
         request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
@@ -302,6 +311,7 @@ class MWS(object):
     def get_proxies(self):
         proxies = {"http": None, "https": None}
         if self.proxy:
+            # TODO need test to enter here
             proxies = {
                 "http": "http://{}".format(self.proxy),
                 "https": "https://{}".format(self.proxy),
@@ -323,6 +333,8 @@ class MWS(object):
         at the end of its name for this call: function will add that by itself.
         """
         if action not in self.NEXT_TOKEN_OPERATIONS:
+            # TODO Would like a test entering here.
+            # Requires a dummy API class to be written that will trigger it.
             raise MWSError((
                 "{} action not listed in this API's NEXT_TOKEN_OPERATIONS. "
                 "Please refer to documentation."
@@ -358,6 +370,8 @@ class MWS(object):
         Please use `utils.enumerate_param` for one param, or
         `utils.enumerate_params` for multiple params.
         """
+        # TODO remove in 1.0 release.
+        # No tests needed.
         warnings.warn((
             "Please use `utils.enumerate_param` for one param, or "
             "`utils.enumerate_params` for multiple params."
