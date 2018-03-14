@@ -15,8 +15,9 @@ Getting Started
     :maxdepth: 2
 
     installation.rst
+    gettingStarted.rst
     tutorial_1.rst
-    
+
 
 ********
 APIs
@@ -24,7 +25,7 @@ APIs
 
 .. toctree::
     :maxdepth: 1
-       
+
     feeds.rst
     reports.rst
     fulfillmentInboundShipment.rst
@@ -42,4 +43,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
