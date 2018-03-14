@@ -533,6 +533,7 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         # list should be empty, because no keys should be present
         self.assertFalse(param_item_keys)
 
+
 class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools):
     """
     Test cases for InboundShipments requests that do not involve FBA shipment handling
