@@ -156,11 +156,27 @@ def test_keyed_params():
     }
 
 
-def test_dict_keyed_param():
+def test_dict_keyed_param_not_dotted():
     """
-    Testing results of utils.dict_keyed_param.
+    Testing results of utils.dict_keyed_param, for param not dotted
     """
     param = "ShipmentRequestDetails.PackageDimensions"
+    dict_from = {'Length': 5, 'Width': 5, 'Height': 5, 'Unit': 'inches'}
+    result = mws.utils.dict_keyed_param(param, dict_from)
+
+    assert result == {
+        'ShipmentRequestDetails.PackageDimensions.Length': 5,
+        'ShipmentRequestDetails.PackageDimensions.Width': 5,
+        'ShipmentRequestDetails.PackageDimensions.Height': 5,
+        'ShipmentRequestDetails.PackageDimensions.Unit': 'inches',
+    }
+
+
+def test_dict_keyed_param_dotted():
+    """
+    Testing results of utils.dict_keyed_param, for param not dotted
+    """
+    param = "ShipmentRequestDetails.PackageDimensions."
     dict_from = {'Length': 5, 'Width': 5, 'Height': 5, 'Unit': 'inches'}
     result = mws.utils.dict_keyed_param(param, dict_from)
 
