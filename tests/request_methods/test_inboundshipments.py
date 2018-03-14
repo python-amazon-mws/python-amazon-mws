@@ -564,18 +564,18 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         GetPackageLabels operation.
         """
         shipment_id = 'E7NBQ1O0Ca'
-        num_packages = 53
+        num_labels = 53
         page_type = 'PackageLabel_Letter_6'
         params = self.api.get_package_labels(
             shipment_id=shipment_id,
-            num_packages=num_packages,
+            num_labels=num_labels,
             page_type=page_type,
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetPackageLabels')
         self.assertEqual(params['ShipmentId'], shipment_id)
         self.assertEqual(params['PageType'], page_type)
-        self.assertEqual(params['NumberOfPackages'], num_packages)
+        self.assertEqual(params['NumberOfPackages'], num_labels)
 
     def test_get_unique_package_labels(self):
         """
@@ -618,17 +618,17 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         """
         shipment_id = 'Y3sROqkPfY'
         page_type = 'PackageLabel_A4_4'
-        num_pallets = 69
+        num_labels = 69
         params = self.api.get_pallet_labels(
             shipment_id=shipment_id,
             page_type=page_type,
-            num_pallets=num_pallets,
+            num_labels=num_labels,
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetPalletLabels')
         self.assertEqual(params['ShipmentId'], shipment_id)
         self.assertEqual(params['PageType'], page_type)
-        self.assertEqual(params['NumberOfPallets'], num_pallets)
+        self.assertEqual(params['NumberOfPallets'], num_labels)
 
     def test_get_bill_of_lading(self):
         """
