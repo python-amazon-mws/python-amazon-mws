@@ -162,36 +162,36 @@ class InboundShipments(MWS):
         self.from_address = addr
 
     # # REQUEST METHODS # #
-    def get_inbound_guidance_for_sku(self, sku_list, marketplace_id):
+    def get_inbound_guidance_for_sku(self, skus, marketplace_id):
         """
         Returns inbound guidance for a list of items by Seller SKU.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForSKU.html
         """
-        if not isinstance(sku_list, (list, tuple, set)):
-            sku_list = [sku_list]
+        if not isinstance(skus, (list, tuple, set)):
+            skus = [skus]
         data = {
             'Action': 'GetInboundGuidanceForSKU',
             'MarketplaceId': marketplace_id,
         }
-        data.update(utils.enumerate_param('SellerSKUList.Id', sku_list))
+        data.update(utils.enumerate_param('SellerSKUList.Id', skus))
         return self.make_request(data)
 
-    def get_inbound_guidance_for_asin(self, asin_list, marketplace_id):
+    def get_inbound_guidance_for_asin(self, asins, marketplace_id):
         """
         Returns inbound guidance for a list of items by ASIN.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForASIN.html
         """
-        if not isinstance(asin_list, (list, tuple, set)):
-            asin_list = [asin_list]
+        if not isinstance(asins, (list, tuple, set)):
+            asins = [asins]
         data = {
             'Action': 'GetInboundGuidanceForASIN',
             'MarketplaceId': marketplace_id,
         }
-        data.update(utils.enumerate_param('ASINList.Id', asin_list))
+        data.update(utils.enumerate_param('ASINList.Id', asins))
         return self.make_request(data)
 
     def create_inbound_shipment_plan(self, items, country_code='US', subdivision_code='', label_preference=''):
@@ -510,7 +510,7 @@ class InboundShipments(MWS):
         }
         return self.make_request(data, method="POST")
 
-    def get_package_labels(self, shipment_id, num_packages, page_type=None):
+    def get_package_labels(self, shipment_id, num_labels, page_type=None):
         """
         Returns PDF document data for printing package labels for an inbound shipment.
 
@@ -521,7 +521,7 @@ class InboundShipments(MWS):
             'Action': 'GetPackageLabels',
             'ShipmentId': shipment_id,
             'PageType': page_type,
-            'NumberOfPackages': num_packages,
+            'NumberOfPackages': num_labels,
         }
         return self.make_request(data, method="POST")
 
@@ -552,7 +552,7 @@ class InboundShipments(MWS):
         data.update(utils.enumerate_param('PackageLabelsToPrint.member.', package_ids))
         return self.make_request(data)
 
-    def get_pallet_labels(self, shipment_id, page_type, num_pallets):
+    def get_pallet_labels(self, shipment_id, page_type, num_labels):
         """
         Returns pallet labels.
         `shipment_id` must match a valid, current shipment.
@@ -562,7 +562,7 @@ class InboundShipments(MWS):
             PackageLabel_A4_2
             PackageLabel_A4_4
             PackageLabel_Plain_Pape
-        `num_pallets` is integer, number of labels to create.
+        `num_labels` is integer, number of labels to create.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPalletLabels.html
@@ -571,7 +571,7 @@ class InboundShipments(MWS):
             'Action': 'GetPalletLabels',
             'ShipmentId': shipment_id,
             'PageType': page_type,
-            'NumberOfPallets': num_pallets,
+            'NumberOfPallets': num_labels,
         }
         return self.make_request(data)
 
