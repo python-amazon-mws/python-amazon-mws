@@ -280,17 +280,18 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
     These cases require `from_address` to be set, while others do not.
     """
     def setUp(self):
-        addr = {
+        self.addr = {
             'name': 'Roland Deschain',
             'address_1': '500 Summat Cully Lane',
             'city': 'Gilead',
+            'country': 'Mid-World',
         }
         self.api = mws.InboundShipments(
             self.CREDENTIAL_ACCESS,
             self.CREDENTIAL_SECRET,
             self.CREDENTIAL_ACCOUNT,
             auth_token=self.CREDENTIAL_TOKEN,
-            from_address=addr,
+            from_address=self.addr,
         )
         self.api._test_request_params = True
 
@@ -314,7 +315,34 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         """
         Covers successful data entry for `create_inbound_shipment_plan`.
         """
-        pass
+        items = [
+            {'sku': 'ievEKnILd3', 'quantity': 6},
+            {'sku': '9IfTM1aJVG', 'quantity': 26},
+        ]
+        country_code = 'Risa'
+        subdivision_code = 'Hotel California'
+        label_preference = 'SELLER'
+        params = self.api.create_inbound_shipment_plan(
+            items=items,
+            country_code=country_code,
+            subdivision_code=subdivision_code,
+            label_preference=label_preference,
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'CreateInboundShipmentPlan')
+        self.assertEqual(params['ShipToCountryCode'], country_code)
+        self.assertEqual(params['ShipToCountrySubdivisionCode'], subdivision_code)
+        self.assertEqual(params['LabelPrepPreference'], label_preference)
+        # from_address expanded
+        self.assertEqual(params['ShipFromAddress.Name'], self.addr['name'])
+        self.assertEqual(params['ShipFromAddress.AddressLine1'], self.addr['address_1'])
+        self.assertEqual(params['ShipFromAddress.City'], self.addr['city'])
+        self.assertEqual(params['ShipFromAddress.CountryCode'], self.addr['country'])
+        # item data
+        self.assertEqual(params['InboundShipmentPlanRequestItems.member.1.SellerSKU'], items[0]['sku'])
+        self.assertEqual(params['InboundShipmentPlanRequestItems.member.1.Quantity'], items[0]['quantity'])
+        self.assertEqual(params['InboundShipmentPlanRequestItems.member.2.SellerSKU'], items[1]['sku'])
+        self.assertEqual(params['InboundShipmentPlanRequestItems.member.2.Quantity'], items[1]['quantity'])
 
     def test_create_inbound_shipment_exceptions(self):
         """
