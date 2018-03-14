@@ -126,16 +126,16 @@ def test_keyed_params():
     param = "AthingToKeyUp.member"
     item1 = {
         "thing": "stuff",
-        "foo.": "baz",
+        "foo": "baz",
     }
     item2 = {
         "thing": 123,
         "foo": 908,
-        "bar.": "hello",
+        "bar": "hello",
     }
     item3 = {
         "stuff": "foobarbazmatazz",
-        "stuff2.": "foobarbazmatazz5",
+        "stuff2": "foobarbazmatazz5",
     }
     result_1 = mws.utils.enumerate_keyed_param(param, [item1, item2, item3])
     assert result_1 == {
@@ -153,6 +153,35 @@ def test_keyed_params():
     assert result_2 == {
         "AthingToKeyUp.member.1.stuff": "foobarbazmatazz",
         "AthingToKeyUp.member.1.stuff2": "foobarbazmatazz5",
+    }
+
+
+def test_keyed_params_with_dot():
+    """
+    Asserting the result through enumerate_keyed_param is as expected, even when param ends with '.'
+    """
+    param = "AthingToKeyUp.member."
+    item1 = {
+        "thing": "stuff",
+        "foo": "baz",
+    }
+    item2 = {
+        "thing": 123,
+        "foo": 908,
+    }
+    result_1 = mws.utils.enumerate_keyed_param(param, [item1, item2])
+    assert result_1 == {
+        "AthingToKeyUp.member.1.thing": "stuff",
+        "AthingToKeyUp.member.1.foo": "baz",
+        "AthingToKeyUp.member.2.thing": 123,
+        "AthingToKeyUp.member.2.foo": 908,
+    }
+    # Test param with single value, which should work similarly
+    # (value should auto-convert to list with one element)
+    result_2 = mws.utils.enumerate_keyed_param(param, item1)
+    assert result_2 == {
+        "AthingToKeyUp.member.1.thing": "stuff",
+        "AthingToKeyUp.member.1.foo": "baz",
     }
 
 
