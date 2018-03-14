@@ -163,7 +163,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
         address = {}
         with self.assertRaises(MWSError):
             self.inbound.set_ship_from_address(address)
-    
+
     def test_address_not_dict_raises_exception(self):
         """
         Non-dict argument should raise MWSError.
@@ -171,7 +171,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
         address = 'this is not a dict'
         with self.assertRaises(MWSError):
             self.inbound.set_ship_from_address(address)
-    
+
     def test_required_keys_missing(self):
         """
         Any missing required key should raise MWSError
@@ -197,7 +197,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             self.inbound.set_ship_from_address(address_2)
         with self.assertRaises(MWSError):
             self.inbound.set_ship_from_address(address_3)
-    
+
     def test_full_address_built_properly(self):
         """
         An address with all fields covered should be contructed properly.
@@ -224,7 +224,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             'ShipFromAddress.CountryCode': 'Mid-World',
         }
         self.assertEqual(self.from_address, expected)
-    
+
     def test_partial_address_built_properly(self):
         """
         An address with only required fields covered should be contructed properly,
