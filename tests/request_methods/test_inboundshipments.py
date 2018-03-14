@@ -424,9 +424,9 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.CountryCode'], self.addr['country'])
         # item data
         self.assertEqual(params['InboundShipmentItems.member.1.SellerSKU'], items[0]['sku'])
-        self.assertEqual(params['InboundShipmentItems.member.1.Quantity'], items[0]['quantity'])
+        self.assertEqual(params['InboundShipmentItems.member.1.QuantityShipped'], items[0]['quantity'])
         self.assertEqual(params['InboundShipmentItems.member.2.SellerSKU'], items[1]['sku'])
-        self.assertEqual(params['InboundShipmentItems.member.2.Quantity'], items[1]['quantity'])
+        self.assertEqual(params['InboundShipmentItems.member.2.QuantityShipped'], items[1]['quantity'])
 
     def test_update_inbound_shipment_exceptions(self):
         """
@@ -501,9 +501,9 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.CountryCode'], self.addr['country'])
         # item data
         self.assertEqual(params['InboundShipmentItems.member.1.SellerSKU'], items[0]['sku'])
-        self.assertEqual(params['InboundShipmentItems.member.1.Quantity'], items[0]['quantity'])
+        self.assertEqual(params['InboundShipmentItems.member.1.QuantityShipped'], items[0]['quantity'])
         self.assertEqual(params['InboundShipmentItems.member.2.SellerSKU'], items[1]['sku'])
-        self.assertEqual(params['InboundShipmentItems.member.2.Quantity'], items[1]['quantity'])
+        self.assertEqual(params['InboundShipmentItems.member.2.QuantityShipped'], items[1]['quantity'])
 
 
 class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools):
