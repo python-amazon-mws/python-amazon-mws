@@ -225,7 +225,7 @@ class MWS(object):
             description=request_description,
             signature=quote(signature),
         )
-        headers = {'User-Agent': 'python-amazon-mws/0.8.2 (Language=Python)'}
+        headers = {'User-Agent': 'python-amazon-mws/0.8.3 (Language=Python)'}
         headers.update(kwargs.get('extra_headers', {}))
 
         try:
@@ -829,7 +829,7 @@ class InboundShipments(MWS):
         self.from_address = {}
         addr = kwargs.pop('from_address', None)
         if addr is not None:
-            self.from_address = self.set_ship_from_address(addr)
+            self.set_ship_from_address(addr)
         super(InboundShipments, self).__init__(*args, **kwargs)
 
     def set_ship_from_address(self, address):
