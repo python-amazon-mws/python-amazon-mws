@@ -389,7 +389,7 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         """
         shipment_id = 'b46sEL7sYX'
         shipment_name = 'Stuff Going Places'
-        destination = 'Yebrerth'
+        destination = 'Nibiru'
         items = [
             {'sku': 'GtLIws1bRX', 'quantity': 12},
             {'sku': 'vxXN61TIEI', 'quantity': 35},
@@ -409,10 +409,8 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
             box_contents_source=box_contents_source,
         )
         self.assert_common_params(params)
-        self.assertEqual(params['Action'], 'CreateInboundShipmentPlan')
-        self.assertEqual(params['ShipToCountryCode'], country_code)
-        self.assertEqual(params['ShipToCountrySubdivisionCode'], subdivision_code)
-        self.assertEqual(params['LabelPrepPreference'], label_preference)
+        self.assertEqual(params['Action'], 'CreateInboundShipment')
+        self.assertEqual(params['ShipmentId'], shipment_id)
         self.assertEqual(params['InboundShipmentHeader.ShipmentName'], shipment_name)
         self.assertEqual(params['InboundShipmentHeader.DestinationFulfillmentCenterId'], destination)
         self.assertEqual(params['InboundShipmentHeader.LabelPrepPreference'], label_preference)
@@ -466,7 +464,46 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         """
         Covers successful data entry for `update_inbound_shipment`.
         """
-        pass
+        shipment_id = '7DzXpBVxRR'
+        shipment_name = 'Stuff Going Places'
+        destination = 'Vulcan'
+        items = [
+            {'sku': 'PwJmnJj3SK', 'quantity': 98},
+            {'sku': 'ebzf3HhssN', 'quantity': 65},
+        ]
+        shipment_status = 'WORKING'
+        label_preference = 'SELLER_LABEL'
+        case_required = True
+        box_contents_source = 'Boxes'
+        params = self.api.update_inbound_shipment(
+            shipment_id=shipment_id,
+            shipment_name=shipment_name,
+            destination=destination,
+            items=items,
+            shipment_status=shipment_status,
+            label_preference=label_preference,
+            case_required=case_required,
+            box_contents_source=box_contents_source,
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'UpdateInboundShipment')
+        self.assertEqual(params['ShipmentId'], shipment_id)
+        self.assertEqual(params['InboundShipmentHeader.ShipmentName'], shipment_name)
+        self.assertEqual(params['InboundShipmentHeader.DestinationFulfillmentCenterId'], destination)
+        self.assertEqual(params['InboundShipmentHeader.LabelPrepPreference'], label_preference)
+        self.assertEqual(params['InboundShipmentHeader.AreCasesRequired'], case_required)
+        self.assertEqual(params['InboundShipmentHeader.ShipmentStatus'], shipment_status)
+        self.assertEqual(params['InboundShipmentHeader.IntendedBoxContentsSource'], box_contents_source)
+        # from_address
+        self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.Name'], self.addr['name'])
+        self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.AddressLine1'], self.addr['address_1'])
+        self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.City'], self.addr['city'])
+        self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.CountryCode'], self.addr['country'])
+        # item data
+        self.assertEqual(params['InboundShipmentItems.member.1.SellerSKU'], items[0]['sku'])
+        self.assertEqual(params['InboundShipmentItems.member.1.Quantity'], items[0]['quantity'])
+        self.assertEqual(params['InboundShipmentItems.member.2.SellerSKU'], items[1]['sku'])
+        self.assertEqual(params['InboundShipmentItems.member.2.Quantity'], items[1]['quantity'])
 
 
 class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools):
