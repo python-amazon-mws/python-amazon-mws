@@ -79,7 +79,7 @@ class MerchantFulfillment(MWS):
         as well as a Base64-encoded MD5 hash to validate the document data.
 
         :param amazon_order_id: Required
-        :param seller_orderid:
+        :param seller_order_id:
         :param items: Required
         :param ship_from_address: Required
         :param package_dimensions: Required
