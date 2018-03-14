@@ -18,7 +18,7 @@ class MerchantFulfillment(MWS):
     VERSION = "2015-06-01"
     NS = '{https://mws.amazonservices.com/MerchantFulfillment/2015-06-01}'
 
-    def get_eligible_shipping_services(self, amazon_order_id=None, seller_orderid=None, item_list=None,
+    def get_eligible_shipping_services(self, amazon_order_id=None, seller_order_id=None, items=None,
                                        ship_from_address=None, package_dimensions=None, weight=None,
                                        must_arrive_by_date=None, ship_date=None,
                                        shipping_service_options=None, label_customization=None):
@@ -27,8 +27,8 @@ class MerchantFulfillment(MWS):
         Returns a list of shipping service offers.
 
         :param amazon_order_id: Required
-        :param seller_orderid:
-        :param item_list: Required
+        :param seller_order_id:
+        :param items: Required
         :param ship_from_address: Required
         :param package_dimensions: Required
         :param weight: Required
@@ -48,8 +48,8 @@ class MerchantFulfillment(MWS):
             package_dimensions = {}
         if weight is None:
             weight = {}
-        if item_list is None:
-            item_list = []
+        if items is None:
+            items = []
         if shipping_service_options is None:
             shipping_service_options = {}
         if label_customization is None:
@@ -58,11 +58,11 @@ class MerchantFulfillment(MWS):
         data = {
             "Action": "GetEligibleShippingServices",
             "ShipmentRequestDetails.AmazonOrderId": amazon_order_id,
-            "ShipmentRequestDetails.SellerOrderId": seller_orderid,
+            "ShipmentRequestDetails.SellerOrderId": seller_order_id,
             "ShipmentRequestDetails.MustArriveByDate": must_arrive_by_date,
             "ShipmentRequestDetails.ShipDate": ship_date
         }
-        data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", item_list))
+        data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", items))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.ShipFromAddress", ship_from_address))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.PackageDimensions", package_dimensions))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.Weight", weight))
@@ -70,7 +70,7 @@ class MerchantFulfillment(MWS):
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.LabelCustomization", label_customization))
         return self.make_request(data)
 
-    def create_shipment(self, amazon_order_id=None, seller_orderid=None, item_list=None, ship_from_address=None,
+    def create_shipment(self, amazon_order_id=None, seller_order_id=None, items=None, ship_from_address=None,
                         package_dimensions=None, weight=None, must_arrive_by_date=None, ship_date=None,
                         shipping_service_options=None, label_customization=None, shipping_service_id=None,
                         shipping_service_offer_id=None, hazmat_type=None):
@@ -80,7 +80,7 @@ class MerchantFulfillment(MWS):
 
         :param amazon_order_id: Required
         :param seller_orderid:
-        :param item_list: Required
+        :param items: Required
         :param ship_from_address: Required
         :param package_dimensions: Required
         :param weight: Required
@@ -97,8 +97,8 @@ class MerchantFulfillment(MWS):
         http://docs.developer.amazonservices.com/en_UK/merch_fulfill/MerchFulfill_CreateShipment.html
         """
 
-        if item_list is None:
-            item_list = []
+        if items is None:
+            items = []
         if ship_from_address is None:
             ship_from_address = {}
         if package_dimensions is None:
@@ -113,14 +113,14 @@ class MerchantFulfillment(MWS):
         data = {
             "Action": "CreateShipment",
             "ShipmentRequestDetails.AmazonOrderId": amazon_order_id,
-            "ShipmentRequestDetails.SellerOrderId": seller_orderid,
+            "ShipmentRequestDetails.SellerOrderId": seller_order_id,
             "ShipmentRequestDetails.MustArriveByDate": must_arrive_by_date,
             "ShipmentRequestDetails.ShipDate": ship_date,
             "ShippingServiceId": shipping_service_id,
             "ShippingServiceOfferId": shipping_service_offer_id,
             "HazmatType": hazmat_type
         }
-        data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", item_list))
+        data.update(utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", items))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.ShipFromAddress", ship_from_address))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.PackageDimensions", package_dimensions))
         data.update(utils.dict_keyed_param("ShipmentRequestDetails.Weight", weight))
