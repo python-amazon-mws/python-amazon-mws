@@ -97,11 +97,6 @@ class InboundShipments(MWS):
         'ListInboundShipments',
         'ListInboundShipmentItems',
     ]
-    SHIPMENT_STATUSES = ['WORKING', 'SHIPPED', 'CANCELLED']
-    DEFAULT_SHIP_STATUS = 'WORKING'
-    LABEL_PREFERENCES = ['SELLER_LABEL',
-                         'AMAZON_LABEL_ONLY',
-                         'AMAZON_LABEL_PREFERRED']
 
     # # HELPER METHODS # #
     def __init__(self, *args, **kwargs):
@@ -268,19 +263,6 @@ class InboundShipments(MWS):
         from_address = {'InboundShipmentHeader.{}'.format(k): v
                         for k, v in from_address.items()}
 
-        if shipment_status not in self.SHIPMENT_STATUSES:
-            # Status is required for `create` request.
-            # Set it to default.
-            shipment_status = self.DEFAULT_SHIP_STATUS
-
-        if label_preference not in self.LABEL_PREFERENCES:
-            # Label preference not required. Set to None
-            label_preference = None
-
-        # Explict True/False for case_required,
-        # written as the strings MWS expects.
-        case_required = 'true' if case_required else 'false'
-
         data = {
             'Action': 'CreateInboundShipment',
             'ShipmentId': shipment_id,
@@ -329,18 +311,6 @@ class InboundShipments(MWS):
         from_address = self.from_address
         from_address = {'InboundShipmentHeader.{}'.format(k): v
                         for k, v in from_address.items()}
-
-        if shipment_status not in self.SHIPMENT_STATUSES:
-            # Passed shipment status is an invalid choice.
-            # Remove it from this request by setting it to None.
-            shipment_status = None
-
-        if label_preference not in self.LABEL_PREFERENCES:
-            # Passed label preference is an invalid choice.
-            # Remove it from this request by setting it to None.
-            label_preference = None
-
-        case_required = 'true' if case_required else 'false'
 
         data = {
             'Action': 'UpdateInboundShipment',
