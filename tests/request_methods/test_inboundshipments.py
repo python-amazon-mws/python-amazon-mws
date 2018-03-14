@@ -259,7 +259,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             'address_1': '500 Summat Cully Lane',
             'city': 'Gilead',
         }
-        inbound = mws.InboundShipments('', '', '', from_address=address)
+        inbound_constructed = mws.InboundShipments('', '', '', from_address=address)
         expected = {
             'ShipFromAddress.Name': 'Roland Deschain',
             'ShipFromAddress.AddressLine1': '500 Summat Cully Lane',
@@ -270,7 +270,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             'ShipFromAddress.PostalCode': None,
             'ShipFromAddress.CountryCode': 'US',
         }
-        self.assertEqual(inbound.from_address, expected)
+        self.assertEqual(inbound_constructed.from_address, expected)
 
 
 class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools):
