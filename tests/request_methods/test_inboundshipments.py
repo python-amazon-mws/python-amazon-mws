@@ -248,6 +248,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
         }
         self.assertEqual(self.from_address, expected)
 
+
 class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools):
     """
     Test cases for InboundShipments.
