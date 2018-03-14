@@ -361,10 +361,10 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
             marketplace_id=marketplace_id,
         )
         self.assert_common_params(params_1)
-        self.assertEqual(params['Action'], 'GetInboundGuidanceForSKU')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['SellerSKUList.Id.1'], sku_list_1[0])
-        self.assertEqual(params['SellerSKUList.Id.2'], sku_list_1[1])
+        self.assertEqual(params_1['Action'], 'GetInboundGuidanceForSKU')
+        self.assertEqual(params_1['MarketplaceId'], marketplace_id)
+        self.assertEqual(params_1['SellerSKUList.Id.1'], sku_list_1[0])
+        self.assertEqual(params_1['SellerSKUList.Id.2'], sku_list_1[1])
         # Case 2: single SKU
         sku_list_2 = '9QWsksBUMI'
         params_2 = self.api.get_inbound_guidance_for_sku(
@@ -372,9 +372,9 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
             marketplace_id=marketplace_id,
         )
         self.assert_common_params(params_2)
-        self.assertEqual(params['Action'], 'GetInboundGuidanceForSKU')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['SellerSKUList.Id.1'], sku_list_2)
+        self.assertEqual(params_2['Action'], 'GetInboundGuidanceForSKU')
+        self.assertEqual(params_2['MarketplaceId'], marketplace_id)
+        self.assertEqual(params_2['SellerSKUList.Id.1'], sku_list_2)
 
     def test_get_inbound_guidance_for_asin(self):
         """
@@ -391,10 +391,10 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
             marketplace_id=marketplace_id,
         )
         self.assert_common_params(params_1)
-        self.assertEqual(params['Action'], 'GetInboundGuidanceForASIN')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['ASINList.Id.1'], asin_list_1[0])
-        self.assertEqual(params['ASINList.Id.2'], asin_list_1[1])
+        self.assertEqual(params_1['Action'], 'GetInboundGuidanceForASIN')
+        self.assertEqual(params_1['MarketplaceId'], marketplace_id)
+        self.assertEqual(params_1['ASINList.Id.1'], asin_list_1[0])
+        self.assertEqual(params_1['ASINList.Id.2'], asin_list_1[1])
         # Case 2: single SKU
         asin_list_2 = 'FW2e9soodD'
         params_2 = self.api.get_inbound_guidance_for_asin(
@@ -402,9 +402,9 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
             marketplace_id=marketplace_id,
         )
         self.assert_common_params(params_2)
-        self.assertEqual(params['Action'], 'GetInboundGuidanceForASIN')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['ASINList.Id.1'], asin_list_2)
+        self.assertEqual(params_2['Action'], 'GetInboundGuidanceForASIN')
+        self.assertEqual(params_2['MarketplaceId'], marketplace_id)
+        self.assertEqual(params_2['ASINList.Id.1'], asin_list_2)
 
     def test_get_preorder_info(self):
         """
