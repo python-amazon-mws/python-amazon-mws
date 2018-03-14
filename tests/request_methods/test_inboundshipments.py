@@ -274,62 +274,130 @@ class SetShipFromAddressTestCase(unittest.TestCase):
         self.assertEqual(inbound_constructed.from_address, expected)
 
 
-# class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
-#     """
-#     Test cases for InboundShipments involving FBA shipment handling.
-#     These cases require `from_address` to be set, while others do not.
-#     """
-#     # TODO Fill in later.
-#     def setUp(self):
-#         addr = {
-#             'name': 'Roland Deschain',
-#             'address_1': '500 Summat Cully Lane',
-#             'city': 'Gilead',
-#         }
-#         self.api = mws.InboundShipments(
-#             self.CREDENTIAL_ACCESS,
-#             self.CREDENTIAL_SECRET,
-#             self.CREDENTIAL_ACCOUNT,
-#             auth_token=self.CREDENTIAL_TOKEN,
-#             from_address=addr,
-#         )
-#         self.api._test_request_params = True
+class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
+    """
+    Test cases for InboundShipments involving FBA shipment handling.
+    These cases require `from_address` to be set, while others do not.
+    """
+    def setUp(self):
+        addr = {
+            'name': 'Roland Deschain',
+            'address_1': '500 Summat Cully Lane',
+            'city': 'Gilead',
+        }
+        self.api = mws.InboundShipments(
+            self.CREDENTIAL_ACCESS,
+            self.CREDENTIAL_SECRET,
+            self.CREDENTIAL_ACCOUNT,
+            auth_token=self.CREDENTIAL_TOKEN,
+            from_address=addr,
+        )
+        self.api._test_request_params = True
 
-#     def test_create_inbound_shipment_plan_exceptions(self):
-#         """
-#         Covers cases that should raise exceptions for the `create_inbound_shipment_plan` method.
-#         """
-#         pass
+    def test_create_inbound_shipment_plan_exceptions(self):
+        """
+        Covers cases that should raise exceptions for the `create_inbound_shipment_plan` method.
+        """
+        # 1: `items` empty: raises MWSError
+        items = []
+        with self.assertRaises(MWSError):
+            self.api.create_inbound_shipment_plan(items)
+        # Set items to proper input
+        items = [{'sku': 'something', 'quantity': 6}]
 
-#     def test_create_inbound_shipment_plan(self):
-#         """
-#         Covers successful data entry for `create_inbound_shipment_plan`.
-#         """
-#         pass
+        # 2: wipe out the `from_address` for the API class before calling: raises MWSError
+        self.api.from_address = None
+        with self.assertRaises(MWSError):
+            self.api.create_inbound_shipment_plan(items)
 
-#     def test_create_inbound_shipment_exceptions(self):
-#         """
-#         Covers cases that should raise exceptions for the `create_inbound_shipment` method.
-#         """
-#         pass
+    def test_create_inbound_shipment_plan(self):
+        """
+        Covers successful data entry for `create_inbound_shipment_plan`.
+        """
+        pass
 
-#     def test_create_inbound_shipment(self):
-#         """
-#         Covers successful data entry for `create_inbound_shipment`.
-#         """
-#         pass
+    def test_create_inbound_shipment_exceptions(self):
+        """
+        Covers cases that should raise exceptions for the `create_inbound_shipment` method.
+        """
+        # Proper inputs (initial setup)
+        shipment_id = 'is_a_string'
+        shipment_name = 'is_a_string'
+        destination = 'is_a_string'
+        items = [{'sku': 'something', 'quantity': 6}]
 
-#     def test_update_inbound_shipment_exceptions(self):
-#         """
-#         Covers cases that should raise exceptions for the `update_inbound_shipment` method.
-#         """
-#         pass
+        # 1: `shipment_id` not a string: raises AssertionError
+        shipment_id = {'not': 'a string'}
+        with self.assertRaises(AssertionError):
+            self.api.create_inbound_shipment(shipment_id, shipment_name, destination, items)
+        shipment_id = 'is_a_string'  # reset
 
-#     def test_update_inbound_shipment(self):
-#         """
-#         Covers successful data entry for `update_inbound_shipment`.
-#         """
-#         pass
+        # 2: `shipment_name` not a string: raises AssertionError
+        shipment_name = {'not': 'a string'}
+        with self.assertRaises(AssertionError):
+            self.api.create_inbound_shipment(shipment_id, shipment_name, destination, items)
+        shipment_name = 'is_a_string'  # reset
+
+        # 3: `destination` not a string: raises AssertionError
+        destination = {'not': 'a string'}
+        with self.assertRaises(AssertionError):
+            self.api.create_inbound_shipment(shipment_id, shipment_name, destination, items)
+        destination = 'is_a_string'  # reset
+
+        # 4: `items` empty: raises MWSError
+        items = []
+        with self.assertRaises(MWSError):
+            self.api.create_inbound_shipment(shipment_id, shipment_name, destination, items)
+        items = [{'sku': 'something', 'quantity': 6}]  # reset
+
+        # 5: wipe out the `from_address` for the API class before calling: raises MWSError
+        self.api.from_address = None
+        with self.assertRaises(MWSError):
+            self.api.create_inbound_shipment(shipment_id, shipment_name, destination, items)
+
+    def test_create_inbound_shipment(self):
+        """
+        Covers successful data entry for `create_inbound_shipment`.
+        """
+        pass
+
+    def test_update_inbound_shipment_exceptions(self):
+        """
+        Covers cases that should raise exceptions for the `update_inbound_shipment` method.
+        """
+        # Proper inputs (initial setup)
+        shipment_id = 'is_a_string'
+        shipment_name = 'is_a_string'
+        destination = 'is_a_string'
+
+        # 1: `shipment_id` not a string: raises AssertionError
+        shipment_id = {'not': 'a string'}
+        with self.assertRaises(AssertionError):
+            self.api.update_inbound_shipment(shipment_id, shipment_name, destination)
+        shipment_id = 'is_a_string'  # reset
+
+        # 2: `shipment_name` not a string: raises AssertionError
+        shipment_name = {'not': 'a string'}
+        with self.assertRaises(AssertionError):
+            self.api.update_inbound_shipment(shipment_id, shipment_name, destination)
+        shipment_name = 'is_a_string'  # reset
+
+        # 3: `destination` not a string: raises AssertionError
+        destination = {'not': 'a string'}
+        with self.assertRaises(AssertionError):
+            self.api.update_inbound_shipment(shipment_id, shipment_name, destination)
+        destination = 'is_a_string'  # reset
+
+        # 4: wipe out the `from_address` for the API class before calling: raises MWSError
+        self.api.from_address = None
+        with self.assertRaises(MWSError):
+            self.api.update_inbound_shipment(shipment_id, shipment_name, destination)
+
+    def test_update_inbound_shipment(self):
+        """
+        Covers successful data entry for `update_inbound_shipment`.
+        """
+        pass
 
 
 class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools):
