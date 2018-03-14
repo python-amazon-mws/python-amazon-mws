@@ -23,10 +23,7 @@ try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
-try:
-    from xml.etree.ElementTree import ParseError as XMLError
-except ImportError:
-    from xml.parsers.expat import ExpatError as XMLError
+from xml.etree.ElementTree import ParseError as XMLError
 
 
 __version__ = '1.0.0dev0'
