@@ -346,41 +346,172 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         )
         self.api._test_request_params = True
 
-    # def test_get_inbound_guidance_for_sku(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_get_inbound_guidance_for_sku(self):
+        """
+        GetInboundGuidanceForSKU operation.
+        """
+        marketplace_id = 'eyuMuohmyP'
+        # Case 1: list of SKUs
+        sku_list_1 = [
+            '5PWmAy4u1A',
+            'CtwNnGX08l',
+        ]
+        params_1 = self.api.get_inbound_guidance_for_sku(
+            skus=sku_list_1,
+            marketplace_id=marketplace_id,
+        )
+        self.assert_common_params(params_1)
+        self.assertEqual(params['Action'], 'GetInboundGuidanceForSKU')
+        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['SellerSKUList.Id.1'], sku_list_1[0])
+        self.assertEqual(params['SellerSKUList.Id.2'], sku_list_1[1])
+        # Case 2: single SKU
+        sku_list_2 = '9QWsksBUMI'
+        params_2 = self.api.get_inbound_guidance_for_sku(
+            skus=sku_list_2,
+            marketplace_id=marketplace_id,
+        )
+        self.assert_common_params(params_2)
+        self.assertEqual(params['Action'], 'GetInboundGuidanceForSKU')
+        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['SellerSKUList.Id.1'], sku_list_2)
 
-    # def test_get_inbound_guidance_for_asin(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_get_inbound_guidance_for_asin(self):
+        """
+        GetInboundGuidanceForASIN operation.
+        """
+        marketplace_id = 'osnufVjvfR'
+        # Case 1: list of SKUs
+        asin_list_1 = [
+            'I2HCJMQ1sB',
+            'EBDjm91glL',
+        ]
+        params_1 = self.api.get_inbound_guidance_for_asin(
+            asins=asin_list_1,
+            marketplace_id=marketplace_id,
+        )
+        self.assert_common_params(params_1)
+        self.assertEqual(params['Action'], 'GetInboundGuidanceForASIN')
+        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['ASINList.Id.1'], asin_list_1[0])
+        self.assertEqual(params['ASINList.Id.2'], asin_list_1[1])
+        # Case 2: single SKU
+        asin_list_2 = 'FW2e9soodD'
+        params_2 = self.api.get_inbound_guidance_for_asin(
+            asins=asin_list_2,
+            marketplace_id=marketplace_id,
+        )
+        self.assert_common_params(params_2)
+        self.assertEqual(params['Action'], 'GetInboundGuidanceForASIN')
+        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['ASINList.Id.1'], asin_list_2)
 
-    # def test_get_preorder_info(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_get_preorder_info(self):
+        """
+        GetPreorderInfo operation.
+        """
+        shipment_id = 'oYRjQbGLL6'
+        params = self.api.get_preorder_info(shipment_id)
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'GetPreorderInfo')
+        self.assertEqual(params['ShipmentId'], shipment_id)
 
-    # def test_confirm_preorder(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_confirm_preorder(self):
+        """
+        ConfirmPreorder operation.
+        """
+        shipment_id = 'H4UiUjY7Fr'
+        need_by_date = datetime.datetime.utcnow()
+        params = self.api.confirm_preorder(
+            shipment_id=shipment_id,
+            need_by_date=need_by_date,
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'ConfirmPreorder')
+        self.assertEqual(params['ShipmentId'], shipment_id)
+        self.assertEqual(params['NeedByDate'], need_by_date.isoformat())
 
-    # def test_get_prep_instructions_for_sku(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_get_prep_instructions_for_sku(self):
+        """
+        GetPrepInstructionsForSKU operation.
+        """
+        # Case 1: simple list
+        skus_1 = [
+            'ZITw0KqI3W',
+            'qLijuY05j7',
+        ]
+        country_code = 'Wakanda'
+        params_1 = self.api.get_prep_instructions_for_sku(
+            skus=skus_1,
+            country_code=country_code,
+        )
+        self.assert_common_params(params_1)
+        self.assertEqual(params_1['Action'], 'GetPrepInstructionsForSKU')
+        self.assertEqual(params_1['ShipToCountryCode'], country_code)
+        self.assertEqual(params_1['SellerSKUList.ID.1'], skus_1[0])
+        self.assertEqual(params_1['SellerSKUList.ID.2'], skus_1[1])
+        # Case 2: duplicates should be removed before creating params,
+        # with their ordering preserved.
+        skus_2 = [
+            'pvHENgh9GG',
+            'yrFQfk66Ku',
+            'pvHENgh9GG',  # duplicate should be removed in param build
+            '3W2DgshBxW',
+            'FBN4E7FK3S',
+        ]
+        params_2 = self.api.get_prep_instructions_for_sku(
+            skus=skus_2,
+            country_code=country_code,
+        )
+        self.assert_common_params(params_2)
+        self.assertEqual(params_2['Action'], 'GetPrepInstructionsForSKU')
+        self.assertEqual(params_2['ShipToCountryCode'], country_code)
+        self.assertEqual(params_2['SellerSKUList.ID.1'], skus_2[0])
+        self.assertEqual(params_2['SellerSKUList.ID.2'], skus_2[1])
+        # skus_2[2] is a duplicate and should not be expected. skus_2[3] is next unique.
+        self.assertEqual(params_2['SellerSKUList.ID.3'], skus_2[3])
+        self.assertEqual(params_2['SellerSKUList.ID.4'], skus_2[4])
 
-    # def test_get_prep_instructions_for_asin(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_get_prep_instructions_for_asin(self):
+        """
+        GetPrepInstructionsForASIN operation.
+        """
+        # Case 1: simple list
+        asins_1 = [
+            'iTgHUxF1a7',
+            '56gwMz7j1N',
+        ]
+        country_code = 'Wakanda'
+        params_1 = self.api.get_prep_instructions_for_asin(
+            asins=asins_1,
+            country_code=country_code,
+        )
+        self.assert_common_params(params_1)
+        self.assertEqual(params_1['Action'], 'GetPrepInstructionsForASIN')
+        self.assertEqual(params_1['ShipToCountryCode'], country_code)
+        self.assertEqual(params_1['ASINList.ID.1'], asins_1[0])
+        self.assertEqual(params_1['ASINList.ID.2'], asins_1[1])
+        # Case 2: duplicates should be removed before creating params,
+        # with their ordering preserved.
+        asins_2 = [
+            'FCYeaVUYqY',
+            'bma5ysgs8E',
+            'IwyBQG9TgX',
+            'IwyBQG9TgX',  # duplicate should be removed in param build
+            'JPA8CyPAOF',
+        ]
+        params_2 = self.api.get_prep_instructions_for_asin(
+            asins=asins_2,
+            country_code=country_code,
+        )
+        self.assert_common_params(params_2)
+        self.assertEqual(params_2['Action'], 'GetPrepInstructionsForASIN')
+        self.assertEqual(params_2['ShipToCountryCode'], country_code)
+        self.assertEqual(params_2['ASINList.ID.1'], asins_2[0])
+        self.assertEqual(params_2['ASINList.ID.2'], asins_2[1])
+        self.assertEqual(params_2['ASINList.ID.3'], asins_2[2])
+        # asins_2[3] is a duplicate and should not be expected. asins_2[4] is next unique.
+        self.assertEqual(params_2['ASINList.ID.4'], asins_2[4])
 
     # def test_put_transport_content(self):
     #     """
@@ -388,29 +519,45 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
     #     """
     #     pass
 
-    # def test_estimate_transport_request(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_estimate_transport_request(self):
+        """
+        EstimateTransportRequest operation.
+        """
+        shipment_id = 'w6ayzk2Aov'
+        params = self.api.estimate_transport_request(shipment_id)
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'EstimateTransportRequest')
+        self.assertEqual(params['ShipmentId'], shipment_id)
 
-    # def test_get_transport_content(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_get_transport_content(self):
+        """
+        GetTransportContent operation.
+        """
+        shipment_id = 'w6ayzk2Aov'
+        params = self.api.get_transport_content(shipment_id)
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'GetTransportContent')
+        self.assertEqual(params['ShipmentId'], shipment_id)
 
-    # def test_confirm_transport_request(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_confirm_transport_request(self):
+        """
+        ConfirmTransportRequest operation.
+        """
+        shipment_id = 'UTULruKM6v'
+        params = self.api.confirm_transport_request(shipment_id)
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'ConfirmTransportRequest')
+        self.assertEqual(params['ShipmentId'], shipment_id)
 
-    # def test_void_transport_request(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_void_transport_request(self):
+        """
+        VoidTransportRequest operation.
+        """
+        shipment_id = 'bJw9pyKcoB'
+        params = self.api.void_transport_request(shipment_id)
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'VoidTransportRequest')
+        self.assertEqual(params['ShipmentId'], shipment_id)
 
     def test_get_package_labels(self):
         """
