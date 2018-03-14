@@ -223,7 +223,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             'ShipFromAddress.PostalCode': '13019',
             'ShipFromAddress.CountryCode': 'Mid-World',
         }
-        self.assertEqual(self.from_address, expected)
+        self.assertEqual(self.inbound.from_address, expected)
 
     def test_partial_address_built_properly(self):
         """
@@ -246,7 +246,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             'ShipFromAddress.PostalCode': None,
             'ShipFromAddress.CountryCode': 'US',
         }
-        self.assertEqual(self.from_address, expected)
+        self.assertEqual(self.inbound.from_address, expected)
 
 
 class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools):
