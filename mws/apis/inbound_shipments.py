@@ -114,7 +114,7 @@ class InboundShipments(MWS):
         self.from_address = {}
         addr = kwargs.pop('from_address', None)
         if addr is not None:
-            self.from_address = self.set_ship_from_address(addr)
+            self.set_ship_from_address(addr)
         super(InboundShipments, self).__init__(*args, **kwargs)
 
     def set_ship_from_address(self, address):
