@@ -412,29 +412,88 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
     #     """
     #     pass
 
-    # def test_get_package_labels(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_get_package_labels(self):
+        """
+        GetPackageLabels operation.
+        """
+        shipment_id = 'E7NBQ1O0Ca'
+        num_packages = 53
+        page_type = 'PackageLabel_Letter_6'
+        params = self.api.get_package_labels(
+            shipment_id=shipment_id,
+            num_packages=num_packages,
+            page_type=page_type,
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'GetPackageLabels')
+        self.assertEqual(params['ShipmentId'], shipment_id)
+        self.assertEqual(params['PageType'], page_type)
+        self.assertEqual(params['NumberOfPackages'], num_packages)
 
-    # def test_get_unique_package_labels(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_get_unique_package_labels(self):
+        """
+        GetUniquePackageLabels operation.
+        """
+        shipment_id = 'fMSw3SRJkC'
+        page_type = 'PackageLabel_Plain_Paper'
+        # Case 1: list of package_ids
+        package_ids_1 = [
+            'BuqFIFFY6d',
+            'wU4NmZWEls',
+        ]
+        params_1 = self.api.get_unique_package_labels(
+            shipment_id=shipment_id,
+            page_type=page_type,
+            package_ids=package_ids_1,
+        )
+        self.assert_common_params(params_1)
+        self.assertEqual(params_1['Action'], 'GetUniquePackageLabels')
+        self.assertEqual(params_1['ShipmentId'], shipment_id)
+        self.assertEqual(params_1['PageType'], page_type)
+        self.assertEqual(params_1['PackageLabelsToPrint.member.1'], package_ids_1[0])
+        self.assertEqual(params_1['PackageLabelsToPrint.member.2'], package_ids_1[1])
+        # Case 2: single string package_id (should still work)
+        package_ids_2 = 'exGsKDTbyb'
+        params_2 = self.api.get_unique_package_labels(
+            shipment_id=shipment_id,
+            page_type=page_type,
+            package_ids=package_ids_2,
+        )
+        self.assert_common_params(params_1)
+        self.assertEqual(params_2['Action'], 'GetUniquePackageLabels')
+        self.assertEqual(params_2['ShipmentId'], shipment_id)
+        self.assertEqual(params_2['PageType'], page_type)
+        self.assertEqual(params_2['PackageLabelsToPrint.member.1'], package_ids_2)
 
-    # def test_get_pallet_labels(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_get_pallet_labels(self):
+        """
+        XYZ operation.
+        """
+        shipment_id = 'Y3sROqkPfY'
+        page_type = 'PackageLabel_A4_4'
+        num_pallets = 69
+        params = self.api.get_pallet_labels(
+            shipment_id=shipment_id,
+            page_type=page_type,
+            num_pallets=num_pallets,
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'GetPalletLabels')
+        self.assertEqual(params['ShipmentId'], shipment_id)
+        self.assertEqual(params['PageType'], page_type)
+        self.assertEqual(params['NumberOfPallets'], num_pallets)
 
-    # def test_get_bill_of_lading(self):
-    #     """
-    #     XYZ operation.
-    #     """
-    #     pass
+    def test_get_bill_of_lading(self):
+        """
+        GetBillOfLading operation.
+        """
+        shipment_id = 'nScOqC6Nh6'
+        params = self.api.get_bill_of_lading(
+            shipment_id=shipment_id,
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'GetBillOfLading')
+        self.assertEqual(params['ShipmentId'], shipment_id)
 
     def test_list_inbound_shipments(self):
         """
