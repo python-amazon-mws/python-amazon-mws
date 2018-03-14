@@ -1,6 +1,7 @@
 """
 Tests for the InboundShipments API class.
 """
+import datetime
 import unittest
 import mws
 from mws.apis.inbound_shipments import parse_item_args
@@ -273,11 +274,69 @@ class SetShipFromAddressTestCase(unittest.TestCase):
         self.assertEqual(inbound_constructed.from_address, expected)
 
 
+# class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
+#     """
+#     Test cases for InboundShipments involving FBA shipment handling.
+#     These cases require `from_address` to be set, while others do not.
+#     """
+#     # TODO Fill in later.
+#     def setUp(self):
+#         addr = {
+#             'name': 'Roland Deschain',
+#             'address_1': '500 Summat Cully Lane',
+#             'city': 'Gilead',
+#         }
+#         self.api = mws.InboundShipments(
+#             self.CREDENTIAL_ACCESS,
+#             self.CREDENTIAL_SECRET,
+#             self.CREDENTIAL_ACCOUNT,
+#             auth_token=self.CREDENTIAL_TOKEN,
+#             from_address=addr,
+#         )
+#         self.api._test_request_params = True
+
+#     def test_create_inbound_shipment_plan_exceptions(self):
+#         """
+#         Covers cases that should raise exceptions for the `create_inbound_shipment_plan` method.
+#         """
+#         pass
+
+#     def test_create_inbound_shipment_plan(self):
+#         """
+#         Covers successful data entry for `create_inbound_shipment_plan`.
+#         """
+#         pass
+
+#     def test_create_inbound_shipment_exceptions(self):
+#         """
+#         Covers cases that should raise exceptions for the `create_inbound_shipment` method.
+#         """
+#         pass
+
+#     def test_create_inbound_shipment(self):
+#         """
+#         Covers successful data entry for `create_inbound_shipment`.
+#         """
+#         pass
+
+#     def test_update_inbound_shipment_exceptions(self):
+#         """
+#         Covers cases that should raise exceptions for the `update_inbound_shipment` method.
+#         """
+#         pass
+
+#     def test_update_inbound_shipment(self):
+#         """
+#         Covers successful data entry for `update_inbound_shipment`.
+#         """
+#         pass
+
+
 class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools):
     """
-    Test cases for InboundShipments.
+    Test cases for InboundShipments requests that do not involve FBA shipment handling
+    and do not require `from_address` to be set.
     """
-    # TODO: Add remaining methods for InboundShipments
     def setUp(self):
         self.api = mws.InboundShipments(
             self.CREDENTIAL_ACCESS,
@@ -286,3 +345,180 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
             auth_token=self.CREDENTIAL_TOKEN
         )
         self.api._test_request_params = True
+
+    # def test_get_inbound_guidance_for_sku(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_get_inbound_guidance_for_asin(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_get_preorder_info(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_confirm_preorder(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_get_prep_instructions_for_sku(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_get_prep_instructions_for_asin(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_put_transport_content(self):
+    #     """
+    #     PutTransportContent operation.
+    #     """
+    #     pass
+
+    # def test_estimate_transport_request(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_get_transport_content(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_confirm_transport_request(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_void_transport_request(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_get_package_labels(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_get_unique_package_labels(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_get_pallet_labels(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    # def test_get_bill_of_lading(self):
+    #     """
+    #     XYZ operation.
+    #     """
+    #     pass
+
+    def test_list_inbound_shipments(self):
+        """
+        ListInboundShipments operation.
+        """
+        shipment_ids = [
+            'Fp3kXnLQ72',
+            'hAIO0W7VvF',
+        ]
+        shipment_statuses = [
+            'CANCELLED',
+            'IN_TRANSIT',
+        ]
+        last_updated_before = datetime.datetime.utcnow()
+        last_updated_after = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        params = self.api.list_inbound_shipments(
+            shipment_ids=shipment_ids,
+            shipment_statuses=shipment_statuses,
+            last_updated_before=last_updated_before,
+            last_updated_after=last_updated_after,
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'ListInboundShipments')
+        self.assertEqual(params['LastUpdatedBefore'], last_updated_before.isoformat())
+        self.assertEqual(params['LastUpdatedAfter'], last_updated_after.isoformat())
+        self.assertEqual(params['ShipmentStatusList.member.1'], shipment_statuses[0])
+        self.assertEqual(params['ShipmentStatusList.member.2'], shipment_statuses[1])
+        self.assertEqual(params['ShipmentIdList.member.1'], shipment_ids[0])
+        self.assertEqual(params['ShipmentIdList.member.2'], shipment_ids[1])
+
+    def test_list_inbound_shipments_by_next_token(self):
+        """
+        ListInboundShipmentsByNextToken operation, via method decorator.
+        """
+        next_token = 'rK10wZCE03'
+        params = self.api.list_inbound_shipments(next_token=next_token)
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'ListInboundShipmentsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
+
+    def test_list_inbound_shipments_by_next_token_alias(self):
+        """
+        ListInboundShipmentsByNextToken operation, via alias method.
+        """
+        next_token = 'AscnyUoyhj'
+        params = self.api.list_inbound_shipments_by_next_token(next_token)
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'ListInboundShipmentsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
+
+    def test_list_inbound_shipment_items(self):
+        """
+        ListInboundShipmentItems operation.
+        """
+        shipment_id = 'P9NLpC2Afi'
+        last_updated_before = datetime.datetime.utcnow()
+        last_updated_after = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        params = self.api.list_inbound_shipment_items(
+            shipment_id=shipment_id,
+            last_updated_before=last_updated_before,
+            last_updated_after=last_updated_after,
+        )
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'ListInboundShipmentItems')
+        self.assertEqual(params['ShipmentId'], shipment_id)
+        self.assertEqual(params['LastUpdatedBefore'], last_updated_before.isoformat())
+        self.assertEqual(params['LastUpdatedAfter'], last_updated_after.isoformat())
+
+    def test_list_inbound_shipment_items_by_next_token(self):
+        """
+        ListInboundShipmentItemsByNextToken operation, via method decorator.
+        """
+        next_token = 'kjoslU1R4y'
+        params = self.api.list_inbound_shipment_items(next_token=next_token)
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'ListInboundShipmentItemsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
+
+    def test_list_inbound_shipment_items_by_next_token_alias(self):
+        """
+        ListInboundShipmentItemsByNextToken operation, via alias method.
+        """
+        next_token = 'p31dr3ceKQ'
+        params = self.api.list_inbound_shipment_items_by_next_token(next_token)
+        self.assert_common_params(params)
+        self.assertEqual(params['Action'], 'ListInboundShipmentItemsByNextToken')
+        self.assertEqual(params['NextToken'], next_token)
