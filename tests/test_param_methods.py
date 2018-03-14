@@ -126,16 +126,16 @@ def test_keyed_params():
     param = "AthingToKeyUp.member"
     item1 = {
         "thing": "stuff",
-        "foo": "baz",
+        "foo.": "baz",
     }
     item2 = {
         "thing": 123,
         "foo": 908,
-        "bar": "hello",
+        "bar.": "hello",
     }
     item3 = {
         "stuff": "foobarbazmatazz",
-        "stuff2": "foobarbazmatazz5",
+        "stuff2.": "foobarbazmatazz5",
     }
     result_1 = mws.utils.enumerate_keyed_param(param, [item1, item2, item3])
     assert result_1 == {
