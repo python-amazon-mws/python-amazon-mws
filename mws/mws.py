@@ -28,6 +28,7 @@ __all__ = [
     'Feeds',
     'Inventory',
     'InboundShipments',
+    'MWS',
     'MWSError',
     'Reports',
     'Orders',
