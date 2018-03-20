@@ -13,6 +13,7 @@ setup(
     name='mws',
     version='0.8.3',
     maintainer="James Hiew",
+    download_url='https://github.com/python-amazon-mws/python-amazon-mws/archive/v0.8.3.tar.gz',
     maintainer_email="james@hiew.net",
     url="http://github.com/jameshiew/mws",
     description=short_description,
