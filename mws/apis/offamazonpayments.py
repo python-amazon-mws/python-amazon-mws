@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from .mws import MWS
+from ..mws import MWS
 
 
 class OffAmazonPayments(MWS):
+    """
+    Amazon OffAmazonPayments Sandbox API.
+
+    Docs:
+    https://pay.amazon.com/us/developer/documentation/apireference/201751630
+    """
     SANDBOX_URI = "/OffAmazonPayments_Sandbox/2013-01-01/"
     URI = "/OffAmazonPayments/2013-01-01/"
     VERSION = "2013-01-01"
@@ -14,8 +20,8 @@ class OffAmazonPayments(MWS):
             extra_data=dict(
                 Action="Authorize",
                 AmazonOrderReferenceId=order_ref,
-                AuthorizationReferenceId=str(auth_id),
-                TransactionTimeout=str(timeout),
+                AuthorizationReferenceId=auth_id,
+                TransactionTimeout=timeout,
                 **{
                     "AuthorizationAmount.Amount": "{:.2f}".format(order_total),
                     "AuthorizationAmount.CurrencyCode": "USD"
@@ -135,10 +141,9 @@ class OffAmazonPayments(MWS):
     def set_order_reference_details(self, order_ref, order_total,
                                     store_name, order_id=None, note=None, currency="USD"):
         params = {
-            "OrderReferenceAttributes.OrderTotal.Amount": str(order_total),
+            "OrderReferenceAttributes.OrderTotal.Amount": order_total,
             "OrderReferenceAttributes.OrderTotal.CurrencyCode": currency,
-            "OrderReferenceAttributes.SellerOrderAttributes.SellerOrderId": str(
-                order_id),
+            "OrderReferenceAttributes.SellerOrderAttributes.SellerOrderId": order_id,
             "OrderReferenceAttributes.SellerOrderAttributes.StoreName": store_name,
             "OrderReferenceAttributes.SellerNote": note,
         }

@@ -7,9 +7,10 @@ Borrowed from https://github.com/timotheus/ebaysdk-python
 @author: pierre
 """
 from __future__ import absolute_import
-from functools import wraps
 import re
+import base64
 import datetime
+import hashlib
 import xml.etree.ElementTree as ET
 
 
@@ -45,6 +46,24 @@ class ObjectDict(dict):
     def __setattr__(self, item, value):
         self.__setitem__(item, value)
 
+    def __iter__(self):
+        """
+        A fix for instances where we expect a list, but get a single item.
+
+        If the parser finds multiple keys by the same name under the same parent node,
+        the node will create a list of ObjectDicts to that key. However, if we expect a list
+        in downstream code when only a single item is returned, we will find a single ObjectDict.
+        Attempting to iterate over that object will iterate through dict keys,
+        which is not what we want.
+
+        This override will send back an iterator of a list with a single element if necessary
+        to allow iteration of any node with a single element. If accessing directly, we will
+        still get a list or ObjectDict, as originally expected.
+        """
+        if not isinstance(self, list):
+            return iter([self, ])
+        return self
+
     def getvalue(self, item, value=None):
         """
         Old Python 2-compatible getter method for default value.
@@ -53,7 +72,6 @@ class ObjectDict(dict):
 
 
 class XML2Dict(object):
-
     def __init__(self):
         pass
 
@@ -66,7 +84,7 @@ class XML2Dict(object):
             key, val = self._namespace_split(key, ObjectDict({'value': val}))
             node_tree[key] = val
         # Save childrens
-        for child in node.getchildren():
+        for child in node:
             tag, tree = self._namespace_split(child.tag,
                                               self._parse_node(child))
             if tag not in node_tree:  # the first time, so store it in dict
@@ -101,11 +119,20 @@ class XML2Dict(object):
 
     def fromstring(self, str_):
         """
-        Parse a string
+        Convert XML-formatted string to an ObjectDict.
         """
         text = ET.fromstring(str_)
         root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
         return ObjectDict({root_tag: root_tree})
+
+
+def calc_md5(string):
+    """
+    Calculates the MD5 encryption for the given string
+    """
+    md5_hash = hashlib.md5()
+    md5_hash.update(string)
+    return base64.b64encode(md5_hash.digest()).strip(b'\n')
 
 
 def enumerate_param(param, values):
@@ -203,6 +230,35 @@ def enumerate_keyed_param(param, values):
     return params
 
 
+def dict_keyed_param(param, dict_from):
+    """
+    Given a param string and a dict, returns a flat dict of keyed params without enumerate.
+
+    Example:
+        param = "ShipmentRequestDetails.PackageDimensions"
+        dict_from = {'Length': 5, 'Width': 5, 'Height': 5, 'Unit': 'inches'}
+
+    Returns:
+        {
+            'ShipmentRequestDetails.PackageDimensions.Length': 5,
+            'ShipmentRequestDetails.PackageDimensions.Width': 5,
+            'ShipmentRequestDetails.PackageDimensions.Height': 5,
+            'ShipmentRequestDetails.PackageDimensions.Unit': 'inches',
+            ...
+        }
+    """
+    params = {}
+
+    if not param.endswith('.'):
+        # Ensure the enumerated param ends in '.'
+        param += '.'
+    for k, v in dict_from.items():
+        params.update({
+            "{param}{key}".format(param=param, key=k): v
+        })
+    return params
+
+
 def unique_list_order_preserved(seq):
     """
     Returns a unique list of items from the sequence
@@ -231,25 +287,11 @@ def dt_iso_or_none(dt_obj):
     return None
 
 
-def next_token_action(action_name):
+def get_utc_timestamp():
     """
-    Decorator that designates an action as having a "...ByNextToken" associated request.
-    Checks for a `next_token` kwargs in the request and, if present, redirects the call
-    to `action_by_next_token` using the given `action_name`.
-
-    Only the `next_token` kwarg is consumed by the "next" call:
-    all other args and kwargs are ignored and not required.
+    Returns the current UTC timestamp in ISO-8601 format.
     """
-    def _decorator(request_func):
-        @wraps(request_func)
-        def _wrapped_func(self, *args, **kwargs):
-            next_token = kwargs.pop('next_token', None)
-            if next_token is not None:
-                # Token captured: run the "next" action.
-                return self.action_by_next_token(action_name, next_token)
-            return request_func(self, *args, **kwargs)
-        return _wrapped_func
-    return _decorator
+    return datetime.datetime.utcnow().replace(microsecond=0).isoformat()
 
 
 # DEPRECATION: these are old names for these objects, which have been updated

@@ -26,8 +26,11 @@ pip-log.txt
 
 # Mr Developer
 .mr.developer.cfg
+# VS Code Settings
+.vscode/
 
 # VS Code Settings
 .vscode/settings.json
 
 .travis.yml
+.editorconfig
