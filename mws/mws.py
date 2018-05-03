@@ -57,6 +57,15 @@ class MWSError(Exception):
     response = None
 
 
+class InputError(Exception):
+    def __init__(self, key, value, dtype):
+        self.message = 'the parameter: {}, expected a value of type {}'\
+            ', got: {} with type {}'.format(key, dtype, value, type(value))
+
+    def __str__(self):
+        return self.message
+
+
 def calc_request_description(params):
     """
     Returns a flatted string with the request description, built from the params dict.
@@ -76,16 +85,29 @@ def calc_request_description(params):
     """
     description_items = []
     for item in sorted(params.keys()):
-        encoded_val = quote(str(params[item]), safe='-_.~')
+        encoded_val = params[item]
         description_items.append('{}={}'.format(item, encoded_val))
     return '&'.join(description_items)
 
 
 def remove_empty(dict_):
-    """
-    Returns dict_ with all empty values removed.
-    """
     return {k: v for k, v in dict_.items() if v}
+
+
+def clean_extra_data(extra_data):
+    extra_data_enc = dict()
+    for key, value in extra_data.items():
+        if isinstance(value, (datetime.datetime, datetime.date)):
+            value = str(value.isoformat())
+        if isinstance(value, (bool, int)):
+            value = str(value)
+        try:
+            value.lower() + value + ''
+        except:
+            """final validation, value not like a string"""
+            raise InputError(key, value, str)
+        extra_data_enc[key] = quote(value, safe='-_.~')
+    return extra_data_enc
 
 
 def remove_namespace(xml):
@@ -121,6 +143,7 @@ class DictWrapper(object):
     # TODO create a base class for DictWrapper and DataWrapper with all the keys we expect in responses.
     # This will make it easier to use either class in place of each other.
     # Either this, or pile everything into DataWrapper and make it able to handle all cases.
+
     def __init__(self, xml, rootkey=None):
         self.original = xml
         self.response = None
@@ -142,6 +165,7 @@ class DataWrapper(object):
     """
     Text wrapper in charge of validating the hash sent by Amazon.
     """
+
     def __init__(self, data, header):
         self.original = data
         self.response = None
@@ -250,10 +274,7 @@ class MWS(object):
         # Amazon's MWS does not allow such a thing.
         extra_data = remove_empty(extra_data)
 
-        # convert all Python date/time objects to isoformat
-        for key, value in extra_data.items():
-            if isinstance(value, (datetime.datetime, datetime.date)):
-                extra_data[key] = value.isoformat()
+        extra_data = clean_extra_data(extra_data)
 
         params = self.get_default_params()
         proxies = self.get_proxies()
@@ -279,7 +300,8 @@ class MWS(object):
             # My answer is, here i have to get the url parsed string of params in order to sign it, so
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
-            response = request(method, url, data=kwargs.get('body', ''), headers=headers, proxies=proxies)
+            response = request(method, url, data=kwargs.get(
+                'body', ''), headers=headers, proxies=proxies)
             response.raise_for_status()
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls

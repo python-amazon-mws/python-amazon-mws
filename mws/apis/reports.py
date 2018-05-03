@@ -3,7 +3,7 @@ Amazon MWS Reports API
 """
 from __future__ import absolute_import
 
-import mws
+from ..mws import MWS
 from .. import utils
 from ..decorators import next_token_action
 
@@ -11,7 +11,7 @@ from ..decorators import next_token_action
 # TODO Add Schedule enumerations as constants
 
 
-class Reports(mws.MWS):
+class Reports(MWS):
     """
     Amazon MWS Reports API
 
