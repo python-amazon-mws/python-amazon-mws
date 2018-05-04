@@ -16,6 +16,10 @@ def transform_date(date):
     return quote(date.isoformat(), safe='-_.~')
 
 
+def transform_bool(b):
+    return str(b).lower()
+
+
 class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
     """
     Test cases for Reports.

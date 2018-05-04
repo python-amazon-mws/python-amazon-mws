@@ -25,14 +25,18 @@ class Subscriptions(MWS):
     # This might cut down on some time setting up all the values for the destination for each call,
     # particularly if someone needs to make several calls at once for the same destination.
 
-    def register_destination(self):
+    def register_destination(self, marketplaceid, destination_uri):
         """
         Specifies a new destination where you want to receive notifications.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_RegisterDestination.html
         """
-        raise NotImplementedError
+        data = dict(Action="RegisterDestination", MarketplaceId=marketplaceid)
+        data.update({'Destination.AttributeList.member.1.Key': 'sqsQueueUrl'})
+        data.update({'Destination.AttributeList.member.1.Value': destination_uri})
+        data.update({'Destination.DeliveryChannel': 'SQS'})
+        return self.make_request(data, "POST")
 
     def deregister_destination(self):
         """

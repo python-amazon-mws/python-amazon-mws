@@ -57,15 +57,6 @@ class MWSError(Exception):
     response = None
 
 
-class InputError(Exception):
-    def __init__(self, key, value, dtype):
-        self.message = 'the parameter: {}, expected a value of type {}'\
-            ', got: {} with type {}'.format(key, dtype, value, type(value))
-
-    def __str__(self):
-        return self.message
-
-
 def calc_request_description(params):
     """
     Returns a flatted string with the request description, built from the params dict.
@@ -90,22 +81,24 @@ def calc_request_description(params):
     return '&'.join(description_items)
 
 
-def remove_empty(dict_):
-    return {k: v for k, v in dict_.items() if v}
-
-
 def clean_extra_data(extra_data):
+    """Input cleanup and prevent a lot of common input mistakes."""
+    # silently remove parameter where values are empty
+    extra_data = {k: v for k, v in extra_data.items() if v}
+
     extra_data_enc = dict()
     for key, value in extra_data.items():
+        if isinstance(value, (dict, list, set, tuple)):
+            message = 'expected string or datetime datatype, got {},'\
+                'for key {} and value {}'.format(
+                    type(value), key, str(value))
+            raise MWSError(message)
         if isinstance(value, (datetime.datetime, datetime.date)):
-            value = str(value.isoformat())
-        if isinstance(value, (bool, int)):
-            value = str(value)
-        try:
-            value.lower() + value + ''
-        except:
-            """final validation, value not like a string"""
-            raise InputError(key, value, str)
+            value = value.isoformat()
+        if isinstance(value, bool):
+            value = str(value).lower()
+        value = str(value)
+
         extra_data_enc[key] = quote(value, safe='-_.~')
     return extra_data_enc
 
@@ -272,7 +265,6 @@ class MWS(object):
         """
         # Remove all keys with an empty value because
         # Amazon's MWS does not allow such a thing.
-        extra_data = remove_empty(extra_data)
 
         extra_data = clean_extra_data(extra_data)
 
