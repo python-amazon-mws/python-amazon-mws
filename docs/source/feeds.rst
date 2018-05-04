@@ -13,11 +13,11 @@ To build your own XML data you should use Amazon documentation about feed types 
     access_key = 'accesskey' #replace with your access key
     seller_id = 'merchantid' #replace with your seller id
     secret_key = 'secretkey' #replace with your secret key
-    marketplace_usa = 'ATVPDKIKX0DER'
+    MWS_MARKETPLACE_ID = 'ATVPDKIKX0DER'
 
     feed = mws.Feeds(access_key, secret_key, seller_id, region='US')
     
-    print "### Product feed ###"
+    print("### Product feed ###")
     xml = """<?xml version='1.0' encoding='iso-8859-1'?>
                 <AmazonEnvelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='amzn-envelope.xsd'>
                   <Header>
@@ -54,10 +54,11 @@ To build your own XML data you should use Amazon documentation about feed types 
                     </Product>
                   </Message>
                 </AmazonEnvelope>"""
-    response = feed.submit_feed(xml, "_POST_PRODUCT_DATA_", MSW_MARKETPLACE_ID).parsed
-    print response
+    response = feed.submit_feed(xml, "_POST_PRODUCT_DATA_", MWS_MARKETPLACE_ID)
+    print(response.parsed)
 
-    print "### Inventory feed ###"
+
+    print("### Inventory feed ###")
     xml = """<?xml version='1.0' encoding='iso-8859-1'?>
                 <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
                   <Header>
@@ -74,11 +75,11 @@ To build your own XML data you should use Amazon documentation about feed types 
                     </Inventory>
                   </Message>
                 </AmazonEnvelope>"""
-    response = feed.submit_feed(xml, "_POST_INVENTORY_AVAILABILITY_DATA_", MSW_MARKETPLACE_ID).parsed
-    print response
+    response = feed.submit_feed(xml, "_POST_INVENTORY_AVAILABILITY_DATA_", MWS_MARKETPLACE_ID)
+    print(response.parsed)
 
 
-    print "### Product image feed ###"
+    print("### Product image feed ###")
     xml = """<?xml version='1.0' encoding='iso-8859-1'?>
                 <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
                   <Header>
@@ -96,5 +97,5 @@ To build your own XML data you should use Amazon documentation about feed types 
                     </ProductImage>
                   </Message>
                 </AmazonEnvelope>"""
-    response = feed.submit_feed(xml, "_POST_PRODUCT_IMAGE_DATA_", MSW_MARKETPLACE_ID).parsed
-    print response
+    response = feed.submit_feed(xml, "_POST_PRODUCT_IMAGE_DATA_", MWS_MARKETPLACE_ID)
+    print(response.parsed)
