@@ -4,6 +4,7 @@ Amazon MWS Subscriptions API
 from __future__ import absolute_import
 
 from ..mws import MWS
+from .. import utils
 # from .. import utils
 
 # TODO include NotificationType enumeration
@@ -25,32 +26,57 @@ class Subscriptions(MWS):
     # This might cut down on some time setting up all the values for the destination for each call,
     # particularly if someone needs to make several calls at once for the same destination.
 
-    def register_destination(self):
+    def register_destination(self, marketplace_id, delivery_channel='SQS', attribute_list=None):
         """
         Specifies a new destination where you want to receive notifications.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_RegisterDestination.html
-        """
-        raise NotImplementedError
 
-    def deregister_destination(self):
+        delivery_channel: Currently only supports SQS
+        attribute_list: example [{"sqsQueueUrl" : "https://sqs.us-east-1.amazonaws.com/51471EXAMPLE/mws_notifications"}]
+
+        """
+        if attribute_list is None:
+            raise ValueError('attribute_list cannot be None')
+        data = {
+            'Action': 'RegisterDestination',
+            'MarketplaceId': marketplace_id,
+            'Destination.DeliveryChannel': delivery_channel
+        }
+        data.update(utils.enumerate_keyed_param('Destination.AttributeList.member', attribute_list))
+        return self.make_request(data,'POST')
+
+    def deregister_destination(self, marketplace_id, delivery_channel='SQS', attribute_list=None):
         """
         Removes an existing destination from the list of registered destinations.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_DeregisterDestination.html
         """
-        raise NotImplementedError
+        if attribute_list is None:
+            raise ValueError('attribute_list cannot be None')
+        data = {
+            'Action': 'DeregisterDestination',
+            'MarketplaceId': marketplace_id,
+            'Destination.DeliveryChannel': delivery_channel
+        }
+        data.update(utils.enumerate_keyed_param('Destination.AttributeList.member', attribute_list))
+        return self.make_request(data,'POST')
 
-    def list_registered_destinations(self):
+
+    def list_registered_destinations(self, marketplace_id):
         """
         Lists all current destinations that you have registered.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListRegisteredDestinations.html
         """
-        raise NotImplementedError
+        data = {
+            'Action': 'ListRegisteredDestinations',
+            'MarketplaceId': marketplace_id
+        }
+        return self.make_request(data,'POST')
 
     def send_test_notification_to_destination(self):
         """
