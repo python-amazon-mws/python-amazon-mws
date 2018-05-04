@@ -54,8 +54,8 @@ To build your own XML data you should use Amazon documentation about feed types 
                     </Product>
                   </Message>
                 </AmazonEnvelope>"""
-    response = feed.submit_feed(xml, "_POST_PRODUCT_DATA_", MSW_MARKETPLACE_ID).parsed
-    print response
+    response = feed.submit_feed(xml, "_POST_PRODUCT_DATA_", MSW_MARKETPLACE_ID)
+    print response.parsed
 
     print "### Inventory feed ###"
     xml = """<?xml version='1.0' encoding='iso-8859-1'?>
@@ -74,8 +74,8 @@ To build your own XML data you should use Amazon documentation about feed types 
                     </Inventory>
                   </Message>
                 </AmazonEnvelope>"""
-    response = feed.submit_feed(xml, "_POST_INVENTORY_AVAILABILITY_DATA_", MSW_MARKETPLACE_ID).parsed
-    print response
+    response = feed.submit_feed(xml, "_POST_INVENTORY_AVAILABILITY_DATA_", MSW_MARKETPLACE_ID)
+    print response.parsed
 
 
     print "### Product image feed ###"
@@ -96,5 +96,5 @@ To build your own XML data you should use Amazon documentation about feed types 
                     </ProductImage>
                   </Message>
                 </AmazonEnvelope>"""
-    response = feed.submit_feed(xml, "_POST_PRODUCT_IMAGE_DATA_", MSW_MARKETPLACE_ID).parsed
-    print response
+    response = feed.submit_feed(xml, "_POST_PRODUCT_IMAGE_DATA_", MSW_MARKETPLACE_ID)
+    print response.parsed
