@@ -75,6 +75,7 @@ def calc_request_description(params):
       "bar=4&baz=potato&foo=1"
     """
     description_items = []
+    params = clean_extra_data(params)
     for item in sorted(params.keys()):
         encoded_val = params[item]
         description_items.append('{}={}'.format(item, encoded_val))
