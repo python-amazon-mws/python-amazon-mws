@@ -109,4 +109,3 @@ class Subscriptions(MWS):
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_UpdateSubscription.html
         """
         raise NotImplementedError
-
