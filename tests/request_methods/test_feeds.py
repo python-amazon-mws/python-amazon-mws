@@ -6,12 +6,22 @@ import datetime
 import mws
 from .utils import CommonRequestTestTools
 
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
+
+def transform_date(date):
+    return quote(date.isoformat(), safe='-_.~')
+
 
 class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
     """
     Test cases for Feeds.
     """
     # TODO: Add remaining methods for Feeds
+
     def setUp(self):
         self.api = mws.Feeds(
             self.CREDENTIAL_ACCESS,
@@ -33,9 +43,9 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         GetFeedSubmissionList operation
         """
         from_date = datetime.datetime.utcnow()
-        from_date_stamp = from_date.isoformat()
+        from_date_stamp = transform_date(from_date)
         to_date = datetime.datetime.utcnow()
-        to_date_stamp = to_date.isoformat()
+        to_date_stamp = transform_date(to_date)
         feed_ids = [
             '1058369303',
             '1228369302',
@@ -61,7 +71,7 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assertEqual(params['Action'], 'GetFeedSubmissionList')
         self.assertEqual(params['SubmittedFromDate'], from_date_stamp)
         self.assertEqual(params['SubmittedToDate'], to_date_stamp)
-        self.assertEqual(params['MaxCount'], max_count)
+        self.assertEqual(params['MaxCount'], str(max_count))
         self.assertEqual(params['FeedSubmissionIdList.Id.1'], feed_ids[0])
         self.assertEqual(params['FeedSubmissionIdList.Id.2'], feed_ids[1])
         self.assertEqual(params['FeedTypeList.Type.1'], feed_types[0])
@@ -94,9 +104,9 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         GetFeedSubmissionCount operation
         """
         from_date = datetime.datetime.utcnow()
-        from_date_stamp = from_date.isoformat()
+        from_date_stamp = transform_date(from_date)
         to_date = datetime.datetime.utcnow()
-        to_date_stamp = to_date.isoformat()
+        to_date_stamp = transform_date(to_date)
         feed_types = [
             '_POST_PRODUCT_OVERRIDES_DATA_',
             '_POST_FLAT_FILE_FULFILLMENT_ORDER_CANCELLATION_REQUEST_DATA_',
@@ -125,9 +135,9 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         CancelFeedSubmissions operation
         """
         from_date = datetime.datetime.utcnow()
-        from_date_stamp = from_date.isoformat()
+        from_date_stamp = transform_date(from_date)
         to_date = datetime.datetime.utcnow()
-        to_date_stamp = to_date.isoformat()
+        to_date_stamp = transform_date(to_date)
         feed_ids = [
             'SUB63kvutS',
             'l8dM04jxGD',

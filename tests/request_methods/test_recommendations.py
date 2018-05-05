@@ -5,12 +5,22 @@ import unittest
 import mws
 from .utils import CommonRequestTestTools
 
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
+
+def transform_string(s):
+    return quote(s, safe='-_.~')
+
 
 class RecommendationsTestCase(unittest.TestCase, CommonRequestTestTools):
     """
     Test cases for Recommendations.
     """
     # TODO: Add remaining methods for Recommendations
+
     def setUp(self):
         self.api = mws.Recommendations(
             self.CREDENTIAL_ACCESS,
@@ -43,7 +53,8 @@ class RecommendationsTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'ListRecommendations')
         self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['RecommendationCategory'], recommendation_category)
+        self.assertEqual(params['RecommendationCategory'],
+                         transform_string(recommendation_category))
 
     def test_list_recommendations_by_next_token(self):
         """
