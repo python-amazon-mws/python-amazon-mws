@@ -4,16 +4,7 @@ Tests for the Feeds API class.
 import unittest
 import datetime
 import mws
-from .utils import CommonRequestTestTools
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-
-
-def transform_date(date):
-    return quote(date.isoformat(), safe='-_.~')
+from .utils import CommonRequestTestTools, transform_date
 
 
 class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):

@@ -4,20 +4,7 @@ Tests for the Orders API class.
 import datetime
 import unittest
 import mws
-from .utils import CommonRequestTestTools
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-
-
-def transform_date(date):
-    return quote(date.isoformat(), safe='-_.~')
-
-
-def transform_bool(b):
-    return str(b).lower()
+from .utils import CommonRequestTestTools, transform_date
 
 
 class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):

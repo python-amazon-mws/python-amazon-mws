@@ -3,6 +3,11 @@ Utilities common to request method tests.
 """
 import datetime
 
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
 
 class CommonRequestTestTools(object):
     CREDENTIAL_ACCESS = 'cred_access'
@@ -32,3 +37,15 @@ class CommonRequestTestTools(object):
         response = self.api.get_service_status()
         # Only key we care about here is GetServiceStatus
         self.assertEqual(response['Action'], 'GetServiceStatus')
+
+
+def transform_string(s):
+    return quote(s, safe='-_.~')
+
+
+def transform_bool(b):
+    return str(b).lower()
+
+
+def transform_date(date):
+    return quote(date.isoformat(), safe='-_.~')

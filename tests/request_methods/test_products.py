@@ -3,20 +3,7 @@ Tests for the Products API class.
 """
 import unittest
 import mws
-from .utils import CommonRequestTestTools
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-
-
-def transform_string(s):
-    return quote(s, safe='-_.~')
-
-
-def transform_bool(b):
-    return str(b).lower()
+from .utils import CommonRequestTestTools, transform_bool, transform_string
 
 
 class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):

@@ -3,16 +3,7 @@ Tests for the Recommendations API class.
 """
 import unittest
 import mws
-from .utils import CommonRequestTestTools
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-
-
-def transform_string(s):
-    return quote(s, safe='-_.~')
+from .utils import CommonRequestTestTools, transform_string
 
 
 class RecommendationsTestCase(unittest.TestCase, CommonRequestTestTools):

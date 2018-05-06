@@ -6,24 +6,8 @@ import unittest
 import mws
 from mws.apis.inbound_shipments import parse_item_args
 from mws.mws import MWSError
-from .utils import CommonRequestTestTools
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-
-
-def transform_date(date):
-    return quote(date.isoformat(), safe='-_.~')
-
-
-def transform_string(s):
-    return quote(s, safe='-_.~')
-
-
-def transform_bool(b):
-    return str(b).lower()
+from .utils import CommonRequestTestTools, transform_date, transform_bool
+from .utils import transform_string
 
 
 class ParseItemArgsTestCase(unittest.TestCase):
