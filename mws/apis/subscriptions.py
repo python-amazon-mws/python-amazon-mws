@@ -38,7 +38,8 @@ class Subscriptions(MWS):
 
         """
         if attribute_list is None:
-            raise ValueError('attribute_list cannot be None')
+            raise ValueError('Attribute_list cannot be None')
+
         data = {
             'Action': 'RegisterDestination',
             'MarketplaceId': marketplace_id,
@@ -55,7 +56,8 @@ class Subscriptions(MWS):
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_DeregisterDestination.html
         """
         if attribute_list is None:
-            raise ValueError('attribute_list cannot be None')
+            raise ValueError('Attribute_list cannot be None')
+
         data = {
             'Action': 'DeregisterDestination',
             'MarketplaceId': marketplace_id,
@@ -72,47 +74,84 @@ class Subscriptions(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListRegisteredDestinations.html
         """
-        data = {
-            'Action': 'ListRegisteredDestinations',
+        data = {'Action': 'ListRegisteredDestinations',
             'MarketplaceId': marketplace_id
         }
         return self.make_request(data,'POST')
 
-    def send_test_notification_to_destination(self):
+    def send_test_notification_to_destination(self, marketplace_id, delivery_channel='SQS', attribute_list=None):
         """
         Sends a test notification to an existing destination.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_SendTestNotificationToDestination.html
-        """
-        raise NotImplementedError
 
-    def create_subscription(self):
+        destination_list ={ "Key": "sqsQueueUrl",
+         "Value": "destination" }
+        """
+        if attribute_list is None:
+            raise ValueError('Attribute_list cannot be None')
+
+        data = {'Action': "SendTestNotificationToDestination",
+                "MarketplaceId": marketplace_id,
+                "Destination.DeliveryChannel": delivery_channel }
+        data.update(utils.enumerate_keyed_param('Destination.AttributeList.member', attribute_list))
+        self.make_request(data, method='POST')
+
+    def create_subscription(self, marketplace_id, delivery_channel='SQS', attribute_list=None, _type=None, is_enabled=True):
         """
         Creates a new subscription for the specified notification type and destination.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_CreateSubscription.html
         """
-        raise NotImplementedError
+        if attribute_list is None:
+            raise ValueError('Attribute_list cannot be None')
+        if _type is None:
+            raise ValueError('_type cannot be None')
+        data = {"Action": "CreateSubscription",
+                "MarketplaceId": marketplace_id }
+        data.update(utils.enumerate_keyed_param('Destination.AttributeList.member', attribute_list))
+        data.update({'Subscription.Destination.DeliveryChannel' : delivery_channel} )
+        data.update({'Subscription.IsEnabled' : str(is_enabled).lower() } )
+        data.update({'Subscription.NotificationType' : _type } )
+        return self.make_request(data, "POST")
 
-    def get_subscription(self):
+
+    def get_subscription(self, marketplace_id, delivery_channel='SQS', attribute_list=None, _type=None ):
         """
         Gets the subscription for the specified notification type and destination.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_GetSubscription.html
         """
-        raise NotImplementedError
+        if attribute_list is None:
+            raise ValueError('Attribute_list cannot be None')
+        if _type is None:
+            raise ValueError('_type cannot be None')
+        data = {"Action":"GetSubscription",
+                "MarketplaceId":marketplace_id }
+        data.update({'Destination.DeliveryChannel' : delivery_channel } )
+        data.update({'NotificationType' : _type } )
+        return self.make_request(data, "POST")
 
-    def delete_subscription(self):
+    def delete_subscription(self, marketplace_id, delivery_channel='SQS', attribute_list=None, _type=None):
         """
         Deletes the subscription for the specified notification type and destination.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_DeleteSubscription.html
         """
-        raise NotImplementedError
+        if attribute_list is None:
+            raise ValueError('Attribute_list cannot be None')
+        if _type is None:
+                raise ValueError('_type cannot be None')
+        data = {"Action": "DeleteSubscription",
+                "MarketplaceId": marketplace_id }
+        data.update(utils.enumerate_keyed_param('Destination.AttributeList.member', attribute_list))
+        data.update({'Destination.DeliveryChannel' : 'SQS' } )
+        data.update({'NotificationType' : _type } )
+        return self.make_request(data, "POST")
 
     def list_subscriptions(self, marketplace_id):
         """
@@ -127,11 +166,23 @@ class Subscriptions(MWS):
         }
         return self.make_request(data, 'POST')
 
-    def update_subscription(self):
+    def update_subscription(self, marketplace_id, delivery_channel='SQS', attribute_list=None, _type=None, is_enabled=True):
         """
         Updates the subscription for the specified notification type and destination.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_UpdateSubscription.html
         """
-        raise NotImplementedError
+        if attribute_list is None:
+            raise ValueError('Attribute_list cannot be None')
+        if _type is None:
+            raise ValueError('_type cannot be None')
+        data = {"Action": "UpdateSubscription",
+                "MarketplaceId": marketplace_id,
+                "Subscription.Destination.DeliveryChannel": delivery_channel}
+        data.update(utils.enumerate_keyed_param('Subscription.Destination.AttributeList.member', attribute_list))
+        data.update({'Subscription.Destination.DeliveryChannel' : 'SQS' } )
+        data.update({'Subscription.IsEnabled' : str(is_enabled).lower() } )
+        data.update({'Subscription.NotificationType' : type } )
+        return self.make_request(data, "POST")
+
