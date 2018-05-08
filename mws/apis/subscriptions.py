@@ -141,7 +141,8 @@ class Subscriptions(MWS):
                 "Subscription.IsEnabled": str(is_enabled).lower(),
                 "Subscription.NotificationType": notification_type}
 
-        data.update(utils.enumerate_keyed_param("Subscription.Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data.update(utils.enumerate_keyed_param("Subscription.Destination.AttributeList.member",
+                                                self._parse_attributes(attributes)))
 
         return self.make_request(data, "POST")
 
@@ -166,7 +167,8 @@ class Subscriptions(MWS):
                 "MarketplaceId": marketplace_id,
                 "Subscription.Destination.DeliveryChannel": delivery_channel,
                 "Subscription.NotificationType": notification_type}
-        data.update(utils.enumerate_keyed_param("Subscription.Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data.update(utils.enumerate_keyed_param("Subscription.Destination.AttributeList.member",
+                                                self._parse_attributes(attributes)))
 
         return self.make_request(data, "POST")
 
@@ -234,5 +236,6 @@ class Subscriptions(MWS):
                 "Subscription.IsEnabled": str(is_enabled).lower(),
                 "Subscription.NotificationType": notification_type}
 
-        data.update(utils.enumerate_keyed_param("Subscription.Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data.update(utils.enumerate_keyed_param("Subscription.Destination.AttributeList.member",
+                                                self._parse_attributes(attributes)))
         return self.make_request(data, "POST")
