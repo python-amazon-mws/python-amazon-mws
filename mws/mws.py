@@ -75,20 +75,19 @@ def calc_request_description(params):
       "bar=4&baz=potato&foo=1"
     """
     description_items = []
-    params = clean_extra_data(params)
     for item in sorted(params.keys()):
         encoded_val = params[item]
         description_items.append('{}={}'.format(item, encoded_val))
     return '&'.join(description_items)
 
 
-def clean_extra_data(extra_data):
+def clean_params(params):
     """Input cleanup and prevent a lot of common input mistakes."""
     # silently remove parameter where values are empty
-    extra_data = {k: v for k, v in extra_data.items() if v}
+    params = {k: v for k, v in params.items() if v}
 
-    extra_data_enc = dict()
-    for key, value in extra_data.items():
+    params_enc = dict()
+    for key, value in params.items():
         if isinstance(value, (dict, list, set, tuple)):
             message = 'expected string or datetime datatype, got {},'\
                 'for key {} and value {}'.format(
@@ -100,8 +99,8 @@ def clean_extra_data(extra_data):
             value = str(value).lower()
         value = str(value)
 
-        extra_data_enc[key] = quote(value, safe='-_.~')
-    return extra_data_enc
+        params_enc[key] = quote(value, safe='-_.~')
+    return params_enc
 
 
 def remove_namespace(xml):
@@ -264,14 +263,11 @@ class MWS(object):
         """
         Make request to Amazon MWS API with these parameters
         """
-        # Remove all keys with an empty value because
-        # Amazon's MWS does not allow such a thing.
-
-        extra_data = clean_extra_data(extra_data)
-
         params = self.get_default_params()
         proxies = self.get_proxies()
         params.update(extra_data)
+        params = clean_params(params)
+
         if self._test_request_params:
             # Testing method: return the params from this request before the request is made.
             return params

@@ -27,11 +27,13 @@ class CommonRequestTestTools(object):
         # If test fails here, check that method.
         self.assertEqual(params['SignatureMethod'], 'HmacSHA256')
         self.assertEqual(params['SignatureVersion'], '2')
-        isoformat_str = "%Y-%m-%dT%H:%M:%S"
+        isoformat_str = "%Y-%m-%dT%H%%3A%M%%3A%S"
         try:
             datetime.datetime.strptime(params['Timestamp'], isoformat_str)
         except ValueError:
-            self.fail("Timestamp expected an ISO-8601 datetime string with format [YYYY-MM-DDTHH:MM:SS].")
+            self.fail(
+                "Timestamp expected an ISO-8601 datetime string url encoded"
+                " with format [YYYY-MM-DDTHH%3AMM%3ASS].")
 
     def test_service_status(self):
         response = self.api.get_service_status()
