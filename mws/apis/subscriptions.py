@@ -43,9 +43,9 @@ class Subscriptions(MWS):
         data = {
             'Action': 'RegisterDestination',
             'MarketplaceId': marketplace_id,
-            'Destination.DeliveryChannel': delivery_channel
+            'Subscription.Destination.DeliveryChannel': delivery_channel
         }
-        data.update(utils.enumerate_keyed_param('Destination.AttributeList.member', attribute_list))
+        data.update(utils.enumerate_keyed_param('Subscription.Destination.AttributeList.member', attribute_list))
         return self.make_request(data,'POST')
 
     def deregister_destination(self, marketplace_id, delivery_channel='SQS', attribute_list=None):
@@ -61,9 +61,9 @@ class Subscriptions(MWS):
         data = {
             'Action': 'DeregisterDestination',
             'MarketplaceId': marketplace_id,
-            'Destination.DeliveryChannel': delivery_channel
+            'Subscription.Destination.DeliveryChannel': delivery_channel
         }
-        data.update(utils.enumerate_keyed_param('Destination.AttributeList.member', attribute_list))
+        data.update(utils.enumerate_keyed_param('Subscription.Destination.AttributeList.member', attribute_list))
         return self.make_request(data,'POST')
 
 
@@ -75,7 +75,7 @@ class Subscriptions(MWS):
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListRegisteredDestinations.html
         """
         data = {'Action': 'ListRegisteredDestinations',
-            'MarketplaceId': marketplace_id
+                'MarketplaceId': marketplace_id
         }
         return self.make_request(data,'POST')
 
@@ -94,8 +94,8 @@ class Subscriptions(MWS):
 
         data = {'Action': "SendTestNotificationToDestination",
                 "MarketplaceId": marketplace_id,
-                "Destination.DeliveryChannel": delivery_channel }
-        data.update(utils.enumerate_keyed_param('Destination.AttributeList.member', attribute_list))
+                "Subscription.Destination.DeliveryChannel": delivery_channel }
+        data.update(utils.enumerate_keyed_param('Subscription.Destination.AttributeList.member', attribute_list))
         self.make_request(data, method='POST')
 
     def create_subscription(self, marketplace_id, delivery_channel='SQS', attribute_list=None, _type=None, is_enabled=True):
@@ -110,9 +110,10 @@ class Subscriptions(MWS):
         if _type is None:
             raise ValueError('_type cannot be None')
         data = {"Action": "CreateSubscription",
-                "MarketplaceId": marketplace_id }
-        data.update(utils.enumerate_keyed_param('Destination.AttributeList.member', attribute_list))
-        data.update({'Subscription.Destination.DeliveryChannel' : delivery_channel} )
+                "MarketplaceId": marketplace_id,
+                'Subscription.Destination.DeliveryChannel' : delivery_channel}
+
+        data.update(utils.enumerate_keyed_param('Subscription.Destination.AttributeList.member', attribute_list))
         data.update({'Subscription.IsEnabled' : str(is_enabled).lower() } )
         data.update({'Subscription.NotificationType' : _type } )
         return self.make_request(data, "POST")
@@ -130,8 +131,8 @@ class Subscriptions(MWS):
         if _type is None:
             raise ValueError('_type cannot be None')
         data = {"Action":"GetSubscription",
-                "MarketplaceId":marketplace_id }
-        data.update({'Destination.DeliveryChannel' : delivery_channel } )
+                "MarketplaceId":marketplace_id,
+                "Subscription.Destination.DeliveryChannel" : delivery_channel }
         data.update({'NotificationType' : _type } )
         return self.make_request(data, "POST")
 
@@ -147,9 +148,9 @@ class Subscriptions(MWS):
         if _type is None:
                 raise ValueError('_type cannot be None')
         data = {"Action": "DeleteSubscription",
-                "MarketplaceId": marketplace_id }
-        data.update(utils.enumerate_keyed_param('Destination.AttributeList.member', attribute_list))
-        data.update({'Destination.DeliveryChannel' : 'SQS' } )
+                "MarketplaceId": marketplace_id,
+                "Subscription.Destination.DeliveryChannel": delivery_channel}
+        data.update(utils.enumerate_keyed_param('Subscription.Destination.AttributeList.member', attribute_list))
         data.update({'NotificationType' : _type } )
         return self.make_request(data, "POST")
 
@@ -181,7 +182,6 @@ class Subscriptions(MWS):
                 "MarketplaceId": marketplace_id,
                 "Subscription.Destination.DeliveryChannel": delivery_channel}
         data.update(utils.enumerate_keyed_param('Subscription.Destination.AttributeList.member', attribute_list))
-        data.update({'Subscription.Destination.DeliveryChannel' : 'SQS' } )
         data.update({'Subscription.IsEnabled' : str(is_enabled).lower() } )
         data.update({'Subscription.NotificationType' : type } )
         return self.make_request(data, "POST")
