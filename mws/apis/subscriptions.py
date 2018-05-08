@@ -117,7 +117,6 @@ class Subscriptions(MWS):
 
         return self.make_request(data, method="POST")
 
-
     def create_subscription(self, marketplace_id, delivery_channel="SQS", attributes=None,
                             notification_type=None, is_enabled=True):
         """
@@ -235,5 +234,4 @@ class Subscriptions(MWS):
                 "Subscription.IsEnabled": str(is_enabled).lower(),
                 "Subscription.NotificationType": notification_type}
         data.update(utils.enumerate_keyed_param("Destination.AttributeList.member", self._parse_attributes(attributes)))
-        
         return self.make_request(data, "POST")
