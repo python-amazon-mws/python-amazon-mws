@@ -152,9 +152,9 @@ class Subscriptions(MWS):
             raise ValueError("_type cannot be None")
         data = {"Action": "DeleteSubscription",
                 "MarketplaceId": marketplace_id,
-                "Subscription.Destination.DeliveryChannel": delivery_channel,
-                "Subscription.NotificationType": _type}
-        data.update(utils.enumerate_keyed_param("Subscription.Destination.AttributeList.member", attribute_list))
+                "Destination.DeliveryChannel": delivery_channel,
+                "NotificationType": _type}
+        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member", attribute_list))
 
         return self.make_request(data, "POST")
 
