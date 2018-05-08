@@ -149,7 +149,7 @@ class Subscriptions(MWS):
         if attribute_list is None:
             raise ValueError("Attribute_list cannot be None")
         if _type is None:
-                raise ValueError("_type cannot be None")
+            raise ValueError("_type cannot be None")
         data = {"Action": "DeleteSubscription",
                 "MarketplaceId": marketplace_id,
                 "Subscription.Destination.DeliveryChannel": delivery_channel,
