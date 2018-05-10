@@ -38,7 +38,7 @@ class Subscriptions(MWS):
             })
         return attribute_list
 
-    def register_destination(self, marketplace_id, delivery_channel="SQS", attributes=None):
+    def register_destination(self, marketplace_id, attributes=None, delivery_channel="SQS"):
         """
         Specifies a new destination where you want to receive notifications.
 
@@ -61,7 +61,7 @@ class Subscriptions(MWS):
 
         return self.make_request(data, "POST")
 
-    def deregister_destination(self, marketplace_id, delivery_channel="SQS", attributes=None):
+    def deregister_destination(self, marketplace_id, attributes=None, delivery_channel="SQS"):
         """
         Removes an existing destination from the list of registered destinations.
 
@@ -96,7 +96,7 @@ class Subscriptions(MWS):
 
         return self.make_request(data, "POST")
 
-    def send_test_notification_to_destination(self, marketplace_id, delivery_channel="SQS", attributes=None):
+    def send_test_notification_to_destination(self, marketplace_id, attributes=None, delivery_channel="SQS"):
         """
         Sends a test notification to an existing destination.
 
@@ -117,8 +117,8 @@ class Subscriptions(MWS):
 
         return self.make_request(data, method="POST")
 
-    def create_subscription(self, marketplace_id, delivery_channel="SQS", attributes=None,
-                            notification_type=None, is_enabled=True):
+    def create_subscription(self, marketplace_id, attributes=None,
+                            notification_type=None, is_enabled=True, delivery_channel="SQS"):
         """
         Creates a new subscription for the specified notification type and destination.
 
@@ -146,7 +146,7 @@ class Subscriptions(MWS):
 
         return self.make_request(data, "POST")
 
-    def get_subscription(self, marketplace_id, delivery_channel="SQS", attributes=None, notification_type=None):
+    def get_subscription(self, marketplace_id, attributes=None, notification_type=None, delivery_channel="SQS"):
         """
         Gets the subscription for the specified notification type and destination.
 
@@ -172,7 +172,7 @@ class Subscriptions(MWS):
 
         return self.make_request(data, "POST")
 
-    def delete_subscription(self, marketplace_id, delivery_channel="SQS", attributes=None, notification_type=None):
+    def delete_subscription(self, marketplace_id, attributes=None, notification_type=None, delivery_channel="SQS"):
 
         """
         Deletes the subscription for the specified notification type and destination.
@@ -213,8 +213,8 @@ class Subscriptions(MWS):
 
         return self.make_request(data, "POST")
 
-    def update_subscription(self, marketplace_id, delivery_channel="SQS", attributes=None,
-                            notification_type=None, is_enabled=True):
+    def update_subscription(self, marketplace_id, attributes=None,
+                            notification_type=None, is_enabled=True, delivery_channel="SQS"):
         """
         Updates the subscription for the specified notification type and destination.
 
