@@ -165,9 +165,9 @@ class Subscriptions(MWS):
             raise ValueError("notification_type cannot be None")
         data = {"Action": "GetSubscription",
                 "MarketplaceId": marketplace_id,
-                "Subscription.Destination.DeliveryChannel": delivery_channel,
-                "Subscription.NotificationType": notification_type}
-        data.update(utils.enumerate_keyed_param("Subscription.Destination.AttributeList.member",
+                "Destination.DeliveryChannel": delivery_channel,
+                "NotificationType": notification_type}
+        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member",
                                                 self._parse_attributes(attributes)))
 
         return self.make_request(data, "POST")
