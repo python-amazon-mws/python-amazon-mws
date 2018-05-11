@@ -27,6 +27,7 @@ class ObjectDict(dict):
     >>> a.water
     'water'
     """
+
     def __init__(self, initd=None):
         if initd is None:
             initd = {}
@@ -269,22 +270,6 @@ def unique_list_order_preserved(seq):
     seen = set()
     seen_add = seen.add
     return [x for x in seq if not (x in seen or seen_add(x))]
-
-
-def dt_iso_or_none(dt_obj):
-    """
-    If dt_obj is a datetime, return isoformat()
-    TODO: if dt_obj is a string in iso8601 already, return it back
-    Otherwise, return None
-    """
-    # If d is a datetime object, format it to iso and return
-    if isinstance(dt_obj, datetime.datetime):
-        return dt_obj.isoformat()
-
-    # TODO: if dt_obj is a string in iso8601 already, return it
-
-    # none of the above: return None
-    return None
 
 
 def get_utc_timestamp():

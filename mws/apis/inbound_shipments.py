@@ -570,9 +570,6 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipments.html
         """
-        last_updated_after = utils.dt_iso_or_none(last_updated_after)
-        last_updated_before = utils.dt_iso_or_none(last_updated_before)
-
         data = {
             'Action': 'ListInboundShipments',
             'LastUpdatedAfter': last_updated_after,
@@ -605,9 +602,6 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItems.html
         """
-        last_updated_after = utils.dt_iso_or_none(last_updated_after)
-        last_updated_before = utils.dt_iso_or_none(last_updated_before)
-
         data = {
             'Action': 'ListInboundShipmentItems',
             'ShipmentId': shipment_id,
