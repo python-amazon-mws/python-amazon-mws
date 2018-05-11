@@ -76,16 +76,31 @@ def calc_request_description(params):
     """
     description_items = []
     for item in sorted(params.keys()):
-        encoded_val = quote(str(params[item]), safe='-_.~')
+        encoded_val = params[item]
         description_items.append('{}={}'.format(item, encoded_val))
     return '&'.join(description_items)
 
 
-def remove_empty(dict_):
-    """
-    Returns dict_ with all empty values removed.
-    """
-    return {k: v for k, v in dict_.items() if v}
+def clean_params(params):
+    """Input cleanup and prevent a lot of common input mistakes."""
+    # silently remove parameter where values are empty
+    params = {k: v for k, v in params.items() if v}
+
+    params_enc = dict()
+    for key, value in params.items():
+        if isinstance(value, (dict, list, set, tuple)):
+            message = 'expected string or datetime datatype, got {},'\
+                'for key {} and value {}'.format(
+                    type(value), key, str(value))
+            raise MWSError(message)
+        if isinstance(value, (datetime.datetime, datetime.date)):
+            value = value.isoformat()
+        if isinstance(value, bool):
+            value = str(value).lower()
+        value = str(value)
+
+        params_enc[key] = quote(value, safe='-_.~')
+    return params_enc
 
 
 def remove_namespace(xml):
@@ -121,6 +136,7 @@ class DictWrapper(object):
     # TODO create a base class for DictWrapper and DataWrapper with all the keys we expect in responses.
     # This will make it easier to use either class in place of each other.
     # Either this, or pile everything into DataWrapper and make it able to handle all cases.
+
     def __init__(self, xml, rootkey=None):
         self.original = xml
         self.response = None
@@ -142,6 +158,7 @@ class DataWrapper(object):
     """
     Text wrapper in charge of validating the hash sent by Amazon.
     """
+
     def __init__(self, data, header):
         self.original = data
         self.response = None
@@ -246,18 +263,11 @@ class MWS(object):
         """
         Make request to Amazon MWS API with these parameters
         """
-        # Remove all keys with an empty value because
-        # Amazon's MWS does not allow such a thing.
-        extra_data = remove_empty(extra_data)
-
-        # convert all Python date/time objects to isoformat
-        for key, value in extra_data.items():
-            if isinstance(value, (datetime.datetime, datetime.date)):
-                extra_data[key] = value.isoformat()
-
         params = self.get_default_params()
         proxies = self.get_proxies()
         params.update(extra_data)
+        params = clean_params(params)
+
         if self._test_request_params:
             # Testing method: return the params from this request before the request is made.
             return params
@@ -279,7 +289,8 @@ class MWS(object):
             # My answer is, here i have to get the url parsed string of params in order to sign it, so
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
-            response = request(method, url, data=kwargs.get('body', ''), headers=headers, proxies=proxies)
+            response = request(method, url, data=kwargs.get(
+                'body', ''), headers=headers, proxies=proxies)
             response.raise_for_status()
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls

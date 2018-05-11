@@ -3,7 +3,7 @@ Tests for the Products API class.
 """
 import unittest
 import mws
-from .utils import CommonRequestTestTools
+from .utils import CommonRequestTestTools, transform_bool, transform_string
 
 
 class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
@@ -11,6 +11,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
     Test cases for Products.
     """
     # TODO: Add remaining methods for Products
+
     def setUp(self):
         self.api = mws.Products(
             self.CREDENTIAL_ACCESS,
@@ -34,8 +35,8 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'ListMatchingProducts')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['Query'], query)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
+        self.assertEqual(params['Query'], transform_string(query))
         self.assertEqual(params['QueryContextId'], context_id)
 
     def test_get_matching_product(self):
@@ -53,7 +54,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetMatchingProduct')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
         self.assertEqual(params['ASINList.ASIN.1'], asins[0])
         self.assertEqual(params['ASINList.ASIN.2'], asins[1])
 
@@ -74,7 +75,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetMatchingProductForId')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
         self.assertEqual(params['IdType'], type_)
         self.assertEqual(params['IdList.Id.1'], ids[0])
         self.assertEqual(params['IdList.Id.2'], ids[1])
@@ -94,7 +95,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetCompetitivePricingForSKU')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
         self.assertEqual(params['SellerSKUList.SellerSKU.1'], skus[0])
         self.assertEqual(params['SellerSKUList.SellerSKU.2'], skus[1])
 
@@ -113,7 +114,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetCompetitivePricingForASIN')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
         self.assertEqual(params['ASINList.ASIN.1'], asins[0])
         self.assertEqual(params['ASINList.ASIN.2'], asins[1])
 
@@ -137,11 +138,11 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetLowestOfferListingsForSKU')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['ItemCondition'], condition)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
+        self.assertEqual(params['ItemCondition'], transform_string(condition))
         # TODO when this fails later after "clean" implemented, test against str conversion instead
         # (use commented `exclude_me_str` above)
-        self.assertEqual(params['ExcludeMe'], exclude_me)
+        self.assertEqual(params['ExcludeMe'], 'true')
         self.assertEqual(params['SellerSKUList.SellerSKU.1'], skus[0])
         self.assertEqual(params['SellerSKUList.SellerSKU.2'], skus[1])
 
@@ -165,11 +166,11 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetLowestOfferListingsForASIN')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['ItemCondition'], condition)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
+        self.assertEqual(params['ItemCondition'], transform_string(condition))
         # TODO when this fails later after "clean" implemented, test against str conversion instead
         # (use commented `exclude_me_str` above)
-        self.assertEqual(params['ExcludeMe'], exclude_me)
+        self.assertEqual(params['ExcludeMe'], transform_bool(exclude_me))
         self.assertEqual(params['ASINList.ASIN.1'], asins[0])
         self.assertEqual(params['ASINList.ASIN.2'], asins[1])
 
@@ -190,11 +191,11 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetLowestPricedOffersForSKU')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
         self.assertEqual(params['ItemCondition'], condition)
         # TODO when this fails later after "clean" implemented, test against str conversion instead
         # (use commented `exclude_me_str` above)
-        self.assertEqual(params['ExcludeMe'], exclude_me)
+        self.assertEqual(params['ExcludeMe'], transform_bool(exclude_me))
         self.assertEqual(params['SellerSKU'], sku)
 
     def test_get_lowest_priced_offers_for_asin(self):
@@ -214,11 +215,11 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetLowestPricedOffersForASIN')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['ItemCondition'], condition)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
+        self.assertEqual(params['ItemCondition'], transform_string(condition))
         # TODO when this fails later after "clean" implemented, test against str conversion instead
         # (use commented `exclude_me_str` above)
-        self.assertEqual(params['ExcludeMe'], exclude_me)
+        self.assertEqual(params['ExcludeMe'], 'true')
         self.assertEqual(params['ASIN'], asin)
 
     # def test_get_my_fees_estimate(self):
@@ -244,8 +245,8 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetMyPriceForSKU')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['ItemCondition'], condition)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
+        self.assertEqual(params['ItemCondition'], transform_string(condition))
         self.assertEqual(params['SellerSKUList.SellerSKU.1'], skus[0])
         self.assertEqual(params['SellerSKUList.SellerSKU.2'], skus[1])
 
@@ -266,8 +267,8 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetMyPriceForASIN')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
-        self.assertEqual(params['ItemCondition'], condition)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
+        self.assertEqual(params['ItemCondition'], transform_string(condition))
         self.assertEqual(params['ASINList.ASIN.1'], asins[0])
         self.assertEqual(params['ASINList.ASIN.2'], asins[1])
 
@@ -283,7 +284,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetProductCategoriesForSKU')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
         self.assertEqual(params['SellerSKU'], sku)
 
     def test_get_product_categories_for_asin(self):
@@ -298,5 +299,5 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetProductCategoriesForASIN')
-        self.assertEqual(params['MarketplaceId'], marketplace_id)
+        self.assertEqual(params['MarketplaceId'], transform_string(marketplace_id))
         self.assertEqual(params['ASIN'], asin)

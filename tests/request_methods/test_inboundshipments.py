@@ -6,13 +6,15 @@ import unittest
 import mws
 from mws.apis.inbound_shipments import parse_item_args
 from mws.mws import MWSError
-from .utils import CommonRequestTestTools
+from .utils import CommonRequestTestTools, transform_date, transform_bool
+from .utils import transform_string
 
 
 class ParseItemArgsTestCase(unittest.TestCase):
     """
     Test cases that ensure `parse_item_args` raises exceptions where appropriate.
     """
+
     def test_empty_args_list(self):
         """
         Should raise `MWSError` for an empty set of arguments.
@@ -154,6 +156,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
     """
     Test case covering msw.InboundShipments.set_ship_from_address
     """
+
     def setUp(self):
         self.inbound = mws.InboundShipments('', '', '')
 
@@ -279,6 +282,7 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
     Test cases for InboundShipments involving FBA shipment handling.
     These cases require `from_address` to be set, while others do not.
     """
+
     def setUp(self):
         self.addr = {
             'name': 'Roland Deschain',
@@ -331,18 +335,24 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'CreateInboundShipmentPlan')
         self.assertEqual(params['ShipToCountryCode'], country_code)
-        self.assertEqual(params['ShipToCountrySubdivisionCode'], subdivision_code)
+        self.assertEqual(params['ShipToCountrySubdivisionCode'], transform_string(subdivision_code))
         self.assertEqual(params['LabelPrepPreference'], label_preference)
         # from_address expanded
-        self.assertEqual(params['ShipFromAddress.Name'], self.addr['name'])
-        self.assertEqual(params['ShipFromAddress.AddressLine1'], self.addr['address_1'])
-        self.assertEqual(params['ShipFromAddress.City'], self.addr['city'])
-        self.assertEqual(params['ShipFromAddress.CountryCode'], self.addr['country'])
+        self.assertEqual(params['ShipFromAddress.Name'], transform_string(self.addr['name']))
+        self.assertEqual(params['ShipFromAddress.AddressLine1'],
+                         transform_string(self.addr['address_1']))
+        self.assertEqual(params['ShipFromAddress.City'], transform_string(self.addr['city']))
+        self.assertEqual(params['ShipFromAddress.CountryCode'],
+                         transform_string(self.addr['country']))
         # item data
-        self.assertEqual(params['InboundShipmentPlanRequestItems.member.1.SellerSKU'], items[0]['sku'])
-        self.assertEqual(params['InboundShipmentPlanRequestItems.member.1.Quantity'], items[0]['quantity'])
-        self.assertEqual(params['InboundShipmentPlanRequestItems.member.2.SellerSKU'], items[1]['sku'])
-        self.assertEqual(params['InboundShipmentPlanRequestItems.member.2.Quantity'], items[1]['quantity'])
+        self.assertEqual(
+            params['InboundShipmentPlanRequestItems.member.1.SellerSKU'], items[0]['sku'])
+        self.assertEqual(
+            params['InboundShipmentPlanRequestItems.member.1.Quantity'], str(items[0]['quantity']))
+        self.assertEqual(
+            params['InboundShipmentPlanRequestItems.member.2.SellerSKU'], items[1]['sku'])
+        self.assertEqual(
+            params['InboundShipmentPlanRequestItems.member.2.Quantity'], str(items[1]['quantity']))
 
     def test_create_inbound_shipment_exceptions(self):
         """
@@ -411,22 +421,35 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'CreateInboundShipment')
         self.assertEqual(params['ShipmentId'], shipment_id)
-        self.assertEqual(params['InboundShipmentHeader.ShipmentName'], shipment_name)
-        self.assertEqual(params['InboundShipmentHeader.DestinationFulfillmentCenterId'], destination)
+        self.assertEqual(params['InboundShipmentHeader.ShipmentName'],
+                         transform_string(shipment_name))
+        self.assertEqual(
+            params['InboundShipmentHeader.DestinationFulfillmentCenterId'], destination)
         self.assertEqual(params['InboundShipmentHeader.LabelPrepPreference'], label_preference)
-        self.assertEqual(params['InboundShipmentHeader.AreCasesRequired'], case_required)
+        self.assertEqual(params['InboundShipmentHeader.AreCasesRequired'],
+                         transform_bool(case_required))
         self.assertEqual(params['InboundShipmentHeader.ShipmentStatus'], shipment_status)
-        self.assertEqual(params['InboundShipmentHeader.IntendedBoxContentsSource'], box_contents_source)
+        self.assertEqual(
+            params['InboundShipmentHeader.IntendedBoxContentsSource'], box_contents_source)
         # from_address
-        self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.Name'], self.addr['name'])
-        self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.AddressLine1'], self.addr['address_1'])
-        self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.City'], self.addr['city'])
-        self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.CountryCode'], self.addr['country'])
+        self.assertEqual(params['InboundShipmentHeader.ShipFromAddress.Name'],
+                         transform_string(self.addr['name']))
+        self.assertEqual(
+            params['InboundShipmentHeader.ShipFromAddress.AddressLine1'],
+            transform_string(self.addr['address_1']))
+        self.assertEqual(
+            params['InboundShipmentHeader.ShipFromAddress.City'],
+            transform_string(self.addr['city']))
+        self.assertEqual(
+            params['InboundShipmentHeader.ShipFromAddress.CountryCode'],
+            transform_string(self.addr['country']))
         # item data
         self.assertEqual(params['InboundShipmentItems.member.1.SellerSKU'], items[0]['sku'])
-        self.assertEqual(params['InboundShipmentItems.member.1.QuantityShipped'], items[0]['quantity'])
+        self.assertEqual(
+            params['InboundShipmentItems.member.1.QuantityShipped'], str(items[0]['quantity']))
         self.assertEqual(params['InboundShipmentItems.member.2.SellerSKU'], items[1]['sku'])
-        self.assertEqual(params['InboundShipmentItems.member.2.QuantityShipped'], items[1]['quantity'])
+        self.assertEqual(
+            params['InboundShipmentItems.member.2.QuantityShipped'], str(items[1]['quantity']))
 
     def test_update_inbound_shipment_exceptions(self):
         """
@@ -488,22 +511,35 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assert_common_params(params_1)
         self.assertEqual(params_1['Action'], 'UpdateInboundShipment')
         self.assertEqual(params_1['ShipmentId'], shipment_id)
-        self.assertEqual(params_1['InboundShipmentHeader.ShipmentName'], shipment_name)
-        self.assertEqual(params_1['InboundShipmentHeader.DestinationFulfillmentCenterId'], destination)
+        self.assertEqual(params_1['InboundShipmentHeader.ShipmentName'],
+                         transform_string(shipment_name))
+        self.assertEqual(
+            params_1['InboundShipmentHeader.DestinationFulfillmentCenterId'], destination)
         self.assertEqual(params_1['InboundShipmentHeader.LabelPrepPreference'], label_preference)
-        self.assertEqual(params_1['InboundShipmentHeader.AreCasesRequired'], case_required)
+        self.assertEqual(params_1['InboundShipmentHeader.AreCasesRequired'],
+                         transform_bool(case_required))
         self.assertEqual(params_1['InboundShipmentHeader.ShipmentStatus'], shipment_status)
-        self.assertEqual(params_1['InboundShipmentHeader.IntendedBoxContentsSource'], box_contents_source)
+        self.assertEqual(
+            params_1['InboundShipmentHeader.IntendedBoxContentsSource'], box_contents_source)
         # from_address
-        self.assertEqual(params_1['InboundShipmentHeader.ShipFromAddress.Name'], self.addr['name'])
-        self.assertEqual(params_1['InboundShipmentHeader.ShipFromAddress.AddressLine1'], self.addr['address_1'])
-        self.assertEqual(params_1['InboundShipmentHeader.ShipFromAddress.City'], self.addr['city'])
-        self.assertEqual(params_1['InboundShipmentHeader.ShipFromAddress.CountryCode'], self.addr['country'])
+        self.assertEqual(
+            params_1['InboundShipmentHeader.ShipFromAddress.Name'],
+            transform_string(self.addr['name']))
+        self.assertEqual(
+            params_1['InboundShipmentHeader.ShipFromAddress.AddressLine1'],
+            transform_string(self.addr['address_1']))
+        self.assertEqual(
+            params_1['InboundShipmentHeader.ShipFromAddress.City'],
+            transform_string(self.addr['city']))
+        self.assertEqual(
+            params_1['InboundShipmentHeader.ShipFromAddress.CountryCode'], self.addr['country'])
         # item data
         self.assertEqual(params_1['InboundShipmentItems.member.1.SellerSKU'], items[0]['sku'])
-        self.assertEqual(params_1['InboundShipmentItems.member.1.QuantityShipped'], items[0]['quantity'])
+        self.assertEqual(
+            params_1['InboundShipmentItems.member.1.QuantityShipped'], str(items[0]['quantity']))
         self.assertEqual(params_1['InboundShipmentItems.member.2.SellerSKU'], items[1]['sku'])
-        self.assertEqual(params_1['InboundShipmentItems.member.2.QuantityShipped'], items[1]['quantity'])
+        self.assertEqual(
+            params_1['InboundShipmentItems.member.2.QuantityShipped'], str(items[1]['quantity']))
         # Additional case: no items required. Params should have no Items keys if not provided
         params_2 = self.api.update_inbound_shipment(
             shipment_id=shipment_id,
@@ -517,17 +553,26 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assert_common_params(params_1)
         self.assertEqual(params_2['Action'], 'UpdateInboundShipment')
         self.assertEqual(params_2['ShipmentId'], shipment_id)
-        self.assertEqual(params_2['InboundShipmentHeader.ShipmentName'], shipment_name)
-        self.assertEqual(params_2['InboundShipmentHeader.DestinationFulfillmentCenterId'], destination)
+        self.assertEqual(params_2['InboundShipmentHeader.ShipmentName'],
+                         transform_string(shipment_name))
+        self.assertEqual(
+            params_2['InboundShipmentHeader.DestinationFulfillmentCenterId'], destination)
         self.assertEqual(params_2['InboundShipmentHeader.LabelPrepPreference'], label_preference)
-        self.assertEqual(params_2['InboundShipmentHeader.AreCasesRequired'], case_required)
+        self.assertEqual(params_2['InboundShipmentHeader.AreCasesRequired'],
+                         transform_bool(case_required))
         self.assertEqual(params_2['InboundShipmentHeader.ShipmentStatus'], shipment_status)
-        self.assertEqual(params_2['InboundShipmentHeader.IntendedBoxContentsSource'], box_contents_source)
+        self.assertEqual(
+            params_2['InboundShipmentHeader.IntendedBoxContentsSource'], box_contents_source)
         # from_address
-        self.assertEqual(params_2['InboundShipmentHeader.ShipFromAddress.Name'], self.addr['name'])
-        self.assertEqual(params_2['InboundShipmentHeader.ShipFromAddress.AddressLine1'], self.addr['address_1'])
-        self.assertEqual(params_2['InboundShipmentHeader.ShipFromAddress.City'], self.addr['city'])
-        self.assertEqual(params_2['InboundShipmentHeader.ShipFromAddress.CountryCode'], self.addr['country'])
+        self.assertEqual(params_2['InboundShipmentHeader.ShipFromAddress.Name'],
+                         transform_string(self.addr['name']))
+        self.assertEqual(
+            params_2['InboundShipmentHeader.ShipFromAddress.AddressLine1'],
+            transform_string(self.addr['address_1']))
+        self.assertEqual(params_2['InboundShipmentHeader.ShipFromAddress.City'],
+                         transform_string(self.addr['city']))
+        self.assertEqual(
+            params_2['InboundShipmentHeader.ShipFromAddress.CountryCode'], self.addr['country'])
         # items keys should not be present
         param_item_keys = [x for x in params_2.keys() if x.startswith('InboundShipmentItems')]
         # list should be empty, because no keys should be present
@@ -539,6 +584,7 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
     Test cases for InboundShipments requests that do not involve FBA shipment handling
     and do not require `from_address` to be set.
     """
+
     def setUp(self):
         self.api = mws.InboundShipments(
             self.CREDENTIAL_ACCESS,
@@ -631,7 +677,7 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'ConfirmPreorder')
         self.assertEqual(params['ShipmentId'], shipment_id)
-        self.assertEqual(params['NeedByDate'], need_by_date.isoformat())
+        self.assertEqual(params['NeedByDate'], transform_date(need_by_date))
 
     def test_get_prep_instructions_for_sku(self):
         """
@@ -777,7 +823,7 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         self.assertEqual(params['Action'], 'GetPackageLabels')
         self.assertEqual(params['ShipmentId'], shipment_id)
         self.assertEqual(params['PageType'], page_type)
-        self.assertEqual(params['NumberOfPackages'], num_labels)
+        self.assertEqual(params['NumberOfPackages'], str(num_labels))
 
     def test_get_unique_package_labels(self):
         """
@@ -830,7 +876,7 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         self.assertEqual(params['Action'], 'GetPalletLabels')
         self.assertEqual(params['ShipmentId'], shipment_id)
         self.assertEqual(params['PageType'], page_type)
-        self.assertEqual(params['NumberOfPallets'], num_labels)
+        self.assertEqual(params['NumberOfPallets'], str(num_labels))
 
     def test_get_bill_of_lading(self):
         """
@@ -866,8 +912,8 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'ListInboundShipments')
-        self.assertEqual(params['LastUpdatedBefore'], last_updated_before.isoformat())
-        self.assertEqual(params['LastUpdatedAfter'], last_updated_after.isoformat())
+        self.assertEqual(params['LastUpdatedBefore'], transform_date(last_updated_before))
+        self.assertEqual(params['LastUpdatedAfter'], transform_date(last_updated_after))
         self.assertEqual(params['ShipmentStatusList.member.1'], shipment_statuses[0])
         self.assertEqual(params['ShipmentStatusList.member.2'], shipment_statuses[1])
         self.assertEqual(params['ShipmentIdList.member.1'], shipment_ids[0])
@@ -908,8 +954,8 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'ListInboundShipmentItems')
         self.assertEqual(params['ShipmentId'], shipment_id)
-        self.assertEqual(params['LastUpdatedBefore'], last_updated_before.isoformat())
-        self.assertEqual(params['LastUpdatedAfter'], last_updated_after.isoformat())
+        self.assertEqual(params['LastUpdatedBefore'], transform_date(last_updated_before))
+        self.assertEqual(params['LastUpdatedAfter'], transform_date(last_updated_after))
 
     def test_list_inbound_shipment_items_by_next_token(self):
         """
