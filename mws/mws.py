@@ -2,7 +2,6 @@
 from __future__ import absolute_import
 
 from time import gmtime, strftime
-from zipfile import ZipFile
 import base64
 import datetime
 import hashlib
@@ -123,7 +122,7 @@ class DataWrapper(object):
     def __init__(self, data, headers):
         self.original = data
         self.response = None
-        self.headers = headers
+        self.headers = headers 
         if 'content-md5' in headers:
             hash_ = calc_md5(self.original)
             if headers['content-md5'].encode() != hash_:
