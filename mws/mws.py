@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 
 from time import gmtime, strftime
+from zipfile import ZipFile
 import base64
 import datetime
 import hashlib
@@ -22,6 +23,8 @@ try:
     from xml.etree.ElementTree import ParseError as XMLError
 except ImportError:
     from xml.parsers.expat import ExpatError as XMLError
+
+
 
 
 __all__ = [
@@ -117,13 +120,24 @@ class DataWrapper(object):
     """
     Text wrapper in charge of validating the hash sent by Amazon.
     """
-    def __init__(self, data, header):
+    def __init__(self, data, headers):
         self.original = data
         self.response = None
-        if 'content-md5' in header:
+        self.headers = headers
+        if 'content-md5' in headers:
             hash_ = calc_md5(self.original)
-            if header['content-md5'].encode() != hash_:
+            if headers['content-md5'].encode() != hash_:
                 raise MWSError("Wrong Contentlength, maybe amazon error...")
+
+        if headers['content-type'] == 'application/zip':
+            target_file_name = input("The response is a zip file. Enter name of zip file to store in current folder: ")
+            target_file_name += '.zip'
+            with open(target_file_name,'wb') as zipped_file:
+                try:
+                    zipped_file.write(self.original)
+                    print('success writing to file: ', target_file_name)
+                except:
+                    raise MWSError("Could not write zipped file to disk.")
 
     @property
     def parsed(self):
