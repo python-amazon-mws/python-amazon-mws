@@ -109,7 +109,7 @@ class DictWrapper(object):
     @property
     def parsed(self):
         if self._rootkey:
-            return self._response_dict.get(self._rootkey)
+            return self._response_dict.get(self._rootkey, self._response_dict)
         return self._response_dict
 
 
