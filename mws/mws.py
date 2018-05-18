@@ -134,7 +134,7 @@ class DictWrapper(object):
         Provides access to the parsed contents of an XML response as a tree of ObjectDicts.
         """
         if self._rootkey:
-            return self._response_dict.get(self._rootkey)
+            return self._response_dict.get(self._rootkey, self._response_dict)
         return self._response_dict
 
 
