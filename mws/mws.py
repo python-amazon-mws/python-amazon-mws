@@ -23,8 +23,8 @@ try:
 except ImportError:
     from xml.parsers.expat import ExpatError as XMLError
 
-
-
+from zipfile import ZipFile
+from io import BytesIO
 
 __all__ = [
     'Feeds',
@@ -122,25 +122,32 @@ class DataWrapper(object):
     def __init__(self, data, headers):
         self.original = data
         self.response = None
-        self.headers = headers 
+        self.headers = headers
         if 'content-md5' in headers:
             hash_ = calc_md5(self.original)
             if headers['content-md5'].encode() != hash_:
                 raise MWSError("Wrong Contentlength, maybe amazon error...")
 
-        if headers['content-type'] == 'application/zip':
-            target_file_name = input("The response is a zip file. Enter name of zip file to store in current folder: ")
-            target_file_name += '.zip'
-            with open(target_file_name,'wb') as zipped_file:
-                try:
-                    zipped_file.write(self.original)
-                    print('success writing to file: ', target_file_name)
-                except:
-                    raise MWSError("Could not write zipped file to disk.")
-
     @property
     def parsed(self):
         return self.original
+
+    """
+    To return an unzipped file object based on the content type"
+    """
+    @property
+    def unzipped(self):
+        if self.headers['content-type'] == 'application/zip':
+            try:
+                with ZipFile(BytesIO(self.original)) as unzipped_fileobj:
+                    # unzipped the zip file contents
+                    unzipped_fileobj.extractall()
+                    # return original zip file object to the user
+                    return(unzipped_fileobj)
+            except Exception as e:
+                raise MWSError(str(e.response.text))
+        else:
+            return('The response is not a zipped file.')
 
 
 class MWS(object):
