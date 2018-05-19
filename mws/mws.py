@@ -13,6 +13,8 @@ import hashlib
 import hmac
 import re
 import warnings
+from zipfile import ZipFile
+from io import BytesIO
 
 from requests import request
 from requests.exceptions import HTTPError
@@ -158,14 +160,14 @@ class DataWrapper(object):
     """
     Text wrapper in charge of validating the hash sent by Amazon.
     """
-
-    def __init__(self, data, header):
+    def __init__(self, data, headers):
         self.original = data
         self.response = None
-        if 'content-md5' in header:
+        self.headers = headers
+        if 'content-md5' in self.headers:
             hash_ = utils.calc_md5(self.original)
-            if header['content-md5'].encode() != hash_:
-                raise MWSError("Wrong Contentlength, maybe amazon error...")
+            if self.headers['content-md5'].encode() != hash_:
+                raise MWSError("Wrong Content length, maybe amazon error...")
 
     @property
     def parsed(self):
@@ -174,6 +176,27 @@ class DataWrapper(object):
         that could not be parsed as XML.
         """
         return self.original
+
+    """
+    To return an unzipped file object based on the content type"
+    """
+    @property
+    def unzipped(self):
+        """
+        If the response is comprised of a zip file, returns a ZipFile object of those file contents.
+
+        Otherwise, returns None.
+        """
+        if self.headers['content-type'] == 'application/zip':
+            try:
+                with ZipFile(BytesIO(self.original)) as unzipped_fileobj:
+                    # unzipped the zip file contents
+                    unzipped_fileobj.extractall()
+                    # return original zip file object to the user
+                    return unzipped_fileobj
+            except Exception as exc:
+                raise MWSError(str(exc))
+        return None  # 'The response is not a zipped file.'
 
 
 class MWS(object):
