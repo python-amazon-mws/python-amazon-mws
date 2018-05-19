@@ -112,22 +112,6 @@ def remove_namespace(xml):
     return regex.sub('', xml)
 
 
-def assert_no_token(token):
-    """
-    We allow passing a next_token as an argument to request methods that have an associated
-    "...ByNextToken" operation. This token should be captured by `utils.next_token_action` and handled
-    accordingly, bypassing the original request method.
-
-    If a non-None token propagates to the original method, then something has gone awry.
-    This ensures we get notified when/if that happens (which it shouldn't).
-    """
-    # TODO Check if still needed, propagate to all methods or to none.
-    assert token is None, (
-        "`next_token` passed to request method. "
-        "Should have been parsed by `next_token_action` decorator."
-    )
-
-
 class DictWrapper(object):
     """
     Main class that converts XML data to a parsed response object as a tree of ObjectDicts,
