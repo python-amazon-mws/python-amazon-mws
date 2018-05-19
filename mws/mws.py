@@ -2,8 +2,6 @@
 """
 Main module for python-amazon-mws package.
 """
-# TODO: Add Subscriptions class
-# TODO: Add Merchant Fulfillment class
 
 from __future__ import absolute_import
 
