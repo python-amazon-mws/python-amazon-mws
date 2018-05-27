@@ -1,130 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jun 26 15:42:07 2012
-
 Borrowed from https://github.com/timotheus/ebaysdk-python
-
 @author: pierre
 """
 from __future__ import absolute_import
-import re
 import base64
 import datetime
 import hashlib
-import xml.etree.ElementTree as ET
-
-
-class ObjectDict(dict):
-    """
-    Extension of dict to allow accessing keys as attributes.
-
-    Example:
-    >>> a = ObjectDict()
-    >>> a.fish = 'fish'
-    >>> a['fish']
-    'fish'
-    >>> a['water'] = 'water'
-    >>> a.water
-    'water'
-    """
-
-    def __init__(self, initd=None):
-        if initd is None:
-            initd = {}
-        dict.__init__(self, initd)
-
-    def __getattr__(self, item):
-        node = self.__getitem__(item)
-
-        if isinstance(node, dict) and 'value' in node and len(node) == 1:
-            return node['value']
-        return node
-
-    # if value is the only key in object, you can omit it
-    def __setstate__(self, item):
-        return False
-
-    def __setattr__(self, item, value):
-        self.__setitem__(item, value)
-
-    def __iter__(self):
-        """
-        A fix for instances where we expect a list, but get a single item.
-
-        If the parser finds multiple keys by the same name under the same parent node,
-        the node will create a list of ObjectDicts to that key. However, if we expect a list
-        in downstream code when only a single item is returned, we will find a single ObjectDict.
-        Attempting to iterate over that object will iterate through dict keys,
-        which is not what we want.
-
-        This override will send back an iterator of a list with a single element if necessary
-        to allow iteration of any node with a single element. If accessing directly, we will
-        still get a list or ObjectDict, as originally expected.
-        """
-        if not isinstance(self, list):
-            return iter([self, ])
-        return self
-
-    def getvalue(self, item, value=None):
-        """
-        Old Python 2-compatible getter method for default value.
-        """
-        return self.get(item, {}).get('value', value)
-
-
-class XML2Dict(object):
-    def __init__(self):
-        pass
-
-    def _parse_node(self, node):
-        node_tree = ObjectDict()
-        # Save attrs and text, hope there will not be a child with same name
-        if node.text:
-            node_tree.value = node.text
-        for key, val in node.attrib.items():
-            key, val = self._namespace_split(key, ObjectDict({'value': val}))
-            node_tree[key] = val
-        # Save childrens
-        for child in node:
-            tag, tree = self._namespace_split(child.tag,
-                                              self._parse_node(child))
-            if tag not in node_tree:  # the first time, so store it in dict
-                node_tree[tag] = tree
-                continue
-            old = node_tree[tag]
-            if not isinstance(old, list):
-                node_tree.pop(tag)
-                node_tree[tag] = [old]  # multi times, so change old dict to a list
-            node_tree[tag].append(tree)  # add the new one
-
-        return node_tree
-
-    def _namespace_split(self, tag, value):
-        """
-        Split the tag '{http://cs.sfsu.edu/csc867/myscheduler}patients'
-        ns = http://cs.sfsu.edu/csc867/myscheduler
-        name = patients
-        """
-        result = re.compile(r"\{(.*)\}(.*)").search(tag)
-        if result:
-            value.namespace, tag = result.groups()
-
-        return (tag, value)
-
-    def parse(self, filename):
-        """
-        Parse XML file to a dict.
-        """
-        file_ = open(filename, 'r')
-        return self.fromstring(file_.read())
-
-    def fromstring(self, str_):
-        """
-        Convert XML-formatted string to an ObjectDict.
-        """
-        text = ET.fromstring(str_)
-        root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
-        return ObjectDict({root_tag: root_tree})
+import copy
 
 
 def calc_md5(string):
@@ -141,7 +25,6 @@ def enumerate_param(param, values):
     Builds a dictionary of an enumerated parameter, using the param string and some values.
     If values is not a list, tuple, or set, it will be coerced to a list
     with a single item.
-
     Example:
         enumerate_param('MarketplaceIdList.Id', (123, 345, 4343))
     Returns:
@@ -184,7 +67,6 @@ def enumerate_keyed_param(param, values):
     """
     Given a param string and a dict of values, returns a flat dict of keyed, enumerated params.
     Each dict in the values list must pertain to a single item and its data points.
-
     Example:
         param = "InboundShipmentPlanRequestItems.member"
         values = [
@@ -194,7 +76,6 @@ def enumerate_keyed_param(param, values):
             'Quantity': 5},
             ...
         ]
-
     Returns:
         {
             'InboundShipmentPlanRequestItems.member.1.SellerSKU': 'Football2415',
@@ -234,11 +115,9 @@ def enumerate_keyed_param(param, values):
 def dict_keyed_param(param, dict_from):
     """
     Given a param string and a dict, returns a flat dict of keyed params without enumerate.
-
     Example:
         param = "ShipmentRequestDetails.PackageDimensions"
         dict_from = {'Length': 5, 'Width': 5, 'Height': 5, 'Unit': 'inches'}
-
     Returns:
         {
             'ShipmentRequestDetails.PackageDimensions.Length': 5,
@@ -279,9 +158,15 @@ def get_utc_timestamp():
     return datetime.datetime.utcnow().replace(microsecond=0).isoformat()
 
 
-# DEPRECATION: these are old names for these objects, which have been updated
-# to more idiomatic naming convention. Leaving these names in place in case
-# anyone is using the old object names.
-# TODO: remove in 1.0.0
-object_dict = ObjectDict
-xml2dict = XML2Dict
+class DotDict(dict):
+    """Dot.notation access to dictionary attributes."""
+
+    def __getattr__(*args):
+        val = dict.get(*args)
+        return DotDict(val) if type(val) is dict else val
+
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
+    def __deepcopy__(self, memo):
+        return DotDict(copy.deepcopy(dict(self)))
