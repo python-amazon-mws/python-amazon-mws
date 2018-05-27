@@ -13,6 +13,7 @@ import re
 import warnings
 from zipfile import ZipFile
 from io import BytesIO
+import xmltodict
 
 from requests import request
 from requests.exceptions import HTTPError
@@ -64,11 +65,9 @@ def calc_request_description(params):
     """
     """
     Builds the request description as a single string from the set of params.
-
     Each key-value pair takes the form "key=value"
     Sets of "key=value" pairs are joined by "&".
     Keys should appear in alphabetical order in the result string.
-
     Example:
       params = {'foo': 1, 'bar': 4, 'baz': 'potato'}
     Returns:
@@ -103,19 +102,10 @@ def clean_params(params):
     return params_enc
 
 
-def remove_namespace(xml):
-    """
-    Strips the namespace from XML document contained in a string.
-    Returns the stripped string.
-    """
-    regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
-    return regex.sub('', xml)
-
-
 class DictWrapper(object):
     """
-    Main class that converts XML data to a parsed response object as a tree of ObjectDicts,
-    stored in the .parsed property.
+    Main class that converts XML data to a parsed response object
+    as a dictionary. Accessible via the .parsed property.
     """
     # TODO create a base class for DictWrapper and DataWrapper with all the keys we expect in responses.
     # This will make it easier to use either class in place of each other.
@@ -125,13 +115,23 @@ class DictWrapper(object):
         self.original = xml
         self.response = None
         self._rootkey = rootkey
-        self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
-        self._response_dict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
+
+        namespaces = self.extract_namespaces()
+        self._mydict = xmltodict.parse(self.original, dict_constructor=dict,
+                                       process_namespaces=True,
+                                       namespaces=namespaces)
+        self._response_dict = utils.DotDict(self._mydict)
+
+    def extract_namespaces(self):
+        """Parse all namespaces."""
+        pattern = re.compile(r'xmlns[:ns2]*="\S+"')
+        raw_namespaces = pattern.findall(self.original)
+        return {x.split('"')[1]: None for x in raw_namespaces}
 
     @property
     def parsed(self):
         """
-        Provides access to the parsed contents of an XML response as a tree of ObjectDicts.
+        Provides access to the parsed contents of an XML response as a tree of dicts.
         """
         if self._rootkey:
             return self._response_dict.get(self._rootkey, self._response_dict)
@@ -142,6 +142,7 @@ class DataWrapper(object):
     """
     Text wrapper in charge of validating the hash sent by Amazon.
     """
+
     def __init__(self, data, headers):
         self.original = data
         self.response = None
@@ -166,7 +167,6 @@ class DataWrapper(object):
     def unzipped(self):
         """
         If the response is comprised of a zip file, returns a ZipFile object of those file contents.
-
         Otherwise, returns None.
         """
         if self.headers['content-type'] == 'application/zip':
@@ -367,7 +367,6 @@ class MWS(object):
     def calc_signature(self, method, request_description):
         """
         Calculate MWS signature to interface with Amazon
-
         Args:
             method (str)
             request_description (str)
