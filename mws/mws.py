@@ -104,10 +104,10 @@ def validate_hash(response):
 class DataWrapper(object):
     """Main class that handles all responses."""
 
-    def __init__(self, data, rootkey=None, headers=None):
+    def __init__(self, data, rootkey=None):
         self.original = data
         self.response = None
-        self.headers = headers
+        self.headers = self.original.headers
         self._rootkey = rootkey
         self._response_dict = None
         self.main()
@@ -117,7 +117,6 @@ class DataWrapper(object):
         rawdata = self.original.content
         textdata = self.original.text
         # We don't trust the amazon content marker.
-        self.parsed_response = self.xml2dict(textdata)
         try:
             self.parsed_response = self.xml2dict(textdata)
 
