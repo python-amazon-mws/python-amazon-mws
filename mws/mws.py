@@ -290,23 +290,21 @@ class MWS(object):
             response = request(method, url, data=kwargs.get(
                 'body', ''), headers=headers, proxies=proxies)
             response.raise_for_status()
-            # When retrieving data from the response object,
-            # be aware that response.content returns the content in bytes while response.text calls
-            # response.content and converts it to unicode.
 
-            data = response.content
+            rawdata = response.content
+            textdata = response.text
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
             rootkey = kwargs.get('rootkey', extra_data.get("Action") + "Result")
             try:
                 try:
-                    parsed_response = DictWrapper(data, rootkey)
+                    parsed_response = DictWrapper(rawdata, rootkey)
                 except TypeError:  # raised when using Python 3 and trying to remove_namespace()
                     # When we got CSV as result, we will got error on this
-                    parsed_response = DictWrapper(response.text, rootkey)
+                    parsed_response = DictWrapper(textdata, rootkey)
 
             except XMLError:
-                parsed_response = DataWrapper(data, response.headers)
+                parsed_response = DataWrapper(rawdata, response.headers)
 
         except HTTPError as exc:
             error = MWSError(str(exc.response.text))
