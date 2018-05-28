@@ -61,27 +61,20 @@ class MWSError(Exception):
 def calc_request_description(params):
     """
     Returns a flatted string with the request description, built from the params dict.
-    Entries are escaped with urllib quote method, formatted as "key=value", and joined with "&".
-    """
-    """
-    Builds the request description as a single string from the set of params.
-    Each key-value pair takes the form "key=value"
-    Sets of "key=value" pairs are joined by "&".
+
     Keys should appear in alphabetical order in the result string.
     Example:
       params = {'foo': 1, 'bar': 4, 'baz': 'potato'}
     Returns:
       "bar=4&baz=potato&foo=1"
     """
-    description_items = []
-    for item in sorted(params.keys()):
-        encoded_val = params[item]
-        description_items.append('{}={}'.format(item, encoded_val))
+    description_items = [
+        '{}={}'.format(item, params[item]) for item in sorted(params.keys())]
     return '&'.join(description_items)
 
 
 def clean_params(params):
-    """Input cleanup and prevent a lot of common input mistakes."""
+    """Input cleanup, html-escape and prevent a lot of common input mistakes."""
     # silently remove parameter where values are empty
     params = {k: v for k, v in params.items() if v}
 
