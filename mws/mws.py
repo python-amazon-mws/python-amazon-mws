@@ -95,6 +95,12 @@ def clean_params(params):
     return params_enc
 
 
+def validate_hash(response):
+    hash_ = utils.calc_md5(response)
+    if response.headers['content-md5'].encode() != hash_:
+        raise MWSError("Wrong Content length, maybe amazon error...")
+
+
 class DataWrapper(object):
     """Main class that handles all responses."""
 
@@ -104,45 +110,33 @@ class DataWrapper(object):
         self.headers = headers
         self._rootkey = rootkey
         self._response_dict = None
-        if self.headers:
-            self.validate_header()
         self.main()
-
-    def validate_header(self):
-        if 'content-md5' in self.headers:
-            hash_ = utils.calc_md5(self.original)
-            if self.headers['content-md5'].encode() != hash_:
-                raise MWSError("Wrong Content length, maybe amazon error...")
 
     def main(self):
         """Try different parsing strategies."""
         rawdata = self.original.content
         textdata = self.original.text
         # We don't trust the amazon content marker.
-        self.parsed_response = self.xml2dict(rawdata)
+        self.parsed_response = self.xml2dict(textdata)
         try:
-            try:
-                self.parsed_response = self.xml2dict(rawdata)
-            except TypeError:
-                # When we got CSV as result, we will got error on this
-                self.parsed_response = textdata
+            self.parsed_response = self.xml2dict(textdata)
 
         except XMLError:
             self.parsed_response = rawdata
             self.headers = self.original.headers
 
-    def xml2dict(self):
+    def xml2dict(self, rawdata):
         """Parse XML with xmltodict."""
-        namespaces = self.extract_namespaces()
-        self._mydict = xmltodict.parse(self.original, dict_constructor=dict,
+        namespaces = self.extract_namespaces(rawdata)
+        self._mydict = xmltodict.parse(rawdata, dict_constructor=dict,
                                        process_namespaces=True,
                                        namespaces=namespaces)
         self._response_dict = utils.DotDict(self._mydict)
 
-    def extract_namespaces(self):
+    def extract_namespaces(self, rawdata):
         """Parse all namespaces."""
         pattern = re.compile(r'xmlns[:ns2]*="\S+"')
-        raw_namespaces = pattern.findall(self.original)
+        raw_namespaces = pattern.findall(rawdata)
         return {x.split('"')[1]: None for x in raw_namespaces}
 
     @property
@@ -284,6 +278,8 @@ class MWS(object):
                 'body', ''), headers=headers, proxies=proxies)
             response.raise_for_status()
 
+            if 'content-md5' in response.headers:
+                validate_hash(response)
             parsed_response = DataWrapper(response, rootkey)
 
         except HTTPError as exc:
