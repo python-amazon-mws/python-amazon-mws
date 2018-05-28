@@ -95,20 +95,42 @@ def clean_params(params):
     return params_enc
 
 
-class DictWrapper(object):
-    """
-    Main class that converts XML data to a parsed response object
-    as a dictionary. Accessible via the .parsed property.
-    """
-    # TODO create a base class for DictWrapper and DataWrapper with all the keys we expect in responses.
-    # This will make it easier to use either class in place of each other.
-    # Either this, or pile everything into DataWrapper and make it able to handle all cases.
+class DataWrapper(object):
+    """Main class that handles all responses."""
 
-    def __init__(self, xml, rootkey=None):
-        self.original = xml
+    def __init__(self, data, rootkey=None, headers=None):
+        self.original = data
         self.response = None
+        self.headers = headers
         self._rootkey = rootkey
+        if self.headers:
+            self.validate_header()
+        self.main()
 
+    def validate_header(self):
+        if 'content-md5' in self.headers:
+            hash_ = utils.calc_md5(self.original)
+            if self.headers['content-md5'].encode() != hash_:
+                raise MWSError("Wrong Content length, maybe amazon error...")
+
+    def main(self):
+        """Try different parsing strategies."""
+        rawdata = self.response.content
+        textdata = self.response.text
+        # We don't trust the amazon content marker.
+        try:
+            try:
+                self.parsed_response = self.xml2dict(rawdata)
+            except TypeError:
+                # When we got CSV as result, we will got error on this
+                self.parsed_response = textdata
+
+        except XMLError:
+            self.parsed_response = rawdata
+            self.headers = self.response.headers
+
+    def xml2dict(self):
+        """Parse XML with xmltodict."""
         namespaces = self.extract_namespaces()
         self._mydict = xmltodict.parse(self.original, dict_constructor=dict,
                                        process_namespaces=True,
@@ -123,35 +145,10 @@ class DictWrapper(object):
 
     @property
     def parsed(self):
-        """
-        Provides access to the parsed contents of an XML response as a tree of dicts.
-        """
+        """Access the parsed contents of an XML response as a tree of dicts."""
         if self._rootkey:
             return self._response_dict.get(self._rootkey, self._response_dict)
         return self._response_dict
-
-
-class DataWrapper(object):
-    """
-    Text wrapper in charge of validating the hash sent by Amazon.
-    """
-
-    def __init__(self, data, headers):
-        self.original = data
-        self.response = None
-        self.headers = headers
-        if 'content-md5' in self.headers:
-            hash_ = utils.calc_md5(self.original)
-            if self.headers['content-md5'].encode() != hash_:
-                raise MWSError("Wrong Content length, maybe amazon error...")
-
-    @property
-    def parsed(self):
-        """
-        Similar to the `parsed` property of DictWrapper, this provides a similar interface for a data response
-        that could not be parsed as XML.
-        """
-        return self.original
 
     """
     To return an unzipped file object based on the content type"
@@ -259,6 +256,9 @@ class MWS(object):
         proxies = self.get_proxies()
         params.update(extra_data)
         params = clean_params(params)
+        # rootkey is always the Action parameter from your request function,
+        # except for get_feed_submission_result
+        rootkey = kwargs.get('rootkey', extra_data.get("Action") + "Result")
 
         if self._test_request_params:
             # Testing method: return the params from this request before the request is made.
@@ -282,20 +282,7 @@ class MWS(object):
                 'body', ''), headers=headers, proxies=proxies)
             response.raise_for_status()
 
-            rawdata = response.content
-            textdata = response.text
-            # I do not check the headers to decide which content structure to server simply because sometimes
-            # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
-            rootkey = kwargs.get('rootkey', extra_data.get("Action") + "Result")
-            try:
-                try:
-                    parsed_response = DictWrapper(rawdata, rootkey)
-                except TypeError:
-                    # When we got CSV as result, we will got error on this
-                    parsed_response = DictWrapper(textdata, rootkey)
-
-            except XMLError:
-                parsed_response = DataWrapper(rawdata, response.headers)
+            parsed_response = DataWrapper(response, rootkey)
 
         except HTTPError as exc:
             error = MWSError(str(exc.response.text))
