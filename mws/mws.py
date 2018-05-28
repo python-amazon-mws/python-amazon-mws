@@ -103,6 +103,7 @@ class DataWrapper(object):
         self.response = None
         self.headers = headers
         self._rootkey = rootkey
+        self._response_dict = None
         if self.headers:
             self.validate_header()
         self.main()
@@ -115,9 +116,10 @@ class DataWrapper(object):
 
     def main(self):
         """Try different parsing strategies."""
-        rawdata = self.response.content
-        textdata = self.response.text
+        rawdata = self.original.content
+        textdata = self.original.text
         # We don't trust the amazon content marker.
+        self.parsed_response = self.xml2dict(rawdata)
         try:
             try:
                 self.parsed_response = self.xml2dict(rawdata)
@@ -127,7 +129,7 @@ class DataWrapper(object):
 
         except XMLError:
             self.parsed_response = rawdata
-            self.headers = self.response.headers
+            self.headers = self.original.headers
 
     def xml2dict(self):
         """Parse XML with xmltodict."""
