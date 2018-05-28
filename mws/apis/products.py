@@ -17,7 +17,6 @@ class Products(MWS):
     """
     URI = '/Products/2011-10-01'
     VERSION = '2011-10-01'
-    NAMESPACE = '{http://mws.amazonservices.com/schema/Products/2011-10-01}'
     # NEXT_TOKEN_OPERATIONS = []
 
     def list_matching_products(self, marketplace_id, query, context_id=None):

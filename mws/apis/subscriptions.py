@@ -20,7 +20,6 @@ class Subscriptions(MWS):
     """
     URI = "/Subscriptions/2013-07-01"
     VERSION = "2013-07-01"
-    NAMESPACE = "{http://mws.amazonaws.com/Subscriptions/2013-07-01}"
 
     # TODO include a helper method for configuring and saving a destination to the object with a keyname
     # This might cut down on some time setting up all the values for the destination for each call,
@@ -57,7 +56,8 @@ class Subscriptions(MWS):
             "MarketplaceId": marketplace_id,
             "Destination.DeliveryChannel": delivery_channel
         }
-        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data.update(utils.enumerate_keyed_param(
+            "Destination.AttributeList.member", self._parse_attributes(attributes)))
 
         return self.make_request(data, "POST")
 
@@ -80,7 +80,8 @@ class Subscriptions(MWS):
             "MarketplaceId": marketplace_id,
             "Destination.DeliveryChannel": delivery_channel
         }
-        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data.update(utils.enumerate_keyed_param(
+            "Destination.AttributeList.member", self._parse_attributes(attributes)))
 
         return self.make_request(data, "POST")
 
@@ -113,7 +114,8 @@ class Subscriptions(MWS):
         data = {"Action": "SendTestNotificationToDestination",
                 "MarketplaceId": marketplace_id,
                 "Destination.DeliveryChannel": delivery_channel}
-        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data.update(utils.enumerate_keyed_param(
+            "Destination.AttributeList.member", self._parse_attributes(attributes)))
 
         return self.make_request(data, method="POST")
 
@@ -173,7 +175,6 @@ class Subscriptions(MWS):
         return self.make_request(data, "POST")
 
     def delete_subscription(self, marketplace_id, attributes=None, notification_type=None, delivery_channel="SQS"):
-
         """
         Deletes the subscription for the specified notification type and destination.
 
@@ -195,7 +196,8 @@ class Subscriptions(MWS):
                 "Destination.DeliveryChannel": delivery_channel,
                 "NotificationType": notification_type}
 
-        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data.update(utils.enumerate_keyed_param(
+            "Destination.AttributeList.member", self._parse_attributes(attributes)))
 
         return self.make_request(data, "POST")
 

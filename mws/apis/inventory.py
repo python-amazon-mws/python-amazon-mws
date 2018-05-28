@@ -17,7 +17,6 @@ class Inventory(MWS):
     """
     URI = '/FulfillmentInventory/2010-10-01'
     VERSION = '2010-10-01'
-    NAMESPACE = "{http://mws.amazonaws.com/FulfillmentInventory/2010-10-01}"
     NEXT_TOKEN_OPERATIONS = [
         'ListInventorySupply',
     ]

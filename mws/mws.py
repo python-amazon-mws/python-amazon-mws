@@ -186,12 +186,6 @@ class MWS(object):
     # The API version varies in most amazon APIs
     VERSION = "2009-01-01"
 
-    # There seem to be some xml namespace issues. therefore every api subclass
-    # is recommended to define its namespace, so that it can be referenced
-    # like so AmazonAPISubclass.NAMESPACE.
-    # For more information see http://stackoverflow.com/a/8719461/389453
-    NAMESPACE = ''
-
     # In here we name each of the operations available to the subclass
     # that have 'ByNextToken' operations associated with them.
     # If the Operation is not listed here, self.action_by_next_token
@@ -283,10 +277,7 @@ class MWS(object):
         headers.update(kwargs.get('extra_headers', {}))
 
         try:
-            # Some might wonder as to why i don't pass the params dict as the params argument to request.
-            # My answer is, here i have to get the url parsed string of params in order to sign it, so
-            # if i pass the params dict as params to request, request will repeat that step because it will need
-            # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
+            # The parameters are included in the url string.
             response = request(method, url, data=kwargs.get(
                 'body', ''), headers=headers, proxies=proxies)
             response.raise_for_status()
@@ -299,7 +290,7 @@ class MWS(object):
             try:
                 try:
                     parsed_response = DictWrapper(rawdata, rootkey)
-                except TypeError:  # raised when using Python 3 and trying to remove_namespace()
+                except TypeError:
                     # When we got CSV as result, we will got error on this
                     parsed_response = DictWrapper(textdata, rootkey)
 

@@ -92,7 +92,6 @@ class InboundShipments(MWS):
     """
     URI = "/FulfillmentInboundShipment/2010-10-01"
     VERSION = '2010-10-01'
-    NAMESPACE = '{http://mws.amazonaws.com/FulfillmentInboundShipment/2010-10-01/}'
     NEXT_TOKEN_OPERATIONS = [
         'ListInboundShipments',
         'ListInboundShipmentItems',
