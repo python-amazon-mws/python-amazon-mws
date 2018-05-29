@@ -4,7 +4,6 @@ import pytest
 import requests
 
 from mws.mws import validate_hash, DataWrapper, MWSError
-from mws.utils import DotDict
 
 
 class Fake_Response(object):
