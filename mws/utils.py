@@ -8,8 +8,11 @@ from __future__ import absolute_import
 import base64
 import datetime
 import hashlib
-from collections import abc
 import pprint
+try:
+    from collections.abc import Mapping, MutableSequence
+except ImportError:
+    from collections import Mapping, MutableSequence
 
 
 def calc_md5(string):
@@ -208,9 +211,9 @@ class DotDict:
     @classmethod
     def build(cls, obj):
         """Fetch objects. A constructor providing the main functionality."""
-        if isinstance(obj, abc.Mapping):
+        if isinstance(obj, Mapping):
             return cls(obj)  # Build a DotDict object
-        elif isinstance(obj, abc.MutableSequence):
+        elif isinstance(obj, MutableSequence):
             # The dict is from xmltodict, so a MutableSequence must be a list
             return [cls.build(item) for item in obj]
         else:  # If it's not a list or a dict return the item as it is
