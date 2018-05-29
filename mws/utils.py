@@ -188,6 +188,9 @@ class DotDict:
             # Looks for data attributes like dict.keys()
             return getattr(self.__data, name)
         else:
+            # pyhon 2 fix
+            if name == '__nonzero__':
+                return None
             # it's not an attribute, so use it as a key for the data
             return DotDict.build(self.__data[name])
 

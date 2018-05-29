@@ -55,7 +55,7 @@ def test_DataWrapper_for_text(monkeypatch):
 
     y = DataWrapper(response)
     # here we test the encoding from the request.text function
-    assert y.parsed == 'Without an ö, you would miss something'
+    assert y.parsed == content.decode(apparent_encoding)
     # parsed should return the textdata
     assert y.parsed == y.textdata
     # those attributes should be None, since we create dicts only for xml
