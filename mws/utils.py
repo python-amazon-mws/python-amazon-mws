@@ -170,7 +170,7 @@ class DotDict:
         x.key1.nestedkey2[position_in_list]
     standard subscriptable like: dict['key'] or list[0]
     implemented a get(key, default) function , you can use like:
-    x.RequestReportResult.get('ReportRequestInfo').get('EndDate', 'bananas')
+    x.RequestReportResult.get('ReportRequestInfo', 'alt1').EndDate
     """
 
     def __init__(self, mapping):
@@ -199,11 +199,11 @@ class DotDict:
         """Pprint is standard represantation of the data structure."""
         return pprint.pformat(self.__dict__['_DotDict__data'])
 
-    def get(self, name, default=None):
+    def get(self, key, default=None):
         """Use it like the dictionary get method."""
         try:
             assert isinstance(self.__data, abc.Mapping) is True
-            return self.__data[name]
+            return DotDict.build(self.__data[key])
         except KeyError:
             return default
 

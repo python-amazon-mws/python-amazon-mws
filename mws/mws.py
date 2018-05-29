@@ -118,6 +118,7 @@ class DataWrapper(object):
         rawdata = self.original.content
         textdata = self.original.text
         # We don't trust the amazon content marker.
+        self.xml2dict(textdata)
         try:
             self.xml2dict(textdata)
 
