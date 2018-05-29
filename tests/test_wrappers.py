@@ -80,11 +80,10 @@ def test_DataWrapper_for_xml(monkeypatch):
     response = requests.get(fake_event)
 
     y = DataWrapper(response, rootkey='ListInventorySupplyResult')
-    # here we test the parsed method with a rootkey
-    # pytest can compare the dict representation
-    assert vars(y.parsed) == vars(
-        DotDict({'InventorySupplyList': None, 'MarketplaceId': 'A1PA6795UKMFR9'}))
     # pydict is not using the rootkey at the very moment
     assert y.pydict == {'ListInventorySupplyResult': {'InventorySupplyList': None,
                                                       'MarketplaceId': 'A1PA6795UKMFR9'},
                         'ResponseMetadata': {'RequestId': '12bdfc18-8ccd-410d-ad33-31d5345d7b17'}}
+    # pytest can compare the dict representation
+    assert vars(y.parsed) == {'_DotDict__data': {'InventorySupplyList': None,
+                                                 'MarketplaceId': 'A1PA6795UKMFR9'}}

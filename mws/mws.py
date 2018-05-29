@@ -144,7 +144,7 @@ class DataWrapper(object):
     @property
     def parsed(self):
         """Recieve a nice formatted response, this can be your default."""
-        if self._response_dict:
+        if self._response_dict is not None:
             # when we parsed succesful a xml response
             return self._response_dict.get(self._rootkey, self._response_dict)
         else:
