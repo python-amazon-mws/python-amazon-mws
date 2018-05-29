@@ -110,6 +110,7 @@ class DataWrapper(object):
         self.headers = self.original.headers
         self._rootkey = rootkey
         self._response_dict = None
+        self.pydict = None
         self.main()
 
     def main(self):
@@ -118,7 +119,7 @@ class DataWrapper(object):
         textdata = self.original.text
         # We don't trust the amazon content marker.
         try:
-            self.parsed_response = self.xml2dict(textdata)
+            self.xml2dict(textdata)
 
         except XMLError:
             self.parsed_response = rawdata
@@ -130,7 +131,9 @@ class DataWrapper(object):
         self._mydict = xmltodict.parse(rawdata, dict_constructor=dict,
                                        process_namespaces=True,
                                        namespaces=namespaces)
-        self._response_dict = utils.DotDict(self._mydict)
+        # unpack if possible, important for accessing the rootkey
+        self.pydict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
+        self._response_dict = utils.DotDict(self.pydict)
 
     def extract_namespaces(self, rawdata):
         """Parse all namespaces."""

@@ -8,7 +8,8 @@ from __future__ import absolute_import
 import base64
 import datetime
 import hashlib
-import copy
+from collections import abc
+import pprint
 
 
 def calc_md5(string):
@@ -158,15 +159,61 @@ def get_utc_timestamp():
     return datetime.datetime.utcnow().replace(microsecond=0).isoformat()
 
 
-class DotDict(dict):
-    """Dot.notation access to dictionary attributes."""
+class DotDict:
+    """
+    A read-only dict like class for navigating a JSON-like object.
 
-    def __getattr__(*args):
-        val = dict.get(*args)
-        return DotDict(val) if type(val) is dict else val
+    x = DotDict(xmltodict(apiresponse))
+    accessing values:
+    using attribute notation:
+        position_in_list = 0
+        x.key1.nestedkey2[position_in_list]
+    standard subscriptable like: dict['key'] or list[0]
+    implemented a get(key, default) function , you can use like:
+    x.RequestReportResult.get('ReportRequestInfo').get('EndDate', 'bananas')
+    """
 
-    __setattr__ = dict.__setitem__
-    __delattr__ = dict.__delitem__
+    def __init__(self, mapping):
+        """Instantiate a copy of the passed dictionary from xmltodict."""
+        self.__data = mapping
 
-    def __deepcopy__(self, memo):
-        return DotDict(copy.deepcopy(dict(self)))
+    def __getattr__(self, name):
+        """
+        Run if no attribute has the same name.
+
+        Example when not: DotDict(obj).get()
+        """
+        if hasattr(self.__data, name):
+            # Look for class attributes like the function get
+            return getattr(self.__data, name)
+        else:
+            # it's not an attribute, so use it as a key for the data
+            return DotDict.build(self.__data[name])
+
+    def __getitem__(self, key):
+        """Allow subscription like: dict['key']."""
+        assert isinstance(self.__data, abc.Mapping) is True
+        return DotDict.build(self.__data[key])
+
+    def __repr__(self):
+        """Pprint is standard represantation of the data structure."""
+        return pprint.pformat(self.__dict__['_DotDict__data'])
+
+    def get(self, name, default=None):
+        """Use it like the dictionary get method."""
+        try:
+            assert isinstance(self.__data, abc.Mapping) is True
+            return self.__data[name]
+        except KeyError:
+            return default
+
+    @classmethod
+    def build(cls, obj):
+        """Fetch objects. A constructor providing the main functionality."""
+        if isinstance(obj, abc.Mapping):
+            return cls(obj)  # Build a DotDict object
+        elif isinstance(obj, abc.MutableSequence):
+            # The dict is from xmltodict, so a MutableSequence must be a list
+            return [cls.build(item) for item in obj]
+        else:  # If it's not a list or a dict return the item as it is
+            return obj
