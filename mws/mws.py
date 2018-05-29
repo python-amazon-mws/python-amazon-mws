@@ -24,7 +24,6 @@ try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
-from xml.etree.ElementTree import ParseError as XMLError
 from xml.parsers.expat import ExpatError
 
 
@@ -107,11 +106,11 @@ class DataWrapper(object):
 
     def __init__(self, data, rootkey=None):
         self.original = data
-        self.response = None
         self.headers = self.original.headers
+        self.pydict = None
+
         self._rootkey = rootkey
         self._response_dict = None
-        self.pydict = None
         self.main()
 
     def main(self):
@@ -123,7 +122,7 @@ class DataWrapper(object):
         try:
             self.xml2dict(textdata)
         except ExpatError:
-            self._response_dict = textdata
+            self.textdata = textdata
 
     def xml2dict(self, rawdata):
         """Parse XML with xmltodict."""
@@ -143,10 +142,13 @@ class DataWrapper(object):
 
     @property
     def parsed(self):
-        """Access the parsed contents of an XML response as a tree of dicts."""
-        if self._rootkey:
+        """Recieve a nice formatted response, this can be your default."""
+        if self._response_dict:
+            # when we parsed succesful a xml response
             return self._response_dict.get(self._rootkey, self._response_dict)
-        return self._response_dict
+        else:
+            # when it is plain text
+            return self.textdata
 
     """
     To return an unzipped file object based on the content type"
@@ -289,8 +291,6 @@ class MWS(object):
             error.response = exc.response
             raise error
 
-        # Store the response object in the parsed_response for quick access
-        parsed_response.response = response
         return parsed_response
 
     def get_proxies(self):
