@@ -13,9 +13,7 @@ import pprint
 
 
 def calc_md5(string):
-    """
-    Calculates the MD5 encryption for the given string
-    """
+    """Calculate the MD5 encryption for the given bytestring."""
     md5_hash = hashlib.md5()
     md5_hash.update(string)
     return base64.b64encode(md5_hash.digest()).strip(b'\n')
@@ -184,7 +182,7 @@ class DotDict:
         Example when not: DotDict(obj).get()
         """
         if hasattr(self.__data, name):
-            # Look for class attributes like the function get
+            # Looks for data attributes like dict.keys()
             return getattr(self.__data, name)
         else:
             # it's not an attribute, so use it as a key for the data

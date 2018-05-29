@@ -25,6 +25,7 @@ try:
 except ImportError:
     from urllib import quote
 from xml.etree.ElementTree import ParseError as XMLError
+from xml.parsers.expat import ExpatError
 
 
 __version__ = '1.0.0dev0'
@@ -96,7 +97,7 @@ def clean_params(params):
 
 
 def validate_hash(response):
-    hash_ = utils.calc_md5(response)
+    hash_ = utils.calc_md5(response.content)
     if response.headers['content-md5'].encode() != hash_:
         raise MWSError("Wrong Content length, maybe amazon error...")
 
@@ -115,16 +116,14 @@ class DataWrapper(object):
 
     def main(self):
         """Try different parsing strategies."""
-        rawdata = self.original.content
+        # a better guess for the correct encoding
+        self.original.encoding = self.original.apparent_encoding
         textdata = self.original.text
         # We don't trust the amazon content marker.
-        self.xml2dict(textdata)
         try:
             self.xml2dict(textdata)
-
-        except XMLError:
-            self.parsed_response = rawdata
-            self.headers = self.original.headers
+        except ExpatError:
+            self._response_dict = textdata
 
     def xml2dict(self, rawdata):
         """Parse XML with xmltodict."""
