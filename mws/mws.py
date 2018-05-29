@@ -96,8 +96,15 @@ def clean_params(params):
 
 
 def validate_hash(response):
-    hash_ = utils.calc_md5(response.content)
-    if response.headers['content-md5'].encode() != hash_:
+    if isinstance(response, dict):
+        # for testing
+        content = response['content']
+        headers = response['headers']
+    else:
+        content = response.content
+        headers = response.headers
+    hash_ = utils.calc_md5(content)
+    if headers['content-md5'].encode() != hash_:
         raise MWSError("Wrong Content length, maybe amazon error...")
 
 
@@ -105,6 +112,7 @@ class DataWrapper(object):
     """Main class that handles all responses."""
 
     def __init__(self, data, rootkey=None):
+        """Easy access for nicely processed response objets."""
         self.original = data
         self.headers = self.original.headers
         self.pydict = None

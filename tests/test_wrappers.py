@@ -1,16 +1,18 @@
 import pytest
 
-from mws.mws import DataWrapper, MWSError
+from mws.mws import validate_hash, MWSError
 
 
 def test_content_md5_comparison():
-    data = b'abc\tdef'
+    content = b'abc\tdef'
     hash = 'Zj+Bh1BJ8HzBb9ToK28qFQ=='
-    DataWrapper(data, {'content-md5': hash})
+    response = {'content': content, 'headers': {'content-md5': hash}}
+    validate_hash(response)
 
 
 def test_content_md5_check_raises_exception_if_fails():
-    data = b'abc\tdef'
+    content = b'abc\tdef'
     hash = 'notthehash'
+    response = {'content': content, 'headers': {'content-md5': hash}}
     with pytest.raises(MWSError):
-        DataWrapper(data, {'content-md5': hash})
+        validate_hash(response)
