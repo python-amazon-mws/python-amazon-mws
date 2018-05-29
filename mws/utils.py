@@ -193,7 +193,7 @@ class DotDict:
 
     def __getitem__(self, key):
         """Allow subscription like: dict['key']."""
-        assert isinstance(self.__data, abc.Mapping) is True
+        assert isinstance(self.__data, Mapping) is True
         return DotDict.build(self.__data[key])
 
     def __repr__(self):
@@ -203,7 +203,7 @@ class DotDict:
     def get(self, key, default=None):
         """Use it like the dictionary get method."""
         try:
-            assert isinstance(self.__data, abc.Mapping) is True
+            assert isinstance(self.__data, Mapping) is True
             return DotDict.build(self.__data[key])
         except KeyError:
             return default
