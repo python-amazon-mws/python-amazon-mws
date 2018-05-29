@@ -96,15 +96,8 @@ def clean_params(params):
 
 
 def validate_hash(response):
-    if isinstance(response, dict):
-        # for testing
-        content = response['content']
-        headers = response['headers']
-    else:
-        content = response.content
-        headers = response.headers
-    hash_ = utils.calc_md5(content)
-    if headers['content-md5'].encode() != hash_:
+    hash_ = utils.calc_md5(response.content)
+    if response.headers['content-md5'].encode() != hash_:
         raise MWSError("Wrong Content length, maybe amazon error...")
 
 
