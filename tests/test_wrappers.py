@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-import requests
 
 from mws.mws import validate_hash, DataWrapper, MWSError
 
@@ -19,38 +18,25 @@ class Fake_Response(object):
         return self.content.decode(self.encoding)
 
 
-def test_content_md5_comparison(monkeypatch):
-    def fake_get(url):
-        return Fake_Response(content, hash)
+def test_content_md5_comparison():
     content = b'abc\tdef'
     hash = 'Zj+Bh1BJ8HzBb9ToK28qFQ=='
-    monkeypatch.setattr(requests, 'get', fake_get)
-    fake_event = {"channel": "nowhere"}
-
-    response = requests.get(fake_event)
+    response = Fake_Response(content, hash)
     validate_hash(response)
 
 
-def test_content_md5_check_raises_exception_if_fails(monkeypatch):
-    def fake_get(url):
-        return Fake_Response(content, hash)
+def test_content_md5_check_raises_exception_if_fails():
     content = b'abc\tdef'
     hash = 'notthehash'
-    monkeypatch.setattr(requests, 'get', fake_get)
-    fake_event = {"channel": "nowhere"}
-    response = requests.get(fake_event)
+    response = Fake_Response(content, hash)
     with pytest.raises(MWSError):
         validate_hash(response)
 
 
-def test_DataWrapper_for_text(monkeypatch):
-    def fake_get(url):
-        return Fake_Response(content, apparent_encoding=apparent_encoding)
+def test_DataWrapper_for_text():
     content = b'Without an \xf6, you would miss something'
     apparent_encoding = 'ISO-8859-1'
-    monkeypatch.setattr(requests, 'get', fake_get)
-    fake_event = {"channel": "nowhere"}
-    response = requests.get(fake_event)
+    response = Fake_Response(content, apparent_encoding=apparent_encoding)
 
     y = DataWrapper(response)
     # here we test the encoding from the request.text function
@@ -62,9 +48,7 @@ def test_DataWrapper_for_text(monkeypatch):
     assert y.pydict is None
 
 
-def test_DataWrapper_for_xml(monkeypatch):
-    def fake_get(url):
-        return Fake_Response(content, apparent_encoding=apparent_encoding)
+def test_DataWrapper_for_xml():
     content = b'<ListInventorySupplyResponse \
         xmlns="http://mws.amazonaws.com/FulfillmentInventory/2010-10-01/">\n \
         <ListInventorySupplyResult>\n    \
@@ -74,9 +58,7 @@ def test_DataWrapper_for_xml(monkeypatch):
         <RequestId>12bdfc18-8ccd-410d-ad33-31d5345d7b17</RequestId>\n  \
         </ResponseMetadata>\n</ListInventorySupplyResponse>\n'
     apparent_encoding = 'ISO-8859-1'
-    monkeypatch.setattr(requests, 'get', fake_get)
-    fake_event = {"channel": "nowhere"}
-    response = requests.get(fake_event)
+    response = Fake_Response(content, apparent_encoding=apparent_encoding)
 
     y = DataWrapper(response, rootkey='ListInventorySupplyResult')
     # pydict is not using the rootkey at the very moment

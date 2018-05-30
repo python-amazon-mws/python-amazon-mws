@@ -15,7 +15,7 @@ from zipfile import ZipFile
 from io import BytesIO
 import xmltodict
 
-from requests import request
+import requests
 from requests.exceptions import HTTPError
 
 from . import utils
@@ -279,7 +279,7 @@ class MWS(object):
 
         try:
             # The parameters are included in the url string.
-            response = request(method, url, data=kwargs.get(
+            response = requests.request(method, url, data=kwargs.get(
                 'body', ''), headers=headers, proxies=proxies)
             response.raise_for_status()
 
