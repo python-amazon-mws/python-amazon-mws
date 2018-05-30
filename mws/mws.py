@@ -11,8 +11,6 @@ import hashlib
 import hmac
 import re
 import warnings
-from zipfile import ZipFile
-from io import BytesIO
 import xmltodict
 
 import requests
@@ -143,32 +141,20 @@ class DataWrapper(object):
 
     @property
     def parsed(self):
-        """Recieve a nice formatted response, this can be your default."""
+        """
+        Recieve a nice formatted response for the content, this can be your default.
+        for headers or the rich and usefult original response look for the
+        other attributes in the DataWrapper. For Troubleshooting or unexpected
+        responses the original attribute is rich and useful.
+        """
         if self._response_dict is not None:
-            # when we parsed succesful a xml response
-            return self._response_dict.get(self._rootkey, self._response_dict)
+            # when we succesful parsed a xml response
+            return self._response_dict.get(self._rootkey, None)
         else:
             # when it is plain text
+            # we use the request.text, which handles encoding, unzip
             return self.textdata
 
-    """
-    To return an unzipped file object based on the content type"
-    """
-    @property
-    def unzipped(self):
-        """
-        If the response is comprised of a zip file, returns a ZipFile object of those file contents.
-        Otherwise, returns None.
-        """
-        if self.headers['content-type'] == 'application/zip':
-            try:
-                with ZipFile(BytesIO(self.original)) as unzipped_fileobj:
-                    # unzipped the zip file contents
-                    unzipped_fileobj.extractall()
-                    # return original zip file object to the user
-                    return unzipped_fileobj
-            except Exception as exc:
-                raise MWSError(str(exc))
         return None  # 'The response is not a zipped file.'
 
 
