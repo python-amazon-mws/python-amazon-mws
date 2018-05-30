@@ -143,7 +143,7 @@ class DataWrapper(object):
     def parsed(self):
         """
         Recieve a nice formatted response for the content, this can be your default.
-        for headers or the rich and usefult original response look for the
+        for headers or the rich and useful original response look for the
         other attributes in the DataWrapper. For Troubleshooting or unexpected
         responses the original attribute is rich and useful.
         """
@@ -152,10 +152,8 @@ class DataWrapper(object):
             return self._response_dict.get(self._rootkey, None)
         else:
             # when it is plain text
-            # we use the request.text, which handles encoding, unzip
+            # we use the request.text, which handles decoding and unzipping
             return self.textdata
-
-        return None  # 'The response is not a zipped file.'
 
 
 class MWS(object):
