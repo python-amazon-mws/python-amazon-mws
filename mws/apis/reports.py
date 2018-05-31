@@ -2,7 +2,6 @@
 Amazon MWS Reports API
 """
 from __future__ import absolute_import
-from time import sleep
 from enum import Enum
 
 from ..mws import MWS
@@ -158,28 +157,6 @@ class Reports(MWS):
         data.update(utils.enumerate_param('ReportTypeList.Type.', report_types))
         return self.make_request(data)
 
-    def get_reportid(self, request, rec_level=0):
-        """Takes the response from request_report and returns a reportid"""
-        assert request.parsed.ReportRequestInfo.ReportProcessingStatus == '_SUBMITTED_'
-        request_id = request.parsed.ReportRequestInfo.ReportRequestId
-
-        sleep(120)
-        statusdict = self.get_report_request_list(request_ids=request_id).parsed
-        status = statusdict.ReportRequestInfo.ReportProcessingStatus
-
-        if rec_level > 2:
-            raise RuntimeError('After 360 Seconds your report wasnot completed')
-
-        if status == '_SUBMITTED_' or status == '_IN_PROGRESS_':
-            sleep(120)
-            rec_level += 1
-            return self.get_reportid(request, rec_level)
-        elif status == '_DONE_':
-            return statusdict.ReportRequestInfo.GeneratedReportId
-        elif status == '_DONE_NO_DATA_':
-            return ''
-        else:
-            raise ValueError('your reportrequestid is screwed: {}'.format(statusdict))
 
     def get_report(self, report_id):
         """
@@ -243,7 +220,7 @@ class Reports(MWS):
     #     pass
 
 
-class AllReports(Enum):
+class ReportType(Enum):
     """Better names for reports."""
 
     # Listing Reports
