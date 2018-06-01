@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup
+import setuptools
 
 short_description = 'Python library for interacting with the Amazon MWS API'
 
@@ -23,7 +23,7 @@ if int(setuptools.__version__.split('.')[0]) < 18:
     if sys.version_info < (3, 4):
         requires.append('enum34')
 
-setup(
+setuptools.setup(
     name='mws',
     version='1.0.0dev0',
     maintainer="James Hiew",
