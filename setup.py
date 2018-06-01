@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import setuptools
+import sys
 
 short_description = 'Python library for interacting with the Amazon MWS API'
 
