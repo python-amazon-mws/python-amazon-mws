@@ -72,7 +72,9 @@ def calc_request_description(params):
 
 
 def clean_params(params):
-    """Input cleanup, html-escape and prevent a lot of common input mistakes."""
+    """
+    Input cleanup, html-escape and prevent a lot of common input mistakes.
+    """
     # silently remove parameter where values are empty
     params = {k: v for k, v in params.items() if v}
 
@@ -100,8 +102,9 @@ def validate_hash(response):
 
 
 class DataWrapper(object):
-    """Main class that handles all responses."""
-
+    """
+    Main class that handles all responses.
+    """
     def __init__(self, data, rootkey=None, force_cdata=False):
         """
         Easy access for nicely processed response objets.
@@ -131,7 +134,9 @@ class DataWrapper(object):
         self._main()
 
     def _main(self):
-        """Try different parsing strategies."""
+        """
+        Try different parsing strategies.
+        """
         # a better guess for the correct encoding
         self.original.encoding = self.original.apparent_encoding
         textdata = self.original.text
@@ -142,7 +147,9 @@ class DataWrapper(object):
             self.textdata = textdata
 
     def _xml2dict(self, rawdata):
-        """Parse XML with xmltodict."""
+        """
+        Parse XML with xmltodict.
+        """
         namespaces = self._extract_namespaces(rawdata)
         self._mydict = xmltodict.parse(rawdata, dict_constructor=dict,
                                        process_namespaces=True,
@@ -153,7 +160,9 @@ class DataWrapper(object):
         self.dot_dict = utils.DotDict(self.pydict)
 
     def _extract_namespaces(self, rawdata):
-        """Parse all namespaces."""
+        """
+        Parse all namespaces.
+        """
         pattern = re.compile(r'xmlns[:ns2]*="\S+"')
         raw_namespaces = pattern.findall(rawdata)
         return {x.split('"')[1]: None for x in raw_namespaces}
