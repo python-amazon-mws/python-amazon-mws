@@ -8,6 +8,7 @@ try:
     long_description = convert("README.md", 'rst')
 except (ImportError, OSError):  # either pypandoc or pandoc isn't installed
     long_description = "See README.md"
+extras_require = {":python_version<'3.4'": ['enum34'], }
 
 setup(
     name='mws',
@@ -21,6 +22,7 @@ setup(
     install_requires=[
         'requests',
     ],
+    extras_require=extras_require,
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Web Environment',
