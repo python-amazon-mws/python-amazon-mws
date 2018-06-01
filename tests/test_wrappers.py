@@ -44,7 +44,7 @@ def test_DataWrapper_for_text():
     # parsed should return the textdata
     assert y.parsed == y.textdata
     # those attributes should be None, since we create dicts only for xml
-    assert y._response_dict is None
+    assert y.dot_dict is None
     assert y.pydict is None
 
 
