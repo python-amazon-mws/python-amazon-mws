@@ -201,6 +201,10 @@ class DotDict:
 
     def __repr__(self):
         """Pprint is standard represantation of the data structure."""
+        return str(self.__dict__['_DotDict__data'])
+
+    def __str__(self):
+        """Pprint is standard printout."""
         return pprint.pformat(self.__dict__['_DotDict__data'])
 
     def get(self, key, default=None):

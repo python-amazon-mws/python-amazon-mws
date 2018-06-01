@@ -102,38 +102,57 @@ def validate_hash(response):
 class DataWrapper(object):
     """Main class that handles all responses."""
 
-    def __init__(self, data, rootkey=None):
-        """Easy access for nicely processed response objets."""
-        self.original = data
-        self.headers = self.original.headers
-        self.pydict = None
+    def __init__(self, data, rootkey=None, force_cdata=False):
+        """
+        Easy access for nicely processed response objets.
+
+        You always get unicode strings back.
+        We use the requests library to decode and unzip the raw response.
+        We change default encoding to that endorsed from chardet.
+
+        Is that not good for you, you can do it yourself:
+        response = make_request(**kwargs)
+        response.original.content returns the bytesstring
+        see what you can get: response.original.__dict__
+        """
+        # Attributes for xml and texfiles
+        self.original = data  # reqests.request response object
+        self.headers = self.original.headers  # just easier to access
+
+        # Attributes only for xml
+        self.pydict = None  # alternative to xml parsed or dot_dict
+        self.dot_dict = None  # fallback for xml parsed
+
+        # Attribute only for textdata
+        self.textdata = None
 
         self._rootkey = rootkey
-        self._response_dict = None
-        self.main()
+        self._force_cdata = force_cdata
+        self._main()
 
-    def main(self):
+    def _main(self):
         """Try different parsing strategies."""
         # a better guess for the correct encoding
         self.original.encoding = self.original.apparent_encoding
         textdata = self.original.text
         # We don't trust the amazon content marker.
         try:
-            self.xml2dict(textdata)
+            self._xml2dict(textdata)
         except ExpatError:
             self.textdata = textdata
 
-    def xml2dict(self, rawdata):
+    def _xml2dict(self, rawdata):
         """Parse XML with xmltodict."""
-        namespaces = self.extract_namespaces(rawdata)
+        namespaces = self._extract_namespaces(rawdata)
         self._mydict = xmltodict.parse(rawdata, dict_constructor=dict,
                                        process_namespaces=True,
-                                       namespaces=namespaces)
+                                       namespaces=namespaces,
+                                       force_cdata=self._force_cdata)
         # unpack if possible, important for accessing the rootkey
         self.pydict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
-        self._response_dict = utils.DotDict(self.pydict)
+        self.dot_dict = utils.DotDict(self.pydict)
 
-    def extract_namespaces(self, rawdata):
+    def _extract_namespaces(self, rawdata):
         """Parse all namespaces."""
         pattern = re.compile(r'xmlns[:ns2]*="\S+"')
         raw_namespaces = pattern.findall(rawdata)
@@ -147,9 +166,9 @@ class DataWrapper(object):
         other attributes in the DataWrapper. For Troubleshooting or unexpected
         responses the original attribute is rich and useful.
         """
-        if self._response_dict is not None:
+        if self.dot_dict is not None:
             # when we succesful parsed a xml response
-            return self._response_dict.get(self._rootkey, None)
+            return self.dot_dict.get(self._rootkey, None)
         else:
             # when it is plain text
             # we use the request.text, which handles decoding and unzipping
