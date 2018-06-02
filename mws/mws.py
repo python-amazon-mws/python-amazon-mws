@@ -164,8 +164,11 @@ class DataWrapper(object):
             detector.close()
             if detector.result['encoding'] != 'ascii':
                 guess.append(detector.result['encoding'])
-        data = Counter(guess)
-        return data.most_common(1)[0][0]
+        if guess == []:
+            return 'utf8'
+        else:
+            data = Counter(guess)
+            return data.most_common(1)[0][0]
 
     def _xml2dict(self, rawdata):
         """
