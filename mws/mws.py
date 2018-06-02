@@ -11,10 +11,13 @@ import hashlib
 import hmac
 import re
 import warnings
-import xmltodict
 
 import requests
 from requests.exceptions import HTTPError
+import xmltodict
+import chardet
+from chardet import UniversalDetector
+from collections import Counter
 
 from . import utils
 
@@ -138,13 +141,31 @@ class DataWrapper(object):
         Try different parsing strategies.
         """
         # a better guess for the correct encoding
-        self.original.encoding = self.original.apparent_encoding
+        self.original.encoding = self.guess_encoding()
         textdata = self.original.text
         # We don't trust the amazon content marker.
         try:
             self._xml2dict(textdata)
         except ExpatError:
             self.textdata = textdata
+
+    def guess_encoding(self):
+        """
+        Faster implementation of requests.apparent_encoding.
+        """
+        # hotfix for one none ascii character
+        chardet.utf8prober.UTF8Prober.ONE_CHAR_PROB = 0.26
+        bytelist = self.original.content.splitlines()
+        guess = []
+        detector = UniversalDetector()
+        for line in bytelist:
+            detector.reset()
+            detector.feed(line)
+            detector.close()
+            if detector.result['encoding'] != 'ascii':
+                guess.append(detector.result['encoding'])
+        data = Counter(guess)
+        return data.most_common(1)[0][0]
 
     def _xml2dict(self, rawdata):
         """
