@@ -176,8 +176,12 @@ class DataWrapper(object):
         responses the original attribute is rich and useful.
         """
         if self.dot_dict is not None:
-            # when we succesful parsed a xml response
-            return self.dot_dict.get(self._rootkey, None)
+            if self._rootkey != 'ignore':
+                # when we succesful parsed a xml response
+                return self.dot_dict.get(self._rootkey, None)
+            else:
+                # ignore flag we use for xmlreports, not all have the same root
+                return self.dot_dict
         else:
             # when it is plain text
             # we use the request.text, which handles decoding and unzipping
