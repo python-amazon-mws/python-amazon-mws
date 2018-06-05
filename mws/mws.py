@@ -76,7 +76,7 @@ def calc_request_description(params):
 
 def clean_params(params):
     """
-    Input cleanup, html-escape and prevent a lot of common input mistakes.
+    Cleanup, html-escape and prevent a lot of common input mistakes for all parameter.
     """
     # silently remove parameter where values are empty
     params = {k: v for k, v in params.items() if v}
@@ -99,6 +99,9 @@ def clean_params(params):
 
 
 def validate_hash(response):
+    '''
+    Input is a requests.response object, see the test class FakeResponse.
+    '''
     hash_ = utils.calc_md5(response.content)
     if response.headers['content-md5'].encode() != hash_:
         raise MWSError("Wrong Content length, maybe amazon error...")
@@ -153,6 +156,10 @@ class DataWrapper(object):
         """
         Faster implementation of requests.apparent_encoding,
         when only about 1% of total rows have ASCII, 100X time faster.
+
+        We are not aiming of the correct charset.
+        We just decode with a charset which returns the correct string.
+        That's the only way for unknown encodings.
         """
         # hotfix for one none ascii character
         chardet.utf8prober.UTF8Prober.ONE_CHAR_PROB = 0.26
@@ -168,7 +175,7 @@ class DataWrapper(object):
             if is_not_ascii and is_not_none:
                 guess.append(detector.result['encoding'])
                 if len(guess) > 30:
-                    break  # for unicode heavy objects, 10X faster
+                    break  # for none ASCII heavy objects, 10X faster
         if guess == []:
             return 'utf8'
         else:
@@ -207,8 +214,8 @@ class DataWrapper(object):
         responses the original attribute is rich and useful.
         """
         if self.dot_dict is not None:
+            # when we succesful parsed a xml response
             if self._rootkey != 'ignore':
-                # when we succesful parsed a xml response
                 return self.dot_dict.get(self._rootkey, None)
             else:
                 # ignore flag we use for xmlreports, not all have the same root
