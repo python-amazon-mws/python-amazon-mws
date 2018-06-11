@@ -225,8 +225,7 @@ class MWS(object):
     ACCOUNT_TYPE = "SellerId"
 
     def __init__(self, access_key, secret_key, account_id,
-                 region='US', domain='', uri="",
-                 version="", auth_token="", proxy=None):
+                 region='US', uri="", version="", auth_token="", proxy=None):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
@@ -238,10 +237,7 @@ class MWS(object):
         # * TESTING FLAGS * #
         self._test_request_params = False
 
-        if domain:
-            # TODO test needed to enter here.
-            self.domain = domain
-        elif region in MARKETPLACES.__members__:
+        if region in MARKETPLACES.__members__:
             self.domain = MARKETPLACES[region].Endpoint
         else:
             # TODO test needed to enter here.
