@@ -16,6 +16,7 @@ from io import BytesIO
 
 from requests import request
 from requests.exceptions import HTTPError
+from enum import Enum
 
 from . import utils
 
@@ -29,23 +30,26 @@ from xml.etree.ElementTree import ParseError as XMLError
 __version__ = '1.0.0dev10'
 
 
-# See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
-# page 8
-# for a list of the end points and marketplace IDs
+class MARKETPLACES(Enum):
+    """
+    Format: Country code: Endpoint, MarketplaceId.
+    """
+    CA = ('https: // mws.amazonservices.ca', 'A2EUQ1WTGCTBG2')
+    US = ('https: // mws.amazonservices.com', 'ATVPDKIKX0DER')
+    DE = ('https: // mws-eu.amazonservices.com', 'A1PA6795UKMFR9')
+    ES = ('https: // mws-eu.amazonservices.com', 'A1RKKUPIHCS9HS')
+    FR = ('https: // mws-eu.amazonservices.com', 'A13V1IB3VIYZZH')
+    IN = ('https: // mws.amazonservices.in', 'A21TJRUUN4KGV')
+    IT = ('https: // mws-eu.amazonservices.com', 'APJ6JRA9NG5V4')
+    UK = ('https: // mws-eu.amazonservices.com', 'A1F83G8C2ARO7P')
+    JP = ('https: // mws.amazonservices.jp', 'A1VC38T7YXB528')
+    CN = ('https: // mws.amazonservices.com.cn', 'AAHKV2X7AFYLW')
+    MX = ('https://mws.amazonservices.com.mx', 'A1AM78C64UM0Y8')
 
-MARKETPLACES = {
-    "CA": "https://mws.amazonservices.ca",  # A2EUQ1WTGCTBG2
-    "US": "https://mws.amazonservices.com",  # ATVPDKIKX0DER",
-    "DE": "https://mws-eu.amazonservices.com",  # A1PA6795UKMFR9
-    "ES": "https://mws-eu.amazonservices.com",  # A1RKKUPIHCS9HS
-    "FR": "https://mws-eu.amazonservices.com",  # A13V1IB3VIYZZH
-    "IN": "https://mws.amazonservices.in",  # A21TJRUUN4KGV
-    "IT": "https://mws-eu.amazonservices.com",  # APJ6JRA9NG5V4
-    "UK": "https://mws-eu.amazonservices.com",  # A1F83G8C2ARO7P
-    "JP": "https://mws.amazonservices.jp",  # A1VC38T7YXB528
-    "CN": "https://mws.amazonservices.com.cn",  # AAHKV2X7AFYLW
-    "MX": "https://mws.amazonservices.com.mx",  # A1AM78C64UM0Y8
-}
+    def __init__(self, Endpoint, MarketplaceId):
+        """Easy access like: MARKETPLACES.Endpoint ."""
+        self.Endpoint = Endpoint
+        self.MarketplaceId = MarketplaceId
 
 
 class MWSError(Exception):
@@ -236,12 +240,12 @@ class MWS(object):
         if domain:
             # TODO test needed to enter here.
             self.domain = domain
-        elif region in MARKETPLACES:
-            self.domain = MARKETPLACES[region]
+        elif region in MARKETPLACES.__members__:
+            self.domain = MARKETPLACES[region].Endpoint
         else:
             # TODO test needed to enter here.
             error_msg = "Incorrect region supplied ('{region}'). Must be one of the following: {marketplaces}".format(
-                marketplaces=', '.join(MARKETPLACES.keys()),
+                marketplaces=', '.join(MARKETPLACES.__members__.keys()),
                 region=region,
             )
             raise MWSError(error_msg)
