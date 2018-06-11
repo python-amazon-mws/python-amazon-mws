@@ -240,11 +240,11 @@ class MWS(object):
         if region in MARKETPLACES.__members__:
             self.domain = MARKETPLACES[region].Endpoint
         else:
-            # TODO test needed to enter here.
-            error_msg = "Incorrect region supplied ('{region}'). Must be one of the following: {marketplaces}".format(
-                marketplaces=', '.join(MARKETPLACES.__members__.keys()),
-                region=region,
-            )
+            error_msg = "Incorrect region supplied ('{region}'). " \
+                "Must be one of the following: {marketplaces}".format(
+                    marketplaces=', '.join(MARKETPLACES.__members__.keys()),
+                    region=region,
+                )
             raise MWSError(error_msg)
 
     def get_default_params(self):
