@@ -65,8 +65,7 @@ API Class Names
 ===============
 
 Each MWS API is covered by a separate class, all of which are subclasses
-of the base ``MWS`` class. These APIsA select few APIs are covered by
-classes of slightly different names. See here for all MWS APIs and the
+of the base ``MWS`` class. See here for all MWS APIs and the
 classes that cover them:
 
 +-------------------------------+---------------------------+
@@ -127,7 +126,10 @@ For example, let us check the status of the Orders API:
 *Note*: Technically, ``get_service_status`` calls will pass without
 checking credentials.
 
-The output for all request methods is either a ``DictWrapper`` (for XML
+The output for all request methods is a ``DictWrapper``. The default responses
+you can find in the attribute parsed:
+
+ (for XML
 content) or ``DataWrapper`` (for all others). The majority of our
 responses will be ``DictWrapper``\ s containing a few main attributes:
 

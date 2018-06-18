@@ -10,13 +10,13 @@ using the python-amazon-mws wrapper.
 
     from mws import mws
 
-    access_key = 'accesskey' #replace with your access key
-    merchant_id = 'merchantid' #replace with your merchant id
-    secret_key = 'secretkey' #replace with your secret key
+    access_key = 'accesskey'  # replace with your access key
+    merchant_id = 'merchantid'  # replace with your merchant id
+    secret_key = 'secretkey'  # replace with your secret key
 
-    reportid = '123456' #replace with report id
-  
+    reportid = '123456'  # replace with report id
+
     x = mws.Reports(access_key=access_key, secret_key=secret_key, account_id=merchant_id)
     report = x.get_report(report_id=reportid)
-    response_data = report.original
-    print response_data
+    response_data = report.parsed
+    print(response_data)
