@@ -6,18 +6,18 @@ Main module for python-amazon-mws package.
 from __future__ import absolute_import
 
 import base64
+from collections import Counter
 import datetime
 import hashlib
 import hmac
 import re
 import warnings
 
+import chardet
 import requests
 from requests.exceptions import HTTPError
+from xml.parsers.expat import ExpatError
 import xmltodict
-import chardet
-from chardet import UniversalDetector
-from collections import Counter
 
 from . import utils
 
@@ -25,8 +25,6 @@ try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
-from xml.parsers.expat import ExpatError
-
 
 __version__ = '1.0.0dev10'
 
@@ -99,9 +97,9 @@ def clean_params(params):
 
 
 def validate_hash(response):
-    '''
+    """
     Input is a requests.response object, see the test class FakeResponse.
-    '''
+    """
     hash_ = utils.calc_md5(response.content)
     if response.headers['content-md5'].encode() != hash_:
         raise MWSError("Wrong Content length, maybe amazon error...")
@@ -111,18 +109,13 @@ class DataWrapper(object):
     """
     Main class that handles all responses.
     """
+
     def __init__(self, data, rootkey=None, force_cdata=False):
         """
         Easy access for nicely processed response objets.
 
-        You always get unicode strings back.
+        You always get unicode strings back, with the best guess for decoding.
         We use the requests library to decode and unzip the raw response.
-        We change default encoding to that endorsed from chardet.
-
-        Is that not good for you, you can do it yourself:
-        response = make_request(**kwargs)
-        response.original.content returns the bytesstring
-        see what you can get: response.original.__dict__
         """
         # Attributes for xml and texfiles
         self.original = data  # reqests.request response object
@@ -154,18 +147,16 @@ class DataWrapper(object):
 
     def guess_encoding(self):
         """
-        Faster implementation of requests.apparent_encoding,
-        when only about 1% of total rows have ASCII, 100X time faster.
+        Faster implementation of requests.apparent_encoding.
 
-        We are not aiming of the correct charset.
+        We are not aiming for the correct charset.
         We just decode with a charset which returns the correct string.
-        That's the only way for unknown encodings.
         """
-        # hotfix for one none ascii character
+        # fix for one none ascii character
         chardet.utf8prober.UTF8Prober.ONE_CHAR_PROB = 0.26
         bytelist = self.original.content.splitlines()
         guess = []
-        detector = UniversalDetector()
+        detector = chardet.UniversalDetector()
         for line in bytelist:
             detector.reset()
             detector.feed(line)
@@ -179,14 +170,12 @@ class DataWrapper(object):
         if guess == []:
             return 'utf8'
         else:
-            # alternative: like chardet.detector(guess) , could be better
-            # for conflicts or edge cases
             data = Counter(guess)
             return data.most_common(1)[0][0]
 
     def _xml2dict(self, rawdata):
         """
-        Parse XML with xmltodict.
+        Parse XML with xmltodict to a python dictionary.
         """
         namespaces = self._extract_namespaces(rawdata)
         self._mydict = xmltodict.parse(rawdata, dict_constructor=dict,
@@ -208,10 +197,9 @@ class DataWrapper(object):
     @property
     def parsed(self):
         """
-        Recieve a nice formatted response for the content, this can be your default.
-        for headers or the rich and useful original response look for the
-        other attributes in the DataWrapper. For Troubleshooting or unexpected
-        responses the original attribute is rich and useful.
+        Recieve a nice formatted response, this can be your default.
+
+        Fallback to the original attribute if you encounter issues.
         """
         if self.dot_dict is not None:
             # when we succesful parsed a xml response
@@ -221,8 +209,6 @@ class DataWrapper(object):
                 # ignore flag we use for xmlreports, not all have the same root
                 return self.dot_dict
         else:
-            # when it is plain text
-            # we use the request.text, which handles decoding and unzipping
             return self.textdata
 
 
