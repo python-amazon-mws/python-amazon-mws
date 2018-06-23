@@ -16,7 +16,9 @@ except ImportError:
 
 
 def calc_md5(string):
-    """Calculate the MD5 encryption for the given bytestring."""
+    """
+    Calculate the MD5 encryption for the given bytestring.
+    """
     md5_hash = hashlib.md5()
     md5_hash.update(string)
     return base64.b64encode(md5_hash.digest()).strip(b'\n')
@@ -175,7 +177,9 @@ class DotDict:
     """
 
     def __init__(self, mapping):
-        """Instantiate a copy of the passed dictionary from xmltodict."""
+        """
+        Instantiate a copy of the passed dictionary from xmltodict.
+        """
         self.__data = mapping
 
     def __getattr__(self, name):
@@ -195,20 +199,25 @@ class DotDict:
             return DotDict.build(self.__data[name])
 
     def __getitem__(self, key):
-        """Allow subscription like: dict['key']."""
+        """
+        Allow subscription like: dict['key'].
+        """
         assert isinstance(self.__data, Mapping) is True
         return DotDict.build(self.__data[key])
 
     def __repr__(self):
-        """Pprint is standard represantation of the data structure."""
         return str(self.__dict__['_DotDict__data'])
 
     def __str__(self):
-        """Pprint is standard printout."""
+        """
+        Pprint is standard printout.
+        """
         return pprint.pformat(self.__dict__['_DotDict__data'])
 
     def get(self, key, default=None):
-        """Use it like the dictionary get method."""
+        """
+        Use it like the dictionary get method.
+        """
         try:
             assert isinstance(self.__data, Mapping) is True
             return DotDict.build(self.__data[key])
@@ -217,7 +226,9 @@ class DotDict:
 
     @classmethod
     def build(cls, obj):
-        """Fetch objects. A constructor providing the main functionality."""
+        """
+        Fetch objects. A constructor providing the main functionality.
+        """
         if isinstance(obj, Mapping):
             return cls(obj)  # Build a DotDict object
         elif isinstance(obj, MutableSequence):

@@ -6,7 +6,6 @@ Main module for python-amazon-mws package.
 from __future__ import absolute_import
 
 import base64
-from collections import Counter
 import datetime
 import hashlib
 import hmac
@@ -25,6 +24,10 @@ try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
+try:
+    from collections.abc import Counter
+except ImportError:
+    from collections import Counter
 
 __version__ = '1.0.0dev10'
 
