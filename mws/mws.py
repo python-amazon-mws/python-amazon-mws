@@ -295,7 +295,7 @@ class MWS(object):
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
             response = request(method, url, data=kwargs.get(
-                'body', ''), headers=headers, proxies=proxies)
+                'body', ''), headers=headers, proxies=proxies, timeout=kwargs.get('timeout', 300))
             response.raise_for_status()
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
