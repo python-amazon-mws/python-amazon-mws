@@ -26,7 +26,7 @@ if int(setuptools.__version__.split('.')[0]) < 18:
 
 setuptools.setup(
     name='mws',
-    version='1.0.0dev10',
+    version='1.0.0dev11',
     maintainer="James Hiew",
     maintainer_email="james@hiew.net",
     url="http://github.com/jameshiew/mws",
