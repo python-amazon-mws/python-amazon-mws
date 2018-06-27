@@ -26,7 +26,7 @@ except ImportError:
 from xml.etree.ElementTree import ParseError as XMLError
 
 
-__version__ = '1.0.0dev10'
+__version__ = '1.0.0dev11'
 
 
 # See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
