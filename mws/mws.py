@@ -27,27 +27,29 @@ except ImportError:
 from xml.etree.ElementTree import ParseError as XMLError
 
 
-__version__ = '1.0.0dev10'
+__version__ = '1.0.0dev11'
 
 
 class MARKETPLACES(Enum):
     """
     Format: Country code: Endpoint, MarketplaceId.
     """
+    AU = ('https://mws.amazonservices.com.au', 'A39IBJ37TRP1C6')
+    BR = ('https://mws.amazonservices.com', 'A2Q3Y263D00KWC')
     CA = ('https://mws.amazonservices.ca', 'A2EUQ1WTGCTBG2')
-    US = ('https://mws.amazonservices.com', 'ATVPDKIKX0DER')
+    CN = ('https://mws.amazonservices.com.cn', 'AAHKV2X7AFYLW')
     DE = ('https://mws-eu.amazonservices.com', 'A1PA6795UKMFR9')
     ES = ('https://mws-eu.amazonservices.com', 'A1RKKUPIHCS9HS')
     FR = ('https://mws-eu.amazonservices.com', 'A13V1IB3VIYZZH')
     IN = ('https://mws.amazonservices.in', 'A21TJRUUN4KGV')
     IT = ('https://mws-eu.amazonservices.com', 'APJ6JRA9NG5V4')
-    UK = ('https://mws-eu.amazonservices.com', 'A1F83G8C2ARO7P')
     JP = ('https://mws.amazonservices.jp', 'A1VC38T7YXB528')
-    CN = ('https://mws.amazonservices.com.cn', 'AAHKV2X7AFYLW')
     MX = ('https://mws.amazonservices.com.mx', 'A1AM78C64UM0Y8')
+    UK = ('https://mws-eu.amazonservices.com', 'A1F83G8C2ARO7P')
+    US = ('https://mws.amazonservices.com', 'ATVPDKIKX0DER')
 
     def __init__(self, Endpoint, MarketplaceId):
-        """Easy access like: MARKETPLACES.Endpoint ."""
+        """Easy dot access like: MARKETPLACES.Endpoint ."""
         self.Endpoint = Endpoint
         self.MarketplaceId = MarketplaceId
 
