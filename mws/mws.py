@@ -227,7 +227,7 @@ class MWS(object):
     ACCOUNT_TYPE = "SellerId"
 
     def __init__(self, access_key, secret_key, account_id,
-                 region='US', uri="", version="", auth_token="", proxy=None):
+                 region='US', uri='', version='', auth_token='', proxy=None):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
@@ -242,10 +242,10 @@ class MWS(object):
         if region in MARKETPLACES.__members__:
             self.domain = MARKETPLACES[region].Endpoint
         else:
-            error_msg = "Incorrect region supplied ('{region}'). " \
-                "Must be one of the following: {marketplaces}".format(
-                    marketplaces=', '.join(MARKETPLACES.__members__.keys()),
+            error_msg = 'Incorrect region supplied: {region}. ' \
+                'Must be one of the following: {marketplaces}'.format(
                     region=region,
+                    marketplaces=', '.join(MARKETPLACES.__members__.keys()),
                 )
             raise MWSError(error_msg)
 
