@@ -243,9 +243,9 @@ class MWS(object):
             self.domain = MARKETPLACES[region].Endpoint
         else:
             error_msg = 'Incorrect region supplied: {region}. ' \
-                'Must be one of the following: {marketplaces}'.format(
+                'Must be one of the following: {regions}'.format(
                     region=region,
-                    marketplaces=', '.join(MARKETPLACES.__members__.keys()),
+                    regions=', '.join(MARKETPLACES.__members__.keys()),
                 )
             raise MWSError(error_msg)
 
