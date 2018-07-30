@@ -11,9 +11,9 @@ except (ImportError, OSError):  # either pypandoc or pandoc isn't installed
 
 setup(
     name='mws',
-    version='0.8.5',
+    version='0.8.6',
     maintainer="James Hiew",
-    download_url='https://github.com/python-amazon-mws/python-amazon-mws/archive/v0.8.5.tar.gz',
+    download_url='https://github.com/python-amazon-mws/python-amazon-mws/archive/v0.8.6.tar.gz',
     maintainer_email="james@hiew.net",
     url="http://github.com/jameshiew/mws",
     description=short_description,
