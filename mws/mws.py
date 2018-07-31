@@ -30,9 +30,9 @@ from xml.etree.ElementTree import ParseError as XMLError
 __version__ = '1.0.0dev11'
 
 
-class MARKETPLACES(Enum):
+class Marketplaces(Enum):
     """
-    Format: Country code: Endpoint, MarketplaceId.
+    Format: Country code: endpoint, marketplace_id.
     """
     AU = ('https://mws.amazonservices.com.au', 'A39IBJ37TRP1C6')
     BR = ('https://mws.amazonservices.com', 'A2Q3Y263D00KWC')
@@ -48,10 +48,10 @@ class MARKETPLACES(Enum):
     UK = ('https://mws-eu.amazonservices.com', 'A1F83G8C2ARO7P')
     US = ('https://mws.amazonservices.com', 'ATVPDKIKX0DER')
 
-    def __init__(self, Endpoint, MarketplaceId):
-        """Easy dot access like: MARKETPLACES.Endpoint ."""
-        self.Endpoint = Endpoint
-        self.MarketplaceId = MarketplaceId
+    def __init__(self, endpoint, marketplace_id):
+        """Easy dot access like: Marketplaces.endpoint ."""
+        self.endpoint = endpoint
+        self.marketplace_id = marketplace_id
 
 
 class MWSError(Exception):
@@ -239,13 +239,13 @@ class MWS(object):
         # * TESTING FLAGS * #
         self._test_request_params = False
 
-        if region in MARKETPLACES.__members__:
-            self.domain = MARKETPLACES[region].Endpoint
+        if region in Marketplaces.__members__:
+            self.domain = Marketplaces[region].endpoint
         else:
             error_msg = 'Incorrect region supplied: {region}. ' \
                 'Must be one of the following: {regions}'.format(
                     region=region,
-                    regions=', '.join(MARKETPLACES.__members__.keys()),
+                    regions=', '.join(Marketplaces.__members__.keys()),
                 )
             raise MWSError(error_msg)
 

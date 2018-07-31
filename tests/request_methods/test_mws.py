@@ -1,8 +1,8 @@
 """
-Tests for the mws.MWS class and MARKETPLACES.
+Tests for the mws.MWS class and Marketplaces.
 """
 import pytest
-from mws.mws import MWSError, MWS, MARKETPLACES
+from mws.mws import MWSError, MWS, Marketplaces
 
 mwscred = ['a', 'b', 'c']
 
@@ -21,5 +21,5 @@ def test_marketplaces_enum():
     """
     The way to access the values.
     """
-    assert MARKETPLACES.CA.Endpoint == 'https://mws.amazonservices.ca'
-    assert MARKETPLACES.CA.MarketplaceId == 'A2EUQ1WTGCTBG2'
+    assert Marketplaces.CA.endpoint == 'https://mws.amazonservices.ca'
+    assert Marketplaces.CA.marketplace_id == 'A2EUQ1WTGCTBG2'
