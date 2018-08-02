@@ -17,6 +17,8 @@ import requests
 from requests.exceptions import HTTPError
 from xml.parsers.expat import ExpatError
 import xmltodict
+from enum import Enum
+
 
 from . import utils
 
@@ -29,26 +31,31 @@ try:
 except ImportError:
     from collections import Counter
 
-__version__ = '1.0.0dev10'
+__version__ = '1.0.0dev11'
 
 
-# See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
-# page 8
-# for a list of the end points and marketplace IDs
+class Marketplaces(Enum):
+    """
+    Format: Country code: endpoint, marketplace_id.
+    """
+    AU = ('https://mws.amazonservices.com.au', 'A39IBJ37TRP1C6')
+    BR = ('https://mws.amazonservices.com', 'A2Q3Y263D00KWC')
+    CA = ('https://mws.amazonservices.ca', 'A2EUQ1WTGCTBG2')
+    CN = ('https://mws.amazonservices.com.cn', 'AAHKV2X7AFYLW')
+    DE = ('https://mws-eu.amazonservices.com', 'A1PA6795UKMFR9')
+    ES = ('https://mws-eu.amazonservices.com', 'A1RKKUPIHCS9HS')
+    FR = ('https://mws-eu.amazonservices.com', 'A13V1IB3VIYZZH')
+    IN = ('https://mws.amazonservices.in', 'A21TJRUUN4KGV')
+    IT = ('https://mws-eu.amazonservices.com', 'APJ6JRA9NG5V4')
+    JP = ('https://mws.amazonservices.jp', 'A1VC38T7YXB528')
+    MX = ('https://mws.amazonservices.com.mx', 'A1AM78C64UM0Y8')
+    UK = ('https://mws-eu.amazonservices.com', 'A1F83G8C2ARO7P')
+    US = ('https://mws.amazonservices.com', 'ATVPDKIKX0DER')
 
-MARKETPLACES = {
-    "CA": "https://mws.amazonservices.ca",  # A2EUQ1WTGCTBG2
-    "US": "https://mws.amazonservices.com",  # ATVPDKIKX0DER",
-    "DE": "https://mws-eu.amazonservices.com",  # A1PA6795UKMFR9
-    "ES": "https://mws-eu.amazonservices.com",  # A1RKKUPIHCS9HS
-    "FR": "https://mws-eu.amazonservices.com",  # A13V1IB3VIYZZH
-    "IN": "https://mws.amazonservices.in",  # A21TJRUUN4KGV
-    "IT": "https://mws-eu.amazonservices.com",  # APJ6JRA9NG5V4
-    "UK": "https://mws-eu.amazonservices.com",  # A1F83G8C2ARO7P
-    "JP": "https://mws.amazonservices.jp",  # A1VC38T7YXB528
-    "CN": "https://mws.amazonservices.com.cn",  # AAHKV2X7AFYLW
-    "MX": "https://mws.amazonservices.com.mx",  # A1AM78C64UM0Y8
-}
+    def __init__(self, endpoint, marketplace_id):
+        """Easy dot access like: Marketplaces.endpoint ."""
+        self.endpoint = endpoint
+        self.marketplace_id = marketplace_id
 
 
 class MWSError(Exception):
@@ -248,8 +255,7 @@ class MWS(object):
     ACCOUNT_TYPE = "SellerId"
 
     def __init__(self, access_key, secret_key, account_id,
-                 region='US', domain='', uri="",
-                 version="", auth_token="", proxy=None):
+                 region='US', uri='', version='', auth_token='', proxy=None):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
@@ -261,17 +267,14 @@ class MWS(object):
         # * TESTING FLAGS * #
         self._test_request_params = False
 
-        if domain:
-            # TODO test needed to enter here.
-            self.domain = domain
-        elif region in MARKETPLACES:
-            self.domain = MARKETPLACES[region]
+        if region in Marketplaces.__members__:
+            self.domain = Marketplaces[region].endpoint
         else:
-            # TODO test needed to enter here.
-            error_msg = "Incorrect region supplied ('{region}'). Must be one of the following: {marketplaces}".format(
-                marketplaces=', '.join(MARKETPLACES.keys()),
-                region=region,
-            )
+            error_msg = 'Incorrect region supplied: {region}. ' \
+                'Must be one of the following: {regions}'.format(
+                    region=region,
+                    regions=', '.join(Marketplaces.__members__.keys()),
+                )
             raise MWSError(error_msg)
 
     def get_default_params(self):
