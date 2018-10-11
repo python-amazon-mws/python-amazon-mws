@@ -69,7 +69,7 @@ class OutboundShipments(MWS):
             "FulfillmentPolicy": fulfillment_policy,
         }
 
-        data.update(utils.enumerate_keyed_param("Items.Item", items or []))
+        data.update(utils.enumerate_keyed_param("Items.member", items or []))
         data.update(utils.dict_keyed_param("DestinationAddress", destination_address or {}))
         data.update(utils.dict_keyed_param("CODSettings", cod_settings or {}))
         data.update(utils.dict_keyed_param("DeliveryWindow", delivery_window or {}))
