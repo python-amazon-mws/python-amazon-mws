@@ -51,14 +51,18 @@ class OutboundShipments(MWS):
         """
         raise NotImplementedError
 
-    def get_fulfillment_order(self):
+    def get_fulfillment_order(self, seller_fulfillment_order_id):
         """
         Returns a fulfillment order based on a specified SellerFulfillmentOrderId.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetFulfillmentOrder.html
         """
-        raise NotImplementedError
+        data = dict(
+            Action="GetFulfillmentOrder",
+            SellerFulfillmentOrderId=seller_fulfillment_order_id,
+        )
+        return self.make_request(data)
 
     @next_token_action('ListAllFulfillmentOrders')
     def list_all_fulfillment_orders(self, next_token=None):
@@ -82,7 +86,7 @@ class OutboundShipments(MWS):
         raise NotImplementedError
         # return self.list_all_fulfillment_orders(next_token=token)
 
-    def get_package_tracking_details(self):
+    def get_package_tracking_details(self, package_number):
         """
         Returns delivery tracking information for a package in an outbound shipment for a
         Multi-Channel Fulfillment order.
@@ -90,7 +94,8 @@ class OutboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetPackageTrackingDetails.html
         """
-        raise NotImplementedError
+        data = dict(Action="GetPackageTrackingDetails", PackageNumber=package_number)
+        return self.make_request(data)
 
     def cancel_fulfillment_order(self):
         """
