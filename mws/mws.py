@@ -115,22 +115,28 @@ class DataWrapper(object):
     """
     For all responses this is the rich object, you find all attributes here.
 
-    We have different recommended attributes for xml and textfiles.
+    We highly recommend to use the property apiresponse.parsed
+    it works for all responses.
+
+    You can also manually choose different recommended attributes
+    for xml and textfiles.
+
+    The recommended objects should be enough for all users.
+    Additional details:
+    The decoding we used you can find in apiresponse.original.encoding.
 
     The request.Response object is central, now its only a fallback:
     docs: http://docs.python-requests.org/en/master/api/#requests.Response
-    access: apiresponse.original
+    apiresponse.original
     """
 
     def __init__(self, data, rootkey=None, force_cdata=False):
         """
-        Easy access for nicely processed response objets.
-
-        You always get unicode strings back, with the best guess for decoding.
-        We use the requests library to decode and unzip the raw response.
+        Besides the recommended apiresponse.parsed property, we offer a couple
+        of useful attributes here.
         """
-        # Fallback and meta attributes for xml and textfiles
-        self.original = data  # requests.request response object
+        # Fallback, raw and meta attributes for xml and textfiles
+        self.original = data  # requests.request response object, link above
         self.headers = self.original.headers  # just easier to access
 
         # Recommended attributes only for xml
@@ -153,9 +159,9 @@ class DataWrapper(object):
         self.original.encoding = self.guess_encoding()
         textdata = self.original.text
         # We don't trust the amazon content marker.
-        try:
+        try:  # try to parse as xml
             self._xml2dict(textdata)
-        except ExpatError:
+        except ExpatError:  # if it's not xml its a plain textfile, like a csv
             self.textdata = textdata
 
     def guess_encoding(self):
@@ -183,7 +189,8 @@ class DataWrapper(object):
                                        namespaces=namespaces,
                                        force_cdata=self._force_cdata)
         # unpack if possible, important for accessing the rootkey
-        self.pydict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
+        self.pydict = self._mydict.get(list(self._mydict.keys())[0],
+                                       self._mydict)
         self.dot_dict = utils.DotDict(self.pydict)
 
     def _extract_namespaces(self, rawdata):
