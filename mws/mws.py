@@ -26,10 +26,6 @@ try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
-try:
-    from collections.abc import Counter
-except ImportError:
-    from collections import Counter
 
 __version__ = '1.0.0dev11'
 
@@ -117,7 +113,13 @@ def validate_hash(response):
 
 class DataWrapper(object):
     """
-    Main class that handles all responses.
+    For all responses this is the rich object, you find all attributes here.
+
+    We have different recommended attributes for xml and textfiles.
+
+    The request.Response object is central, now its only a fallback:
+    docs: http://docs.python-requests.org/en/master/api/#requests.Response
+    access: apiresponse.original
     """
 
     def __init__(self, data, rootkey=None, force_cdata=False):
@@ -127,17 +129,18 @@ class DataWrapper(object):
         You always get unicode strings back, with the best guess for decoding.
         We use the requests library to decode and unzip the raw response.
         """
-        # Attributes for xml and texfiles
-        self.original = data  # reqests.request response object
+        # Fallback and meta attributes for xml and textfiles
+        self.original = data  # requests.request response object
         self.headers = self.original.headers  # just easier to access
 
-        # Attributes only for xml
+        # Recommended attributes only for xml
         self.pydict = None  # alternative to xml parsed or dot_dict
         self.dot_dict = None  # fallback for xml parsed
 
-        # Attribute only for textdata
+        # Recommended attribute only for textdata
         self.textdata = None
 
+        # parsing
         self._rootkey = rootkey
         self._force_cdata = force_cdata
         self._main()
@@ -158,9 +161,6 @@ class DataWrapper(object):
     def guess_encoding(self):
         """
         Detecting encoding incrementally with a hotfix.
-
-        We are not aiming for the correct charset.
-        We just decode with a charset which returns the correct string.
         """
         # fix for one none ascii character
         chardet.utf8prober.UTF8Prober.ONE_CHAR_PROB = 0.26
@@ -198,11 +198,9 @@ class DataWrapper(object):
     def parsed(self):
         """
         Recieve a nice formatted response, this can be your default.
-
-        Fallback to the original attribute if you encounter issues.
         """
         if self.dot_dict is not None:
-            # when we succesful parsed a xml response
+            # When we have succesful parsed a xml response.
             if self._rootkey != 'ignore':
                 return self.dot_dict.get(self._rootkey, None)
             else:
