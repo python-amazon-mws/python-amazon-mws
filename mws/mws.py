@@ -157,7 +157,7 @@ class DataWrapper(object):
 
     def guess_encoding(self):
         """
-        Faster implementation of requests.apparent_encoding.
+        Detecting encoding incrementally with a hotfix.
 
         We are not aiming for the correct charset.
         We just decode with a charset which returns the correct string.
@@ -165,23 +165,13 @@ class DataWrapper(object):
         # fix for one none ascii character
         chardet.utf8prober.UTF8Prober.ONE_CHAR_PROB = 0.26
         bytelist = self.original.content.splitlines()
-        guess = []
         detector = chardet.UniversalDetector()
         for line in bytelist:
-            detector.reset()
             detector.feed(line)
-            detector.close()
-            is_not_none = detector.result['encoding'] is not None  # not empty lines
-            is_not_ascii = detector.result['encoding'] != 'ascii'
-            if is_not_ascii and is_not_none:
-                guess.append(detector.result['encoding'])
-                if len(guess) > 30:
-                    break  # for none ASCII heavy objects, 10X faster
-        if guess == []:
-            return 'utf8'
-        else:
-            data = Counter(guess)
-            return data.most_common(1)[0][0]
+            if detector.done:
+                break
+        detector.close()
+        return detector.result['encoding']
 
     def _xml2dict(self, rawdata):
         """
