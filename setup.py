@@ -32,7 +32,7 @@ setuptools.setup(
     url="http://github.com/jameshiew/mws",
     description=short_description,
     long_description=long_description,
-    packages=['mws'],
+    packages=['mws', 'mws.apis'],
     install_requires=requires,
     extras_require=extras_require,
     classifiers=[

@@ -90,7 +90,7 @@ def calc_request_description(params):
 def clean_params(params):
     """Input cleanup and prevent a lot of common input mistakes."""
     # silently remove parameter where values are empty
-    params = {k: v for k, v in params.items() if v}
+    params = {k: v for k, v in params.items() if v is not None}
 
     params_enc = dict()
     for key, value in params.items():
