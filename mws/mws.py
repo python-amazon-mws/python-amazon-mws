@@ -2,8 +2,6 @@
 """
 Main module for python-amazon-mws package.
 """
-# TODO: Add Subscriptions class
-# TODO: Add Merchant Fulfillment class
 
 from __future__ import absolute_import
 
@@ -13,9 +11,12 @@ import hashlib
 import hmac
 import re
 import warnings
+from zipfile import ZipFile
+from io import BytesIO
 
 from requests import request
 from requests.exceptions import HTTPError
+from enum import Enum
 
 from . import utils
 
@@ -23,32 +24,34 @@ try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
-try:
-    from xml.etree.ElementTree import ParseError as XMLError
-except ImportError:
-    from xml.parsers.expat import ExpatError as XMLError
+from xml.etree.ElementTree import ParseError as XMLError
 
 
-__version__ = '1.0.0dev0'
+__version__ = '1.0.0dev11'
 
 
-# See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
-# page 8
-# for a list of the end points and marketplace IDs
+class Marketplaces(Enum):
+    """
+    Format: Country code: endpoint, marketplace_id.
+    """
+    AU = ('https://mws.amazonservices.com.au', 'A39IBJ37TRP1C6')
+    BR = ('https://mws.amazonservices.com', 'A2Q3Y263D00KWC')
+    CA = ('https://mws.amazonservices.ca', 'A2EUQ1WTGCTBG2')
+    CN = ('https://mws.amazonservices.com.cn', 'AAHKV2X7AFYLW')
+    DE = ('https://mws-eu.amazonservices.com', 'A1PA6795UKMFR9')
+    ES = ('https://mws-eu.amazonservices.com', 'A1RKKUPIHCS9HS')
+    FR = ('https://mws-eu.amazonservices.com', 'A13V1IB3VIYZZH')
+    IN = ('https://mws.amazonservices.in', 'A21TJRUUN4KGV')
+    IT = ('https://mws-eu.amazonservices.com', 'APJ6JRA9NG5V4')
+    JP = ('https://mws.amazonservices.jp', 'A1VC38T7YXB528')
+    MX = ('https://mws.amazonservices.com.mx', 'A1AM78C64UM0Y8')
+    UK = ('https://mws-eu.amazonservices.com', 'A1F83G8C2ARO7P')
+    US = ('https://mws.amazonservices.com', 'ATVPDKIKX0DER')
 
-MARKETPLACES = {
-    "CA": "https://mws.amazonservices.ca",  # A2EUQ1WTGCTBG2
-    "US": "https://mws.amazonservices.com",  # ATVPDKIKX0DER",
-    "DE": "https://mws-eu.amazonservices.com",  # A1PA6795UKMFR9
-    "ES": "https://mws-eu.amazonservices.com",  # A1RKKUPIHCS9HS
-    "FR": "https://mws-eu.amazonservices.com",  # A13V1IB3VIYZZH
-    "IN": "https://mws.amazonservices.in",  # A21TJRUUN4KGV
-    "IT": "https://mws-eu.amazonservices.com",  # APJ6JRA9NG5V4
-    "UK": "https://mws-eu.amazonservices.com",  # A1F83G8C2ARO7P
-    "JP": "https://mws.amazonservices.jp",  # A1VC38T7YXB528
-    "CN": "https://mws.amazonservices.com.cn",  # AAHKV2X7AFYLW
-    "MX": "https://mws.amazonservices.com.mx",  # A1AM78C64UM0Y8
-}
+    def __init__(self, endpoint, marketplace_id):
+        """Easy dot access like: Marketplaces.endpoint ."""
+        self.endpoint = endpoint
+        self.marketplace_id = marketplace_id
 
 
 class MWSError(Exception):
@@ -92,9 +95,9 @@ def clean_params(params):
     params_enc = dict()
     for key, value in params.items():
         if isinstance(value, (dict, list, set, tuple)):
-            message = 'expected string or datetime datatype, got {},' \
-                      'for key {} and value {}'.format(
-                type(value), key, str(value))
+            message = 'expected string or datetime datatype, got {},'\
+                'for key {} and value {}'.format(
+                    type(value), key, str(value))
             raise MWSError(message)
         if isinstance(value, (datetime.datetime, datetime.date)):
             value = value.isoformat()
@@ -105,6 +108,7 @@ def clean_params(params):
         params_enc[key] = quote(value, safe='-_.~')
     return params_enc
 
+
 def remove_namespace(xml):
     """
     Strips the namespace from XML document contained in a string.
@@ -114,26 +118,15 @@ def remove_namespace(xml):
     return regex.sub('', xml)
 
 
-def assert_no_token(token):
-    """
-    We allow passing a next_token as an argument to request methods that have an associated
-    "...ByNextToken" operation. This token should be captured by `utils.next_token_action` and handled
-    accordingly, bypassing the original request method.
-
-    If a non-None token propagates to the original method, then something has gone awry.
-    This ensures we get notified when/if that happens (which it shouldn't).
-    """
-    assert token is None, (
-        "`next_token` passed to request method. "
-        "Should have been parsed by `next_token_action` decorator."
-    )
-
-
 class DictWrapper(object):
     """
     Main class that converts XML data to a parsed response object as a tree of ObjectDicts,
     stored in the .parsed property.
     """
+    # TODO create a base class for DictWrapper and DataWrapper with all the keys we expect in responses.
+    # This will make it easier to use either class in place of each other.
+    # Either this, or pile everything into DataWrapper and make it able to handle all cases.
+
     def __init__(self, xml, rootkey=None):
         self.original = xml
         self.response = None
@@ -147,7 +140,7 @@ class DictWrapper(object):
         Provides access to the parsed contents of an XML response as a tree of ObjectDicts.
         """
         if self._rootkey:
-            return self._response_dict.get(self._rootkey)
+            return self._response_dict.get(self._rootkey, self._response_dict)
         return self._response_dict
 
 
@@ -155,13 +148,15 @@ class DataWrapper(object):
     """
     Text wrapper in charge of validating the hash sent by Amazon.
     """
-    def __init__(self, data, header):
+
+    def __init__(self, data, headers):
         self.original = data
         self.response = None
-        if 'content-md5' in header:
+        self.headers = headers
+        if 'content-md5' in self.headers:
             hash_ = utils.calc_md5(self.original)
-            if header['content-md5'].encode() != hash_:
-                raise MWSError("Wrong Contentlength, maybe amazon error...")
+            if self.headers['content-md5'].encode() != hash_:
+                raise MWSError("Wrong Content length, maybe amazon error...")
 
     @property
     def parsed(self):
@@ -170,6 +165,27 @@ class DataWrapper(object):
         that could not be parsed as XML.
         """
         return self.original
+
+    """
+    To return an unzipped file object based on the content type"
+    """
+    @property
+    def unzipped(self):
+        """
+        If the response is comprised of a zip file, returns a ZipFile object of those file contents.
+
+        Otherwise, returns None.
+        """
+        if self.headers['content-type'] == 'application/zip':
+            try:
+                with ZipFile(BytesIO(self.original)) as unzipped_fileobj:
+                    # unzipped the zip file contents
+                    unzipped_fileobj.extractall()
+                    # return original zip file object to the user
+                    return unzipped_fileobj
+            except Exception as exc:
+                raise MWSError(str(exc))
+        return None  # 'The response is not a zipped file.'
 
 
 class MWS(object):
@@ -211,8 +227,7 @@ class MWS(object):
     ACCOUNT_TYPE = "SellerId"
 
     def __init__(self, access_key, secret_key, account_id,
-                 region='US', domain='', uri="",
-                 version="", auth_token="", proxy=None):
+                 region='US', uri='', version='', auth_token='', proxy=None):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
@@ -224,15 +239,14 @@ class MWS(object):
         # * TESTING FLAGS * #
         self._test_request_params = False
 
-        if domain:
-            self.domain = domain
-        elif region in MARKETPLACES:
-            self.domain = MARKETPLACES[region]
+        if region in Marketplaces.__members__:
+            self.domain = Marketplaces[region].endpoint
         else:
-            error_msg = "Incorrect region supplied ('{region}'). Must be one of the following: {marketplaces}".format(
-                marketplaces=', '.join(MARKETPLACES.keys()),
-                region=region,
-            )
+            error_msg = 'Incorrect region supplied: {region}. ' \
+                'Must be one of the following: {regions}'.format(
+                    region=region,
+                    regions=', '.join(Marketplaces.__members__.keys()),
+                )
             raise MWSError(error_msg)
 
     def get_default_params(self):
@@ -249,27 +263,23 @@ class MWS(object):
         }
         if self.auth_token:
             params['MWSAuthToken'] = self.auth_token
+        # TODO current tests only check for auth_token being set.
+        # need a branch test to check for auth_token being skipped (no key present)
         return params
 
     def make_request(self, extra_data, method="GET", **kwargs):
         """
         Make request to Amazon MWS API with these parameters
         """
-        # Remove all keys with an empty value because
-        # Amazon's MWS does not allow such a thing.
-        extra_data = remove_empty(extra_data)
-
-        # convert all Python date/time objects to isoformat
-        for key, value in extra_data.items():
-            if isinstance(value, (datetime.datetime, datetime.date)):
-                extra_data[key] = value.isoformat()
-
         params = self.get_default_params()
         proxies = self.get_proxies()
         params.update(extra_data)
+        params = clean_params(params)
+
         if self._test_request_params:
             # Testing method: return the params from this request before the request is made.
             return params
+        # TODO: All current testing stops here. More branches needed.
 
         request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
@@ -287,7 +297,8 @@ class MWS(object):
             # My answer is, here i have to get the url parsed string of params in order to sign it, so
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
-            response = request(method, url, data=kwargs.get('body', ''), headers=headers, proxies=proxies)
+            response = request(method, url, data=kwargs.get(
+                'body', ''), headers=headers, proxies=proxies, timeout=kwargs.get('timeout', 300))
             response.raise_for_status()
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
@@ -319,6 +330,7 @@ class MWS(object):
     def get_proxies(self):
         proxies = {"http": None, "https": None}
         if self.proxy:
+            # TODO need test to enter here
             proxies = {
                 "http": "http://{}".format(self.proxy),
                 "https": "https://{}".format(self.proxy),
@@ -340,6 +352,8 @@ class MWS(object):
         at the end of its name for this call: function will add that by itself.
         """
         if action not in self.NEXT_TOKEN_OPERATIONS:
+            # TODO Would like a test entering here.
+            # Requires a dummy API class to be written that will trigger it.
             raise MWSError((
                 "{} action not listed in this API's NEXT_TOKEN_OPERATIONS. "
                 "Please refer to documentation."
@@ -375,6 +389,8 @@ class MWS(object):
         Please use `utils.enumerate_param` for one param, or
         `utils.enumerate_params` for multiple params.
         """
+        # TODO remove in 1.0 release.
+        # No tests needed.
         warnings.warn((
             "Please use `utils.enumerate_param` for one param, or "
             "`utils.enumerate_params` for multiple params."

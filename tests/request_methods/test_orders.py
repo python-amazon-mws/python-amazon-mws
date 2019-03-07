@@ -4,7 +4,7 @@ Tests for the Orders API class.
 import datetime
 import unittest
 import mws
-from .utils import CommonRequestTestTools
+from .utils import CommonRequestTestTools, transform_date
 
 
 class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
@@ -12,6 +12,7 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
     Test cases for Orders.
     """
     # TODO: Add remaining methods for Orders
+
     def setUp(self):
         self.api = mws.Orders(
             self.CREDENTIAL_ACCESS,
@@ -26,13 +27,9 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
         ListOrders operation.
         """
         created_after = datetime.datetime.utcnow()
-        created_after_stamp = created_after.isoformat()
         created_before = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-        created_before_stamp = created_before.isoformat()
         last_updated_after = datetime.datetime.utcnow() + datetime.timedelta(hours=2)
-        last_updated_after_stamp = last_updated_after.isoformat()
         last_updated_before = datetime.datetime.utcnow() + datetime.timedelta(hours=3)
-        last_updated_before_stamp = last_updated_before.isoformat()
         max_results = 83
         marketplace_ids = [
             'DV1t7ZOrjM',
@@ -72,13 +69,13 @@ class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'ListOrders')
-        self.assertEqual(params['CreatedAfter'], created_after_stamp)
-        self.assertEqual(params['CreatedBefore'], created_before_stamp)
-        self.assertEqual(params['LastUpdatedAfter'], last_updated_after_stamp)
-        self.assertEqual(params['LastUpdatedBefore'], last_updated_before_stamp)
-        self.assertEqual(params['BuyerEmail'], buyer_email)
+        self.assertEqual(params['CreatedAfter'], transform_date(created_after))
+        self.assertEqual(params['CreatedBefore'], transform_date(created_before))
+        self.assertEqual(params['LastUpdatedAfter'], transform_date(last_updated_after))
+        self.assertEqual(params['LastUpdatedBefore'], transform_date(last_updated_before))
+        self.assertEqual(params['BuyerEmail'], 'dudley.do.right%40example.com')
         self.assertEqual(params['SellerOrderId'], seller_order_id)
-        self.assertEqual(params['MaxResultsPerPage'], max_results)
+        self.assertEqual(params['MaxResultsPerPage'], str(max_results))
         self.assertEqual(params['OrderStatus.Status.1'], order_statuses[0])
         self.assertEqual(params['OrderStatus.Status.2'], order_statuses[1])
         self.assertEqual(params['MarketplaceId.Id.1'], marketplace_ids[0])

@@ -11,6 +11,7 @@ class OutboundShipmentsTestCase(unittest.TestCase, CommonRequestTestTools):
     Test cases for OutboundShipments.
     """
     # TODO: Add remaining methods for OutboundShipments
+
     def setUp(self):
         self.api = mws.OutboundShipments(
             self.CREDENTIAL_ACCESS,
