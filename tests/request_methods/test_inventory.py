@@ -4,13 +4,14 @@ Tests for the MWS.Inventory API class.
 import unittest
 import datetime
 import mws
-from .utils import CommonRequestTestTools
+from .utils import CommonRequestTestTools, transform_date
 
 
 class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):
     """
     Test cases for Inventory.
     """
+
     def setUp(self):
         self.api = mws.Inventory(
             self.CREDENTIAL_ACCESS,
@@ -25,13 +26,12 @@ class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):
         ListInventorySupply operation
         """
         now = datetime.datetime.utcnow()
-        now_timestamp = now.isoformat()
         skus = ['thing1', 'thing2']
         response_group = 'Detailed'
         params = self.api.list_inventory_supply(skus, now, response_group=response_group)
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'ListInventorySupply')
-        self.assertEqual(params['QueryStartDateTime'], now_timestamp)
+        self.assertEqual(params['QueryStartDateTime'], transform_date(now))
         self.assertEqual(params['ResponseGroup'], 'Detailed')
         self.assertEqual(params['SellerSkus.member.1'], 'thing1')
         self.assertEqual(params['SellerSkus.member.2'], 'thing2')

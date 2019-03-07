@@ -4,7 +4,7 @@ Tests for the Reports API class.
 import datetime
 import unittest
 import mws
-from .utils import CommonRequestTestTools
+from .utils import CommonRequestTestTools, transform_date, transform_bool
 
 
 class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
@@ -12,6 +12,7 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
     Test cases for Reports.
     """
     # TODO: Add remaining methods for Reports
+
     def setUp(self):
         self.api = mws.Reports(
             self.CREDENTIAL_ACCESS,
@@ -26,8 +27,8 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         RequestReport operation.
         """
         report_type = '_GET_FLAT_FILE_OPEN_LISTINGS_DATA_'
-        start_date = datetime.datetime.utcnow()
-        end_date = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        start_date = datetime.datetime(2018, 4, 30, 22, 59, 59)
+        end_date = datetime.datetime(2018, 4, 30, 23, 59, 59)
         marketplace_ids = [
             'iQzBCmf1y3',
             'wH9q0CiEMp',
@@ -38,13 +39,34 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
             end_date=end_date,
             marketplace_ids=marketplace_ids,
         )
+
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'RequestReport')
         self.assertEqual(params['ReportType'], report_type)
-        self.assertEqual(params['StartDate'], start_date.isoformat())
-        self.assertEqual(params['EndDate'], end_date.isoformat())
+        self.assertEqual(params['StartDate'], '2018-04-30T22%3A59%3A59')
+        self.assertEqual(params['EndDate'], '2018-04-30T23%3A59%3A59')
         self.assertEqual(params['MarketplaceIdList.Id.1'], marketplace_ids[0])
         self.assertEqual(params['MarketplaceIdList.Id.2'], marketplace_ids[1])
+
+    def test_parameter_error(self):
+            """
+            RequestReport wrong parameter
+            """
+            # list will throw error
+            report_type = ['_GET_FLAT_FILE_OPEN_LISTINGS_DATA_']
+            start_date = datetime.datetime(2018, 4, 30, 22, 59, 59)
+            end_date = datetime.datetime(2018, 4, 30, 23, 59, 59)
+            marketplace_ids = [
+                'iQzBCmf1y3',
+                'wH9q0CiEMp',
+            ]
+            with self.assertRaises(mws.MWSError):
+                self.api.request_report(
+                    report_type=report_type,
+                    start_date=start_date,
+                    end_date=end_date,
+                    marketplace_ids=marketplace_ids,
+                )
 
     def test_get_report_request_list(self):
         """
@@ -75,9 +97,9 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetReportRequestList')
-        self.assertEqual(params['MaxCount'], max_count)
-        self.assertEqual(params['RequestedFromDate'], from_date.isoformat())
-        self.assertEqual(params['RequestedToDate'], to_date.isoformat())
+        self.assertEqual(params['MaxCount'], str(max_count))
+        self.assertEqual(params['RequestedFromDate'], transform_date(from_date))
+        self.assertEqual(params['RequestedToDate'], transform_date(to_date))
         self.assertEqual(params['ReportRequestIdList.Id.1'], request_ids[0])
         self.assertEqual(params['ReportRequestIdList.Id.2'], request_ids[1])
         self.assertEqual(params['ReportTypeList.Type.1'], report_types[0])
@@ -127,8 +149,8 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetReportRequestCount')
-        self.assertEqual(params['RequestedFromDate'], from_date.isoformat())
-        self.assertEqual(params['RequestedToDate'], to_date.isoformat())
+        self.assertEqual(params['RequestedFromDate'], transform_date(from_date))
+        self.assertEqual(params['RequestedToDate'], transform_date(to_date))
         self.assertEqual(params['ReportTypeList.Type.1'], report_types[0])
         self.assertEqual(params['ReportTypeList.Type.2'], report_types[1])
         self.assertEqual(params['ReportProcessingStatusList.Status.1'], processing_statuses[0])
@@ -160,10 +182,10 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetReportList')
-        self.assertEqual(params['Acknowledged'], acknowledged)
-        self.assertEqual(params['AvailableFromDate'], from_date.isoformat())
-        self.assertEqual(params['AvailableToDate'], to_date.isoformat())
-        self.assertEqual(params['MaxCount'], max_count)
+        self.assertEqual(params['Acknowledged'], transform_bool(acknowledged))
+        self.assertEqual(params['AvailableFromDate'], transform_date(from_date))
+        self.assertEqual(params['AvailableToDate'], transform_date(to_date))
+        self.assertEqual(params['MaxCount'], str(max_count))
         self.assertEqual(params['ReportRequestIdList.Id.1'], request_ids[0])
         self.assertEqual(params['ReportRequestIdList.Id.2'], request_ids[1])
         self.assertEqual(params['ReportTypeList.Type.1'], report_types[0])
@@ -208,9 +230,9 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
         self.assert_common_params(params)
         self.assertEqual(params['Action'], 'GetReportCount')
-        self.assertEqual(params['Acknowledged'], acknowledged)
-        self.assertEqual(params['AvailableFromDate'], from_date.isoformat())
-        self.assertEqual(params['AvailableToDate'], to_date.isoformat())
+        self.assertEqual(params['Acknowledged'], transform_bool(acknowledged))
+        self.assertEqual(params['AvailableFromDate'], transform_date(from_date))
+        self.assertEqual(params['AvailableToDate'], transform_date(to_date))
         self.assertEqual(params['ReportTypeList.Type.1'], report_types[0])
         self.assertEqual(params['ReportTypeList.Type.2'], report_types[1])
 

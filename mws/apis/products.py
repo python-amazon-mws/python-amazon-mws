@@ -94,7 +94,7 @@ class Products(MWS):
         data.update(utils.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
-    def get_lowest_offer_listings_for_sku(self, marketplace_id, skus, condition="Any", exclude_me="False"):
+    def get_lowest_offer_listings_for_sku(self, marketplace_id, skus, condition="Any", exclude_me="false"):
         """
         Returns pricing information for the lowest-price active offer listings for up to 20 products,
         based on SellerSKU.
@@ -111,7 +111,7 @@ class Products(MWS):
         data.update(utils.enumerate_param('SellerSKUList.SellerSKU.', skus))
         return self.make_request(data)
 
-    def get_lowest_offer_listings_for_asin(self, marketplace_id, asins, condition="Any", exclude_me="False"):
+    def get_lowest_offer_listings_for_asin(self, marketplace_id, asins, condition="Any", exclude_me="false"):
         """
         Returns pricing information for the lowest-price active offer listings for up to 20 products, based on ASIN.
 
@@ -127,7 +127,7 @@ class Products(MWS):
         data.update(utils.enumerate_param('ASINList.ASIN.', asins))
         return self.make_request(data)
 
-    def get_lowest_priced_offers_for_sku(self, marketplace_id, sku, condition="New", exclude_me="False"):
+    def get_lowest_priced_offers_for_sku(self, marketplace_id, sku, condition="New", exclude_me="false"):
         """
         Returns lowest priced offers for a single product, based on SellerSKU.
 
@@ -143,7 +143,7 @@ class Products(MWS):
         }
         return self.make_request(data)
 
-    def get_lowest_priced_offers_for_asin(self, marketplace_id, asin, condition="New", exclude_me="False"):
+    def get_lowest_priced_offers_for_asin(self, marketplace_id, asin, condition="New", exclude_me="false"):
         """
         Returns lowest priced offers for a single product, based on ASIN.
 

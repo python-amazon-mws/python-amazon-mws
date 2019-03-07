@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from setuptools import setup
+import setuptools
+import sys
 
 short_description = 'Python library for interacting with the Amazon MWS API'
 
@@ -9,18 +10,31 @@ try:
 except (ImportError, OSError):  # either pypandoc or pandoc isn't installed
     long_description = "See README.md"
 
-setup(
+requires = [
+    'requests',
+],
+extras_require = {
+    ":python_version<'3.4'": ['enum34'],
+}
+
+# Fix for old setuptools versions.
+# (Copied from source of the flake8 package)
+if int(setuptools.__version__.split('.')[0]) < 18:
+    extras_require = {}
+    if sys.version_info < (3, 4):
+        requires.append('enum34')
+
+setuptools.setup(
     name='mws',
-    version='1.0.0dev0',
+    version='1.0.0dev11',
     maintainer="James Hiew",
     maintainer_email="james@hiew.net",
     url="http://github.com/jameshiew/mws",
     description=short_description,
     long_description=long_description,
     packages=['mws'],
-    install_requires=[
-        'requests',
-    ],
+    install_requires=requires,
+    extras_require=extras_require,
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Web Environment',

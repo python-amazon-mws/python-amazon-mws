@@ -11,7 +11,7 @@ def test_calc_request_description(access_key, account_id):
         'AWSAccessKeyId': access_key,
         'Markets': account_id,
         'SignatureVersion': '2',
-        'Timestamp': '2017-08-12T19:40:35Z',
+        'Timestamp': '2017-08-12T19%3A40%3A35Z',
         'Version': '2017-01-01',
         'SignatureMethod': 'HmacSHA256',
     })
