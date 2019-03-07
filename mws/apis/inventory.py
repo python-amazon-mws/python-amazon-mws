@@ -23,7 +23,7 @@ class Inventory(MWS):
     ]
 
     @next_token_action('ListInventorySupply')
-    def list_inventory_supply(self, skus=(), merchant_id=None, datetime_=None,
+    def list_inventory_supply(self, skus=(), marketplace_id=None, datetime_=None,
                               response_group='Basic', next_token=None):
         """
         Returns information on available inventory
@@ -37,7 +37,7 @@ class Inventory(MWS):
             'Action': 'ListInventorySupply',
             'QueryStartDateTime': datetime_,
             'ResponseGroup': response_group,
-            'MerchantId': merchant_id
+            'MerchantId': marketplace_id
         }
         data.update(utils.enumerate_param('SellerSkus.member.', skus))
         return self.make_request(data, "POST")
