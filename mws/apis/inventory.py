@@ -23,7 +23,7 @@ class Inventory(MWS):
     ]
 
     @next_token_action('ListInventorySupply')
-    def list_inventory_supply(self, skus=(), merchant_id=None,  datetime_=None,
+    def list_inventory_supply(self, skus=(), merchant_id=None, datetime_=None,
                               response_group='Basic', next_token=None):
         """
         Returns information on available inventory
