@@ -75,7 +75,6 @@ def calc_md5(string):
     md5_hash.update(string)
     return base64.b64encode(md5_hash.digest()).strip(b'\n')
 
-<<<<<<< HEAD
 
 def calc_request_description(params):
     request_description = ''
@@ -83,44 +82,13 @@ def calc_request_description(params):
         encoded_value = quote(params[key], safe='-_.~')
         request_description += '&{}={}'.format(key, encoded_value)
     return request_description[1:]  # don't include leading ampersand
-=======
-    Each key-value pair takes the form "key=value"
-    Sets of "key=value" pairs are joined by "&".
-    Keys should appear in alphabetical order in the result string.
 
-    Example:
-      params = {'foo': 1, 'bar': 4, 'baz': 'potato'}
-    Returns:
-      "bar=4&baz=potato&foo=1"
+
+def remove_empty(dict_):
     """
-    description_items = []
-    for item in sorted(params.keys()):
-        encoded_val = params[item]
-        description_items.append('{}={}'.format(item, encoded_val))
-    return '&'.join(description_items)
->>>>>>> parent of 1a15914... Merge branch 'develop' into develop
-
-
-def clean_params(params):
-    """Input cleanup and prevent a lot of common input mistakes."""
-    # silently remove parameter where values are empty
-    params = {k: v for k, v in params.items() if v}
-
-    params_enc = dict()
-    for key, value in params.items():
-        if isinstance(value, (dict, list, set, tuple)):
-            message = 'expected string or datetime datatype, got {},'\
-                'for key {} and value {}'.format(
-                    type(value), key, str(value))
-            raise MWSError(message)
-        if isinstance(value, (datetime.datetime, datetime.date)):
-            value = value.isoformat()
-        if isinstance(value, bool):
-            value = str(value).lower()
-        value = str(value)
-
-        params_enc[key] = quote(value, safe='-_.~')
-    return params_enc
+    Returns dict_ with all empty values removed.
+    """
+    return {k: v for k, v in dict_.items() if v}
 
 
 def remove_namespace(xml):
