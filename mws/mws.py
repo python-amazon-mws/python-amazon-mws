@@ -1121,6 +1121,46 @@ class InboundShipments(MWS):
             ))
         return self.make_request(data, method="POST")
 
+    def get_inbound_guidance_for_sku(self, skus=None, marketplace_id=None):
+        """
+        Returns inbound guidance for a list of items by Seller SKU
+        to help you decide if an item should be sent to a given marketplace.
+        """
+        market_place_id = market_place_id or 'ATVPDKIKX0DER'
+        skus = skus or []
+
+        # 'skus' should be a unique list, or there may be an error returned.
+        skus = utils.unique_list_order_preserved(skus)
+
+        data = dict(
+            Action='GetInboundGuidanceForSKU',
+            MarketplaceId=market_place_id,
+        )
+        data.update(utils.enumerate_params({
+            'SellerSKUList.ID.': skus,
+        }))
+        return self.make_request(data, method="POST")
+
+    def get_inbound_guidance_for_asin(self, asins=None, marketplace_id=None):
+        """
+        Returns inbound guidance for a list of items by ASIN
+        to help you decide if an item should be sent to a given marketplace.
+        """
+        market_place_id = market_place_id or 'ATVPDKIKX0DER'
+        asins = asins or []
+
+        # 'asins' should be a unique list, or there may be an error returned.
+        asins = utils.unique_list_order_preserved(asins)
+
+        data = dict(
+            Action='GetInboundGuidanceForASIN',
+            MarketplaceId=market_place_id,
+        )
+        data.update(utils.enumerate_params({
+            'ASINList.ID.': asins,
+        }))
+        return self.make_request(data, method="POST")
+
     def get_prep_instructions_for_sku(self, skus=None, country_code=None):
         """
         Returns labeling requirements and item preparation instructions
