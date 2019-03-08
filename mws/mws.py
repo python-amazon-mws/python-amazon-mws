@@ -1126,7 +1126,7 @@ class InboundShipments(MWS):
         Returns inbound guidance for a list of items by Seller SKU
         to help you decide if an item should be sent to a given marketplace.
         """
-        market_place_id = market_place_id or 'ATVPDKIKX0DER'
+        marketplace_id = marketplace_id or 'ATVPDKIKX0DER'
         skus = skus or []
 
         # 'skus' should be a unique list, or there may be an error returned.
@@ -1134,7 +1134,7 @@ class InboundShipments(MWS):
 
         data = dict(
             Action='GetInboundGuidanceForSKU',
-            MarketplaceId=market_place_id,
+            MarketplaceId=marketplace_id,
         )
         data.update(utils.enumerate_params({
             'SellerSKUList.ID.': skus,
@@ -1146,7 +1146,7 @@ class InboundShipments(MWS):
         Returns inbound guidance for a list of items by ASIN
         to help you decide if an item should be sent to a given marketplace.
         """
-        market_place_id = market_place_id or 'ATVPDKIKX0DER'
+        marketplace_id = marketplace_id or 'ATVPDKIKX0DER'
         asins = asins or []
 
         # 'asins' should be a unique list, or there may be an error returned.
@@ -1154,7 +1154,7 @@ class InboundShipments(MWS):
 
         data = dict(
             Action='GetInboundGuidanceForASIN',
-            MarketplaceId=market_place_id,
+            MarketplaceId=marketplace_id,
         )
         data.update(utils.enumerate_params({
             'ASINList.ID.': asins,
