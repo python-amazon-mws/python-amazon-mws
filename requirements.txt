@@ -3,4 +3,4 @@ pypandoc>=1.4
 flake8>=3.5.0
 
 pytest>=3.2.3
-pytest-cov>=2.5.1
+pytest-cov>=2.5.1,<2.6
