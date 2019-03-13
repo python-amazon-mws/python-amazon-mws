@@ -33,6 +33,5 @@ pip-log.txt
 # VS Code Settings
 .vscode/settings.json
 
-.travis.yml
 .editorconfig
 .DS_Store
