@@ -1126,7 +1126,6 @@ class InboundShipments(MWS):
         Returns inbound guidance for a list of items by Seller SKU
         to help you decide if an item should be sent to a given marketplace.
         """
-        marketplace_id = marketplace_id or 'ATVPDKIKX0DER'
         skus = skus or []
 
         # 'skus' should be a unique list, or there may be an error returned.
@@ -1146,7 +1145,6 @@ class InboundShipments(MWS):
         Returns inbound guidance for a list of items by ASIN
         to help you decide if an item should be sent to a given marketplace.
         """
-        marketplace_id = marketplace_id or 'ATVPDKIKX0DER'
         asins = asins or []
 
         # 'asins' should be a unique list, or there may be an error returned.
