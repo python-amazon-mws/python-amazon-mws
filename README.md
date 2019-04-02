@@ -25,13 +25,13 @@ $ export MWS_SECRET_KEY=...
 
 Now you can experiment with the API from a shell.
 
-```python
+```bash
 >>> import mws, os
 >>> orders_api = mws.Orders(
 ...     access_key=os.environ['MWS_ACCESS_KEY'],
 ...     secret_key=os.environ['MWS_SECRET_KEY'],
 ...     account_id=os.environ['MWS_ACCOUNT_ID'],
-...     region='UK',  # if necessary
+...     region='UK',  # defaults to 'US'
 ... )
 >>> service_status = orders_api.get_service_status()
 >>> service_status
