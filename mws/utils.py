@@ -79,8 +79,8 @@ class XML2Dict(object):
     def _parse_node(self, node):
         node_tree = ObjectDict()
         # Save attrs and text, hope there will not be a child with same name
-        if node.text:
-            node_tree.value = node.text
+        if node.text.strip():
+            node_tree.value = node.text.strip()
         for key, val in node.attrib.items():
             key, val = self._namespace_split(key, ObjectDict({'value': val}))
             node_tree[key] = val
