@@ -1,4 +1,4 @@
-# mws [![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws)
+# mws [![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws) [![Gitter chat](https://badges.gitter.im/python-amazon-mws/python-amazon-mws.png)](https://gitter.im/python-amazon-mws/community)
 
 master: 
 [![Requirements Status](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements.svg?branch=master)](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements/) [![Build Status](https://travis-ci.org/python-amazon-mws/python-amazon-mws.svg?branch=master)](https://travis-ci.org/python-amazon-mws/python-amazon-mws?branch=master) [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master)
@@ -6,32 +6,52 @@ master:
 develop: 
 [![Requirements Status](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements.svg?branch=develop)](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements/) [![Build Status](https://travis-ci.org/python-amazon-mws/python-amazon-mws.svg?branch=develop)](https://travis-ci.org/python-amazon-mws/python-amazon-mws?branch=develop) [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop)
 
-This is a fork and continuation of https://github.com/czpython/python-amazon-mws with preliminary Python 2/3 support.
+Python package for interacting the [Amazon Marketplace Web Services](http://docs.developer.amazonservices.com/en_UK/dev_guide/index.html) API.
 
-The main aim is to provide a *backwards-compatible* drop in replacement for the original package (i.e. same method signatures, class names, etc) with some extra features and anything that was obviously broken fixed.
+This project is a fork and continuation of [czpython/python-amazon-mws](https://github.com/czpython/python-amazon-mws) with added Python 3 support.
 
 # Installation
-Install from PyPI with `pip install mws`.
+
+Install the latest version from PyPI.
+
+```
+pip install mws
+```
+
+Currently the `mws` package on PyPI points to the 0.x branch, but at some later point may point to 1.x. 
+
+| Versions | Description                                                                                                                                                                                | Branch  |
+|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| 0.x      | A backwards-compatible drop in replacement for the original package (i.e. same method signatures, class names, etc) with some extra features and anything that was obviously broken fixed. | master  |
+| 1.x      | New features along with backwards-incompatible API changes.                                                                                                                                | develop |
+
+If you want to continue using the 0.x versions, please pin your package to major version 0. i.e use something like `mws~=0.8.6` in your project's `requirements.txt`. 
+
+If you want to use 1.x functionality right now, you can install directly from the Git repo. 
+
+```
+pip install git+https://github.com/python-amazon-mws/python-amazon-mws.git@develop#egg=mws
+```
 
 # Quickstart
 
-Put your API credentials in your environment.
+Export your API credentials as environment variables in your shell.
 
-```bash
-$ export MWS_ACCOUNT_ID=...
-$ export MWS_ACCESS_KEY=...
-$ export MWS_SECRET_KEY=...
+```
+export MWS_ACCOUNT_ID=...
+export MWS_ACCESS_KEY=...
+export MWS_SECRET_KEY=...
 ```
 
-Now you can experiment with the API from a shell.
+Now you can experiment with the API from within an interactive Python shell e.g.
 
-```python
+```
 >>> import mws, os
 >>> orders_api = mws.Orders(
 ...     access_key=os.environ['MWS_ACCESS_KEY'],
 ...     secret_key=os.environ['MWS_SECRET_KEY'],
 ...     account_id=os.environ['MWS_ACCOUNT_ID'],
-...     region='UK',  # if necessary
+...     region='UK',   # defaults to 'US'
 ... )
 >>> service_status = orders_api.get_service_status()
 >>> service_status
@@ -55,12 +75,14 @@ Tests are run with pytest. We test against Python 2.7 and supported Python 3.x v
 Docs are built using Sphinx. Change into the `docs/` directory and install any dependencies from the `requirements.txt` there.
 
 To build HTML documentation, run:
+
 ```
 make html
 ```
 The output HTML documentation will be in `docs/build/`.
 
 To run a live reloading server serving the HTML documentation (on port 8000 by default):
+
 ```
 make livehtml
 ```
