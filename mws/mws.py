@@ -88,7 +88,7 @@ def remove_empty(dict_):
     """
     Returns dict_ with all empty values removed.
     """
-    return {k: v for k, v in dict_.items() if v}
+    return {k: v for k, v in dict_.items() if any(v)}
 
 
 def remove_namespace(xml):
