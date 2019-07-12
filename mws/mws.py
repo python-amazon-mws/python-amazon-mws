@@ -107,6 +107,9 @@ class DictWrapper(object):
         self._rootkey = rootkey
         self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
         self._response_dict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
+        
+    def __getitem__(self, item):
+        return self._mydict[item]
 
     @property
     def parsed(self):
