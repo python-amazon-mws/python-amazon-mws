@@ -403,28 +403,81 @@ class InboundShipments(MWS):
         }))
         return self.make_request(data, method="POST")
 
-    # # TODO this method is incomplete: it should be able to account for all TransportDetailInput types
-    # def put_transport_content(self, shipment_id, is_partnered, shipment_type, carrier_name, tracking_id):
-    #     """
-    #     Sends transportation information to Amazon about an inbound shipment.
+    # TODO this method is incomplete: it should be able to account for all TransportDetailInput types
+    def put_transport_content(self, shipment_id, is_partnered, shipment_type, **kwargs):
+        """
+        Sends transportation information to Amazon about an inbound shipment.
 
-    #     Docs:
-    #     http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#TransportDetailInput
-    #     """
-    #     data = {
-    #         'Action': 'PutTransportContent',
-    #         'ShipmentId': shipment_id,
-    #         'IsPartnered': is_partnered,
-    #         'ShipmentType': shipment_type,
-    #     }
-    #     data['TransportDetails.NonPartneredSmallParcelData.CarrierName'] = carrier_name
-    #     if isinstance(tracking_id, tuple):
-    #         count = 0
-    #         for track in tracking_id:
-    #             data[
-    #                 'TransportDetails.NonPartneredSmallParcelData.PackageList.member.{}.TrackingId'.format(count + 1)
-    #             ] = track
-    #     return self.make_request(data)
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#TransportDetailInput
+        """
+        data = {
+            "Action": "PutTransportContent",
+            "ShipmentId": shipment_id,
+            "IsPartnered": is_partnered,
+            "ShipmentType": shipment_type,
+        }
+        if is_partnered:
+            data = self._transport_details_partnered(shipment_type, data, **kwargs)
+        else:
+            data = self._transport_details_non_partnered(shipment_type, data, **kwargs)
+
+        return self.make_request(data)
+
+    def _transport_details_partnered(self, shipment_type, data, **kwargs):
+        if shipment_type == "SP":
+            return self._transport_details_partnered_sp(data, **kwargs)
+        elif shipment_type == "LTL":
+            return self._transport_details_partnered_ltl(data, **kwargs)
+
+    def _transport_details_non_partnered(self, shipment_type, data, **kwargs):
+        if shipment_type == "SP":
+            return self._transport_details_non_partnered_sp(data, **kwargs)
+        elif shipment_type == "LTL":
+            return self._transport_details_non_partnered_ltl(data, **kwargs)
+        return data
+
+    def _transport_details_non_partnered_sp(
+        self, data, carrier_name, tracking_id, **kwargs
+    ):
+        data["TransportDetails.NonPartneredSmallParcelData.CarrierName"] = carrier_name
+        if isinstance(tracking_id, tuple):
+            count = 0
+            for track in tracking_id:
+                data[
+                    "TransportDetails.NonPartneredSmallParcelData.PackageList.member.{}.TrackingId".format(
+                        count + 1
+                    )
+                ] = track
+        return data
+
+    def _transport_details_partnered_sp(self, data, packages, **kwargs):
+        """
+        Adds the required transport detail parameters for a partnered small parcells shipment to `data`
+        """
+        key_prefix = "TransportDetails.PartneredSmallParcelData"
+
+        for i, package in enumerate(packages):
+            key = "{}.PackageList.member.{}".format(key_prefix, i)
+            data["{}.Weight".format(key)] = package["weight"]
+            key = "{}.Dimensions".format(key)
+            data["{}.Unit".format(key)] = package["dimensions"]["unit"]
+            data["{}.Length".format(key)] = package["dimensions"]["length"]
+            data["{}.Width".format(key)] = package["dimensions"]["width"]
+            data["{}.Height".format(key)] = package["dimensions"]["height"]
+        return data
+
+    def _transport_details_partnered_ltl(self, data, **kwargs):
+        """
+        TODO: implement
+        """
+        return data
+
+    def _transport_details_non_partnered_ltl(self, data, **kwargs):
+        """
+        TODO: implement
+        """
+        return data
 
     def estimate_transport_request(self, shipment_id):
         """
