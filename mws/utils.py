@@ -13,6 +13,8 @@ import datetime
 import hashlib
 import xml.etree.ElementTree as ET
 
+from dateutil import tz
+
 
 class ObjectDict(dict):
     """
@@ -276,7 +278,9 @@ def get_utc_timestamp():
     """
     Returns the current UTC timestamp in ISO-8601 format.
     """
-    return datetime.datetime.utcnow().replace(microsecond=0).isoformat()
+    return (
+        datetime.datetime.utcnow().replace(microsecond=0, tzinfo=tz.tzutc()).isoformat()
+    )
 
 
 # DEPRECATION: these are old names for these objects, which have been updated
