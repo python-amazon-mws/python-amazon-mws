@@ -457,9 +457,10 @@ class InboundShipments(MWS):
         """
         key_prefix = "TransportDetails.PartneredSmallParcelData"
 
-        for i, package in enumerate(packages):
+        for i, package in enumerate(packages, 1):
             key = "{}.PackageList.member.{}".format(key_prefix, i)
-            data["{}.Weight".format(key)] = package["weight"]
+            data["{}.Weight.Unit".format(key)] = package["weight"]["unit"]
+            data["{}.Weight.Value".format(key)] = package["weight"]["value"]
             key = "{}.Dimensions".format(key)
             data["{}.Unit".format(key)] = package["dimensions"]["unit"]
             data["{}.Length".format(key)] = package["dimensions"]["length"]
