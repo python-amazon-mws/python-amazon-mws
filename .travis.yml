@@ -14,6 +14,7 @@ before_script:
   - make lint
 script:
   - make cover
+  - make wheel-lint
 after_success:
   - pip install codecov
   - codecov

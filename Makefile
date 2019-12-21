@@ -1,4 +1,4 @@
-.PHONY: install-dev lint test cover
+.PHONY: install-dev lint test cover wheel wheel-lint
 
 install-dev:
 	pip install -r requirements.txt
@@ -12,3 +12,9 @@ test:
 
 cover:
 	pytest --cov=mws
+
+wheel:
+	python setup.py sdist bdist_wheel
+
+wheel-lint: wheel
+	twine check dist/*
