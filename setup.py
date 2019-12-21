@@ -12,7 +12,7 @@ except (ImportError, OSError):  # either pypandoc or pandoc isn't installed
 
 requires = [
     'requests',
-],
+]
 extras_require = {
     ":python_version<'3.4'": ['enum34'],
 }
