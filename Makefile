@@ -8,4 +8,7 @@ lint:
 	flake8
 
 test:
+	pytest
+
+cover:
 	pytest --cov=mws

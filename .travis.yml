@@ -13,7 +13,7 @@ install:
 before_script:
   - make lint
 script:
-  - make test
+  - make cover
 after_success:
   - pip install codecov
   - codecov
