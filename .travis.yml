@@ -9,7 +9,7 @@ python:
   - '3.8'
 cache: pip
 install:
-  - make install-dev-requirements
+  - make install-dev
 before_script:
   - make lint
 script:
