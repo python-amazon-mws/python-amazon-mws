@@ -1,4 +1,4 @@
-.PHONY: install-dev-requirements lint test
+.PHONY: install-dev lint test
 
 install-dev:
 	pip install -r requirements.txt
