@@ -1,6 +1,10 @@
 # dev requirements
-pypandoc>=1.4
-flake8>=3.5.0
+# linting
+flake8~=3.7.9
 
-pytest>=3.2.3
-pytest-cov>=2.5.1,<2.6
+# testing
+pytest~=4.6.8  # versions >=5.x require Python 3.5 or later
+pytest-cov~=2.8.1
+
+# releasing
+twine~=1.15.0  # supports Python 2.7
