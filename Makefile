@@ -26,13 +26,13 @@ clean:
 	rm -rf mws.egg-info/
 	rm -f .coverage
 
-upload-to-pypi-test: clean wheel-lint
+upload-to-pypi-test: lint test clean wheel-lint
 	twine upload \
 		--repository-url https://test.pypi.org/legacy/ \
 		--sign \
 		dist/*
 
-upload-to-pypi: clean wheel-lint
+upload-to-pypi: lint test clean wheel-lint
 	twine upload \
 		--sign \
 		dist/*
