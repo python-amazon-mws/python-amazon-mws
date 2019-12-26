@@ -157,7 +157,6 @@ class Reports(MWS):
         data.update(utils.enumerate_param('ReportTypeList.Type.', report_types))
         return self.make_request(data)
 
-
     def get_report(self, report_id):
         """
         Returns the contents of a report and the Content-MD5 header for the returned report body.
