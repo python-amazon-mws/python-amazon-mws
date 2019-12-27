@@ -47,6 +47,7 @@ class Marketplaces(Enum):
     MX = ('https://mws.amazonservices.com.mx', 'A1AM78C64UM0Y8')
     UK = ('https://mws-eu.amazonservices.com', 'A1F83G8C2ARO7P')
     US = ('https://mws.amazonservices.com', 'ATVPDKIKX0DER')
+    NL = ('https://mws-eu.amazonservices.com', 'A1805IZSGTT6HS')
 
     def __init__(self, endpoint, marketplace_id):
         """Easy dot access like: Marketplaces.endpoint ."""
