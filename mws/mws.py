@@ -11,12 +11,14 @@ import hashlib
 import hmac
 import re
 import warnings
-from zipfile import ZipFile
-from io import BytesIO
 
-from requests import request
+import chardet
+import requests
 from requests.exceptions import HTTPError
+from xml.parsers.expat import ExpatError
+import xmltodict
 from enum import Enum
+
 
 from . import utils
 
@@ -24,8 +26,6 @@ try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
-from xml.etree.ElementTree import ParseError as XMLError
-
 
 __version__ = '1.0.0dev11'
 
@@ -67,29 +67,22 @@ class MWSError(Exception):
 def calc_request_description(params):
     """
     Returns a flatted string with the request description, built from the params dict.
-    Entries are escaped with urllib quote method, formatted as "key=value", and joined with "&".
-    """
-    """
-    Builds the request description as a single string from the set of params.
 
-    Each key-value pair takes the form "key=value"
-    Sets of "key=value" pairs are joined by "&".
     Keys should appear in alphabetical order in the result string.
-
     Example:
       params = {'foo': 1, 'bar': 4, 'baz': 'potato'}
     Returns:
       "bar=4&baz=potato&foo=1"
     """
-    description_items = []
-    for item in sorted(params.keys()):
-        encoded_val = params[item]
-        description_items.append('{}={}'.format(item, encoded_val))
+    description_items = [
+        '{}={}'.format(item, params[item]) for item in sorted(params.keys())]
     return '&'.join(description_items)
 
 
 def clean_params(params):
-    """Input cleanup and prevent a lot of common input mistakes."""
+    """
+    Cleanup, html-escape and prevent a lot of common input mistakes for all parameter.
+    """
     # silently remove parameter where values are empty
     params = {k: v for k, v in params.items() if v}
 
@@ -110,83 +103,119 @@ def clean_params(params):
     return params_enc
 
 
-def remove_namespace(xml):
+def validate_hash(response):
     """
-    Strips the namespace from XML document contained in a string.
-    Returns the stripped string.
+    Input is a requests.response object, see the test class FakeResponse.
     """
-    regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
-    return regex.sub('', xml)
-
-
-class DictWrapper(object):
-    """
-    Main class that converts XML data to a parsed response object as a tree of ObjectDicts,
-    stored in the .parsed property.
-    """
-    # TODO create a base class for DictWrapper and DataWrapper with all the keys we expect in responses.
-    # This will make it easier to use either class in place of each other.
-    # Either this, or pile everything into DataWrapper and make it able to handle all cases.
-
-    def __init__(self, xml, rootkey=None):
-        self.original = xml
-        self.response = None
-        self._rootkey = rootkey
-        self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
-        self._response_dict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
-
-    @property
-    def parsed(self):
-        """
-        Provides access to the parsed contents of an XML response as a tree of ObjectDicts.
-        """
-        if self._rootkey:
-            return self._response_dict.get(self._rootkey, self._response_dict)
-        return self._response_dict
+    hash_ = utils.calc_md5(response.content)
+    if response.headers['content-md5'].encode() != hash_:
+        raise MWSError("Wrong Content length, maybe amazon error...")
 
 
 class DataWrapper(object):
     """
-    Text wrapper in charge of validating the hash sent by Amazon.
+    For all responses this is the rich object, you find all attributes here.
+
+    We highly recommend to use the property apiresponse.parsed
+    it works for all responses.
+
+    You can also manually choose different recommended attributes
+    for xml and textfiles.
+
+    The recommended objects should be enough for all users.
+    Additional details:
+    The decoding we used you can find in apiresponse.original.encoding.
+
+    The request.Response object is central, now its only a fallback:
+    docs: http://docs.python-requests.org/en/master/api/#requests.Response
+    apiresponse.original
     """
 
-    def __init__(self, data, headers):
-        self.original = data
-        self.response = None
-        self.headers = headers
-        if 'content-md5' in self.headers:
-            hash_ = utils.calc_md5(self.original)
-            if self.headers['content-md5'].encode() != hash_:
-                raise MWSError("Wrong Content length, maybe amazon error...")
+    def __init__(self, data, rootkey=None, force_cdata=False):
+        """
+        Besides the recommended apiresponse.parsed property, we offer a couple
+        of useful attributes here.
+        """
+        # Fallback, raw and meta attributes for xml and textfiles
+        self.original = data  # requests.request response object, link above
+        self.headers = self.original.headers  # just easier to access
+
+        # Recommended attributes only for xml
+        self.pydict = None  # alternative to xml parsed or dot_dict
+        self.dot_dict = None  # fallback for xml parsed
+
+        # Recommended attribute only for textdata
+        self.textdata = None
+
+        # parsing
+        self._rootkey = rootkey
+        self._force_cdata = force_cdata
+        self._main()
+
+    def _main(self):
+        """
+        Try different parsing strategies.
+        """
+        # a better guess for the correct encoding
+        self.original.encoding = self.guess_encoding()
+        textdata = self.original.text
+        # We don't trust the amazon content marker.
+        try:  # try to parse as xml
+            self._xml2dict(textdata)
+        except ExpatError:  # if it's not xml its a plain textfile, like a csv
+            self.textdata = textdata
+
+    def guess_encoding(self):
+        """
+        Detecting encoding incrementally with a hotfix.
+        """
+        # fix for one none ascii character
+        chardet.utf8prober.UTF8Prober.ONE_CHAR_PROB = 0.26
+        bytelist = self.original.content.splitlines()
+        detector = chardet.UniversalDetector()
+        for line in bytelist:
+            detector.feed(line)
+            if detector.done:
+                break
+        detector.close()
+        return detector.result['encoding']
+
+    def _xml2dict(self, rawdata):
+        """
+        Parse XML with xmltodict to a python dictionary.
+        """
+        namespaces = self._extract_namespaces(rawdata)
+        self._mydict = xmltodict.parse(rawdata, dict_constructor=dict,
+                                       process_namespaces=True,
+                                       namespaces=namespaces,
+                                       force_cdata=self._force_cdata)
+        # unpack if possible, important for accessing the rootkey
+        self.pydict = self._mydict.get(list(self._mydict.keys())[0],
+                                       self._mydict)
+        self.dot_dict = utils.DotDict(self.pydict)
+
+    def _extract_namespaces(self, rawdata):
+        """
+        Parse all namespaces.
+        """
+        pattern = re.compile(r'xmlns[:ns2]*="\S+"')
+        raw_namespaces = pattern.findall(rawdata)
+        return {x.split('"')[1]: None for x in raw_namespaces}
 
     @property
     def parsed(self):
         """
-        Similar to the `parsed` property of DictWrapper, this provides a similar interface for a data response
-        that could not be parsed as XML.
+        Recieve a nice formatted response, this can be your default.
         """
-        return self.original
-
-    """
-    To return an unzipped file object based on the content type"
-    """
-    @property
-    def unzipped(self):
-        """
-        If the response is comprised of a zip file, returns a ZipFile object of those file contents.
-
-        Otherwise, returns None.
-        """
-        if self.headers['content-type'] == 'application/zip':
-            try:
-                with ZipFile(BytesIO(self.original)) as unzipped_fileobj:
-                    # unzipped the zip file contents
-                    unzipped_fileobj.extractall()
-                    # return original zip file object to the user
-                    return unzipped_fileobj
-            except Exception as exc:
-                raise MWSError(str(exc))
-        return None  # 'The response is not a zipped file.'
+        if self.dot_dict is not None:
+            # When we have succesful parsed a xml response.
+            if self._rootkey != 'ignore':
+                return self.dot_dict.get(self._rootkey, None)
+            else:
+                # ignore flag we use for xmlreports, not all have the same root
+                return self.dot_dict
+        else:
+            return self.textdata
 
 
 class MWS(object):
@@ -200,12 +229,6 @@ class MWS(object):
 
     # The API version varies in most amazon APIs
     VERSION = "2009-01-01"
-
-    # There seem to be some xml namespace issues. therefore every api subclass
-    # is recommended to define its namespace, so that it can be referenced
-    # like so AmazonAPISubclass.NAMESPACE.
-    # For more information see http://stackoverflow.com/a/8719461/389453
-    NAMESPACE = ''
 
     # In here we name each of the operations available to the subclass
     # that have 'ByNextToken' operations associated with them.
@@ -276,6 +299,9 @@ class MWS(object):
         proxies = self.get_proxies()
         params.update(extra_data)
         params = clean_params(params)
+        # rootkey is always the Action parameter from your request function,
+        # except for get_feed_submission_result
+        rootkey = kwargs.get('rootkey', extra_data.get("Action") + "Result")
 
         if self._test_request_params:
             # Testing method: return the params from this request before the request is made.
@@ -294,38 +320,20 @@ class MWS(object):
         headers.update(kwargs.get('extra_headers', {}))
 
         try:
-            # Some might wonder as to why i don't pass the params dict as the params argument to request.
-            # My answer is, here i have to get the url parsed string of params in order to sign it, so
-            # if i pass the params dict as params to request, request will repeat that step because it will need
-            # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
-            response = request(method, url, data=kwargs.get(
-                'body', ''), headers=headers, proxies=proxies, timeout=kwargs.get('timeout', 300))
+            # The parameters are included in the url string.
+            response = requests.request(method, url, data=kwargs.get(
+                'body', ''), headers=headers, proxies=proxies)
             response.raise_for_status()
-            # When retrieving data from the response object,
-            # be aware that response.content returns the content in bytes while response.text calls
-            # response.content and converts it to unicode.
 
-            data = response.content
-            # I do not check the headers to decide which content structure to server simply because sometimes
-            # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
-            rootkey = kwargs.get('rootkey', extra_data.get("Action") + "Result")
-            try:
-                try:
-                    parsed_response = DictWrapper(data, rootkey)
-                except TypeError:  # raised when using Python 3 and trying to remove_namespace()
-                    # When we got CSV as result, we will got error on this
-                    parsed_response = DictWrapper(response.text, rootkey)
-
-            except XMLError:
-                parsed_response = DataWrapper(data, response.headers)
+            if 'content-md5' in response.headers:
+                validate_hash(response)
+            parsed_response = DataWrapper(response, rootkey)
 
         except HTTPError as exc:
             error = MWSError(str(exc.response.text))
             error.response = exc.response
             raise error
 
-        # Store the response object in the parsed_response for quick access
-        parsed_response.response = response
         return parsed_response
 
     def get_proxies(self):
@@ -371,7 +379,6 @@ class MWS(object):
     def calc_signature(self, method, request_description):
         """
         Calculate MWS signature to interface with Amazon
-
         Args:
             method (str)
             request_description (str)

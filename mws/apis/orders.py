@@ -17,7 +17,6 @@ class Orders(MWS):
     """
     URI = "/Orders/2013-09-01"
     VERSION = "2013-09-01"
-    NAMESPACE = '{https://mws.amazonservices.com/Orders/2013-09-01}'
     NEXT_TOKEN_OPERATIONS = [
         'ListOrders',
         'ListOrderItems',

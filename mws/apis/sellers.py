@@ -16,7 +16,6 @@ class Sellers(MWS):
     """
     URI = '/Sellers/2011-07-01'
     VERSION = '2011-07-01'
-    NAMESPACE = '{http://mws.amazonservices.com/schema/Sellers/2011-07-01}'
     NEXT_TOKEN_OPERATIONS = [
         'ListMarketplaceParticipations',
     ]

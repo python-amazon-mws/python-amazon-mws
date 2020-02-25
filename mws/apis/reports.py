@@ -169,7 +169,7 @@ class Reports(MWS):
             'Action': 'GetReport',
             'ReportId': report_id,
         }
-        return self.make_request(data)
+        return self.make_request(data, rootkey='ignore')
 
     # # TODO Add:
     # def manage_report_schedule(self):

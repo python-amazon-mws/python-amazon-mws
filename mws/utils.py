@@ -1,135 +1,23 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jun 26 15:42:07 2012
-
 Borrowed from https://github.com/timotheus/ebaysdk-python
-
 @author: pierre
 """
 from __future__ import absolute_import
-import re
 import base64
 import datetime
 import hashlib
-import xml.etree.ElementTree as ET
-
-
-class ObjectDict(dict):
-    """
-    Extension of dict to allow accessing keys as attributes.
-
-    Example:
-    >>> a = ObjectDict()
-    >>> a.fish = 'fish'
-    >>> a['fish']
-    'fish'
-    >>> a['water'] = 'water'
-    >>> a.water
-    'water'
-    """
-
-    def __init__(self, initd=None):
-        if initd is None:
-            initd = {}
-        dict.__init__(self, initd)
-
-    def __getattr__(self, item):
-        node = self.__getitem__(item)
-
-        if isinstance(node, dict) and 'value' in node and len(node) == 1:
-            return node['value']
-        return node
-
-    # if value is the only key in object, you can omit it
-    def __setstate__(self, item):
-        return False
-
-    def __setattr__(self, item, value):
-        self.__setitem__(item, value)
-
-    def __iter__(self):
-        """
-        A fix for instances where we expect a list, but get a single item.
-
-        If the parser finds multiple keys by the same name under the same parent node,
-        the node will create a list of ObjectDicts to that key. However, if we expect a list
-        in downstream code when only a single item is returned, we will find a single ObjectDict.
-        Attempting to iterate over that object will iterate through dict keys,
-        which is not what we want.
-
-        This override will send back an iterator of a list with a single element if necessary
-        to allow iteration of any node with a single element. If accessing directly, we will
-        still get a list or ObjectDict, as originally expected.
-        """
-        if not isinstance(self, list):
-            return iter([self, ])
-        return self
-
-    def getvalue(self, item, value=None):
-        """
-        Old Python 2-compatible getter method for default value.
-        """
-        return self.get(item, {}).get('value', value)
-
-
-class XML2Dict(object):
-    def __init__(self):
-        pass
-
-    def _parse_node(self, node):
-        node_tree = ObjectDict()
-        # Save attrs and text, hope there will not be a child with same name
-        if node.text:
-            node_tree.value = node.text
-        for key, val in node.attrib.items():
-            key, val = self._namespace_split(key, ObjectDict({'value': val}))
-            node_tree[key] = val
-        # Save childrens
-        for child in node:
-            tag, tree = self._namespace_split(child.tag,
-                                              self._parse_node(child))
-            if tag not in node_tree:  # the first time, so store it in dict
-                node_tree[tag] = tree
-                continue
-            old = node_tree[tag]
-            if not isinstance(old, list):
-                node_tree.pop(tag)
-                node_tree[tag] = [old]  # multi times, so change old dict to a list
-            node_tree[tag].append(tree)  # add the new one
-
-        return node_tree
-
-    def _namespace_split(self, tag, value):
-        """
-        Split the tag '{http://cs.sfsu.edu/csc867/myscheduler}patients'
-        ns = http://cs.sfsu.edu/csc867/myscheduler
-        name = patients
-        """
-        result = re.compile(r"\{(.*)\}(.*)").search(tag)
-        if result:
-            value.namespace, tag = result.groups()
-
-        return (tag, value)
-
-    def parse(self, filename):
-        """
-        Parse XML file to a dict.
-        """
-        file_ = open(filename, 'r')
-        return self.fromstring(file_.read())
-
-    def fromstring(self, str_):
-        """
-        Convert XML-formatted string to an ObjectDict.
-        """
-        text = ET.fromstring(str_)
-        root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
-        return ObjectDict({root_tag: root_tree})
+import pprint
+try:
+    from collections.abc import Mapping, MutableSequence
+except ImportError:
+    from collections import Mapping, MutableSequence
 
 
 def calc_md5(string):
     """
-    Calculates the MD5 encryption for the given string
+    Calculate the MD5 encryption for the given bytestring.
     """
     md5_hash = hashlib.md5()
     md5_hash.update(string)
@@ -141,7 +29,6 @@ def enumerate_param(param, values):
     Builds a dictionary of an enumerated parameter, using the param string and some values.
     If values is not a list, tuple, or set, it will be coerced to a list
     with a single item.
-
     Example:
         enumerate_param('MarketplaceIdList.Id', (123, 345, 4343))
     Returns:
@@ -184,7 +71,6 @@ def enumerate_keyed_param(param, values):
     """
     Given a param string and a dict of values, returns a flat dict of keyed, enumerated params.
     Each dict in the values list must pertain to a single item and its data points.
-
     Example:
         param = "InboundShipmentPlanRequestItems.member"
         values = [
@@ -194,7 +80,6 @@ def enumerate_keyed_param(param, values):
             'Quantity': 5},
             ...
         ]
-
     Returns:
         {
             'InboundShipmentPlanRequestItems.member.1.SellerSKU': 'Football2415',
@@ -234,11 +119,9 @@ def enumerate_keyed_param(param, values):
 def dict_keyed_param(param, dict_from):
     """
     Given a param string and a dict, returns a flat dict of keyed params without enumerate.
-
     Example:
         param = "ShipmentRequestDetails.PackageDimensions"
         dict_from = {'Length': 5, 'Width': 5, 'Height': 5, 'Unit': 'inches'}
-
     Returns:
         {
             'ShipmentRequestDetails.PackageDimensions.Length': 5,
@@ -279,9 +162,77 @@ def get_utc_timestamp():
     return datetime.datetime.utcnow().replace(microsecond=0).isoformat()
 
 
-# DEPRECATION: these are old names for these objects, which have been updated
-# to more idiomatic naming convention. Leaving these names in place in case
-# anyone is using the old object names.
-# TODO: remove in 1.0.0
-object_dict = ObjectDict
-xml2dict = XML2Dict
+class DotDict:
+    """
+    A read-only dict like class for navigating a JSON-like object.
+
+    x = DotDict(xmltodict(apiresponse))
+    accessing values:
+    using attribute notation:
+        position_in_list = 0
+        x.key1.nestedkey2[position_in_list]
+    standard subscriptable like: dict['key'] or list[0]
+    implemented a get(key, default) function , you can use like:
+    x.RequestReportResult.get('ReportRequestInfo', 'alt1').EndDate
+    """
+
+    def __init__(self, mapping):
+        """
+        Instantiate a copy of the passed dictionary from xmltodict.
+        """
+        self.__data = mapping
+
+    def __getattr__(self, name):
+        """
+        Run if no attribute has the same name.
+
+        Example when not: DotDict(obj).get()
+        """
+        if hasattr(self.__data, name):
+            # Looks for data attributes like dict.keys()
+            return getattr(self.__data, name)
+        else:
+            # pyhon 2 fix
+            if name == '__nonzero__':
+                return None
+            # it's not an attribute, so use it as a key for the data
+            return DotDict.build(self.__data[name])
+
+    def __getitem__(self, key):
+        """
+        Allow subscription like: dict['key'].
+        """
+        assert isinstance(self.__data, Mapping) is True
+        return DotDict.build(self.__data[key])
+
+    def __repr__(self):
+        return str(self.__dict__['_DotDict__data'])
+
+    def __str__(self):
+        """
+        Pprint is standard printout.
+        """
+        return pprint.pformat(self.__dict__['_DotDict__data'])
+
+    def get(self, key, default=None):
+        """
+        Use it like the dictionary get method.
+        """
+        try:
+            assert isinstance(self.__data, Mapping) is True
+            return DotDict.build(self.__data[key])
+        except KeyError:
+            return default
+
+    @classmethod
+    def build(cls, obj):
+        """
+        Fetch objects. A constructor providing the main functionality.
+        """
+        if isinstance(obj, Mapping):
+            return cls(obj)  # Build a DotDict object
+        elif isinstance(obj, MutableSequence):
+            # The dict is from xmltodict, so a MutableSequence must be a list
+            return [cls.build(item) for item in obj]
+        else:  # If it's not a list or a dict return the item as it is
+            return obj
