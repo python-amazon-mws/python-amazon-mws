@@ -10,6 +10,8 @@ Python package for interacting the [Amazon Marketplace Web Services](http://docs
 
 This project is a fork and continuation of [czpython/python-amazon-mws](https://github.com/czpython/python-amazon-mws) with added Python 3 support.
 
+Join us on [Slack](https://join.slack.com/t/pythonamazonmws/shared_invite/enQtOTY5NjY0NTI5Mzk2LTRlNmI4NTU4NmExYzIyZmNlM2E4NmUxMzk1NTEwNmQ1MjQwZGYzY2RiYjlhYzQ0OTYzMmU5MTRjMDU0ZDFkMzQ)!
+
 # Installation
 
 Install the latest version from PyPI.
