@@ -34,6 +34,7 @@ class Marketplaces(Enum):
     """
     Format: Country code: endpoint, marketplace_id.
     """
+    AE = ("https://mws.amazonservices.ae", 'A2VIGQ35RCS4UG')
     AU = ('https://mws.amazonservices.com.au', 'A39IBJ37TRP1C6')
     BR = ('https://mws.amazonservices.com', 'A2Q3Y263D00KWC')
     CA = ('https://mws.amazonservices.ca', 'A2EUQ1WTGCTBG2')
@@ -50,7 +51,7 @@ class Marketplaces(Enum):
     SA = ('https://mws-eu.amazonservices.com', 'A17E79C6D8DWNP')
     SG = ('https://mws-fe.amazonservices.com', 'A19VAU5U5O7RUS')
     TR = ('https://mws-eu.amazonservices.com', 'A33AVAJ2PDY3EV')
-    UK = ('https://mws-eu.amazonservices.com', 'A1F83G8C2ARO7P')
+    UK = ('https://mws-eu.amazonservices.com', 'A1F83G8C2ARO7P')  # alias for GB
     US = ('https://mws.amazonservices.com', 'ATVPDKIKX0DER')
 
     def __init__(self, endpoint, marketplace_id):
