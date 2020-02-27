@@ -59,6 +59,7 @@ MARKETPLACES = {
     "SA": "https://mws-eu.amazonservices.com",  # A17E79C6D8DWNP
     "SG": "https://mws-fe.amazonservices.com",  # A19VAU5U5O7RUS
     "TR": "https://mws-eu.amazonservices.com",  # A33AVAJ2PDY3EV
+    "UK": "https://mws-eu.amazonservices.com",  # A1F83G8C2ARO7P - GB alias
     "US": "https://mws.amazonservices.com",  # ATVPDKIKX0DER
 }
 
