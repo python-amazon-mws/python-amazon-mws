@@ -34,7 +34,7 @@ class Marketplaces(Enum):
     """
     Format: Country code: endpoint, marketplace_id.
     """
-    AE = ("https://mws.amazonservices.ae", 'A2VIGQ35RCS4UG')
+    AE = ('https://mws.amazonservices.ae', 'A2VIGQ35RCS4UG')
     AU = ('https://mws.amazonservices.com.au', 'A39IBJ37TRP1C6')
     BR = ('https://mws.amazonservices.com', 'A2Q3Y263D00KWC')
     CA = ('https://mws.amazonservices.ca', 'A2EUQ1WTGCTBG2')
