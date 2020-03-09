@@ -18,6 +18,7 @@ class Feeds(MWS):
     Docs:
     http://docs.developer.amazonservices.com/en_US/feeds/Feeds_Overview.html
     """
+    URI = "/Feeds/2009-01-01"
     ACCOUNT_TYPE = "Merchant"
 
     NEXT_TOKEN_OPERATIONS = [
