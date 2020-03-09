@@ -227,7 +227,7 @@ class MWS(object):
     ACCOUNT_TYPE = "SellerId"
 
     def __init__(self, access_key, secret_key, account_id,
-                 region='US', uri='', version='', auth_token='', proxy=None):
+                 region='US', uri='', version='', auth_token='', proxy=None, requester=request):
         self.access_key = access_key
         self.secret_key = secret_key
         self.account_id = account_id
@@ -235,6 +235,11 @@ class MWS(object):
         self.version = version or self.VERSION
         self.uri = uri or self.URI
         self.proxy = proxy
+        # This parameter allows changing the default request sender function so that a custom ones
+        # can be used as long as they respect the `requests.request` signature.
+        # The goal of this is being able to use custom functions that also logs and track requests
+        # besides just sending them.
+        self.requester = requester
 
         # * TESTING FLAGS * #
         self._test_request_params = False
@@ -297,7 +302,7 @@ class MWS(object):
             # My answer is, here i have to get the url parsed string of params in order to sign it, so
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
-            response = request(method, url, data=kwargs.get(
+            response = self.requester(method, url, data=kwargs.get(
                 'body', ''), headers=headers, proxies=proxies, timeout=kwargs.get('timeout', 300))
             response.raise_for_status()
             # When retrieving data from the response object,
