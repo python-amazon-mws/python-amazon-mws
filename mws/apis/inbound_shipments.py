@@ -468,10 +468,58 @@ class InboundShipments(MWS):
             data["{}.Height".format(key)] = package["dimensions"]["height"]
         return data
 
-    def _transport_details_partnered_ltl(self, data, **kwargs):
-        """
-        TODO: implement
-        """
+    def _transport_details_partnered_ltl(
+        self,
+        data,
+        contact,
+        box_count,
+        freight_ready_date,
+        freight_class=None,
+        pallet_list=None,
+        total_weight=None,
+        declared_value=None,
+        **kwargs,
+    ):
+        key_prefix = "TransportDetails.PartneredLtlData"
+
+        key = f"{key_prefix}.Contact"
+        data[f"{key}.Name"] = contact["name"]
+        data[f"{key}.Phone"] = contact["phone"]
+        data[f"{key}.Email"] = contact["email"]
+        data[f"{key}.Fax"] = contact["fax"]
+
+        data[f"{key_prefix}.BoxCount"] = box_count
+
+        if freight_class:
+            data[f"{key_prefix}.SellerFreightClass"] = freight_class
+
+        data[f"{key_prefix}.FreightReadyDate"] = freight_ready_date
+
+        if pallet_list:
+            for i, pallet in enumerate(pallet_list, 1):
+                key = "{}.PalletList.member.{}".format(key_prefix, i)
+                if "weight" in pallet:
+                    data["{}.Weight.Unit".format(key)] = pallet["weight"]["unit"]
+                    data["{}.Weight.Value".format(key)] = pallet["weight"]["value"]
+
+                dim_key = f"{key}.Dimensions"
+                data[f"{dim_key}.Unit"] = pallet["dimensions"]["unit"]
+                data[f"{dim_key}.Length"] = pallet["dimensions"]["length"]
+                data[f"{dim_key}.Width"] = pallet["dimensions"]["width"]
+                data[f"{dim_key}.Height"] = pallet["dimensions"]["height"]
+
+                data[f"{key}.IsStacked"] = pallet["is_stacked"]
+
+        if total_weight:
+            data[f"{key_prefix}.TotalWeight.Unit"] = total_weight["unit"]
+            data[f"{key_prefix}.TotalWeight.Value"] = total_weight["value"]
+
+        if declared_value:
+            data[f"{key_prefix}.DeclaredValue.CurrencyCode"] = declared_value[
+                "currency_code"
+            ]
+            data[f"{key_prefix}.DeclaredValue.Value"] = declared_value["value"]
+
         return data
 
     def _transport_details_non_partnered_ltl(self, data, **kwargs):
