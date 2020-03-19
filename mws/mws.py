@@ -356,7 +356,7 @@ class Feeds(MWS):
                     PurgeAndReplace=purge)
         data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
         if content_type == 'application/octet-stream':
-            md = base64.b64encode(feed.read())
+            md = calc_md5(feed.read())
         else:
             md = calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
