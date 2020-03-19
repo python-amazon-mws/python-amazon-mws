@@ -344,7 +344,7 @@ class Feeds(MWS):
         'GetFeedSubmissionList',
     ]
 
-    def submit_feed(self, feed, feed_type, marketplaceids=None,
+    def submit_feed(self, feed, feed_type, feed_options=None, marketplaceids=None,
                     content_type="text/xml", purge='false'):
         """
         Uploads a feed ( xml or .tsv ) to the seller's inventory.
@@ -352,9 +352,13 @@ class Feeds(MWS):
         """
         data = dict(Action='SubmitFeed',
                     FeedType=feed_type,
+                    FeedOptions=feed_options,
                     PurgeAndReplace=purge)
         data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
-        md = calc_md5(feed)
+        if content_type == 'application/octet-stream':
+            md = base64.b64encode(feed.read())
+        else:
+            md = calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type})
 
