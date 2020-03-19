@@ -355,10 +355,7 @@ class Feeds(MWS):
                     FeedOptions=feed_options,
                     PurgeAndReplace=purge)
         data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
-        if content_type == 'application/octet-stream':
-            md = calc_md5(feed.read())
-        else:
-            md = calc_md5(feed)
+        md = calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md, 'Content-Type': content_type})
 
