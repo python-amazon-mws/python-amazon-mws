@@ -24,7 +24,7 @@ class Feeds(MWS):
         'GetFeedSubmissionList',
     ]
 
-    def submit_feed(self, feed, feed_type, marketplaceids=None,
+    def submit_feed(self, feed, feed_type, feed_options=None, marketplaceids=None,
                     content_type="text/xml", purge='false'):
         """
         Uploads a feed for processing by Amazon MWS.
@@ -36,6 +36,7 @@ class Feeds(MWS):
         data = {
             'Action': 'SubmitFeed',
             'FeedType': feed_type,
+            'FeedOptions': feed_options,
             'PurgeAndReplace': purge,
         }
         data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
