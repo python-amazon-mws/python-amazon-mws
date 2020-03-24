@@ -25,7 +25,7 @@ class Feeds(MWS):
         'GetFeedSubmissionList',
     ]
 
-    def submit_feed(self, feed, feed_type, marketplaceids=None, amazon_order_id=None,
+    def submit_feed(self, feed, feed_type, marketplace_ids=None, amazon_order_id=None,
                     document_type=None, content_type="text/xml", purge='false'):
         """
         Uploads a feed for processing by Amazon MWS.
@@ -47,7 +47,7 @@ class Feeds(MWS):
             # allowed values: ShippingLabel, Invoice, Warranty
             if document_type:
                 data.update({'DocumentType': document_type})
-        data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+        data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplace_ids))
         md5_hash = utils.calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md5_hash, 'Content-Type': content_type})

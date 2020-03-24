@@ -16,12 +16,12 @@ class EasyShip(MWS):
     VERSION = "2018-09-01"
     NAMESPACE = '{https://mws.amazonservices.in/EasyShip/2018-09-01}'
 
-    def get_pickup_slots(self, marketplaceid=None, amazon_order_id=None, package_width=0,
+    def get_pickup_slots(self, marketplace_id=None, amazon_order_id=None, package_width=0,
                          package_height=0, package_length=0, package_dimensions_uom='cm',
                          package_weight=0, package_weight_uom='g'):
         data = {
             'Action': 'ListPickupSlots',
-            'MarketplaceId': marketplaceid,
+            'MarketplaceId': marketplace_id,
             'AmazonOrderId': amazon_order_id,
             'PackageDimensions.Width': str(package_width),
             'PackageDimensions.Length': str(package_length),
@@ -32,14 +32,14 @@ class EasyShip(MWS):
         }
         return self.make_request(data)
 
-    def create_scheduled_package(self, marketplaceid=None, amazon_order_id=None, package_width=0,
+    def create_scheduled_package(self, marketplace_id=None, amazon_order_id=None, package_width=0,
                                  package_height=0, package_length=0, package_dimensions_uom='cm',
                                  package_weight=0, package_weight_uom='g',
                                  package_slot_id=None, package_slot_start_time=None,
                                  package_slot_end_time=None):
         data = {
             'Action': 'CreateScheduledPackage',
-            'MarketplaceId': marketplaceid,
+            'MarketplaceId': marketplace_id,
             'AmazonOrderId': amazon_order_id,
             'PackageRequestDetails.PackageDimensions.Length': str(package_length),
             'PackageRequestDetails.PackageDimensions.Width': str(package_width),
@@ -53,11 +53,11 @@ class EasyShip(MWS):
         }
         return self.make_request(data)
 
-    def update_scheduled_package(self, marketplaceid=None, amazon_order_id=None, package_id=None,
+    def update_scheduled_package(self, marketplace_id=None, amazon_order_id=None, package_id=None,
                                  slot_id=None, package_slot_start_time=None, package_slot_end_time=None):
         data = {
             'Action': 'UpdateScheduledPackages',
-            'MarketplaceId': marketplaceid
+            'MarketplaceId': marketplace_id
         }
         scheduled_packages = [{
             'ScheduledPackageId.AmazonOrderId': amazon_order_id,
@@ -74,11 +74,11 @@ class EasyShip(MWS):
                                                 pickup_slots))
         return self.make_request(data)
 
-    def get_scheduled_package(self, marketplaceid=None, amazon_order_id=None,
+    def get_scheduled_package(self, marketplace_id=None, amazon_order_id=None,
                               scheduled_package_id=None):
         data = {
             'Action': 'GetScheduledPackage',
-            'MarketplaceId': marketplaceid,
+            'MarketplaceId': marketplace_id,
             'ScheduledPackageId.AmazonOrderId': amazon_order_id,
             'ScheduledPackageId.PackageId': scheduled_package_id,
         }
