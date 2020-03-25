@@ -36,7 +36,7 @@ class EasyShip(MWS):
                                  package_height=0, package_length=0, package_dimensions_uom='cm',
                                  package_weight=0, package_weight_uom='g',
                                  package_slot_id=None, package_slot_start_time=None,
-                                 package_slot_end_time=None):
+                                 package_slot_end_time=None, package_identifier=None):
         data = {
             'Action': 'CreateScheduledPackage',
             'MarketplaceId': marketplace_id,
@@ -48,9 +48,13 @@ class EasyShip(MWS):
             'PackageRequestDetails.PackageWeight.Unit': package_weight_uom,
             'PackageRequestDetails.PackageWeight.Value': str(package_weight),
             'PackageRequestDetails.PackagePickupSlot.SlotId': package_slot_id,
-            'PackageRequestDetails.PackagePickupSlot.PickupTimeStart': package_slot_start_time,
-            'PackageRequestDetails.PackagePickupSlot.PickupTimeEnd': package_slot_end_time
         }
+        if package_slot_start_time:
+            data.update({'PackageRequestDetails.PackagePickupSlot.PickupTimeStart': package_slot_start_time})
+        if package_slot_end_time:
+            data.update({'PackageRequestDetails.PackagePickupSlot.PickupTimeEnd': package_slot_end_time})
+        if package_identifier:
+            data.update({'PackageRequestDetails.PackageIdentifier': package_identifier})
         return self.make_request(data)
 
     def update_scheduled_package(self, marketplace_id=None, amazon_order_id=None, package_id=None,
@@ -65,11 +69,12 @@ class EasyShip(MWS):
         }]
         data.update(utils.enumerate_keyed_param('ScheduledPackageUpdateDetailsList.PackageUpdateDetails',
                                                 scheduled_packages))
-        pickup_slots = [{
-            'PackagePickupSlot.SlotId': slot_id,
-            'PackagePickupSlot.PickupTimeStart': package_slot_start_time,
-            'PackagePickupSlot.PickupTimeEnd': package_slot_end_time
-        }]
+        pickup_slot = {'PackagePickupSlot.SlotId': slot_id}
+        if package_slot_start_time:
+            pickup_slot.update({'PackagePickupSlot.PickupTimeStart': package_slot_start_time})
+        if package_slot_end_time:
+            pickup_slot.update({'PackagePickupSlot.PickupTimeEnd': package_slot_end_time})
+        pickup_slots = [pickup_slot]
         data.update(utils.enumerate_keyed_param('ScheduledPackageUpdateDetailsList.PackageUpdateDetails',
                                                 pickup_slots))
         return self.make_request(data)
