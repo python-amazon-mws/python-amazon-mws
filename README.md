@@ -1,4 +1,6 @@
-# mws [![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws) [![Gitter chat](https://badges.gitter.im/python-amazon-mws/python-amazon-mws.png)](https://gitter.im/python-amazon-mws/community)
+# mws [![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws) 
+
+**Join us on [Slack](https://join.slack.com/t/pythonamazonmws/shared_invite/enQtOTcwNTAzNjI4OTc2LTQyMzk1YzIxNTU0MmE1MWE0ZDUzZjBhMjI2ODZhNTQ5Mjk3ZTUyOGFkODk1N2Q2NjczZjY2M2U3NzAzNDU4ZTc)!**
 
 master: 
 [![Requirements Status](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements.svg?branch=master)](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements/) [![Build Status](https://travis-ci.org/python-amazon-mws/python-amazon-mws.svg?branch=master)](https://travis-ci.org/python-amazon-mws/python-amazon-mws?branch=master) [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master)
@@ -9,8 +11,6 @@ develop:
 Python package for interacting the [Amazon Marketplace Web Services](http://docs.developer.amazonservices.com/en_UK/dev_guide/index.html) API.
 
 This project is a fork and continuation of [czpython/python-amazon-mws](https://github.com/czpython/python-amazon-mws) with added Python 3 support.
-
-**Join us on [Slack](https://join.slack.com/t/pythonamazonmws/shared_invite/enQtOTcwNTAzNjI4OTc2LTQyMzk1YzIxNTU0MmE1MWE0ZDUzZjBhMjI2ODZhNTQ5Mjk3ZTUyOGFkODk1N2Q2NjczZjY2M2U3NzAzNDU4ZTc)!**
 
 # Installation
 
