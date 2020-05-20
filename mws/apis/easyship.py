@@ -16,9 +16,9 @@ class EasyShip(MWS):
     VERSION = "2018-09-01"
     NAMESPACE = '{https://mws.amazonservices.in/EasyShip/2018-09-01}'
 
-    def get_pickup_slots(self, marketplace_id=None, amazon_order_id=None, package_width=0,
-                         package_height=0, package_length=0, package_dimensions_uom='cm',
-                         package_weight=0, package_weight_uom='g'):
+    def list_pickup_slots(self, marketplace_id=None, amazon_order_id=None, package_width=0,
+                          package_height=0, package_length=0, package_dimensions_uom='cm',
+                          package_weight=0, package_weight_uom='g'):
         data = {
             'Action': 'ListPickupSlots',
             'MarketplaceId': marketplace_id,
@@ -35,8 +35,8 @@ class EasyShip(MWS):
     def create_scheduled_package(self, marketplace_id=None, amazon_order_id=None, package_width=0,
                                  package_height=0, package_length=0, package_dimensions_uom='cm',
                                  package_weight=0, package_weight_uom='g',
-                                 package_slot_id=None, package_slot_start_time=None,
-                                 package_slot_end_time=None, package_identifier=None):
+                                 slot_id=None, slot_start_time=None,
+                                 slot_end_time=None, package_identifier=None):
         data = {
             'Action': 'CreateScheduledPackage',
             'MarketplaceId': marketplace_id,
@@ -47,36 +47,29 @@ class EasyShip(MWS):
             'PackageRequestDetails.PackageDimensions.Unit': package_dimensions_uom,
             'PackageRequestDetails.PackageWeight.Unit': package_weight_uom,
             'PackageRequestDetails.PackageWeight.Value': str(package_weight),
-            'PackageRequestDetails.PackagePickupSlot.SlotId': package_slot_id,
+            'PackageRequestDetails.PackagePickupSlot.SlotId': slot_id,
+            'PackageRequestDetails.PackagePickupSlot.PickupTimeStart': slot_start_time,
+            'PackageRequestDetails.PackagePickupSlot.PickupTimeEnd': slot_end_time,
+            'PackageRequestDetails.PackageIdentifier': package_identifier
+
         }
-        if package_slot_start_time:
-            data.update({'PackageRequestDetails.PackagePickupSlot.PickupTimeStart': package_slot_start_time})
-        if package_slot_end_time:
-            data.update({'PackageRequestDetails.PackagePickupSlot.PickupTimeEnd': package_slot_end_time})
-        if package_identifier:
-            data.update({'PackageRequestDetails.PackageIdentifier': package_identifier})
         return self.make_request(data)
 
-    def update_scheduled_package(self, marketplace_id=None, amazon_order_id=None, package_id=None,
-                                 slot_id=None, package_slot_start_time=None, package_slot_end_time=None):
+    def update_scheduled_packages(self, marketplace_id=None, package_update_details=None):
         data = {
             'Action': 'UpdateScheduledPackages',
             'MarketplaceId': marketplace_id
         }
-        scheduled_packages = [{
-            'ScheduledPackageId.AmazonOrderId': amazon_order_id,
-            'ScheduledPackageId.PackageId': package_id
-        }]
+        package_update_details = package_update_details or []
+        for detail in package_update_details:
+            detail['ScheduledPackageId.AmazonOrderId'] = detail.pop('amazon_order_id')
+            detail['ScheduledPackageId.PackageId'] = detail.pop('package_id')
+            detail['PackagePickupSlot.SlotId'] = detail.pop('slot_id')
+            detail['PackagePickupSlot.PickupTimeStart'] = detail.pop('slot_start_time', None)
+            detail['PackagePickupSlot.PickupTimeEnd'] = detail.pop('slot_end_time', None)
+
         data.update(utils.enumerate_keyed_param('ScheduledPackageUpdateDetailsList.PackageUpdateDetails',
-                                                scheduled_packages))
-        pickup_slot = {'PackagePickupSlot.SlotId': slot_id}
-        if package_slot_start_time:
-            pickup_slot.update({'PackagePickupSlot.PickupTimeStart': package_slot_start_time})
-        if package_slot_end_time:
-            pickup_slot.update({'PackagePickupSlot.PickupTimeEnd': package_slot_end_time})
-        pickup_slots = [pickup_slot]
-        data.update(utils.enumerate_keyed_param('ScheduledPackageUpdateDetailsList.PackageUpdateDetails',
-                                                pickup_slots))
+                                                package_update_details))
         return self.make_request(data)
 
     def get_scheduled_package(self, marketplace_id=None, amazon_order_id=None,
