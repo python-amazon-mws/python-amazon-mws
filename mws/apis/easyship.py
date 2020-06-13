@@ -73,11 +73,11 @@ class EasyShip(MWS):
         return self.make_request(data)
 
     def get_scheduled_package(self, marketplace_id=None, amazon_order_id=None,
-                              scheduled_package_id=None):
+                              package_id=None):
         data = {
             'Action': 'GetScheduledPackage',
             'MarketplaceId': marketplace_id,
             'ScheduledPackageId.AmazonOrderId': amazon_order_id,
-            'ScheduledPackageId.PackageId': scheduled_package_id,
+            'ScheduledPackageId.PackageId': package_id,
         }
         return self.make_request(data)
