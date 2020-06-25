@@ -70,7 +70,6 @@ class Feeds(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/feeds/Feeds_SubmitFeed.html
         """
-        feed_options = feed_options or None
         if isinstance(feed_options, dict):
             # Convert dict of options to str value
             feed_options = feed_options_str(feed_options)
