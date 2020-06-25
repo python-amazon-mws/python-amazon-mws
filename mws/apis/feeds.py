@@ -7,6 +7,7 @@ from ..mws import MWS
 from .. import utils
 from ..decorators import next_token_action
 
+
 # TODO Add FeedProcessingStatus enumeration
 # TODO Add FeedType enumeration
 
@@ -24,8 +25,9 @@ class Feeds(MWS):
         'GetFeedSubmissionList',
     ]
 
-    def submit_feed(self, feed, feed_type, feed_options=None, marketplaceids=None,
-                    content_type="text/xml", purge='false'):
+    def submit_feed(self, feed, feed_type, feed_options=None, marketplace_ids=None,
+                    amazon_order_id=None, document_type=None, content_type="text/xml",
+                    purge='false'):
         """
         Uploads a feed for processing by Amazon MWS.
         `feed` should contain a file object in XML or flat-file format.
@@ -39,7 +41,15 @@ class Feeds(MWS):
             'FeedOptions': feed_options,
             'PurgeAndReplace': purge,
         }
-        data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+        # for feed type _POST_EASYSHIP_DOCUMENTS_
+        # check http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_HowToGetEasyShipDocs.html
+        if amazon_order_id:
+            data.update({'AmazonOrderId': amazon_order_id})
+            # by default all document pdfs are included
+            # allowed values: ShippingLabel, Invoice, Warranty
+            if document_type:
+                data.update({'DocumentType': document_type})
+        data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplace_ids))
         md5_hash = utils.calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md5_hash, 'Content-Type': content_type})

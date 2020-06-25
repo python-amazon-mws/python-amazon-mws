@@ -28,7 +28,7 @@ class Orders(MWS):
                     last_updated_after=None, last_updated_before=None, order_statuses=None,
                     fulfillment_channels=None, payment_methods=None, buyer_email=None,
                     seller_order_id=None, max_results=None, tfm_shipment_statuses=None,
-                    next_token=None):
+                    easyship_statuses=None, next_token=None):
         """
         Returns orders created or updated during a time frame that you specify.
 
@@ -42,6 +42,8 @@ class Orders(MWS):
         fulfillment_channels = fulfillment_channels or []
         payment_methods = payment_methods or []
         tfm_shipment_statuses = tfm_shipment_statuses or []
+        # for easyship orders, available only for India marketplace
+        easyship_statuses = easyship_statuses or []
         data = {
             'Action': 'ListOrders',
             'CreatedAfter': created_after,
@@ -58,6 +60,7 @@ class Orders(MWS):
             'FulfillmentChannel.Channel.': fulfillment_channels,
             'PaymentMethod.Method.': payment_methods,
             'TFMShipmentStatus.Status.': tfm_shipment_statuses,
+            'EasyShipShipmentStatus.Status': easyship_statuses,
         }))
         return self.make_request(data)
 
