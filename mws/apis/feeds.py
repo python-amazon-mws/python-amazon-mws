@@ -25,8 +25,9 @@ class Feeds(MWS):
         'GetFeedSubmissionList',
     ]
 
-    def submit_feed(self, feed, feed_type, marketplace_ids=None, amazon_order_id=None,
-                    document_type=None, content_type="text/xml", purge='false'):
+    def submit_feed(self, feed, feed_type, feed_options=None, marketplace_ids=None,
+                    amazon_order_id=None, document_type=None, content_type="text/xml",
+                    purge='false'):
         """
         Uploads a feed for processing by Amazon MWS.
         `feed` should contain a file object in XML or flat-file format.
@@ -37,6 +38,7 @@ class Feeds(MWS):
         data = {
             'Action': 'SubmitFeed',
             'FeedType': feed_type,
+            'FeedOptions': feed_options,
             'PurgeAndReplace': purge,
         }
         # for feed type _POST_EASYSHIP_DOCUMENTS_
