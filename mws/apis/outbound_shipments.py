@@ -23,22 +23,25 @@ class OutboundShipments(MWS):
     ]
 
     # TODO: Complete these methods
-    def get_fulfillment_preview(self):
+    def create_fulfillment_order(
+        self,
+        marketplace_id=None,
+        seller_fulfillment_order_id=None,
+        fulfillment_action=None,
+        displayable_order_id=None,
+        displayable_order_datetime=None,
+        displayable_order_comment=None,
+        shipping_speed_category=None,
+        destination_address=None,
+        fulfillment_policy=None,
+        notification_email_list=None,
+        cod_settings=None,
+        items=None,
+        delivery_window=None,
+    ):
         """
-        Returns a list of fulfillment order previews based on shipping criteria that you specify.
-
-        Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetFulfillmentPreview.html
-        """
-        raise NotImplementedError
-
-    def create_fulfillment_order(self, marketplace_id = None, seller_fulfillment_order_id = None, fulfillment_action = None,
-                            displayable_order_id = None, displayable_order_datetime = None, displayable_order_comment = None,
-                            shipping_speed_category = None, destination_address = None, fulfillment_policy = None,
-                            notification_email_list = None, cod_settings = None, items = None, delivery_window = None):
-        """
-        Requests that Amazon ship items from the seller's inventory in Amazon's fulfillment network
-        to a destination address.
+        Requests that Amazon ship items from the seller's inventory in Amazon's
+        fulfillment network to a destination address.
 
         :param marketplace_id:
         :param seller_fulfillment_order_id: Required
@@ -68,14 +71,19 @@ class OutboundShipments(MWS):
             "ShippingSpeedCategory": shipping_speed_category,
             "FulfillmentPolicy": fulfillment_policy,
         }
-
         data.update(utils.enumerate_keyed_param("Items.member", items or []))
-        data.update(utils.dict_keyed_param("DestinationAddress", destination_address or {}))
+        data.update(
+            utils.dict_keyed_param("DestinationAddress", destination_address or {})
+        )
         data.update(utils.dict_keyed_param("CODSettings", cod_settings or {}))
         data.update(utils.dict_keyed_param("DeliveryWindow", delivery_window or {}))
-        data.update(utils.enumerate_param("NotificationEmailList.member", notification_email_list or []))
-
+        data.update(
+            utils.enumerate_param(
+                "NotificationEmailList.member", notification_email_list or []
+            )
+        )
         return self.make_request(data)
+
 
     def update_fulfillment_order(self):
         """
