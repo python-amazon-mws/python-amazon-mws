@@ -334,6 +334,41 @@ class MWS(object):
         return utils.enumerate_param(param, values)
 
 
+def feed_options_str(feed_options):
+    """Convert a FeedOptions dict of values into an appropriate string value.
+    
+    Amazon docs for VAT upload with details:
+    https://m.media-amazon.com/images/G/01/B2B/DeveloperGuide/vat_calculation_service__dev_guide_H383rf73k4hsu1TYRH139kk134yzs.pdf
+    (section 6.4)
+    
+    Example:
+      feed_options = {
+        "shippingid": "283845474",
+        "totalAmount": 3.25,
+        "totalvatamount": 1.23,
+        "invoicenumber": "INT-3431-XJE3",
+        "documenttype": "CreditNote",
+        "transactionid": "amzn:crow:429491192ksjfhe39s",
+      }
+      print(feed_options_str(feed_options))
+      >>> "metadata:shippingid=283845474;metadata:totalAmount=3.25;metadata:totalvatamount=1.23;
+      metadata:invoicenumber=INT-3431-XJE3;metadata:documenttype=CreditNote;
+      metadata:transactionid=amzn:crow:429491192ksjfhe39s"
+    """
+    if not feed_options:
+        return None
+    if not isinstance(feed_options, dict):
+        raise ValueError("`feed_options` should be a dict or None")
+    output = []
+    for key, val in feed_options.items():
+        outval = val
+        if outval is True or outval is False:
+            # Convert literal `True` or `False` to strings `"true"` and `"false"`
+            outval = str(outval).lower()
+        output.append(f"metadata:{key}={outval}")
+    return ";".join(output)
+
+
 class Feeds(MWS):
     """
     Amazon MWS Feeds API
@@ -350,6 +385,9 @@ class Feeds(MWS):
         Uploads a feed ( xml or .tsv ) to the seller's inventory.
         Can be used for creating/updating products on Amazon.
         """
+        if isinstance(feed_options, dict):
+            # Convert dict to appropriate string value
+            feed_options = feed_options_str(feed_options)
         data = dict(Action='SubmitFeed',
                     FeedType=feed_type,
                     FeedOptions=feed_options,
