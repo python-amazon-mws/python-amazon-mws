@@ -162,7 +162,7 @@ def enumerate_param(param, values):
         param += '.'
     # Return final output: dict comprehension of the enumerated param and values.
     return {
-        '{}{}'.format(param, idx + 1): val
+        '{}{}'.format(param, idx+1): val
         for idx, val in enumerate(values)
     }
 
@@ -225,7 +225,7 @@ def enumerate_keyed_param(param, values):
     for idx, val_dict in enumerate(values):
         # Build the final output.
         params.update({
-            '{param}{idx}.{key}'.format(param=param, idx=idx + 1, key=k): v
+            '{param}{idx}.{key}'.format(param=param, idx=idx+1, key=k): v
             for k, v in val_dict.items()
         })
     return params
@@ -277,23 +277,6 @@ def get_utc_timestamp():
     Returns the current UTC timestamp in ISO-8601 format.
     """
     return datetime.datetime.utcnow().replace(microsecond=0).isoformat()
-
-
-def validate_package_update_details(package_update_details):
-    """
-    raises error if the package_update_details is not valid
-    used in the easyship api function update_scheduled_packages
-    """
-    error_msg = "package_update_details must be a list of dicts, each with " \
-                "required keys `amazon_order_id`, `package_id`, and `slot_id` " \
-                "(optional keys: `slot_start_time` and `slot_end_time`)"
-    required_keys = {'amazon_order_id', 'package_id', 'slot_id'}
-    if not isinstance(package_update_details, list):
-        raise TypeError(error_msg)
-    if not all(isinstance(i, dict) for i in package_update_details):
-        raise TypeError(error_msg)
-    if not all(required_keys.issubset(set(i.keys())) for i in package_update_details):
-        raise KeyError(error_msg)
 
 
 # DEPRECATION: these are old names for these objects, which have been updated
