@@ -134,6 +134,8 @@ class DictWrapper(object):
     # Either this, or pile everything into DataWrapper and make it able to handle all cases.
 
     def __init__(self, xml, rootkey=None):
+        if isinstance(xml, bytes):
+            xml = xml.decode()
         self.original = xml
         self.response = None
         self._rootkey = rootkey

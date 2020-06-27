@@ -5,7 +5,7 @@ from __future__ import absolute_import
 # import warnings
 
 from ..mws import MWS
-# from .. import utils
+from .. import utils
 from ..decorators import next_token_action
 
 
@@ -23,24 +23,67 @@ class OutboundShipments(MWS):
     ]
 
     # TODO: Complete these methods
-    def get_fulfillment_preview(self):
+    def create_fulfillment_order(
+        self,
+        marketplace_id=None,
+        seller_fulfillment_order_id=None,
+        fulfillment_action=None,
+        displayable_order_id=None,
+        displayable_order_datetime=None,
+        displayable_order_comment=None,
+        shipping_speed_category=None,
+        destination_address=None,
+        fulfillment_policy=None,
+        notification_email_list=None,
+        cod_settings=None,
+        items=None,
+        delivery_window=None,
+    ):
         """
-        Returns a list of fulfillment order previews based on shipping criteria that you specify.
+        Requests that Amazon ship items from the seller's inventory in Amazon's
+        fulfillment network to a destination address.
 
-        Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetFulfillmentPreview.html
-        """
-        raise NotImplementedError
-
-    def create_fulfillment_order(self):
-        """
-        Requests that Amazon ship items from the seller's inventory in Amazon's fulfillment network
-        to a destination address.
+        :param marketplace_id:
+        :param seller_fulfillment_order_id: Required
+        :param fulfillment_action:
+        :param displayable_order_id: Required
+        :param displayable_order_datetime: Required
+        :param displayable_order_comment: Required
+        :param shipping_speed_category: Required
+        :param destination_address: Required
+        :param fulfillment_policy:
+        :param notification_email_list:
+        :param cod_settings:
+        :param items: Required
+        :param delivery_window:
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_CreateFulfillmentOrder.html
         """
-        raise NotImplementedError
+        data = {
+            "Action": "CreateFulfillmentOrder",
+            "MarketplaceId": marketplace_id,
+            "SellerFulfillmentOrderId": seller_fulfillment_order_id,
+            "FulfillmentAction": fulfillment_action,
+            "DisplayableOrderId": displayable_order_id,
+            "DisplayableOrderDateTime": displayable_order_datetime,
+            "DisplayableOrderComment": displayable_order_comment,
+            "ShippingSpeedCategory": shipping_speed_category,
+            "FulfillmentPolicy": fulfillment_policy,
+        }
+        data.update(utils.enumerate_keyed_param("Items.member", items or []))
+        data.update(
+            utils.dict_keyed_param("DestinationAddress", destination_address or {})
+        )
+        data.update(utils.dict_keyed_param("CODSettings", cod_settings or {}))
+        data.update(utils.dict_keyed_param("DeliveryWindow", delivery_window or {}))
+        data.update(
+            utils.enumerate_param(
+                "NotificationEmailList.member", notification_email_list or []
+            )
+        )
+        return self.make_request(data)
+
 
     def update_fulfillment_order(self):
         """
@@ -51,14 +94,18 @@ class OutboundShipments(MWS):
         """
         raise NotImplementedError
 
-    def get_fulfillment_order(self):
+    def get_fulfillment_order(self, seller_fulfillment_order_id):
         """
         Returns a fulfillment order based on a specified SellerFulfillmentOrderId.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetFulfillmentOrder.html
         """
-        raise NotImplementedError
+        data = dict(
+            Action="GetFulfillmentOrder",
+            SellerFulfillmentOrderId=seller_fulfillment_order_id,
+        )
+        return self.make_request(data)
 
     @next_token_action('ListAllFulfillmentOrders')
     def list_all_fulfillment_orders(self, next_token=None):
@@ -82,7 +129,7 @@ class OutboundShipments(MWS):
         raise NotImplementedError
         # return self.list_all_fulfillment_orders(next_token=token)
 
-    def get_package_tracking_details(self):
+    def get_package_tracking_details(self, package_number):
         """
         Returns delivery tracking information for a package in an outbound shipment for a
         Multi-Channel Fulfillment order.
@@ -90,7 +137,8 @@ class OutboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetPackageTrackingDetails.html
         """
-        raise NotImplementedError
+        data = dict(Action="GetPackageTrackingDetails", PackageNumber=package_number)
+        return self.make_request(data)
 
     def cancel_fulfillment_order(self):
         """

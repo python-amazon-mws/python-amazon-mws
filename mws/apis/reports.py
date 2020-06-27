@@ -214,9 +214,22 @@ class Reports(MWS):
         data.update(utils.enumerate_param('ReportTypeList.Type.', report_types))
         return self.make_request(data)
 
-    # # TODO Add:
-    # def update_report_acknowledgements(self):
-    #     pass
+    def update_report_acknowledgements(self, report_ids=None, acknowledged=None):
+        """
+        Updates the acknowledged status of one or more reports
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_US/reports/Reports_UpdateReportAcknowledgements.html
+        """
+        report_ids = report_ids or []
+        if acknowledged is not None:
+            acknowledged = str(bool(acknowledged)).lower()
+        data = {
+            "Action": "UpdateReportAcknowledgements",
+            "Acknowledged": acknowledged,
+        }
+        data.update(utils.enumerate_param("ReportIdList.Id.", report_ids)) 
+        return self.make_request(data)
 
 
 class ReportType(Enum):
