@@ -60,16 +60,21 @@ class EasyShip(MWS):
             'Action': 'UpdateScheduledPackages',
             'MarketplaceId': marketplace_id
         }
+        package_update_data_list = []
         package_update_details = package_update_details or []
+        if package_update_details:
+            utils.validate_package_update_details(package_update_details)
         for detail in package_update_details:
-            detail['ScheduledPackageId.AmazonOrderId'] = detail.pop('amazon_order_id')
-            detail['ScheduledPackageId.PackageId'] = detail.pop('package_id')
-            detail['PackagePickupSlot.SlotId'] = detail.pop('slot_id')
-            detail['PackagePickupSlot.PickupTimeStart'] = detail.pop('slot_start_time', None)
-            detail['PackagePickupSlot.PickupTimeEnd'] = detail.pop('slot_end_time', None)
+            package_update_data = dict()
+            package_update_data['ScheduledPackageId.AmazonOrderId'] = detail.get('amazon_order_id')
+            package_update_data['ScheduledPackageId.PackageId'] = detail.get('package_id')
+            package_update_data['PackagePickupSlot.SlotId'] = detail.get('slot_id')
+            package_update_data['PackagePickupSlot.PickupTimeStart'] = detail.get('slot_start_time', None)
+            package_update_data['PackagePickupSlot.PickupTimeEnd'] = detail.get('slot_end_time', None)
+            package_update_data_list.append(package_update_data)
 
         data.update(utils.enumerate_keyed_param('ScheduledPackageUpdateDetailsList.PackageUpdateDetails',
-                                                package_update_details))
+                                                package_update_data_list))
         return self.make_request(data)
 
     def get_scheduled_package(self, marketplace_id=None, amazon_order_id=None,
