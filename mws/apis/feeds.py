@@ -7,8 +7,44 @@ from ..mws import MWS
 from .. import utils
 from ..decorators import next_token_action
 
+
 # TODO Add FeedProcessingStatus enumeration
 # TODO Add FeedType enumeration
+
+
+def feed_options_str(feed_options):
+    """Convert a FeedOptions dict of values into an appropriate string value.
+    
+    Amazon docs for VAT upload with details:
+    https://m.media-amazon.com/images/G/01/B2B/DeveloperGuide/vat_calculation_service__dev_guide_H383rf73k4hsu1TYRH139kk134yzs.pdf
+    (section 6.4)
+    
+    Example:
+      feed_options = {
+        "shippingid": "283845474",
+        "totalAmount": 3.25,
+        "totalvatamount": 1.23,
+        "invoicenumber": "INT-3431-XJE3",
+        "documenttype": "CreditNote",
+        "transactionid": "amzn:crow:429491192ksjfhe39s",
+      }
+      print(feed_options_str(feed_options))
+      >>> "metadata:shippingid=283845474;metadata:totalAmount=3.25;metadata:totalvatamount=1.23;
+      metadata:invoicenumber=INT-3431-XJE3;metadata:documenttype=CreditNote;
+      metadata:transactionid=amzn:crow:429491192ksjfhe39s"
+    """
+    if not feed_options:
+        return None
+    if not isinstance(feed_options, dict):
+        raise ValueError("`feed_options` should be a dict or None")
+    output = []
+    for key, val in feed_options.items():
+        outval = val
+        if outval is True or outval is False:
+            # Convert literal `True` or `False` to strings `"true"` and `"false"`
+            outval = str(outval).lower()
+        output.append(f"metadata:{key}={outval}")
+    return ";".join(output)
 
 
 class Feeds(MWS):
@@ -25,8 +61,9 @@ class Feeds(MWS):
         'GetFeedSubmissionList',
     ]
 
-    def submit_feed(self, feed, feed_type, marketplaceids=None,
-                    content_type="text/xml", purge='false'):
+    def submit_feed(self, feed, feed_type, feed_options=None, marketplace_ids=None,
+                    amazon_order_id=None, document_type=None, content_type="text/xml",
+                    purge='false'):
         """
         Uploads a feed for processing by Amazon MWS.
         `feed` should contain a file object in XML or flat-file format.
@@ -34,12 +71,24 @@ class Feeds(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/feeds/Feeds_SubmitFeed.html
         """
+        if isinstance(feed_options, dict):
+            # Convert dict of options to str value
+            feed_options = feed_options_str(feed_options)
         data = {
             'Action': 'SubmitFeed',
             'FeedType': feed_type,
+            'FeedOptions': feed_options,
             'PurgeAndReplace': purge,
         }
-        data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplaceids))
+        # for feed type _POST_EASYSHIP_DOCUMENTS_
+        # check http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_HowToGetEasyShipDocs.html
+        if amazon_order_id:
+            data.update({'AmazonOrderId': amazon_order_id})
+            # by default all document pdfs are included
+            # allowed values: ShippingLabel, Invoice, Warranty
+            if document_type:
+                data.update({'DocumentType': document_type})
+        data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplace_ids))
         md5_hash = utils.calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md5_hash, 'Content-Type': content_type})

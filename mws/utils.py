@@ -153,8 +153,8 @@ def enumerate_param(param, values):
             MarketplaceIdList.Id.3: 4343
         }
     """
-    if not values:
-        # Shortcut for empty values
+    if not any(values):
+        # if not values -> returns ValueError
         return {}
     if not isinstance(values, (list, tuple, set)):
         # Coerces a single value to a list before continuing.

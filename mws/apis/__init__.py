@@ -11,6 +11,7 @@ from .recommendations import Recommendations
 from .reports import Reports
 from .sellers import Sellers
 from .subscriptions import Subscriptions
+from .easyship import EasyShip
 
 __all__ = [
     'Feeds',
@@ -26,4 +27,5 @@ __all__ = [
     'Reports',
     'Sellers',
     'Subscriptions',
+    'EasyShip',
 ]

@@ -6,15 +6,15 @@ python:
   - '3.5'
   - '3.6'
   - '3.7'
+  - '3.8'
 cache: pip
 install:
-  - pip install --upgrade pip setuptools wheel
-  - pip install -r requirements.txt
-  - pip install -e .
+  - make install-dev
+before_script:
+  - make lint
 script:
-  - pytest --cov=mws
+  - make cover
+  - make wheel-lint
 after_success:
-  - pip install 'flake8>=3.5.0'
-  - flake8
   - pip install codecov
   - codecov

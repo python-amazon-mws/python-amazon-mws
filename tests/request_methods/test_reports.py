@@ -49,24 +49,24 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assertEqual(params['MarketplaceIdList.Id.2'], marketplace_ids[1])
 
     def test_parameter_error(self):
-            """
-            RequestReport wrong parameter
-            """
-            # list will throw error
-            report_type = ['_GET_FLAT_FILE_OPEN_LISTINGS_DATA_']
-            start_date = datetime.datetime(2018, 4, 30, 22, 59, 59)
-            end_date = datetime.datetime(2018, 4, 30, 23, 59, 59)
-            marketplace_ids = [
-                'iQzBCmf1y3',
-                'wH9q0CiEMp',
-            ]
-            with self.assertRaises(mws.MWSError):
-                self.api.request_report(
-                    report_type=report_type,
-                    start_date=start_date,
-                    end_date=end_date,
-                    marketplace_ids=marketplace_ids,
-                )
+        """
+        RequestReport wrong parameter
+        """
+        # list will throw error
+        report_type = ['_GET_FLAT_FILE_OPEN_LISTINGS_DATA_']
+        start_date = datetime.datetime(2018, 4, 30, 22, 59, 59)
+        end_date = datetime.datetime(2018, 4, 30, 23, 59, 59)
+        marketplace_ids = [
+            'iQzBCmf1y3',
+            'wH9q0CiEMp',
+        ]
+        with self.assertRaises(mws.MWSError):
+            self.api.request_report(
+                report_type=report_type,
+                start_date=start_date,
+                end_date=end_date,
+                marketplace_ids=marketplace_ids,
+            )
 
     def test_get_report_request_list(self):
         """
