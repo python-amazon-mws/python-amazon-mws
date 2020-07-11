@@ -307,6 +307,7 @@ class MWS(object):
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
             response = request(method, url, data=kwargs.get(
                 'body', ''), headers=headers, proxies=proxies, timeout=kwargs.get('timeout', 300))
+            response.encoding = 'utf-8'
             response.raise_for_status()
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
