@@ -135,7 +135,10 @@ class DictWrapper(object):
 
     def __init__(self, xml, rootkey=None):
         if isinstance(xml, bytes):
-            xml = xml.decode()
+            try:
+                xml = xml.decode()
+            except:
+                xml = xml
         self.original = xml
         self.response = None
         self._rootkey = rootkey

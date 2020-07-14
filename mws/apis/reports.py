@@ -170,9 +170,14 @@ class Reports(MWS):
         }
         return self.make_request(data)
 
-    # # TODO Add:
-    # def manage_report_schedule(self):
-    #     pass
+    def manage_report_schedule(self, report_type, schedule, schedule_date=None):
+        data = {
+            'Action': 'ManageReportSchedule',
+            'ReportType': report_type,
+            'Schedule': schedule,
+            'ScheduleDate': schedule_date
+        }
+        return self.make_request(data)
 
     @next_token_action('GetReportScheduleList')
     def get_report_schedule_list(self, report_types=None, next_token=None):
@@ -309,3 +314,21 @@ class ReportType(Enum):
     FBA_REMOVAL_RECOMMENDED = '_GET_FBA_RECOMMENDED_REMOVAL_DATA_'
     FBA_REMOVAL_ORDER_DETAIL = '_GET_FBA_FULFILLMENT_REMOVAL_ORDER_DETAIL_DATA_'
     FBA_REMOVAL_SHIPMENT_DETAIL = '_GET_FBA_FULFILLMENT_REMOVAL_SHIPMENT_DETAIL_DATA_'
+
+
+class Schedule(Enum):
+    MINUTES_15 = '_15_MINUTES_'
+    MINUTES_30 = '_30_MINUTES_'
+    HOURS_1 = '_1_HOUR_'
+    HOURS_2 = '_2_HOURS_'
+    HOURS_4 = '_4_HOURS_'
+    HOURS_8 = '_8_HOURS_'
+    HOURS_12 = '_12_HOURS_'
+    DAYS_1 = '_1_DAY_'
+    DAYS_2 = '_2_DAYS_'
+    DAYS_3 = '_72_HOURS_'
+    WEEKS_1 = '_1_WEEK_'
+    DAYS_14 = '_14_DAYS_'
+    DAYS_15 = '_15_DAYS_'
+    DAYS_30 = '_30_DAYS_'
+    DELETE = '_NEVER_'
