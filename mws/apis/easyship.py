@@ -7,6 +7,23 @@ from ..mws import MWS
 from .. import utils
 
 
+def validate_package_update_details(package_update_details):
+    """
+    raises error if the package_update_details is not valid
+    used in the easyship api function update_scheduled_packages
+    """
+    error_msg = "package_update_details must be a list of dicts, each with " \
+                "required keys `amazon_order_id`, `package_id`, and `slot_id` " \
+                "(optional keys: `slot_start_time` and `slot_end_time`)"
+    required_keys = {'amazon_order_id', 'package_id', 'slot_id'}
+    if not isinstance(package_update_details, list):
+        raise TypeError(error_msg)
+    if not all(isinstance(i, dict) for i in package_update_details):
+        raise TypeError(error_msg)
+    if not all(required_keys.issubset(set(i.keys())) for i in package_update_details):
+        raise KeyError(error_msg)
+
+
 class EasyShip(MWS):
     """
         Amazon EasyShip API
@@ -60,16 +77,21 @@ class EasyShip(MWS):
             'Action': 'UpdateScheduledPackages',
             'MarketplaceId': marketplace_id
         }
+        package_update_data_list = []
         package_update_details = package_update_details or []
+        if package_update_details:
+            validate_package_update_details(package_update_details)
         for detail in package_update_details:
-            detail['ScheduledPackageId.AmazonOrderId'] = detail.pop('amazon_order_id')
-            detail['ScheduledPackageId.PackageId'] = detail.pop('package_id')
-            detail['PackagePickupSlot.SlotId'] = detail.pop('slot_id')
-            detail['PackagePickupSlot.PickupTimeStart'] = detail.pop('slot_start_time', None)
-            detail['PackagePickupSlot.PickupTimeEnd'] = detail.pop('slot_end_time', None)
+            package_update_data = dict()
+            package_update_data['ScheduledPackageId.AmazonOrderId'] = detail.get('amazon_order_id')
+            package_update_data['ScheduledPackageId.PackageId'] = detail.get('package_id')
+            package_update_data['PackagePickupSlot.SlotId'] = detail.get('slot_id')
+            package_update_data['PackagePickupSlot.PickupTimeStart'] = detail.get('slot_start_time')
+            package_update_data['PackagePickupSlot.PickupTimeEnd'] = detail.get('slot_end_time')
+            package_update_data_list.append(package_update_data)
 
         data.update(utils.enumerate_keyed_param('ScheduledPackageUpdateDetailsList.PackageUpdateDetails',
-                                                package_update_details))
+                                                package_update_data_list))
         return self.make_request(data)
 
     def get_scheduled_package(self, marketplace_id=None, amazon_order_id=None,
