@@ -37,7 +37,7 @@ def report_options_str(report_options):
             out_val = str(out_val).lower()
         # Use `urllib.parse.quote` to URL-encoded the output.
         # (mostly just auto-convert the `=` to `%3D`, but might as well be safe).
-        output.append(urllib.parse.quote(f"{key}={val}"))
+        output.append(urllib.parse.quote(f"{key}={out_val}"))
     # Join results with ";" separator
     return ";".join(output)
 
