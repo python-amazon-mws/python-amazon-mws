@@ -1,0 +1,44 @@
+name: CI Testing
+
+# Controls when the action will run.
+on:
+  push:
+    branches: [ develop, task-github-ci-action ]
+  pull_request:
+    branches: [ develop, task-github-ci-action ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    # Strategy sets up a matrix of python versions to run the tests against
+    strategy:
+      matrix:
+        python-version: [2.7, 3.4, 3.5, 3.6, 3.7, 3.8]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+
+    - name: Lint with flake8
+      run: flake8
+    
+    - name: Run pytest
+      run: pytest
+    
+    - name: Run pytest coverage
+      run: pytest --cov=mws
+    
+    - name: Report coverage to codecov
+      run: codecov
