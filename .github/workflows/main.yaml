@@ -1,11 +1,7 @@
 name: CI Testing
 
 # Controls when the action will run.
-on:
-  push:
-    branches: [ develop, task-github-ci-action ]
-  pull_request:
-    branches: [ develop, task-github-ci-action ]
+on: [push, pull_request]
 
 jobs:
   build:
