@@ -14,11 +14,11 @@ from ..decorators import next_token_action
 def report_options_str(report_options):
     """
     Given a set of `report_options` as a dict, converts those options to a URL-encoded string.
-    
+
     Each key-value pair in the dict is presented as "key=value", which is then URL-encoded
     to, for instance, "key%3Dvalue".
     Key-value pairs are then joined with ";".
-    
+
     See examples in ReportType_Enumeration docs for details:
     https://docs.developer.amazonservices.com/en_US/reports/Reports_ReportType.html
     """
@@ -37,7 +37,7 @@ def report_options_str(report_options):
             out_val = str(out_val).lower()
         # Use `urllib.parse.quote` to URL-encoded the output.
         # (mostly just auto-convert the `=` to `%3D`, but might as well be safe).
-        output.append(urllib.parse.quote(f"{key}={out_val}"))
+        output.append(urllib.parse.quote("{}={}".format(key, out_val)))
     # Join results with ";" separator
     return ";".join(output)
 
