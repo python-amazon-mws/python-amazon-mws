@@ -1,6 +1,5 @@
 name: CI Testing
 
-# Controls when the action will run.
 on: [push, pull_request]
 
 jobs:
