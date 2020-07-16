@@ -33,4 +33,4 @@ jobs:
       run: pytest --cov=mws
     
     - name: Report coverage to codecov
-      run: codecov
+      uses: codecov/codecov-action@v1
