@@ -89,7 +89,7 @@ All dependencies for working on `mws` are in `requirements.txt` and `docs/requir
 
 ### Tests
 
-Tests are run with pytest. We test against Python 2.7 and supported Python 3.x versions with Travis.
+Tests are run with `pytest`. We test against Python 3.4+ using GitHub Actions, on latest Ubuntu, Mac, and Windows OSes.
 
 ### Documentation
 
