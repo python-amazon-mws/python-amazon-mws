@@ -1,9 +1,1 @@
-# main
 requests
-
-# testing
-pytest~=4.6.8  # versions >=5.x require Python 3.5 or later
-pytest-cov~=2.8.1
-
-# releasing
-twine~=1.15.0  # supports Python 2.7

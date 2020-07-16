@@ -85,7 +85,7 @@ GetServiceStatusResponse>\n'
 
 ## Development
 
-All dependencies for working on `mws` are in `requirements.txt` and `docs/requirements.txt`.
+All dependencies for developing on `mws` are in `requirements-dev.txt`.
 
 ### Tests
 
