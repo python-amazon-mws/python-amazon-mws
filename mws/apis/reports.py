@@ -2,6 +2,7 @@
 Amazon MWS Reports API
 """
 from __future__ import absolute_import
+import urllib.parse
 from enum import Enum
 
 from ..mws import MWS
@@ -9,6 +10,36 @@ from .. import utils
 from ..decorators import next_token_action
 
 # TODO Add Schedule enumerations as constants
+
+def report_options_str(report_options):
+    """
+    Given a set of `report_options` as a dict, converts those options to a URL-encoded string.
+
+    Each key-value pair in the dict is presented as "key=value", which is then URL-encoded
+    to, for instance, "key%3Dvalue".
+    Key-value pairs are then joined with ";".
+
+    See examples in ReportType_Enumeration docs for details:
+    https://docs.developer.amazonservices.com/en_US/reports/Reports_ReportType.html
+    """
+    if not report_options:
+        return None
+    if not isinstance(report_options, dict):
+        raise ValueError("`report_options` must be a dict.")
+    output = []
+    for key, val in report_options.items():
+        out_val = val
+        if out_val is True or out_val is False:
+            # Value is explicitly `True` or `False`.
+            # The `is` identity check is necessary, otherwise `1 == True` and `0 == False`
+            # (both of which are accurate, because True and False can evaluate to ints 1 and 0).
+            # `True` and `False` must be output as a lowercase `"true"` and `"false"`, respectively.
+            out_val = str(out_val).lower()
+        # Use `urllib.parse.quote` to URL-encoded the output.
+        # (mostly just auto-convert the `=` to `%3D`, but might as well be safe).
+        output.append(urllib.parse.quote("{}={}".format(key, out_val)))
+    # Join results with ";" separator
+    return ";".join(output)
 
 
 class Reports(MWS):
@@ -25,7 +56,7 @@ class Reports(MWS):
         'GetReportScheduleList',
     ]
 
-    def request_report(self, report_type, start_date=None, end_date=None, marketplace_ids=None):
+    def request_report(self, report_type, start_date=None, end_date=None, marketplace_ids=None, report_options=None):
         """
         Creates a report request and submits the request to Amazon MWS.
 
@@ -33,11 +64,13 @@ class Reports(MWS):
         http://docs.developer.amazonservices.com/en_US/reports/Reports_RequestReport.html
         """
         marketplace_ids = marketplace_ids or []
+        report_options = report_options or {}
         data = {
             'Action': 'RequestReport',
             'ReportType': report_type,
             'StartDate': start_date,
             'EndDate': end_date,
+            'ReportOptions': report_options_str(report_options),
         }
         data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplace_ids))
         return self.make_request(data)
