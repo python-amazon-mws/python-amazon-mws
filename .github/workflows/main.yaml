@@ -5,16 +5,16 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     # Strategy sets up a matrix of python versions to run the tests against
     strategy:
       matrix:
-        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
+        python-version: [3.5, 3.6, 3.7, 3.8]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     - uses: actions/checkout@v2
-      
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -25,12 +25,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -e .
-    
+
     - name: Run pytest
       run: pytest
-    
+
     - name: Run pytest coverage
       run: pytest --cov=mws
-    
+
     - name: Report coverage to codecov
       uses: codecov/codecov-action@v1
