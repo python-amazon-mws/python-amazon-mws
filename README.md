@@ -27,6 +27,8 @@ Two versions are currently available:
 
 ### Installing 0.8.x (PyPI)
 
+> **Warning**: If you are using version 0.8.x in a production system, note that our eventual 1.0 release will be backwards-incompatible, and may break programs that depend on the 0.8.x version. We advise users pin their Pip-installed version in requirements as `mws~=0.8.9`.
+
 Install the `mws` package using Pip:
 
 ```shell
@@ -38,8 +40,6 @@ Alternatively, you can install direct from this repo's `master` branch, like so:
 ```shell
 pip install git+https://github.com/python-amazon-mws/python-amazon-mws.git@master#egg=mws
 ```
-
-> **Warning**: If you are using version 0.8.x in a production system, note that our eventual 1.0 release will be backwards-incompatible, and may break programs that depend on the 0.8.x version. We advise users pin their Pip-installed version in requirements as `mws~=0.8.9`.
 
 ### Installing 1.0.x-dev (GitHub)
 
