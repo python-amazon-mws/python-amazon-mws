@@ -2,7 +2,7 @@
 import setuptools
 import sys
 
-version = "1.0.0dev12"
+version = "1.0.0dev13"
 homepage = "https://github.com/python-amazon-mws/python-amazon-mws"
 short_description = "Python library for interacting with the Amazon MWS API"
 with open("README.md") as readme:
