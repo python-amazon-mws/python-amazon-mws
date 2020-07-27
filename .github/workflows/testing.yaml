@@ -1,4 +1,4 @@
-name: CI Testing
+name: Testing
 
 on: [push, pull_request]
 
@@ -26,13 +26,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -e .
-
-    - name: Run pytest and coverage reporting
+    
+    - name: Run pytest
       run: |
         pip install pytest
-        pip install pytest-cov
         pytest
-        pytest --cov=mws
 
-    - name: Report coverage to codecov
-      uses: codecov/codecov-action@v1
+    # - name: Run pytest and coverage reporting
+    #   run: |
+    #     pip install pytest
+    #     pip install pytest-cov
+    #     pytest
+    #     pytest --cov=mws
+
+    # - name: Report coverage to codecov
+    #   uses: codecov/codecov-action@v1
