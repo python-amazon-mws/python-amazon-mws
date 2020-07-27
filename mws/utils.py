@@ -60,7 +60,7 @@ class ObjectDict(dict):
         still get a list or ObjectDict, as originally expected.
         """
         if not isinstance(self, list):
-            return iter([self,])
+            return iter([self])
         return self
 
     def getvalue(self, item, value=None):
