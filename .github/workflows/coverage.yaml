@@ -1,4 +1,4 @@
-name: Testing
+name: Coverage report
 
 on: [push, pull_request]
 
