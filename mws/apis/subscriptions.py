@@ -30,7 +30,7 @@ class Subscriptions(MWS):
         attribute_list = []
         for key, val in attributes.items():
             attribute_list.append(
-                {"Key": key, "Value": val,}
+                {"Key": key, "Value": val}
             )
         return attribute_list
 

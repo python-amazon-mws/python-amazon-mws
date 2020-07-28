@@ -92,7 +92,7 @@ class ParamUtilitiesTestCase(unittest.TestCase):
         # We could test with values as a set, but we cannot be 100% of the order of the output,
         # and I don't feel it necessary to flesh this out enough to account for it.
         result = mws.utils.enumerate_params(
-            {param1: values1, param2: values2, param3: values3,}
+            {param1: values1, param2: values2, param3: values3}
         )
         expected = {
             "Summat.1": "colorful",

@@ -408,7 +408,7 @@ class InboundShipments(MWS):
             "Action": "GetPrepInstructionsForSKU",
             "ShipToCountryCode": country_code,
         }
-        data.update(utils.enumerate_params({"SellerSKUList.ID.": skus,}))
+        data.update(utils.enumerate_params({"SellerSKUList.ID.": skus}))
         return self.make_request(data, method="POST")
 
     def get_prep_instructions_for_asin(self, asins=None, country_code=None):
@@ -428,7 +428,7 @@ class InboundShipments(MWS):
             "Action": "GetPrepInstructionsForASIN",
             "ShipToCountryCode": country_code,
         }
-        data.update(utils.enumerate_params({"ASINList.ID.": asins,}))
+        data.update(utils.enumerate_params({"ASINList.ID.": asins}))
         return self.make_request(data, method="POST")
 
     # # TODO this method is incomplete: it should be able to account for all TransportDetailInput types
