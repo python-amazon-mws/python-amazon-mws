@@ -3,7 +3,7 @@ Tests for the Subscriptions API class.
 """
 import unittest
 import mws
-from .utils import CommonRequestTestTools
+from mws.utils import CommonRequestTestTools
 
 
 class SubscriptionsTestCase(unittest.TestCase, CommonRequestTestTools):

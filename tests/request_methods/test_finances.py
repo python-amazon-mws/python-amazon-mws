@@ -4,7 +4,7 @@ Tests for the Finances API class.
 import unittest
 import datetime
 import mws
-from .utils import CommonRequestTestTools, transform_date
+from mws.utils import CommonRequestTestTools, transform_date
 
 
 class FinancesTestCase(unittest.TestCase, CommonRequestTestTools):

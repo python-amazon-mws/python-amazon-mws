@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from .mws import MWS, MWSError
+from .mws import MWS
+from .mws import MWSError
 from .apis import (
     Feeds,
     Finances,

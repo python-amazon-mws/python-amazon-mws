@@ -3,7 +3,7 @@ Tests for the MerchantFulfillment API class.
 """
 import unittest
 import mws
-from .utils import CommonRequestTestTools
+from mws.utils import CommonRequestTestTools
 
 
 class MerchantFulfillmentTestCase(unittest.TestCase, CommonRequestTestTools):
