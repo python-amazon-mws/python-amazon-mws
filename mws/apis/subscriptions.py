@@ -29,9 +29,7 @@ class Subscriptions(MWS):
             return {}
         attribute_list = []
         for key, val in attributes.items():
-            attribute_list.append(
-                {"Key": key, "Value": val}
-            )
+            attribute_list.append({"Key": key, "Value": val})
         return attribute_list
 
     def register_destination(

@@ -23,4 +23,5 @@ jobs:
     - name: Install and run Black
       run: |
        pip install black
-       black --check .
+       black --check mws
+       black --check tests

@@ -21,10 +21,10 @@ jobs:
         pip install -r requirements.txt
         pip install -e .
 
-    - name: Run pytest and with coverage reporting
+    - name: Generate coverage report
       run: |
         pip install pytest-cov
         pytest --cov=mws
 
-    - name: Report coverage to codecov
+    - name: Send report to codecov
       uses: codecov/codecov-action@v1
