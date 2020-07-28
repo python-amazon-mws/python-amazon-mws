@@ -43,13 +43,13 @@ class ParseItemArgsTestCase(unittest.TestCase):
         operation = "CreateInboundShipmentPlan"
         # SKU missing
         item_args_1 = [
-            {"quantity": 34,},
+            {"quantity": 34},
         ]
         with self.assertRaises(MWSError):
             parse_item_args(item_args_1, operation)
         # Quantity missing
         item_args_2 = [
-            {"sku": "something",},
+            {"sku": "something"},
         ]
         with self.assertRaises(MWSError):
             parse_item_args(item_args_2, operation)
@@ -62,13 +62,13 @@ class ParseItemArgsTestCase(unittest.TestCase):
         operation = "other operation"
         # SKU missing
         item_args_1 = [
-            {"quantity": 56,},
+            {"quantity": 56},
         ]
         with self.assertRaises(MWSError):
             parse_item_args(item_args_1, operation)
         # Quantity missing
         item_args_2 = [
-            {"sku": "soemthingelse",},
+            {"sku": "soemthingelse"},
         ]
         with self.assertRaises(MWSError):
             parse_item_args(item_args_2, operation)
@@ -87,7 +87,7 @@ class ParseItemArgsTestCase(unittest.TestCase):
                 "asin": "ANYTHING",
                 "condition": "Used",
             },
-            {"sku": "something", "quantity": 34,},
+            {"sku": "something", "quantity": 34},
         ]
         parsed_items = parse_item_args(item_args, operation)
         expected = [
@@ -116,12 +116,12 @@ class ParseItemArgsTestCase(unittest.TestCase):
         operation = "other_operation"
         # SKU missing
         item_args = [
-            {"sku": "one_thing", "quantity": 34, "quantity_in_case": 5,},
-            {"sku": "the_other_thing", "quantity": 7,},
+            {"sku": "one_thing", "quantity": 34, "quantity_in_case": 5},
+            {"sku": "the_other_thing", "quantity": 7},
         ]
         parsed_items = parse_item_args(item_args, operation)
         expected = [
-            {"SellerSKU": "one_thing", "QuantityShipped": 34, "QuantityInCase": 5,},
+            {"SellerSKU": "one_thing", "QuantityShipped": 34, "QuantityInCase": 5},
             {
                 "SellerSKU": "the_other_thing",
                 "QuantityShipped": 7,
