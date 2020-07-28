@@ -3,6 +3,7 @@ Testing for enumerate_param, enumerate_params, and enumerate_keyed_param
 """
 import unittest
 import mws
+
 # pylint: disable=invalid-name
 
 
@@ -11,6 +12,7 @@ class TestParamsRaiseExceptions(unittest.TestCase):
     Simple test that asserts a ValueError is raised by an improper entry to
     `utils.enumerate_keyed_param`.
     """
+
     def test_keyed_param_fails_without_dict(self):
         """
         Should raise ValueError for values not being a dict.
@@ -25,6 +27,7 @@ class ParamUtilitiesTestCase(unittest.TestCase):
     """
     Test cases that cover the parameter utilities
     """
+
     def test_param_defaults(self):
         """
         Test each method type for their default empty dicts.
@@ -88,11 +91,9 @@ class ParamUtilitiesTestCase(unittest.TestCase):
         values3 = ["something", "or", "other"]
         # We could test with values as a set, but we cannot be 100% of the order of the output,
         # and I don't feel it necessary to flesh this out enough to account for it.
-        result = mws.utils.enumerate_params({
-            param1: values1,
-            param2: values2,
-            param3: values3,
-        })
+        result = mws.utils.enumerate_params(
+            {param1: values1, param2: values2, param3: values3,}
+        )
         expected = {
             "Summat.1": "colorful",
             "Summat.2": "cheery",
@@ -195,13 +196,13 @@ class ParamUtilitiesTestCase(unittest.TestCase):
         Testing results of utils.dict_keyed_param, for param not dotted
         """
         param = "ShipmentRequestDetails.PackageDimensions"
-        dict_from = {'Length': 5, 'Width': 5, 'Height': 5, 'Unit': 'inches'}
+        dict_from = {"Length": 5, "Width": 5, "Height": 5, "Unit": "inches"}
         result = mws.utils.dict_keyed_param(param, dict_from)
         expected = {
-            'ShipmentRequestDetails.PackageDimensions.Length': 5,
-            'ShipmentRequestDetails.PackageDimensions.Width': 5,
-            'ShipmentRequestDetails.PackageDimensions.Height': 5,
-            'ShipmentRequestDetails.PackageDimensions.Unit': 'inches',
+            "ShipmentRequestDetails.PackageDimensions.Length": 5,
+            "ShipmentRequestDetails.PackageDimensions.Width": 5,
+            "ShipmentRequestDetails.PackageDimensions.Height": 5,
+            "ShipmentRequestDetails.PackageDimensions.Unit": "inches",
         }
         self.assertEqual(result, expected)
 
@@ -210,12 +211,12 @@ class ParamUtilitiesTestCase(unittest.TestCase):
         Testing results of utils.dict_keyed_param, for param not dotted
         """
         param = "ShipmentRequestDetails.PackageDimensions."
-        dict_from = {'Length': 5, 'Width': 5, 'Height': 5, 'Unit': 'inches'}
+        dict_from = {"Length": 5, "Width": 5, "Height": 5, "Unit": "inches"}
         result = mws.utils.dict_keyed_param(param, dict_from)
         expected = {
-            'ShipmentRequestDetails.PackageDimensions.Length': 5,
-            'ShipmentRequestDetails.PackageDimensions.Width': 5,
-            'ShipmentRequestDetails.PackageDimensions.Height': 5,
-            'ShipmentRequestDetails.PackageDimensions.Unit': 'inches',
+            "ShipmentRequestDetails.PackageDimensions.Length": 5,
+            "ShipmentRequestDetails.PackageDimensions.Width": 5,
+            "ShipmentRequestDetails.PackageDimensions.Height": 5,
+            "ShipmentRequestDetails.PackageDimensions.Unit": "inches",
         }
         self.assertEqual(result, expected)
