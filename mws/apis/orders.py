@@ -1,7 +1,6 @@
 """Amazon Orders API."""
 
-from mws import MWS
-from mws import utils
+from mws import MWS, utils
 from mws.decorators import next_token_action
 
 

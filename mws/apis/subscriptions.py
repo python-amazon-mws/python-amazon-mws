@@ -1,7 +1,6 @@
 """Amazon MWS Subscriptions API."""
 
-from mws import MWS
-from mws import utils
+from mws import MWS, utils
 
 # TODO include NotificationType enumeration
 # TODO set up a basic object for Subscription and Destination types?

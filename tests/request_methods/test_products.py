@@ -3,9 +3,9 @@ Tests for the Products API class.
 """
 import unittest
 import mws
-from mws.utils import CommonRequestTestTools
-from mws.utils import transform_bool
-from mws.utils import transform_string
+from .utils import CommonRequestTestTools
+from .utils import transform_bool
+from .utils import transform_string
 
 
 class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):

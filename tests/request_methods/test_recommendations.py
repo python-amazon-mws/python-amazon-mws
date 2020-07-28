@@ -3,8 +3,8 @@ Tests for the Recommendations API class.
 """
 import unittest
 import mws
-from mws.utils import CommonRequestTestTools
-from mws.utils import transform_string
+from .utils import CommonRequestTestTools
+from .utils import transform_string
 
 
 class RecommendationsTestCase(unittest.TestCase, CommonRequestTestTools):

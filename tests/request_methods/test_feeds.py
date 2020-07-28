@@ -4,7 +4,8 @@ Tests for the Feeds API class.
 import unittest
 import datetime
 import mws
-from mws.utils import CommonRequestTestTools, transform_date
+from .utils import CommonRequestTestTools
+from .utils import transform_date
 
 
 class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):

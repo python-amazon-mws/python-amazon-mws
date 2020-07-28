@@ -1,7 +1,6 @@
 """Amazon Easyship API."""
 
-from mws import MWS
-from mws import utils
+from mws import MWS, utils
 
 
 def validate_package_update_details(package_update_details):

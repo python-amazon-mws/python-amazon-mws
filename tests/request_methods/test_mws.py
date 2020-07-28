@@ -2,7 +2,7 @@
 Tests for the mws.MWS class and Marketplaces.
 """
 import pytest
-from mws.mws import MWSError, MWS, Marketplaces
+from mws import MWS, MWSError, Marketplaces
 
 mwscred = ["a", "b", "c"]
 

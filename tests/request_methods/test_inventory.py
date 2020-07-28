@@ -4,8 +4,8 @@ Tests for the MWS.Inventory API class.
 import unittest
 import datetime
 import mws
-from mws.utils import CommonRequestTestTools
-from mws.utils import transform_date
+from .utils import CommonRequestTestTools
+from .utils import transform_date
 
 
 class InventoryTestCase(unittest.TestCase, CommonRequestTestTools):

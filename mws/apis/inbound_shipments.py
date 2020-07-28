@@ -1,8 +1,6 @@
 """Amazon MWS FulfillmentInboundShipment API."""
 
-from mws import MWS
-from mws import MWSError
-from mws import utils
+from mws import MWS, MWSError, utils
 from mws.decorators import next_token_action
 
 # TODO Add label type enumeration

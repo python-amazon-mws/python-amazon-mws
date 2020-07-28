@@ -4,9 +4,9 @@ Tests for the Reports API class.
 import datetime
 import unittest
 import mws
-from mws.utils import CommonRequestTestTools
-from mws.utils import transform_date
-from mws.utils import transform_bool
+from .utils import CommonRequestTestTools
+from .utils import transform_date
+from .utils import transform_bool
 
 
 class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):

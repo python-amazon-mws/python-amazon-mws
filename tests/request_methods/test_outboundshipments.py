@@ -3,7 +3,7 @@ Tests for the MWS.OutboundShipments API class.
 """
 import unittest
 import mws
-from mws.utils import CommonRequestTestTools
+from .utils import CommonRequestTestTools
 
 
 class OutboundShipmentsTestCase(unittest.TestCase, CommonRequestTestTools):

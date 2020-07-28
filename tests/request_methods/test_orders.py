@@ -4,8 +4,8 @@ Tests for the Orders API class.
 import datetime
 import unittest
 import mws
-from mws.utils import CommonRequestTestTools
-from mws.utils import transform_date
+from .utils import CommonRequestTestTools
+from .utils import transform_date
 
 
 class OrdersTestCase(unittest.TestCase, CommonRequestTestTools):

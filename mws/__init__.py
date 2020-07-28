@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from .mws import MWS
-from .mws import MWSError
+from .mws import Marketplaces, MWS, MWSError
 from .apis import (
     Feeds,
     Finances,
@@ -19,10 +18,12 @@ from .apis import (
 )
 
 __all__ = [
+    "EasyShip",
     "Feeds",
     "Finances",
     "InboundShipments",
     "Inventory",
+    "Marketplaces",
     "MerchantFulfillment",
     "MWS",
     "MWSError",
@@ -34,5 +35,4 @@ __all__ = [
     "Reports",
     "Sellers",
     "Subscriptions",
-    "EasyShip",
 ]

@@ -3,7 +3,7 @@ Tests for the Sellers API class.
 """
 import unittest
 import mws
-from mws.utils import CommonRequestTestTools
+from .utils import CommonRequestTestTools
 
 
 class SellersTestCase(unittest.TestCase, CommonRequestTestTools):

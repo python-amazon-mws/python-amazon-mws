@@ -1,7 +1,6 @@
 """Amazon MWS Products API."""
 
-from mws import MWS
-from mws import utils
+from mws import MWS, utils
 
 
 class Products(MWS):

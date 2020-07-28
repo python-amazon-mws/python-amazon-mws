@@ -4,12 +4,12 @@ Tests for the InboundShipments API class.
 import datetime
 import unittest
 import mws
-from mws.apis.inbound_shipments import parse_item_args
 from mws import MWSError
-from mws.utils import CommonRequestTestTools
-from mws.utils import transform_date
-from mws.utils import transform_bool
-from mws.utils import transform_string
+from mws.apis.inbound_shipments import parse_item_args
+from .utils import CommonRequestTestTools
+from .utils import transform_date
+from .utils import transform_bool
+from .utils import transform_string
 
 
 class ParseItemArgsTestCase(unittest.TestCase):
