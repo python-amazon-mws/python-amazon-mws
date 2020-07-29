@@ -87,7 +87,8 @@ class Feeds(MWS):
             # allowed values: ShippingLabel, Invoice, Warranty
             if document_type:
                 data.update({'DocumentType': document_type})
-        data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplace_ids))
+        if marketplace_ids:
+            data.update(utils.enumerate_param('MarketplaceIdList.Id.', marketplace_ids))
         md5_hash = utils.calc_md5(feed)
         return self.make_request(data, method="POST", body=feed,
                                  extra_headers={'Content-MD5': md5_hash, 'Content-Type': content_type})
