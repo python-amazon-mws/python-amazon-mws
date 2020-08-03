@@ -1,10 +1,7 @@
-"""
-Amazon MWS Recommendations API
-"""
-from __future__ import absolute_import
+"""Amazon MWS Recommendations API."""
 
-from ..mws import MWS
-from ..decorators import next_token_action
+from mws import MWS
+from mws.decorators import next_token_action
 
 
 class Recommendations(MWS):
@@ -14,8 +11,9 @@ class Recommendations(MWS):
     Docs:
     http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_Overview.html
     """
-    URI = '/Recommendations/2013-04-01'
-    VERSION = '2013-04-01'
+
+    URI = "/Recommendations/2013-04-01"
+    VERSION = "2013-04-01"
     NAMESPACE = "{https://mws.amazonservices.com/Recommendations/2013-04-01}"
     NEXT_TOKEN_OPERATIONS = [
         "ListRecommendations",
@@ -30,13 +28,15 @@ class Recommendations(MWS):
         http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_GetLastUpdatedTimeForRecommendations.html
         """
         data = {
-            'Action': 'GetLastUpdatedTimeForRecommendations',
-            'MarketplaceId': marketplace_id,
+            "Action": "GetLastUpdatedTimeForRecommendations",
+            "MarketplaceId": marketplace_id,
         }
         return self.make_request(data, "POST")
 
-    @next_token_action('ListRecommendations')
-    def list_recommendations(self, marketplace_id=None, recommendation_category=None, next_token=None):
+    @next_token_action("ListRecommendations")
+    def list_recommendations(
+        self, marketplace_id=None, recommendation_category=None, next_token=None
+    ):
         """
         Returns your active recommendations for a specific category or for all categories for a specific marketplace.
 
@@ -46,9 +46,9 @@ class Recommendations(MWS):
         http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_ListRecommendations.html
         """
         data = {
-            'Action': "ListRecommendations",
-            'MarketplaceId': marketplace_id,
-            'RecommendationCategory': recommendation_category,
+            "Action": "ListRecommendations",
+            "MarketplaceId": marketplace_id,
+            "RecommendationCategory": recommendation_category,
         }
         return self.make_request(data, "POST")
 

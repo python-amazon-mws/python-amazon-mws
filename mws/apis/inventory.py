@@ -1,11 +1,7 @@
-"""
-Amazon MWS Inventory Fulfillment API
-"""
-from __future__ import absolute_import
+"""Amazon MWS Inventory Fulfillment API."""
 
-from ..mws import MWS
-from .. import utils
-from ..decorators import next_token_action
+from mws import MWS, utils
+from mws.decorators import next_token_action
 
 
 class Inventory(MWS):
@@ -15,16 +11,23 @@ class Inventory(MWS):
     Docs:
     http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_Overview.html
     """
-    URI = '/FulfillmentInventory/2010-10-01'
-    VERSION = '2010-10-01'
+
+    URI = "/FulfillmentInventory/2010-10-01"
+    VERSION = "2010-10-01"
     NAMESPACE = "{http://mws.amazonaws.com/FulfillmentInventory/2010-10-01}"
     NEXT_TOKEN_OPERATIONS = [
-        'ListInventorySupply',
+        "ListInventorySupply",
     ]
 
-    @next_token_action('ListInventorySupply')
-    def list_inventory_supply(self, skus=(), datetime_=None,
-                              response_group='Basic', next_token=None, marketplace_id=None):
+    @next_token_action("ListInventorySupply")
+    def list_inventory_supply(
+        self,
+        skus=(),
+        datetime_=None,
+        response_group="Basic",
+        next_token=None,
+        marketplace_id=None,
+    ):
         """
         Returns information on available inventory
 
@@ -34,12 +37,12 @@ class Inventory(MWS):
         http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupply.html
         """
         data = {
-            'Action': 'ListInventorySupply',
-            'QueryStartDateTime': datetime_,
-            'ResponseGroup': response_group,
-            'MarketplaceId': marketplace_id,
+            "Action": "ListInventorySupply",
+            "QueryStartDateTime": datetime_,
+            "ResponseGroup": response_group,
+            "MarketplaceId": marketplace_id,
         }
-        data.update(utils.enumerate_param('SellerSkus.member.', skus))
+        data.update(utils.enumerate_param("SellerSkus.member.", skus))
         return self.make_request(data, "POST")
 
     def list_inventory_supply_by_next_token(self, token):

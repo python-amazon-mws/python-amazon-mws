@@ -1,0 +1,13 @@
+# main
+requests
+
+# testing
+pytest
+pytest-cov
+
+# releasing
+twine
+
+# documentation
+sphinx>=1.4
+sphinx-autobuild>=0.7.1

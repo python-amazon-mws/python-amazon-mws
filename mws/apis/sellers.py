@@ -1,10 +1,7 @@
-"""
-Amazon MWS Sellers API
-"""
-from __future__ import absolute_import
+"""Amazon MWS Sellers API."""
 
-from ..mws import MWS
-from ..decorators import next_token_action
+from mws import MWS
+from mws.decorators import next_token_action
 
 
 class Sellers(MWS):
@@ -14,14 +11,15 @@ class Sellers(MWS):
     Docs:
     http://docs.developer.amazonservices.com/en_US/sellers/Sellers_Overview.html
     """
-    URI = '/Sellers/2011-07-01'
-    VERSION = '2011-07-01'
-    NAMESPACE = '{http://mws.amazonservices.com/schema/Sellers/2011-07-01}'
+
+    URI = "/Sellers/2011-07-01"
+    VERSION = "2011-07-01"
+    NAMESPACE = "{http://mws.amazonservices.com/schema/Sellers/2011-07-01}"
     NEXT_TOKEN_OPERATIONS = [
-        'ListMarketplaceParticipations',
+        "ListMarketplaceParticipations",
     ]
 
-    @next_token_action('ListMarketplaceParticipations')
+    @next_token_action("ListMarketplaceParticipations")
     def list_marketplace_participations(self, next_token=None):
         """
         Returns a list of marketplaces that the seller submitting the request can sell in,
@@ -33,7 +31,7 @@ class Sellers(MWS):
         http://docs.developer.amazonservices.com/en_US/sellers/Sellers_ListMarketplaceParticipations.html
         """
         data = {
-            'Action': 'ListMarketplaceParticipations',
+            "Action": "ListMarketplaceParticipations",
         }
         return self.make_request(data)
 

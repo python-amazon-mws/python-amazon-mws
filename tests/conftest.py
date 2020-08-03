@@ -18,7 +18,7 @@ def account_id():
 
 @pytest.fixture
 def timestamp():
-    return '2017-08-12T19:40:35Z'
+    return "2017-08-12T19:40:35Z"
 
 
 @pytest.fixture

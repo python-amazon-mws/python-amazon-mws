@@ -29,6 +29,7 @@ pip-log.txt
 .mr.developer.cfg
 # VS Code Settings
 .vscode/
+.venv/
 
 # VS Code Settings
 .vscode/settings.json
