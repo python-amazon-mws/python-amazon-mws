@@ -135,8 +135,13 @@ class DictWrapper(object):
 
     def __init__(self, xml, rootkey=None):
         if isinstance(xml, bytes):
-            xml = xml.decode()
-        self.original = xml
+            try:
+                xml = xml.decode(encoding="iso-8859-1")
+            except UnicodeDecodeError as exc:
+                error = MWSError(str(exc.response.text))
+                error.response = xml
+                raise error
+
         self.response = None
         self._rootkey = rootkey
         self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
