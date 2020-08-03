@@ -1,11 +1,7 @@
-"""
-Amazon MWS Finances API
-"""
-from __future__ import absolute_import
+"""Amazon MWS Finances API."""
 
-from ..mws import MWS
-# from .. import utils
-from ..decorators import next_token_action
+from mws import MWS
+from mws.decorators import next_token_action
 
 
 class Finances(MWS):
@@ -15,16 +11,19 @@ class Finances(MWS):
     Docs:
     http://docs.developer.amazonservices.com/en_US/finances/Finances_Overview.html
     """
+
     URI = "/Finances/2015-05-01"
     VERSION = "2015-05-01"
-    NS = '{https://mws.amazonservices.com/Finances/2015-05-01}'
+    NS = "{https://mws.amazonservices.com/Finances/2015-05-01}"
     NEXT_TOKEN_OPERATIONS = [
-        'ListFinancialEventGroups',
-        'ListFinancialEvents',
+        "ListFinancialEventGroups",
+        "ListFinancialEvents",
     ]
 
-    @next_token_action('ListFinancialEventGroups')
-    def list_financial_event_groups(self, created_after=None, created_before=None, max_results=None, next_token=None):
+    @next_token_action("ListFinancialEventGroups")
+    def list_financial_event_groups(
+        self, created_after=None, created_before=None, max_results=None, next_token=None
+    ):
         """
         Returns financial event groups for a given date range.
         If `created_before` is ommitted, defaults to now minus 2 minutes.
@@ -35,10 +34,10 @@ class Finances(MWS):
         http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventGroups.html
         """
         data = {
-            'Action': 'ListFinancialEventGroups',
-            'FinancialEventGroupStartedAfter': created_after,
-            'FinancialEventGroupStartedBefore': created_before,
-            'MaxResultsPerPage': max_results,
+            "Action": "ListFinancialEventGroups",
+            "FinancialEventGroupStartedAfter": created_after,
+            "FinancialEventGroupStartedBefore": created_before,
+            "MaxResultsPerPage": max_results,
         }
         return self.make_request(data)
 
@@ -51,9 +50,16 @@ class Finances(MWS):
         """
         return self.list_financial_event_groups(next_token=token)
 
-    @next_token_action('ListFinancialEvents')
-    def list_financial_events(self, financial_event_group_id=None, amazon_order_id=None, posted_after=None,
-                              posted_before=None, max_results=None, next_token=None):
+    @next_token_action("ListFinancialEvents")
+    def list_financial_events(
+        self,
+        financial_event_group_id=None,
+        amazon_order_id=None,
+        posted_after=None,
+        posted_before=None,
+        max_results=None,
+        next_token=None,
+    ):
         """
         Returns financial events for a user-provided FinancialEventGroupId or AmazonOrderId
 
@@ -63,12 +69,12 @@ class Finances(MWS):
         http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEvents.html
         """
         data = {
-            'Action': 'ListFinancialEvents',
-            'FinancialEventGroupId': financial_event_group_id,
-            'AmazonOrderId': amazon_order_id,
-            'PostedAfter': posted_after,
-            'PostedBefore': posted_before,
-            'MaxResultsPerPage': max_results,
+            "Action": "ListFinancialEvents",
+            "FinancialEventGroupId": financial_event_group_id,
+            "AmazonOrderId": amazon_order_id,
+            "PostedAfter": posted_after,
+            "PostedBefore": posted_before,
+            "MaxResultsPerPage": max_results,
         }
         return self.make_request(data)
 

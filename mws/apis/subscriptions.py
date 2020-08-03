@@ -1,11 +1,6 @@
-"""
-Amazon MWS Subscriptions API
-"""
-from __future__ import absolute_import
+"""Amazon MWS Subscriptions API."""
 
-from ..mws import MWS
-from .. import utils
-# from .. import utils
+from mws import MWS, utils
 
 # TODO include NotificationType enumeration
 # TODO set up a basic object for Subscription and Destination types?
@@ -18,6 +13,7 @@ class Subscriptions(MWS):
     Docs:
     http://docs.developer.amazonservices.com/en_US/subscriptions/index.html
     """
+
     URI = "/Subscriptions/2013-07-01"
     VERSION = "2013-07-01"
     NAMESPACE = "{http://mws.amazonaws.com/Subscriptions/2013-07-01}"
@@ -32,13 +28,12 @@ class Subscriptions(MWS):
             return {}
         attribute_list = []
         for key, val in attributes.items():
-            attribute_list.append({
-                'Key': key,
-                'Value': val,
-            })
+            attribute_list.append({"Key": key, "Value": val})
         return attribute_list
 
-    def register_destination(self, marketplace_id, attributes=None, delivery_channel="SQS"):
+    def register_destination(
+        self, marketplace_id, attributes=None, delivery_channel="SQS"
+    ):
         """
         Specifies a new destination where you want to receive notifications.
 
@@ -55,13 +50,19 @@ class Subscriptions(MWS):
         data = {
             "Action": "RegisterDestination",
             "MarketplaceId": marketplace_id,
-            "Destination.DeliveryChannel": delivery_channel
+            "Destination.DeliveryChannel": delivery_channel,
         }
-        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data.update(
+            utils.enumerate_keyed_param(
+                "Destination.AttributeList.member", self._parse_attributes(attributes)
+            )
+        )
 
         return self.make_request(data, "POST")
 
-    def deregister_destination(self, marketplace_id, attributes=None, delivery_channel="SQS"):
+    def deregister_destination(
+        self, marketplace_id, attributes=None, delivery_channel="SQS"
+    ):
         """
         Removes an existing destination from the list of registered destinations.
 
@@ -78,9 +79,13 @@ class Subscriptions(MWS):
         data = {
             "Action": "DeregisterDestination",
             "MarketplaceId": marketplace_id,
-            "Destination.DeliveryChannel": delivery_channel
+            "Destination.DeliveryChannel": delivery_channel,
         }
-        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data.update(
+            utils.enumerate_keyed_param(
+                "Destination.AttributeList.member", self._parse_attributes(attributes)
+            )
+        )
 
         return self.make_request(data, "POST")
 
@@ -91,12 +96,13 @@ class Subscriptions(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListRegisteredDestinations.html
         """
-        data = {"Action": "ListRegisteredDestinations",
-                "MarketplaceId": marketplace_id}
+        data = {"Action": "ListRegisteredDestinations", "MarketplaceId": marketplace_id}
 
         return self.make_request(data, "POST")
 
-    def send_test_notification_to_destination(self, marketplace_id, attributes=None, delivery_channel="SQS"):
+    def send_test_notification_to_destination(
+        self, marketplace_id, attributes=None, delivery_channel="SQS"
+    ):
         """
         Sends a test notification to an existing destination.
 
@@ -110,15 +116,27 @@ class Subscriptions(MWS):
         if attributes is None:
             raise ValueError("attributes cannot be None")
 
-        data = {"Action": "SendTestNotificationToDestination",
-                "MarketplaceId": marketplace_id,
-                "Destination.DeliveryChannel": delivery_channel}
-        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data = {
+            "Action": "SendTestNotificationToDestination",
+            "MarketplaceId": marketplace_id,
+            "Destination.DeliveryChannel": delivery_channel,
+        }
+        data.update(
+            utils.enumerate_keyed_param(
+                "Destination.AttributeList.member", self._parse_attributes(attributes)
+            )
+        )
 
         return self.make_request(data, method="POST")
 
-    def create_subscription(self, marketplace_id, attributes=None,
-                            notification_type=None, is_enabled=True, delivery_channel="SQS"):
+    def create_subscription(
+        self,
+        marketplace_id,
+        attributes=None,
+        notification_type=None,
+        is_enabled=True,
+        delivery_channel="SQS",
+    ):
         """
         Creates a new subscription for the specified notification type and destination.
 
@@ -135,18 +153,30 @@ class Subscriptions(MWS):
 
         if notification_type is None:
             raise ValueError("notification_type cannot be None")
-        data = {"Action": "CreateSubscription",
-                "MarketplaceId": marketplace_id,
-                "Subscription.Destination.DeliveryChannel": delivery_channel,
-                "Subscription.IsEnabled": str(is_enabled).lower(),
-                "Subscription.NotificationType": notification_type}
+        data = {
+            "Action": "CreateSubscription",
+            "MarketplaceId": marketplace_id,
+            "Subscription.Destination.DeliveryChannel": delivery_channel,
+            "Subscription.IsEnabled": str(is_enabled).lower(),
+            "Subscription.NotificationType": notification_type,
+        }
 
-        data.update(utils.enumerate_keyed_param("Subscription.Destination.AttributeList.member",
-                                                self._parse_attributes(attributes)))
+        data.update(
+            utils.enumerate_keyed_param(
+                "Subscription.Destination.AttributeList.member",
+                self._parse_attributes(attributes),
+            )
+        )
 
         return self.make_request(data, "POST")
 
-    def get_subscription(self, marketplace_id, attributes=None, notification_type=None, delivery_channel="SQS"):
+    def get_subscription(
+        self,
+        marketplace_id,
+        attributes=None,
+        notification_type=None,
+        delivery_channel="SQS",
+    ):
         """
         Gets the subscription for the specified notification type and destination.
 
@@ -163,16 +193,27 @@ class Subscriptions(MWS):
 
         if notification_type is None:
             raise ValueError("notification_type cannot be None")
-        data = {"Action": "GetSubscription",
-                "MarketplaceId": marketplace_id,
-                "Destination.DeliveryChannel": delivery_channel,
-                "NotificationType": notification_type}
-        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member",
-                                                self._parse_attributes(attributes)))
+        data = {
+            "Action": "GetSubscription",
+            "MarketplaceId": marketplace_id,
+            "Destination.DeliveryChannel": delivery_channel,
+            "NotificationType": notification_type,
+        }
+        data.update(
+            utils.enumerate_keyed_param(
+                "Destination.AttributeList.member", self._parse_attributes(attributes)
+            )
+        )
 
         return self.make_request(data, "POST")
 
-    def delete_subscription(self, marketplace_id, attributes=None, notification_type=None, delivery_channel="SQS"):
+    def delete_subscription(
+        self,
+        marketplace_id,
+        attributes=None,
+        notification_type=None,
+        delivery_channel="SQS",
+    ):
 
         """
         Deletes the subscription for the specified notification type and destination.
@@ -190,12 +231,18 @@ class Subscriptions(MWS):
 
         if notification_type is None:
             raise ValueError("notification_type cannot be None")
-        data = {"Action": "DeleteSubscription",
-                "MarketplaceId": marketplace_id,
-                "Destination.DeliveryChannel": delivery_channel,
-                "NotificationType": notification_type}
+        data = {
+            "Action": "DeleteSubscription",
+            "MarketplaceId": marketplace_id,
+            "Destination.DeliveryChannel": delivery_channel,
+            "NotificationType": notification_type,
+        }
 
-        data.update(utils.enumerate_keyed_param("Destination.AttributeList.member", self._parse_attributes(attributes)))
+        data.update(
+            utils.enumerate_keyed_param(
+                "Destination.AttributeList.member", self._parse_attributes(attributes)
+            )
+        )
 
         return self.make_request(data, "POST")
 
@@ -213,8 +260,14 @@ class Subscriptions(MWS):
 
         return self.make_request(data, "POST")
 
-    def update_subscription(self, marketplace_id, attributes=None,
-                            notification_type=None, is_enabled=True, delivery_channel="SQS"):
+    def update_subscription(
+        self,
+        marketplace_id,
+        attributes=None,
+        notification_type=None,
+        is_enabled=True,
+        delivery_channel="SQS",
+    ):
         """
         Updates the subscription for the specified notification type and destination.
 
@@ -230,12 +283,18 @@ class Subscriptions(MWS):
 
         if notification_type is None:
             raise ValueError("notification_type cannot be None")
-        data = {"Action": "UpdateSubscription",
-                "MarketplaceId": marketplace_id,
-                "Subscription.Destination.DeliveryChannel": delivery_channel,
-                "Subscription.IsEnabled": str(is_enabled).lower(),
-                "Subscription.NotificationType": notification_type}
+        data = {
+            "Action": "UpdateSubscription",
+            "MarketplaceId": marketplace_id,
+            "Subscription.Destination.DeliveryChannel": delivery_channel,
+            "Subscription.IsEnabled": str(is_enabled).lower(),
+            "Subscription.NotificationType": notification_type,
+        }
 
-        data.update(utils.enumerate_keyed_param("Subscription.Destination.AttributeList.member",
-                                                self._parse_attributes(attributes)))
+        data.update(
+            utils.enumerate_keyed_param(
+                "Subscription.Destination.AttributeList.member",
+                self._parse_attributes(attributes),
+            )
+        )
         return self.make_request(data, "POST")
