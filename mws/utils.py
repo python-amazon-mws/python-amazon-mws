@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Jun 26 15:42:07 2012
+"""A bunch of cruddy utilities.
 
-Borrowed from https://github.com/timotheus/ebaysdk-python
-
-@author: pierre
+XML to Dict code Borrowed from https://github.com/timotheus/ebaysdk-python
 """
-from __future__ import absolute_import
+# TODO break utils module into a utils package,
+# with separate modules for different concerns
 import re
 import base64
 import datetime
@@ -36,8 +34,8 @@ class ObjectDict(dict):
     def __getattr__(self, item):
         node = self.__getitem__(item)
 
-        if isinstance(node, dict) and 'value' in node and len(node) == 1:
-            return node['value']
+        if isinstance(node, dict) and "value" in node and len(node) == 1:
+            return node["value"]
         return node
 
     # if value is the only key in object, you can omit it
@@ -62,14 +60,14 @@ class ObjectDict(dict):
         still get a list or ObjectDict, as originally expected.
         """
         if not isinstance(self, list):
-            return iter([self, ])
+            return iter([self])
         return self
 
     def getvalue(self, item, value=None):
         """
         Old Python 2-compatible getter method for default value.
         """
-        return self.get(item, {}).get('value', value)
+        return self.get(item, {}).get("value", value)
 
 
 class XML2Dict(object):
@@ -82,12 +80,11 @@ class XML2Dict(object):
         if node.text:
             node_tree.value = node.text
         for key, val in node.attrib.items():
-            key, val = self._namespace_split(key, ObjectDict({'value': val}))
+            key, val = self._namespace_split(key, ObjectDict({"value": val}))
             node_tree[key] = val
         # Save childrens
         for child in node:
-            tag, tree = self._namespace_split(child.tag,
-                                              self._parse_node(child))
+            tag, tree = self._namespace_split(child.tag, self._parse_node(child))
             if tag not in node_tree:  # the first time, so store it in dict
                 node_tree[tag] = tree
                 continue
@@ -115,7 +112,7 @@ class XML2Dict(object):
         """
         Parse XML file to a dict.
         """
-        file_ = open(filename, 'r')
+        file_ = open(filename, "r")
         return self.fromstring(file_.read())
 
     def fromstring(self, str_):
@@ -133,7 +130,7 @@ def calc_md5(string):
     """
     md5_hash = hashlib.md5()
     md5_hash.update(string)
-    return base64.b64encode(md5_hash.digest()).strip(b'\n')
+    return base64.b64encode(md5_hash.digest()).strip(b"\n")
 
 
 def enumerate_param(param, values):
@@ -156,15 +153,14 @@ def enumerate_param(param, values):
         return {}
     if not isinstance(values, (list, tuple, set)):
         # Coerces a single value to a list before continuing.
-        values = [values, ]
-    if not param.endswith('.'):
+        values = [
+            values,
+        ]
+    if not param.endswith("."):
         # Ensure this enumerated param ends in '.'
-        param += '.'
+        param += "."
     # Return final output: dict comprehension of the enumerated param and values.
-    return {
-        '{}{}'.format(param, idx+1): val
-        for idx, val in enumerate(values)
-    }
+    return {"{}{}".format(param, idx + 1): val for idx, val in enumerate(values)}
 
 
 def enumerate_params(params=None):
@@ -207,27 +203,33 @@ def enumerate_keyed_param(param, values):
     if not values:
         # Shortcut for empty values
         return {}
-    if not param.endswith('.'):
+    if not param.endswith("."):
         # Ensure the enumerated param ends in '.'
-        param += '.'
+        param += "."
     if not isinstance(values, (list, tuple, set)):
         # If it's a single value, convert it to a list first
-        values = [values, ]
+        values = [
+            values,
+        ]
     for val in values:
         # Every value in the list must be a dict.
         if not isinstance(val, dict):
             # Value is not a dict: can't work on it here.
-            raise ValueError((
-                "Non-dict value detected. "
-                "`values` must be a list, tuple, or set; containing only dicts."
-            ))
+            raise ValueError(
+                (
+                    "Non-dict value detected. "
+                    "`values` must be a list, tuple, or set; containing only dicts."
+                )
+            )
     params = {}
     for idx, val_dict in enumerate(values):
         # Build the final output.
-        params.update({
-            '{param}{idx}.{key}'.format(param=param, idx=idx+1, key=k): v
-            for k, v in val_dict.items()
-        })
+        params.update(
+            {
+                "{param}{idx}.{key}".format(param=param, idx=idx + 1, key=k): v
+                for k, v in val_dict.items()
+            }
+        )
     return params
 
 
@@ -250,13 +252,11 @@ def dict_keyed_param(param, dict_from):
     """
     params = {}
 
-    if not param.endswith('.'):
+    if not param.endswith("."):
         # Ensure the enumerated param ends in '.'
-        param += '.'
+        param += "."
     for k, v in dict_from.items():
-        params.update({
-            "{param}{key}".format(param=param, key=k): v
-        })
+        params.update({"{param}{key}".format(param=param, key=k): v})
     return params
 
 

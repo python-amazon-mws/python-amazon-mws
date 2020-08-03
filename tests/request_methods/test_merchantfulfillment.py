@@ -10,13 +10,14 @@ class MerchantFulfillmentTestCase(unittest.TestCase, CommonRequestTestTools):
     """
     Test cases for MerchantFulfillment.
     """
+
     # TODO: Add remaining methods for MerchantFulfillment
     def setUp(self):
         self.api = mws.MerchantFulfillment(
             self.CREDENTIAL_ACCESS,
             self.CREDENTIAL_SECRET,
             self.CREDENTIAL_ACCOUNT,
-            auth_token=self.CREDENTIAL_TOKEN
+            auth_token=self.CREDENTIAL_TOKEN,
         )
         self.api._test_request_params = True
 
@@ -40,22 +41,18 @@ class MerchantFulfillmentTestCase(unittest.TestCase, CommonRequestTestTools):
         """
         XYZ operation.
         """
-        shipment_id = 'UCXN7ZubAj'
-        params = self.api.get_shipment(
-            shipment_id=shipment_id,
-        )
+        shipment_id = "UCXN7ZubAj"
+        params = self.api.get_shipment(shipment_id=shipment_id,)
         self.assert_common_params(params)
-        self.assertEqual(params['Action'], 'GetShipment')
-        self.assertEqual(params['ShipmentId'], shipment_id)
+        self.assertEqual(params["Action"], "GetShipment")
+        self.assertEqual(params["ShipmentId"], shipment_id)
 
     def test_cancel_shipment(self):
         """
         XYZ operation.
         """
-        shipment_id = 'C6Pvk0b2yZ'
-        params = self.api.cancel_shipment(
-            shipment_id=shipment_id,
-        )
+        shipment_id = "C6Pvk0b2yZ"
+        params = self.api.cancel_shipment(shipment_id=shipment_id,)
         self.assert_common_params(params)
-        self.assertEqual(params['Action'], 'CancelShipment')
-        self.assertEqual(params['ShipmentId'], shipment_id)
+        self.assertEqual(params["Action"], "CancelShipment")
+        self.assertEqual(params["ShipmentId"], shipment_id)
