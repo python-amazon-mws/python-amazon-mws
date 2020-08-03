@@ -99,7 +99,7 @@ class OutboundShipments(MWS):
         return self.make_request(data)
 
     @next_token_action("ListAllFulfillmentOrders")
-    def list_all_fulfillment_orders(self, next_token=None):
+    def list_all_fulfillment_orders(self, query_start_date_time=None, next_token=None):
         """Returns a list of fulfillment orders fulfilled after (or at) a specified date.
 
         Pass `next_token` to call "ListAllFulfillmentOrdersByNextToken" instead
