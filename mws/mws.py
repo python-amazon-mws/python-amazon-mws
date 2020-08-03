@@ -71,10 +71,6 @@ class MWSError(Exception):
 
 def calc_request_description(params):
     """
-    Returns a flatted string with the request description, built from the params dict.
-    Entries are escaped with urllib quote method, formatted as "key=value", and joined with "&".
-    """
-    """
     Builds the request description as a single string from the set of params.
 
     Each key-value pair takes the form "key=value"
