@@ -24,12 +24,15 @@ except ImportError:
 from xml.etree.ElementTree import ParseError as XMLError
 
 
-__version__ = "1.0.0dev11"
+__version__ = "1.0.0dev14"
 
 
 class Marketplaces(Enum):
-    """
-    Format: Country code: endpoint, marketplace_id.
+    """Enumeration for MWS marketplaces, containing endpoints and marketplace IDs.
+
+    Example, endpoint and ID for UK marketplace:
+        endpoint = Marketplaces.UK.endpoint
+        marketplace_id = Marketplaces.UK.marketplace_id
     """
 
     AE = ("https://mws.amazonservices.ae", "A2VIGQ35RCS4UG")
@@ -59,9 +62,7 @@ class Marketplaces(Enum):
 
 
 class MWSError(Exception):
-    """
-    Main MWS Exception class
-    """
+    """Main MWS Exception class"""
 
     # Allows quick access to the response object.
     # Do not rely on this attribute, always check if its not None.
@@ -69,8 +70,7 @@ class MWSError(Exception):
 
 
 def calc_request_description(params):
-    """
-    Builds the request description as a single string from the set of params.
+    """Builds the request description as a single string from the set of params.
 
     Each key-value pair takes the form "key=value"
     Sets of "key=value" pairs are joined by "&".
@@ -88,6 +88,7 @@ def calc_request_description(params):
     return "&".join(description_items)
 
 
+# TODO incorporate the clean method into `RequestParameter`
 def clean_params(params):
     """Input cleanup and prevent a lot of common input mistakes."""
     # silently remove parameter where values are empty
@@ -112,8 +113,7 @@ def clean_params(params):
 
 
 def remove_namespace(xml):
-    """
-    Strips the namespace from XML document contained in a string.
+    """Strips the namespace from XML document contained in a string.
     Returns the stripped string.
     """
     regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
@@ -121,9 +121,10 @@ def remove_namespace(xml):
 
 
 class DictWrapper(object):
-    """
-    Main class that converts XML data to a parsed response object as a tree of ObjectDicts,
-    stored in the .parsed property.
+    """Converts XML data to a parsed response object as a tree of `ObjectDict`s.
+
+    Use `.parsed` for direct access to those contents, and `.original` for
+    the original XML document string.
     """
 
     # TODO create a base class for DictWrapper and DataWrapper with all the keys we expect in responses.
@@ -143,18 +144,14 @@ class DictWrapper(object):
 
     @property
     def parsed(self):
-        """
-        Provides access to the parsed contents of an XML response as a tree of ObjectDicts.
-        """
+        """Returns parsed XML contents as a tree of `ObjectDict`s."""
         if self._rootkey:
             return self._response_dict.get(self._rootkey, self._response_dict)
         return self._response_dict
 
 
 class DataWrapper(object):
-    """
-    Text wrapper in charge of validating the hash sent by Amazon.
-    """
+    """Text wrapper in charge of validating the hash sent by Amazon."""
 
     def __init__(self, data, headers):
         self.original = data
@@ -167,20 +164,16 @@ class DataWrapper(object):
 
     @property
     def parsed(self):
-        """
-        Similar to the `parsed` property of DictWrapper, this provides a similar interface for a data response
-        that could not be parsed as XML.
+        """Returns original content.
+
+        Used to provide an identical interface as `DictWrapper`, even if
+        content could not be parsed as XML.
         """
         return self.original
 
-    """
-    To return an unzipped file object based on the content type"
-    """
-
     @property
     def unzipped(self):
-        """
-        If the response is comprised of a zip file, returns a ZipFile object of those file contents.
+        """Returns a `ZipFile` of file contents if response contains zip file bytes.
 
         Otherwise, returns None.
         """
@@ -197,9 +190,7 @@ class DataWrapper(object):
 
 
 class MWS(object):
-    """
-    Base Amazon API class
-    """
+    """Base Amazon API class"""
 
     # This is used to post/get to the different uris used by amazon per api
     # ie. /Orders/2011-01-01
@@ -269,9 +260,7 @@ class MWS(object):
             raise MWSError(error_msg)
 
     def get_default_params(self):
-        """
-        Get the parameters required in all MWS requests
-        """
+        """Get the parameters required in all MWS requests."""
         params = {
             "AWSAccessKeyId": self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
@@ -287,9 +276,7 @@ class MWS(object):
         return params
 
     def make_request(self, extra_data, method="GET", **kwargs):
-        """
-        Make request to Amazon MWS API with these parameters
-        """
+        """Make request to Amazon MWS API with these parameters."""
         params = self.get_default_params()
         proxies = self.get_proxies()
         params.update(extra_data)
@@ -355,6 +342,7 @@ class MWS(object):
         return parsed_response
 
     def get_proxies(self):
+        """Return a dict of http and https proxies, as defined by `self.proxy`."""
         proxies = {"http": None, "https": None}
         if self.proxy:
             # TODO need test to enter here
@@ -365,15 +353,27 @@ class MWS(object):
         return proxies
 
     def get_service_status(self):
-        """
-        Returns a GREEN, GREEN_I, YELLOW or RED status.
-        Depending on the status/availability of the API its being called from.
+        """Returns MWS service status.
+
+        Typical return values (embedded within `response.parsed`) are:
+
+        - GREEN
+        - GREEN_I
+        - YELLOW
+        - RED
+
+        The same request can be used for any MWS API subclass, and MWS may respond
+        differently for each endpoint. Best to use this method from the same API
+        subclass you intend to use for other requests!
+
+        Docs (from Orders API example):
+        http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/MWS_GetServiceStatus.html
         """
         return self.make_request(extra_data=dict(Action="GetServiceStatus"))
 
     def action_by_next_token(self, action, next_token):
-        """
-        Run a '...ByNextToken' action for the given action.
+        """Run a '...ByNextToken' action for the given action.
+
         If the action is not listed in self.NEXT_TOKEN_OPERATIONS, MWSError is raised.
         Action is expected NOT to include 'ByNextToken'
         at the end of its name for this call: function will add that by itself.
@@ -397,8 +397,7 @@ class MWS(object):
         return self.make_request(data, method="POST")
 
     def calc_signature(self, method, request_description):
-        """
-        Calculate MWS signature to interface with Amazon
+        """Calculate MWS signature to interface with Amazon
 
         Args:
             method (str)
@@ -419,11 +418,7 @@ class MWS(object):
         )
 
     def enumerate_param(self, param, values):
-        """
-        DEPRECATED.
-        Please use `utils.enumerate_param` for one param, or
-        `utils.enumerate_params` for multiple params.
-        """
+        """DEPRECATED, alias for `utils.enumerate_param`."""
         # TODO remove in 1.0 release.
         # No tests needed.
         warnings.warn(
