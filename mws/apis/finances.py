@@ -5,8 +5,7 @@ from mws.decorators import next_token_action
 
 
 class Finances(MWS):
-    """
-    Amazon MWS Finances API
+    """Amazon MWS Finances API
 
     Docs:
     http://docs.developer.amazonservices.com/en_US/finances/Finances_Overview.html
@@ -24,8 +23,7 @@ class Finances(MWS):
     def list_financial_event_groups(
         self, created_after=None, created_before=None, max_results=None, next_token=None
     ):
-        """
-        Returns financial event groups for a given date range.
+        """Returns financial event groups for a given date range.
         If `created_before` is ommitted, defaults to now minus 2 minutes.
 
         Pass `next_token` to call "ListFinancialEventGroupsByNextToken" instead.
@@ -42,8 +40,7 @@ class Finances(MWS):
         return self.make_request(data)
 
     def list_financial_event_groups_by_next_token(self, token):
-        """
-        Alias for `list_financial_event_groups(next_token=token)`
+        """Alias for `list_financial_event_groups(next_token=token)`.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventGroupsByNextToken.html
@@ -60,8 +57,8 @@ class Finances(MWS):
         max_results=None,
         next_token=None,
     ):
-        """
-        Returns financial events for a user-provided FinancialEventGroupId or AmazonOrderId
+        """Returns financial events for a user-provided
+        FinancialEventGroupId or AmazonOrderId
 
         Pass `next_token` to call "ListFinancialEventsByNextToken" instead
 
@@ -79,8 +76,7 @@ class Finances(MWS):
         return self.make_request(data)
 
     def list_financial_events_by_next_token(self, token):
-        """
-        Alias for `list_financial_events(next_token=token)`
+        """Alias for `list_financial_events(next_token=token)`
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventsByNextToken.html

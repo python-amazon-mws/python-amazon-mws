@@ -5,8 +5,7 @@ from mws.decorators import next_token_action
 
 
 class Orders(MWS):
-    """
-    Amazon Orders API
+    """Amazon Orders API
 
     Docs:
     http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_Overview.html
@@ -38,8 +37,7 @@ class Orders(MWS):
         easyship_statuses=None,
         next_token=None,
     ):
-        """
-        Returns orders created or updated during a time frame that you specify.
+        """Returns orders created or updated during a time frame that you specify.
 
         Pass `next_token` to call "ListOrdersByNextToken" instead.
 
@@ -78,8 +76,7 @@ class Orders(MWS):
         return self.make_request(data)
 
     def list_orders_by_next_token(self, token):
-        """
-        Alias for `list_orders(next_token=token)`
+        """Alias for `list_orders(next_token=token)`
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrdersByNextToken.html
@@ -87,8 +84,7 @@ class Orders(MWS):
         return self.list_orders(next_token=token)
 
     def get_order(self, amazon_order_ids):
-        """
-        Returns orders based on the AmazonOrderId values that you specify.
+        """Returns orders based on the AmazonOrderId values that you specify.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_GetOrder.html
@@ -101,8 +97,7 @@ class Orders(MWS):
 
     @next_token_action("ListOrderItems")
     def list_order_items(self, amazon_order_id=None, next_token=None):
-        """
-        Returns order items based on the AmazonOrderId that you specify.
+        """Returns order items based on the AmazonOrderId that you specify.
 
         Pass `next_token` to call "ListOrderItemsByNextToken" instead.
 
@@ -116,8 +111,7 @@ class Orders(MWS):
         return self.make_request(data)
 
     def list_order_items_by_next_token(self, token):
-        """
-        Alias for `list_order_items(next_token=token)`
+        """Alias for `list_order_items(next_token=token)`
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrderItemsByNextToken.html

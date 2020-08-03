@@ -5,8 +5,7 @@ from mws.decorators import next_token_action
 
 
 class Inventory(MWS):
-    """
-    Amazon MWS Inventory Fulfillment API
+    """Amazon MWS Inventory Fulfillment API
 
     Docs:
     http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_Overview.html
@@ -28,8 +27,7 @@ class Inventory(MWS):
         next_token=None,
         marketplace_id=None,
     ):
-        """
-        Returns information on available inventory
+        """Returns information on available inventory
 
         Pass `next_token` to call "ListInventorySupplyByNextToken" instead.
 
@@ -46,8 +44,7 @@ class Inventory(MWS):
         return self.make_request(data, "POST")
 
     def list_inventory_supply_by_next_token(self, token):
-        """
-        Alias for `list_inventory_supply(next_token=token)`
+        """Alias for `list_inventory_supply(next_token=token)`
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupplyByNextToken.html

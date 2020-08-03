@@ -49,8 +49,7 @@ class EasyShip(MWS):
         package_weight=0,
         package_weight_uom="g",
     ):
-        """
-        Returns time slots for Amazon Easy Ship package pickup,
+        """Returns time slots for Amazon Easy Ship package pickup,
         based on the package dimensions and package weight that the seller specifies.
 
         Docs:

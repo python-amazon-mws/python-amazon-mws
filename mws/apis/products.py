@@ -4,8 +4,7 @@ from mws import MWS, utils
 
 
 class Products(MWS):
-    """
-    Amazon MWS Products API
+    """Amazon MWS Products API
 
     Docs:
     http://docs.developer.amazonservices.com/en_US/products/Products_Overview.html
@@ -17,8 +16,7 @@ class Products(MWS):
     # NEXT_TOKEN_OPERATIONS = []
 
     def list_matching_products(self, marketplace_id, query, context_id=None):
-        """
-        Returns a list of products and their attributes, based on a search query.
+        """Returns a list of products and their attributes, based on a search query.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_ListMatchingProducts.html
@@ -32,8 +30,7 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_matching_product(self, marketplace_id, asins):
-        """
-        Returns a list of products and their attributes, based on a list of ASIN values.
+        """Returns a list of products and their attributes, based on a list of ASIN values.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProduct.html
@@ -46,8 +43,7 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_matching_product_for_id(self, marketplace_id, type_, ids):
-        """
-        Returns a list of products and their attributes, based on a list of
+        """Returns a list of products and their attributes, based on a list of
         ASIN, GCID, SellerSKU, UPC, EAN, ISBN, and JAN values.
 
         Docs:
@@ -63,8 +59,7 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_competitive_pricing_for_sku(self, marketplace_id, skus):
-        """
-        Returns the current competitive price of a product, based on SellerSKU.
+        """Returns the current competitive price of a product, based on SellerSKU.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForSKU.html
@@ -77,8 +72,7 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_competitive_pricing_for_asin(self, marketplace_id, asins):
-        """
-        Returns the current competitive price of a product, based on ASIN.
+        """Returns the current competitive price of a product, based on ASIN.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForASIN.html
@@ -93,8 +87,7 @@ class Products(MWS):
     def get_lowest_offer_listings_for_sku(
         self, marketplace_id, skus, condition="Any", exclude_me="false"
     ):
-        """
-        Returns pricing information for the lowest-price active offer listings for up to 20 products,
+        """Returns pricing information for the lowest-price active offer listings for up to 20 products,
         based on SellerSKU.
 
         Docs:
@@ -112,8 +105,7 @@ class Products(MWS):
     def get_lowest_offer_listings_for_asin(
         self, marketplace_id, asins, condition="Any", exclude_me="false"
     ):
-        """
-        Returns pricing information for the lowest-price active offer listings for up to 20 products, based on ASIN.
+        """Returns pricing information for the lowest-price active offer listings for up to 20 products, based on ASIN.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForASIN.html
@@ -130,8 +122,7 @@ class Products(MWS):
     def get_lowest_priced_offers_for_sku(
         self, marketplace_id, sku, condition="New", exclude_me="false"
     ):
-        """
-        Returns lowest priced offers for a single product, based on SellerSKU.
+        """Returns lowest priced offers for a single product, based on SellerSKU.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForSKU.html
@@ -148,8 +139,7 @@ class Products(MWS):
     def get_lowest_priced_offers_for_asin(
         self, marketplace_id, asin, condition="New", exclude_me="false"
     ):
-        """
-        Returns lowest priced offers for a single product, based on ASIN.
+        """Returns lowest priced offers for a single product, based on ASIN.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForASIN.html
@@ -168,8 +158,7 @@ class Products(MWS):
     #     pass
 
     def get_my_price_for_sku(self, marketplace_id, skus, condition=None):
-        """
-        Returns pricing information for your own offer listings, based on SellerSKU.
+        """Returns pricing information for your own offer listings, based on SellerSKU.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForSKU.html
@@ -183,8 +172,7 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_my_price_for_asin(self, marketplace_id, asins, condition=None):
-        """
-        Returns pricing information for your own offer listings, based on ASIN.
+        """Returns pricing information for your own offer listings, based on ASIN.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForASIN.html
@@ -198,8 +186,7 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_product_categories_for_sku(self, marketplace_id, sku):
-        """
-        Returns the parent product categories that a product belongs to, based on SellerSKU.
+        """Returns the parent product categories that a product belongs to, based on SellerSKU.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForSKU.html
@@ -212,8 +199,7 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_product_categories_for_asin(self, marketplace_id, asin):
-        """
-        Returns the parent product categories that a product belongs to, based on ASIN.
+        """Returns the parent product categories that a product belongs to, based on ASIN.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForASIN.html

@@ -5,8 +5,7 @@ from mws.decorators import next_token_action
 
 
 class Recommendations(MWS):
-    """
-    Amazon MWS Recommendations API
+    """Amazon MWS Recommendations API
 
     Docs:
     http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_Overview.html
@@ -20,9 +19,9 @@ class Recommendations(MWS):
     ]
 
     def get_last_updated_time_for_recommendations(self, marketplace_id):
-        """
-        Checks whether there are active recommendations for each category for the given marketplace, and if there are,
-        returns the time when recommendations were last updated for each category.
+        """Checks whether there are active recommendations for each category for
+        the given marketplace, and if there are, returns the time when recommendations
+        were last updated for each category.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_GetLastUpdatedTimeForRecommendations.html
@@ -37,8 +36,8 @@ class Recommendations(MWS):
     def list_recommendations(
         self, marketplace_id=None, recommendation_category=None, next_token=None
     ):
-        """
-        Returns your active recommendations for a specific category or for all categories for a specific marketplace.
+        """Returns your active recommendations for a specific category or for all
+        categories for a specific marketplace.
 
         Pass `next_token` to call "ListRecommendationsByNextToken" instead.
 
@@ -53,8 +52,7 @@ class Recommendations(MWS):
         return self.make_request(data, "POST")
 
     def list_recommendations_by_next_token(self, token):
-        """
-        Alias for `list_recommendations(next_token=token)` instead.
+        """Alias for `list_recommendations(next_token=token)` instead.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_ListRecommendationsByNextToken.html

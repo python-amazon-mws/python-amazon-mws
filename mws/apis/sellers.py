@@ -5,8 +5,7 @@ from mws.decorators import next_token_action
 
 
 class Sellers(MWS):
-    """
-    Amazon MWS Sellers API
+    """Amazon MWS Sellers API
 
     Docs:
     http://docs.developer.amazonservices.com/en_US/sellers/Sellers_Overview.html
@@ -21,8 +20,7 @@ class Sellers(MWS):
 
     @next_token_action("ListMarketplaceParticipations")
     def list_marketplace_participations(self, next_token=None):
-        """
-        Returns a list of marketplaces that the seller submitting the request can sell in,
+        """Returns a list of marketplaces that the seller submitting the request can sell in,
         and a list of participations that include seller-specific information in that marketplace.
 
         Pass `next_token` to call "ListMarketplaceParticipationsByNextToken" instead.
@@ -36,8 +34,7 @@ class Sellers(MWS):
         return self.make_request(data)
 
     def list_marketplace_participations_by_next_token(self, token):
-        """
-        Alias for `list_marketplace_participations(next_token=token)`
+        """Alias for `list_marketplace_participations(next_token=token)`
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/sellers/Sellers_ListMarketplaceParticipationsByNextToken.html

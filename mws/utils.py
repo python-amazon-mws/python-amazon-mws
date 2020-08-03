@@ -13,8 +13,7 @@ import xml.etree.ElementTree as ET
 
 
 class ObjectDict(dict):
-    """
-    Extension of dict to allow accessing keys as attributes.
+    """Extension of dict to allow accessing keys as attributes.
 
     Example:
     >>> a = ObjectDict()
@@ -46,8 +45,7 @@ class ObjectDict(dict):
         self.__setitem__(item, value)
 
     def __iter__(self):
-        """
-        A fix for instances where we expect a list, but get a single item.
+        """A fix for instances where we expect a list, but get a single item.
 
         If the parser finds multiple keys by the same name under the same parent node,
         the node will create a list of ObjectDicts to that key. However, if we expect a list
@@ -64,9 +62,7 @@ class ObjectDict(dict):
         return self
 
     def getvalue(self, item, value=None):
-        """
-        Old Python 2-compatible getter method for default value.
-        """
+        """Old Python 2-compatible getter method for default value."""
         return self.get(item, {}).get("value", value)
 
 
@@ -97,8 +93,7 @@ class XML2Dict(object):
         return node_tree
 
     def _namespace_split(self, tag, value):
-        """
-        Split the tag '{http://cs.sfsu.edu/csc867/myscheduler}patients'
+        """Split the tag '{http://cs.sfsu.edu/csc867/myscheduler}patients'
         ns = http://cs.sfsu.edu/csc867/myscheduler
         name = patients
         """
@@ -109,33 +104,26 @@ class XML2Dict(object):
         return (tag, value)
 
     def parse(self, filename):
-        """
-        Parse XML file to a dict.
-        """
+        """Parse XML file to a dict."""
         file_ = open(filename, "r")
         return self.fromstring(file_.read())
 
     def fromstring(self, str_):
-        """
-        Convert XML-formatted string to an ObjectDict.
-        """
+        """Convert XML-formatted string to an ObjectDict."""
         text = ET.fromstring(str_)
         root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
         return ObjectDict({root_tag: root_tree})
 
 
 def calc_md5(string):
-    """
-    Calculates the MD5 encryption for the given string
-    """
+    """Generates base64-encoded MD5 hash of `string`."""
     md5_hash = hashlib.md5()
     md5_hash.update(string)
     return base64.b64encode(md5_hash.digest()).strip(b"\n")
 
 
 def enumerate_param(param, values):
-    """
-    Builds a dictionary of an enumerated parameter, using the param string and some values.
+    """Builds a dictionary of an enumerated parameter, using the param string and some values.
     If values is not a list, tuple, or set, it will be coerced to a list
     with a single item.
 
@@ -164,8 +152,7 @@ def enumerate_param(param, values):
 
 
 def enumerate_params(params=None):
-    """
-    For each param and values, runs enumerate_param,
+    """For each param and values, runs enumerate_param,
     returning a flat dict of all results
     """
     if params is None or not isinstance(params, dict):
@@ -177,8 +164,7 @@ def enumerate_params(params=None):
 
 
 def enumerate_keyed_param(param, values):
-    """
-    Given a param string and a dict of values, returns a flat dict of keyed, enumerated params.
+    """Given a param string and a dict of values, returns a flat dict of keyed, enumerated params.
     Each dict in the values list must pertain to a single item and its data points.
 
     Example:
@@ -234,8 +220,7 @@ def enumerate_keyed_param(param, values):
 
 
 def dict_keyed_param(param, dict_from):
-    """
-    Given a param string and a dict, returns a flat dict of keyed params without enumerate.
+    """Given a param string and a dict, returns a flat dict of keyed params without enumerate.
 
     Example:
         param = "ShipmentRequestDetails.PackageDimensions"
@@ -261,8 +246,7 @@ def dict_keyed_param(param, dict_from):
 
 
 def unique_list_order_preserved(seq):
-    """
-    Returns a unique list of items from the sequence
+    """Returns a unique list of items from the sequence
     while preserving original ordering.
     The first occurence of an item is returned in the new sequence:
     any subsequent occurrences of the same item are ignored.
@@ -273,9 +257,7 @@ def unique_list_order_preserved(seq):
 
 
 def get_utc_timestamp():
-    """
-    Returns the current UTC timestamp in ISO-8601 format.
-    """
+    """Returns the current UTC timestamp in ISO-8601 format."""
     return datetime.datetime.utcnow().replace(microsecond=0).isoformat()
 
 

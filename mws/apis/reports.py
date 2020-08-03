@@ -221,8 +221,7 @@ class Reports(MWS):
         return self.make_request(data)
 
     def get_report(self, report_id):
-        """
-        Returns the contents of a report and the Content-MD5 header for the returned report body.
+        """Returns the contents of a report and the Content-MD5 header for the returned report body.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReport.html
@@ -263,8 +262,7 @@ class Reports(MWS):
         return self.get_report_schedule_list(next_token=token)
 
     def get_report_schedule_count(self, report_types=None):
-        """
-        Returns a count of order report requests that are scheduled to be submitted to Amazon MWS.
+        """Returns a count of order report requests that are scheduled to be submitted to Amazon MWS.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleCount.html

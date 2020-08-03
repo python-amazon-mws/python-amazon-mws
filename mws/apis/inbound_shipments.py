@@ -7,10 +7,10 @@ from mws.decorators import next_token_action
 # TODO Add helper method for extracting PDF file object from label requests
 
 
+# TODO replace with datatype class pattern
 def parse_item_args(item_args, operation):
-    """
-    Parses item arguments sent to create_inbound_shipment_plan, create_inbound_shipment,
-    and update_inbound_shipment methods.
+    """Parses item arguments sent to `create_inbound_shipment_plan`,
+    `create_inbound_shipment`, and `update_inbound_shipment` methods.
 
     `item_args` is expected as an iterable containing dicts.
     Each dict should have the following keys:
@@ -84,8 +84,7 @@ def parse_item_args(item_args, operation):
 
 
 class InboundShipments(MWS):
-    """
-    Amazon MWS FulfillmentInboundShipment API
+    """Amazon MWS FulfillmentInboundShipment API
 
     Docs:
     http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Overview.html
@@ -99,10 +98,8 @@ class InboundShipments(MWS):
         "ListInboundShipmentItems",
     ]
 
-    # # HELPER METHODS # #
     def __init__(self, *args, **kwargs):
-        """
-        Allow the addition of a from_address dict during object initialization.
+        """Allow the addition of a from_address dict during object initialization.
         kwarg "from_address" is caught and popped here,
         then calls set_ship_from_address.
         If empty or left out, empty dict is set by default.
@@ -114,8 +111,7 @@ class InboundShipments(MWS):
         super(InboundShipments, self).__init__(*args, **kwargs)
 
     def set_ship_from_address(self, address):
-        """
-        Verifies the structure of an address dictionary.
+        """Verifies the structure of an address dictionary.
         Once verified against the KEY_CONFIG, saves a parsed version
         of that dictionary, ready to send to requests.
         """
@@ -160,10 +156,9 @@ class InboundShipments(MWS):
         }
         self.from_address = addr
 
-    # # REQUEST METHODS # #
+    ### REQUEST METHODS ###
     def get_inbound_guidance_for_sku(self, skus, marketplace_id):
-        """
-        Returns inbound guidance for a list of items by Seller SKU.
+        """Returns inbound guidance for a list of items by Seller SKU.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForSKU.html
@@ -178,8 +173,7 @@ class InboundShipments(MWS):
         return self.make_request(data)
 
     def get_inbound_guidance_for_asin(self, asins, marketplace_id):
-        """
-        Returns inbound guidance for a list of items by ASIN.
+        """Returns inbound guidance for a list of items by ASIN.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForASIN.html
@@ -196,8 +190,7 @@ class InboundShipments(MWS):
     def create_inbound_shipment_plan(
         self, items, country_code="US", subdivision_code="", label_preference=""
     ):
-        """
-        Returns one or more inbound shipment plans, which provide the
+        """Returns one or more inbound shipment plans, which provide the
         information you need to create inbound shipments.
 
         At least one dictionary must be passed as `args`. Each dictionary
@@ -250,8 +243,7 @@ class InboundShipments(MWS):
         case_required=False,
         box_contents_source=None,
     ):
-        """
-        Creates an inbound shipment to Amazon's fulfillment network.
+        """Creates an inbound shipment to Amazon's fulfillment network.
 
         At least one dictionary must be passed as `items`. Each dictionary
         should contain the following keys:
@@ -310,9 +302,10 @@ class InboundShipments(MWS):
         case_required=False,
         box_contents_source=None,
     ):
-        """
-        Updates an existing inbound shipment in Amazon FBA.
-        'from_address' is required. Call 'set_ship_from_address' first before using this operation.
+        """Updates an existing inbound shipment in Amazon FBA.
+
+        'from_address' is required: call 'set_ship_from_address'
+        before using this operation.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_UpdateInboundShipment.html
@@ -361,9 +354,9 @@ class InboundShipments(MWS):
         return self.make_request(data, method="POST")
 
     def get_preorder_info(self, shipment_id):
-        """
-        Returns pre-order information, including dates, that a seller needs before confirming a shipment for pre-order.
-        Also indicates if a shipment has already been confirmed for pre-order.
+        """Returns pre-order information, including dates, that a seller needs
+        before confirming a shipment for pre-order. Also indicates if a shipment has
+        already been confirmed for pre-order.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPreorderInfo.html
@@ -375,8 +368,7 @@ class InboundShipments(MWS):
         return self.make_request(data)
 
     def confirm_preorder(self, shipment_id, need_by_date):
-        """
-        Confirms a shipment for pre-order.
+        """Confirms a shipment for pre-order.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmPreorder.html
@@ -389,8 +381,7 @@ class InboundShipments(MWS):
         return self.make_request(data)
 
     def get_prep_instructions_for_sku(self, skus=None, country_code=None):
-        """
-        Returns labeling requirements and item preparation instructions
+        """Returns labeling requirements and item preparation instructions
         to help you prepare items for an inbound shipment.
 
         Docs:
@@ -410,8 +401,7 @@ class InboundShipments(MWS):
         return self.make_request(data, method="POST")
 
     def get_prep_instructions_for_asin(self, asins=None, country_code=None):
-        """
-        Returns item preparation instructions to help with item sourcing decisions.
+        """Returns item preparation instructions to help with item sourcing decisions.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForASIN.html
@@ -453,8 +443,7 @@ class InboundShipments(MWS):
     #     return self.make_request(data)
 
     def estimate_transport_request(self, shipment_id):
-        """
-        Requests an estimate of the shipping cost for an inbound shipment.
+        """Requests an estimate of the shipping cost for an inbound shipment.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_EstimateTransportRequest.html
@@ -466,8 +455,7 @@ class InboundShipments(MWS):
         return self.make_request(data, method="POST")
 
     def get_transport_content(self, shipment_id):
-        """
-        Returns current transportation information about an inbound shipment.
+        """Returns current transportation information about an inbound shipment.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetTransportContent.html
@@ -479,9 +467,8 @@ class InboundShipments(MWS):
         return self.make_request(data, method="POST")
 
     def confirm_transport_request(self, shipment_id):
-        """
-        Confirms that you accept the Amazon-partnered shipping estimate and you request that the
-        Amazon-partnered carrier ship your inbound shipment.
+        """Confirms that you accept the Amazon-partnered shipping estimate and
+        you request that the Amazon-partnered carrier ship your inbound shipment.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmTransportRequest.html
@@ -493,8 +480,7 @@ class InboundShipments(MWS):
         return self.make_request(data)
 
     def void_transport_request(self, shipment_id):
-        """
-        Voids a previously-confirmed request to ship your inbound shipment
+        """Voids a previously-confirmed request to ship your inbound shipment
         using an Amazon-partnered carrier.
 
         Docs:
@@ -507,8 +493,7 @@ class InboundShipments(MWS):
         return self.make_request(data, method="POST")
 
     def get_package_labels(self, shipment_id, num_labels, page_type=None):
-        """
-        Returns PDF document data for printing package labels for an inbound shipment.
+        """Returns PDF document data for printing package labels for an inbound shipment.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPackageLabels.html
@@ -522,18 +507,22 @@ class InboundShipments(MWS):
         return self.make_request(data, method="POST")
 
     def get_unique_package_labels(self, shipment_id, page_type, package_ids):
-        """
-        Returns unique package labels for faster and more accurate shipment processing at the Amazon fulfillment center.
+        """Returns unique package labels for faster and more accurate shipment
+        processing at the Amazon fulfillment center.
 
         `shipment_id` must match a valid, current shipment.
-        `page_type` expected to be string matching one of following (not checked, in case Amazon requirements change):
-            PackageLabel_Letter_2
-            PackageLabel_Letter_6
-            PackageLabel_A4_2
-            PackageLabel_A4_4
-            PackageLabel_Plain_Pape
-        `package_ids` a single package identifier, or a list/tuple/set of identifiers, specifying for which package(s)
-            you want package labels printed.
+
+        `page_type` expected to be string matching one of following
+        (not checked, in case Amazon requirements change):
+
+        - "PackageLabel_Letter_2"
+        - "PackageLabel_Letter_6"
+        - "PackageLabel_A4_2"
+        - "PackageLabel_A4_4"
+        - "PackageLabel_Plain_Pape"
+
+        `package_ids` a single package identifier, or a list/tuple/set of identifiers,
+        specifying for which package(s) you want package labels printed.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetUniquePackageLabels.html
@@ -549,15 +538,19 @@ class InboundShipments(MWS):
         return self.make_request(data)
 
     def get_pallet_labels(self, shipment_id, page_type, num_labels):
-        """
-        Returns pallet labels.
+        """Returns pallet labels.
+
         `shipment_id` must match a valid, current shipment.
-        `page_type` expected to be string matching one of following (not checked, in case Amazon requirements change):
-            PackageLabel_Letter_2
-            PackageLabel_Letter_6
-            PackageLabel_A4_2
-            PackageLabel_A4_4
-            PackageLabel_Plain_Pape
+
+        `page_type` expected to be string matching one of following
+        (not checked, in case Amazon requirements change):
+
+        - "PackageLabel_Letter_2"
+        - "PackageLabel_Letter_6"
+        - "PackageLabel_A4_2"
+        - "PackageLabel_A4_4"
+        - "PackageLabel_Plain_Pape"
+
         `num_labels` is integer, number of labels to create.
 
         Docs:
@@ -572,8 +565,8 @@ class InboundShipments(MWS):
         return self.make_request(data)
 
     def get_bill_of_lading(self, shipment_id):
-        """
-        Returns PDF document data for printing a bill of lading for an inbound shipment.
+        """Returns PDF document data for printing a bill of lading for an
+        inbound shipment.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetBillOfLading.html
@@ -593,9 +586,7 @@ class InboundShipments(MWS):
         last_updated_before=None,
         next_token=None,
     ):
-        """
-        Returns list of shipments based on statuses, IDs, and/or
-        before/after datetimes.
+        """Returns list of shipments based on statuses, IDs, and/or before/after datetimes.
 
         Pass `next_token` to call "ListInboundShipmentsByNextToken" instead.
 
@@ -618,8 +609,7 @@ class InboundShipments(MWS):
         return self.make_request(data, method="POST")
 
     def list_inbound_shipments_by_next_token(self, token):
-        """
-        Alias for `list_inbound_shipments(next_token=token)`
+        """Alias for `list_inbound_shipments(next_token=token)`
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentsByNextToken.html
@@ -634,9 +624,7 @@ class InboundShipments(MWS):
         last_updated_before=None,
         next_token=None,
     ):
-        """
-        Returns list of items within inbound shipments and/or
-        before/after datetimes.
+        """Returns list of items within inbound shipments and/or before/after datetimes.
 
         Pass `next_token` to call "ListInboundShipmentItemsByNextToken" instead.
 
@@ -652,8 +640,7 @@ class InboundShipments(MWS):
         return self.make_request(data, method="POST")
 
     def list_inbound_shipment_items_by_next_token(self, token):
-        """
-        Alias for `list_inbound_shipment_items(next_token=token)`
+        """Alias for `list_inbound_shipment_items(next_token=token)`
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItemsByNextToken.html

@@ -4,8 +4,7 @@ from mws import MWS, utils
 
 
 class MerchantFulfillment(MWS):
-    """
-    Amazon MWS Merchant Fulfillment API
+    """Amazon MWS Merchant Fulfillment API
 
     Docs:
     http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_Overview.html
@@ -28,9 +27,7 @@ class MerchantFulfillment(MWS):
         shipping_service_options=None,
         label_customization=None,
     ):
-
-        """
-        Returns a list of shipping service offers.
+        """Returns a list of shipping service offers.
 
         :param amazon_order_id: Required
         :param seller_order_id:
@@ -111,8 +108,7 @@ class MerchantFulfillment(MWS):
         shipping_service_offer_id=None,
         hazmat_type=None,
     ):
-        """
-        Purchases shipping and returns PDF, PNG, or ZPL document data for a shipping label, depending on the carrier;
+        """Purchases shipping and returns PDF, PNG, or ZPL document data for a shipping label, depending on the carrier;
         as well as a Base64-encoded MD5 hash to validate the document data.
 
         :param amazon_order_id: Required
@@ -185,8 +181,7 @@ class MerchantFulfillment(MWS):
         return self.make_request(data)
 
     def get_shipment(self, shipment_id=None):
-        """
-        Returns an existing shipment for a given identifier.
+        """Returns an existing shipment for a given identifier.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_GetShipment.html
@@ -198,8 +193,7 @@ class MerchantFulfillment(MWS):
         return self.make_request(data)
 
     def cancel_shipment(self, shipment_id=None):
-        """
-        Cancels an existing shipment.
+        """Cancels an existing shipment.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_CancelShipment.html
