@@ -138,6 +138,7 @@ class DictWrapper(object):
             try:
                 xml = xml.decode(encoding="iso-8859-1")
             except UnicodeDecodeError as exc:
+                # In the very rare occurence of a decode error, attach the original xml to the .response of the MWSError
                 error = MWSError(str(exc.response.text))
                 error.response = xml
                 raise error
