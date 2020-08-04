@@ -21,7 +21,7 @@ def test_decode_byte_xml():
     """Test that XML decoding works for DictWrapper."""
     # Original XML.
     # Some products and sales rankings removed from the response this originally came from.
-    original = b'''<?xml version="1.0"?>
+    original = b"""<?xml version="1.0"?>
     <ListMatchingProductsResponse xmlns="http://mws.amazonservices.com/schema/Products/2011-10-01">
         <ListMatchingProductsResult>
             <Products xmlns:ns2="http://mws.amazonservices.com/schema/Products/2011-10-01/default.xsd">
@@ -151,10 +151,10 @@ def test_decode_byte_xml():
             <RequestId>d384713e-7c79-4a6d-81cd-d0aa68c7b409</RequestId>
         </ResponseMetadata>
     </ListMatchingProductsResponse>
-    '''
+    """
 
     # Clean out the spacing used above, matching the output we expected from MWS
-    intermediate = original.decode("iso-8859-1").split('\n')
+    intermediate = original.decode("iso-8859-1").split("\n")
     stripped = "".join([x.strip() for x in intermediate])
     stripped_original = stripped.encode("iso-8859-1")
 
@@ -252,8 +252,14 @@ def test_decode_byte_xml():
                                     "URL": {
                                         "value": "http://ecx.images-amazon.com/images/I/61K2xircqJL._SL75_.jpg"
                                     },
-                                    "Height": {"value": "75", "Units": {"value": "pixels"}},
-                                    "Width": {"value": "55", "Units": {"value": "pixels"}},
+                                    "Height": {
+                                        "value": "75",
+                                        "Units": {"value": "pixels"},
+                                    },
+                                    "Width": {
+                                        "value": "55",
+                                        "Units": {"value": "pixels"},
+                                    },
                                 },
                                 "Studio": {"value": "Mondadori Electa"},
                                 "Title": {
@@ -274,7 +280,10 @@ def test_decode_byte_xml():
                             "ItemAttributes": {
                                 "lang": {"value": "it-IT"},
                                 "Binding": {"value": "Copertina flessibile"},
-                                "Creator": {"value": "aa.vv.", "Role": {"value": "Autore"}},
+                                "Creator": {
+                                    "value": "aa.vv.",
+                                    "Role": {"value": "Autore"},
+                                },
                                 "Genre": {"value": "Diritto"},
                                 "Label": {"value": "Neldiritto Editore"},
                                 "Languages": {
@@ -317,8 +326,14 @@ def test_decode_byte_xml():
                                     "URL": {
                                         "value": "http://ecx.images-amazon.com/images/I/41HeNbq4xKL._SL75_.jpg"
                                     },
-                                    "Height": {"value": "75", "Units": {"value": "pixels"}},
-                                    "Width": {"value": "53", "Units": {"value": "pixels"}},
+                                    "Height": {
+                                        "value": "75",
+                                        "Units": {"value": "pixels"},
+                                    },
+                                    "Width": {
+                                        "value": "53",
+                                        "Units": {"value": "pixels"},
+                                    },
                                 },
                                 "Studio": {"value": "Neldiritto Editore"},
                                 "Title": {
