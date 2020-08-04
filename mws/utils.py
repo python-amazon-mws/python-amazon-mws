@@ -136,14 +136,12 @@ def enumerate_param(param, values):
             MarketplaceIdList.Id.3: 4343
         }
     """
+    if not isinstance(values, (list, tuple, set)):
+        # Coerces a single value to a list before continuing.
+        values = [values]
     if not any(values):
         # if not values -> returns ValueError
         return {}
-    if not isinstance(values, (list, tuple, set)):
-        # Coerces a single value to a list before continuing.
-        values = [
-            values,
-        ]
     if not param.endswith("."):
         # Ensure this enumerated param ends in '.'
         param += "."
@@ -186,17 +184,15 @@ def enumerate_keyed_param(param, values):
             ...
         }
     """
-    if not values:
+    if not isinstance(values, (list, tuple, set)):
+        # If it's a single value, convert it to a list first
+        values = [values]
+    if not any(values):
         # Shortcut for empty values
         return {}
     if not param.endswith("."):
         # Ensure the enumerated param ends in '.'
         param += "."
-    if not isinstance(values, (list, tuple, set)):
-        # If it's a single value, convert it to a list first
-        values = [
-            values,
-        ]
     for val in values:
         # Every value in the list must be a dict.
         if not isinstance(val, dict):
