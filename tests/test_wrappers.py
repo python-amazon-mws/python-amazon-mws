@@ -2340,5 +2340,3 @@ def test_decode_byte_xml_x94():
     }
     parsed_json = DictWrapper(xml).parsed
     assert parsed_json == expected_json
-
-
