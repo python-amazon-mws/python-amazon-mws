@@ -7,6 +7,7 @@ from mws import MWS
 # TODO fill in docstring links to each of these operations.
 # TODO clean up docstrings to a standard format.
 
+
 class OffAmazonPayments(MWS):
     """Amazon OffAmazonPayments Sandbox API.
 

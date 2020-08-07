@@ -21,12 +21,16 @@ class SellersTestCase(CommonAPIRequestTools, unittest.TestCase):
         """ListMarketplaceParticipationsByNextToken operation, via `next_token` arg."""
         next_token = "token_foobar"
         params = self.api.list_marketplace_participations(next_token=next_token)
-        self.assert_common_params(params, action="ListMarketplaceParticipationsByNextToken")
+        self.assert_common_params(
+            params, action="ListMarketplaceParticipationsByNextToken"
+        )
         self.assertEqual(params["NextToken"], next_token)
 
     def test_list_marketplace_participations_by_next_token_alias(self):
         """ListMarketplaceParticipationsByNextToken operation, via alias method."""
         next_token = "token_foobar"
         params = self.api.list_marketplace_participations_by_next_token(next_token)
-        self.assert_common_params(params, action="ListMarketplaceParticipationsByNextToken")
+        self.assert_common_params(
+            params, action="ListMarketplaceParticipationsByNextToken"
+        )
         self.assertEqual(params["NextToken"], next_token)
