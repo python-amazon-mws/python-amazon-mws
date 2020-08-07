@@ -46,6 +46,7 @@ class Reports(MWS):
     http://docs.developer.amazonservices.com/en_US/reports/Reports_Overview.html
     """
 
+    URI = "/Reports/2009-01-01"
     ACCOUNT_TYPE = "Merchant"
     NEXT_TOKEN_OPERATIONS = [
         "GetReportRequestList",
