@@ -99,7 +99,7 @@ class OutboundShipments(MWS):
         return self.make_request(data)
 
     @next_token_action("ListAllFulfillmentOrders")
-    def list_all_fulfillment_orders(self, next_token=None):
+    def list_all_fulfillment_orders(self, query_start_date_time=None, next_token=None):
         """Returns a list of fulfillment orders fulfilled after (or at) a specified date.
 
         Pass `next_token` to call "ListAllFulfillmentOrdersByNextToken" instead
@@ -107,7 +107,11 @@ class OutboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_ListAllFulfillmentOrders.html
         """
-        raise NotImplementedError
+        data = {
+            "Action": "ListAllFulfillmentOrders",
+            "QueryStartDateTime": query_start_date_time,
+        }
+        return self.make_request(data)
 
     def list_all_fulfillment_orders_by_next_token(self, token):
         """Alias for `list_all_fulfillment_orders(next_token=token)`.
@@ -115,8 +119,7 @@ class OutboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_ListAllFulfillmentOrdersByNextToken.html
         """
-        raise NotImplementedError
-        # return self.list_all_fulfillment_orders(next_token=token)
+        return self.list_all_fulfillment_orders(next_token=token)
 
     def get_package_tracking_details(self, package_number):
         """Returns delivery tracking information for a package
