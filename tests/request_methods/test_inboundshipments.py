@@ -6,39 +6,32 @@ import unittest
 import mws
 from mws import MWSError
 from mws.apis.inbound_shipments import parse_item_args
-from .utils import CommonRequestTestTools
+from .utils import CommonAPIRequestTools
 from .utils import transform_date
 from .utils import transform_bool
 from .utils import transform_string
 
 
 class ParseItemArgsTestCase(unittest.TestCase):
-    """
-    Test cases that ensure `parse_item_args` raises exceptions where appropriate.
-    """
+    """Test cases that ensure `parse_item_args` raises exceptions where appropriate."""
 
     def test_empty_args_list(self):
-        """
-        Should raise `MWSError` for an empty set of arguments.
-        """
+        """Should raise `MWSError` for an empty set of arguments."""
         item_args = []
         operation = "dummy"
         with self.assertRaises(MWSError):
             parse_item_args(item_args, operation)
 
     def test_item_not_a_dict(self):
-        """
-        Should raise `MWSError` if item arguments are not all dict objects
-        """
+        """Should raise `MWSError` if item arguments are not all dict objects."""
         item_args = ["this is not a dict"]
         operation = "dummy"
         with self.assertRaises(MWSError):
             parse_item_args(item_args, operation)
 
     def test_required_keys_missing_CreateInboundShipmentPlan(self):
-        """
-        Should raise `MWSError` if a required key is missing from at least one item dict
-        for the CreateInboundShipmentPlan operation
+        """Should raise `MWSError` if a required key is missing from at least
+        one item dict for the CreateInboundShipmentPlan operation.
         """
         operation = "CreateInboundShipmentPlan"
         # SKU missing
@@ -55,9 +48,8 @@ class ParseItemArgsTestCase(unittest.TestCase):
             parse_item_args(item_args_2, operation)
 
     def test_required_keys_missing_other_operation(self):
-        """
-        Should raise `MWSError` if a required key is missing from at least one item dict
-        for operations other than CreateInboundShipmentPlan.
+        """Should raise `MWSError` if a required key is missing from at least
+        one item dict for operations other than CreateInboundShipmentPlan.
         """
         operation = "other operation"
         # SKU missing
@@ -74,8 +66,8 @@ class ParseItemArgsTestCase(unittest.TestCase):
             parse_item_args(item_args_2, operation)
 
     def test_args_built_CreateInboundShipmentPlan(self):
-        """
-        Item args should build successfully for the CreateInboundShipmentPlan operation.
+        """Item args should build successfully for the
+        CreateInboundShipmentPlan operation.
         """
         operation = "CreateInboundShipmentPlan"
         # SKU missing
@@ -110,8 +102,8 @@ class ParseItemArgsTestCase(unittest.TestCase):
         self.assertEqual(parsed_items[1], expected[1])
 
     def test_args_built_other_operation(self):
-        """
-        Item args should build successfully for operations other than CreateInboundShipmentPlan.
+        """Item args should build successfully for operations other than
+        CreateInboundShipmentPlan.
         """
         operation = "other_operation"
         # SKU missing
@@ -133,33 +125,25 @@ class ParseItemArgsTestCase(unittest.TestCase):
 
 
 class SetShipFromAddressTestCase(unittest.TestCase):
-    """
-    Test case covering msw.InboundShipments.set_ship_from_address
-    """
+    """Test case covering `msw.InboundShipments.set_ship_from_address`."""
 
     def setUp(self):
         self.inbound = mws.InboundShipments("", "", "")
 
     def test_address_empty_raises_exception(self):
-        """
-        Empty address dict should raise MWSError.
-        """
+        """Empty address dict should raise MWSError."""
         address = {}
         with self.assertRaises(MWSError):
             self.inbound.set_ship_from_address(address)
 
     def test_address_not_dict_raises_exception(self):
-        """
-        Non-dict argument should raise MWSError.
-        """
+        """Non-dict argument should raise MWSError."""
         address = "this is not a dict"
         with self.assertRaises(MWSError):
             self.inbound.set_ship_from_address(address)
 
     def test_required_keys_missing(self):
-        """
-        Any missing required key should raise MWSError
-        """
+        """Any missing required key should raise MWSError"""
         # Missing name
         address_1 = {
             "address_1": "500 Summat Cully Lane",
@@ -183,9 +167,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             self.inbound.set_ship_from_address(address_3)
 
     def test_full_address_built_properly(self):
-        """
-        An address with all fields covered should be contructed properly.
-        """
+        """An address with all fields covered should be contructed properly."""
         address = {
             "name": "Roland Deschain",
             "address_1": "500 Summat Cully Lane",
@@ -210,8 +192,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
         self.assertEqual(self.inbound.from_address, expected)
 
     def test_partial_address_built_properly(self):
-        """
-        An address with only required fields covered should be contructed properly,
+        """An address with only required fields covered should be contructed properly,
         with ommitted keys filled in with defaults.
         """
         address = {
@@ -233,10 +214,9 @@ class SetShipFromAddressTestCase(unittest.TestCase):
         self.assertEqual(self.inbound.from_address, expected)
 
     def test_set_address_with_constructor(self):
-        """
-        An address passed to the InboundShipments constructor as a `from_address` kwarg
-        should automatically set the `from_address` attribute accordingly.
-        (Ignoring the self.inbound attribute in this case.)
+        """An address passed to the InboundShipments constructor as a
+        `from_address` kwarg should automatically set the `from_address` attribute
+        (ignoring the self.inbound attribute in this case).
         """
         address = {
             "name": "Roland Deschain",
@@ -257,31 +237,34 @@ class SetShipFromAddressTestCase(unittest.TestCase):
         self.assertEqual(inbound_constructed.from_address, expected)
 
 
-class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
-    """
-    Test cases for InboundShipments involving FBA shipment handling.
+class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
+    """Test cases for InboundShipments involving FBA shipment handling.
     These cases require `from_address` to be set, while others do not.
     """
 
+    api_class = mws.InboundShipments
+
     def setUp(self):
+        """Override adds the `from_address` to the API instance
+        after the initial setUp step.
+        """
+        # Setting and validating `from_address` is already covered by
+        # `SetShipFromAddressTestCase`. We don't need to re-test that logic:
+        # we just need to set the address on the instance, which can be done
+        # after the class is instantiated, by calling `set_ship_from_address`.
+        super().setUp()
+
         self.addr = {
             "name": "Roland Deschain",
             "address_1": "500 Summat Cully Lane",
             "city": "Gilead",
             "country": "Mid-World",
         }
-        self.api = mws.InboundShipments(
-            self.CREDENTIAL_ACCESS,
-            self.CREDENTIAL_SECRET,
-            self.CREDENTIAL_ACCOUNT,
-            auth_token=self.CREDENTIAL_TOKEN,
-            from_address=self.addr,
-        )
-        self.api._test_request_params = True
+        self.api.set_ship_from_address(self.addr)
 
     def test_create_inbound_shipment_plan_exceptions(self):
-        """
-        Covers cases that should raise exceptions for the `create_inbound_shipment_plan` method.
+        """Covers cases that should raise exceptions for the
+        `create_inbound_shipment_plan` method.
         """
         # 1: `items` empty: raises MWSError
         items = []
@@ -296,9 +279,7 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
             self.api.create_inbound_shipment_plan(items)
 
     def test_create_inbound_shipment_plan(self):
-        """
-        Covers successful data entry for `create_inbound_shipment_plan`.
-        """
+        """Covers successful data entry for `create_inbound_shipment_plan`."""
         items = [
             {"sku": "ievEKnILd3", "quantity": 6},
             {"sku": "9IfTM1aJVG", "quantity": 26},
@@ -312,8 +293,7 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
             subdivision_code=subdivision_code,
             label_preference=label_preference,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "CreateInboundShipmentPlan")
+        self.assert_common_params(params, action="CreateInboundShipmentPlan")
         self.assertEqual(params["ShipToCountryCode"], country_code)
         self.assertEqual(
             params["ShipToCountrySubdivisionCode"], transform_string(subdivision_code)
@@ -353,8 +333,8 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         )
 
     def test_create_inbound_shipment_exceptions(self):
-        """
-        Covers cases that should raise exceptions for the `create_inbound_shipment` method.
+        """Covers cases that should raise exceptions for the
+        `create_inbound_shipment` method.
         """
         # Proper inputs (initial setup)
         shipment_id = "is_a_string"
@@ -402,9 +382,7 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
             )
 
     def test_create_inbound_shipment(self):
-        """
-        Covers successful data entry for `create_inbound_shipment`.
-        """
+        """Covers successful data entry for `create_inbound_shipment`."""
         shipment_id = "b46sEL7sYX"
         shipment_name = "Stuff Going Places"
         destination = "Nibiru"
@@ -426,8 +404,7 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
             case_required=case_required,
             box_contents_source=box_contents_source,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "CreateInboundShipment")
+        self.assert_common_params(params, action="CreateInboundShipment")
         self.assertEqual(params["ShipmentId"], shipment_id)
         self.assertEqual(
             params["InboundShipmentHeader.ShipmentName"],
@@ -484,8 +461,8 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         )
 
     def test_update_inbound_shipment_exceptions(self):
-        """
-        Covers cases that should raise exceptions for the `update_inbound_shipment` method.
+        """Covers cases that should raise exceptions for the
+        `update_inbound_shipment` method.
         """
         # Proper inputs (initial setup)
         shipment_id = "is_a_string"
@@ -516,9 +493,7 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
             self.api.update_inbound_shipment(shipment_id, shipment_name, destination)
 
     def test_update_inbound_shipment(self):
-        """
-        Covers successful data entry for `update_inbound_shipment`.
-        """
+        """Covers successful data entry for `update_inbound_shipment`."""
         shipment_id = "7DzXpBVxRR"
         shipment_name = "Stuff Going Places"
         destination = "Vulcan"
@@ -657,25 +632,15 @@ class FBAShipmentHandlingTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assertFalse(param_item_keys)
 
 
-class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools):
-    """
-    Test cases for InboundShipments requests that do not involve FBA shipment handling
-    and do not require `from_address` to be set.
+class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase):
+    """Test cases for InboundShipments requests that do not involve
+    FBA shipment handling and do not require `from_address` to be set.
     """
 
-    def setUp(self):
-        self.api = mws.InboundShipments(
-            self.CREDENTIAL_ACCESS,
-            self.CREDENTIAL_SECRET,
-            self.CREDENTIAL_ACCOUNT,
-            auth_token=self.CREDENTIAL_TOKEN,
-        )
-        self.api._test_request_params = True
+    api_class = mws.InboundShipments
 
     def test_get_inbound_guidance_for_sku(self):
-        """
-        GetInboundGuidanceForSKU operation.
-        """
+        """GetInboundGuidanceForSKU operation."""
         marketplace_id = "eyuMuohmyP"
         # Case 1: list of SKUs
         sku_list_1 = [
@@ -701,9 +666,7 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         self.assertEqual(params_2["SellerSKUList.Id.1"], sku_list_2)
 
     def test_get_inbound_guidance_for_asin(self):
-        """
-        GetInboundGuidanceForASIN operation.
-        """
+        """GetInboundGuidanceForASIN operation."""
         marketplace_id = "osnufVjvfR"
         # Case 1: list of SKUs
         asin_list_1 = [
@@ -729,33 +692,25 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         self.assertEqual(params_2["ASINList.Id.1"], asin_list_2)
 
     def test_get_preorder_info(self):
-        """
-        GetPreorderInfo operation.
-        """
+        """GetPreorderInfo operation."""
         shipment_id = "oYRjQbGLL6"
         params = self.api.get_preorder_info(shipment_id)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetPreorderInfo")
+        self.assert_common_params(params, action="GetPreorderInfo")
         self.assertEqual(params["ShipmentId"], shipment_id)
 
     def test_confirm_preorder(self):
-        """
-        ConfirmPreorder operation.
-        """
+        """ConfirmPreorder operation."""
         shipment_id = "H4UiUjY7Fr"
         need_by_date = datetime.datetime.utcnow()
         params = self.api.confirm_preorder(
             shipment_id=shipment_id, need_by_date=need_by_date,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "ConfirmPreorder")
+        self.assert_common_params(params, action="ConfirmPreorder")
         self.assertEqual(params["ShipmentId"], shipment_id)
         self.assertEqual(params["NeedByDate"], transform_date(need_by_date))
 
     def test_get_prep_instructions_for_sku(self):
-        """
-        GetPrepInstructionsForSKU operation.
-        """
+        """GetPrepInstructionsForSKU operation."""
         # Case 1: simple list
         skus_1 = [
             "ZITw0KqI3W",
@@ -792,9 +747,7 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         self.assertEqual(params_2["SellerSKUList.ID.4"], skus_2[4])
 
     def test_get_prep_instructions_for_asin(self):
-        """
-        GetPrepInstructionsForASIN operation.
-        """
+        """GetPrepInstructionsForASIN operation."""
         # Case 1: simple list
         asins_1 = [
             "iTgHUxF1a7",
@@ -830,6 +783,7 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         # asins_2[3] is a duplicate and should not be expected. asins_2[4] is next unique.
         self.assertEqual(params_2["ASINList.ID.4"], asins_2[4])
 
+    # TODO PutTransportContent, requires some mocked-up file object.
     # def test_put_transport_content(self):
     #     """
     #     PutTransportContent operation.
@@ -837,65 +791,48 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
     #     pass
 
     def test_estimate_transport_request(self):
-        """
-        EstimateTransportRequest operation.
-        """
+        """EstimateTransportRequest operation."""
         shipment_id = "w6ayzk2Aov"
         params = self.api.estimate_transport_request(shipment_id)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "EstimateTransportRequest")
+        self.assert_common_params(params, action="EstimateTransportRequest")
         self.assertEqual(params["ShipmentId"], shipment_id)
 
     def test_get_transport_content(self):
-        """
-        GetTransportContent operation.
-        """
+        """GetTransportContent operation."""
         shipment_id = "w6ayzk2Aov"
         params = self.api.get_transport_content(shipment_id)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetTransportContent")
+        self.assert_common_params(params, action="GetTransportContent")
         self.assertEqual(params["ShipmentId"], shipment_id)
 
     def test_confirm_transport_request(self):
-        """
-        ConfirmTransportRequest operation.
-        """
+        """ConfirmTransportRequest operation."""
         shipment_id = "UTULruKM6v"
         params = self.api.confirm_transport_request(shipment_id)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "ConfirmTransportRequest")
+        self.assert_common_params(params, action="ConfirmTransportRequest")
         self.assertEqual(params["ShipmentId"], shipment_id)
 
     def test_void_transport_request(self):
-        """
-        VoidTransportRequest operation.
-        """
+        """VoidTransportRequest operation."""
         shipment_id = "bJw9pyKcoB"
         params = self.api.void_transport_request(shipment_id)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "VoidTransportRequest")
+        self.assert_common_params(params, action="VoidTransportRequest")
         self.assertEqual(params["ShipmentId"], shipment_id)
 
     def test_get_package_labels(self):
-        """
-        GetPackageLabels operation.
-        """
+        """GetPackageLabels operation."""
         shipment_id = "E7NBQ1O0Ca"
         num_labels = 53
         page_type = "PackageLabel_Letter_6"
         params = self.api.get_package_labels(
             shipment_id=shipment_id, num_labels=num_labels, page_type=page_type,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetPackageLabels")
+        self.assert_common_params(params, action="GetPackageLabels")
         self.assertEqual(params["ShipmentId"], shipment_id)
         self.assertEqual(params["PageType"], page_type)
         self.assertEqual(params["NumberOfPackages"], str(num_labels))
 
     def test_get_unique_package_labels(self):
-        """
-        GetUniquePackageLabels operation.
-        """
+        """GetUniquePackageLabels operation."""
         shipment_id = "fMSw3SRJkC"
         page_type = "PackageLabel_Plain_Paper"
         # Case 1: list of package_ids
@@ -924,35 +861,27 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         self.assertEqual(params_2["PackageLabelsToPrint.member.1"], package_ids_2)
 
     def test_get_pallet_labels(self):
-        """
-        XYZ operation.
-        """
+        """GetPalletLabels operation."""
         shipment_id = "Y3sROqkPfY"
         page_type = "PackageLabel_A4_4"
         num_labels = 69
         params = self.api.get_pallet_labels(
             shipment_id=shipment_id, page_type=page_type, num_labels=num_labels,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetPalletLabels")
+        self.assert_common_params(params, action="GetPalletLabels")
         self.assertEqual(params["ShipmentId"], shipment_id)
         self.assertEqual(params["PageType"], page_type)
         self.assertEqual(params["NumberOfPallets"], str(num_labels))
 
     def test_get_bill_of_lading(self):
-        """
-        GetBillOfLading operation.
-        """
+        """GetBillOfLading operation."""
         shipment_id = "nScOqC6Nh6"
         params = self.api.get_bill_of_lading(shipment_id=shipment_id,)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetBillOfLading")
+        self.assert_common_params(params, action="GetBillOfLading")
         self.assertEqual(params["ShipmentId"], shipment_id)
 
     def test_list_inbound_shipments(self):
-        """
-        ListInboundShipments operation.
-        """
+        """ListInboundShipments operation."""
         shipment_ids = [
             "Fp3kXnLQ72",
             "hAIO0W7VvF",
@@ -969,8 +898,7 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
             last_updated_before=last_updated_before,
             last_updated_after=last_updated_after,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "ListInboundShipments")
+        self.assert_common_params(params, action="ListInboundShipments")
         self.assertEqual(
             params["LastUpdatedBefore"], transform_date(last_updated_before)
         )
@@ -981,29 +909,21 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         self.assertEqual(params["ShipmentIdList.member.2"], shipment_ids[1])
 
     def test_list_inbound_shipments_by_next_token(self):
-        """
-        ListInboundShipmentsByNextToken operation, via method decorator.
-        """
+        """ListInboundShipmentsByNextToken operation, via method decorator."""
         next_token = "rK10wZCE03"
         params = self.api.list_inbound_shipments(next_token=next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "ListInboundShipmentsByNextToken")
+        self.assert_common_params(params, action="ListInboundShipmentsByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_list_inbound_shipments_by_next_token_alias(self):
-        """
-        ListInboundShipmentsByNextToken operation, via alias method.
-        """
+        """ListInboundShipmentsByNextToken operation, via alias method."""
         next_token = "AscnyUoyhj"
         params = self.api.list_inbound_shipments_by_next_token(next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "ListInboundShipmentsByNextToken")
+        self.assert_common_params(params, action="ListInboundShipmentsByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_list_inbound_shipment_items(self):
-        """
-        ListInboundShipmentItems operation.
-        """
+        """ListInboundShipmentItems operation."""
         shipment_id = "P9NLpC2Afi"
         last_updated_before = datetime.datetime.utcnow()
         last_updated_after = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
@@ -1012,8 +932,7 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
             last_updated_before=last_updated_before,
             last_updated_after=last_updated_after,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "ListInboundShipmentItems")
+        self.assert_common_params(params, action="ListInboundShipmentItems")
         self.assertEqual(params["ShipmentId"], shipment_id)
         self.assertEqual(
             params["LastUpdatedBefore"], transform_date(last_updated_before)
@@ -1021,21 +940,15 @@ class InboundShipmentsRequestsTestCase(unittest.TestCase, CommonRequestTestTools
         self.assertEqual(params["LastUpdatedAfter"], transform_date(last_updated_after))
 
     def test_list_inbound_shipment_items_by_next_token(self):
-        """
-        ListInboundShipmentItemsByNextToken operation, via method decorator.
-        """
+        """ListInboundShipmentItemsByNextToken operation, via method decorator."""
         next_token = "kjoslU1R4y"
         params = self.api.list_inbound_shipment_items(next_token=next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "ListInboundShipmentItemsByNextToken")
+        self.assert_common_params(params, action="ListInboundShipmentItemsByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_list_inbound_shipment_items_by_next_token_alias(self):
-        """
-        ListInboundShipmentItemsByNextToken operation, via alias method.
-        """
+        """ListInboundShipmentItemsByNextToken operation, via alias method."""
         next_token = "p31dr3ceKQ"
         params = self.api.list_inbound_shipment_items_by_next_token(next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "ListInboundShipmentItemsByNextToken")
+        self.assert_common_params(params, action="ListInboundShipmentItemsByNextToken")
         self.assertEqual(params["NextToken"], next_token)

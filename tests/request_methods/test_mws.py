@@ -1,64 +1,46 @@
-"""
-Tests for the mws.MWS class and Marketplaces.
-"""
+"""Tests for the mws.MWS class and Marketplaces."""
+
 import pytest
 from mws import MWS, MWSError, Marketplaces
 
-mwscred = ["a", "b", "c"]
+FAKE_CREDS = ["a", "b", "c"]
 
 
-def test_notvalid_region():
+def test_invalid_region():
     with pytest.raises(MWSError):
-        MWS(region="ERROR", *mwscred)
+        MWS(region="ERROR", *FAKE_CREDS)
 
 
-def test_regionparameter():
-    api = MWS(region="AE", *mwscred)
-    assert api.domain == "https://mws.amazonservices.ae"
-    api = MWS(region="AU", *mwscred)
-    assert api.domain == "https://mws.amazonservices.com.au"
-    api = MWS(region="BR", *mwscred)
-    assert api.domain == "https://mws.amazonservices.com"
-    api = MWS(region="CA", *mwscred)
-    assert api.domain == "https://mws.amazonservices.ca"
-    api = MWS(region="DE", *mwscred)
-    assert api.domain == "https://mws-eu.amazonservices.com"
-    api = MWS(region="EG", *mwscred)
-    assert api.domain == "https://mws-eu.amazonservices.com"
-    api = MWS(region="ES", *mwscred)
-    assert api.domain == "https://mws-eu.amazonservices.com"
-    api = MWS(region="FR", *mwscred)
-    assert api.domain == "https://mws-eu.amazonservices.com"
-    api = MWS(region="GB", *mwscred)
-    assert api.domain == "https://mws-eu.amazonservices.com"
-    api = MWS(region="IN", *mwscred)
-    assert api.domain == "https://mws.amazonservices.in"
-    api = MWS(region="IT", *mwscred)
-    assert api.domain == "https://mws-eu.amazonservices.com"
-    api = MWS(region="JP", *mwscred)
-    assert api.domain == "https://mws.amazonservices.jp"
-    api = MWS(region="MX", *mwscred)
-    assert api.domain == "https://mws.amazonservices.com.mx"
-    api = MWS(region="NL", *mwscred)
-    assert api.domain == "https://mws-eu.amazonservices.com"
-    api = MWS(region="SA", *mwscred)
-    assert api.domain == "https://mws-eu.amazonservices.com"
-    api = MWS(region="SG", *mwscred)
-    assert api.domain == "https://mws-fe.amazonservices.com"
-    api = MWS(region="TR", *mwscred)
-    assert api.domain == "https://mws-eu.amazonservices.com"
-    api = MWS(region="UK", *mwscred)  # alias for GB
-    assert api.domain == "https://mws-eu.amazonservices.com"
-    api = MWS(region="US", *mwscred)
-    assert api.domain == "https://mws.amazonservices.com"
-    uk_api = MWS(region="UK", *mwscred)
-    gb_api = MWS(region="GB", *mwscred)
+def test_region_domains():
+    assert MWS(region="AE", *FAKE_CREDS).domain == "https://mws.amazonservices.ae"
+    assert MWS(region="AU", *FAKE_CREDS).domain == "https://mws.amazonservices.com.au"
+    assert MWS(region="BR", *FAKE_CREDS).domain == "https://mws.amazonservices.com"
+    assert MWS(region="CA", *FAKE_CREDS).domain == "https://mws.amazonservices.ca"
+    assert MWS(region="DE", *FAKE_CREDS).domain == "https://mws-eu.amazonservices.com"
+    assert MWS(region="EG", *FAKE_CREDS).domain == "https://mws-eu.amazonservices.com"
+    assert MWS(region="ES", *FAKE_CREDS).domain == "https://mws-eu.amazonservices.com"
+    assert MWS(region="FR", *FAKE_CREDS).domain == "https://mws-eu.amazonservices.com"
+    assert MWS(region="GB", *FAKE_CREDS).domain == "https://mws-eu.amazonservices.com"
+    assert MWS(region="GB", *FAKE_CREDS).domain == "https://mws-eu.amazonservices.com"
+    assert MWS(region="IN", *FAKE_CREDS).domain == "https://mws.amazonservices.in"
+    assert MWS(region="IT", *FAKE_CREDS).domain == "https://mws-eu.amazonservices.com"
+    assert MWS(region="JP", *FAKE_CREDS).domain == "https://mws.amazonservices.jp"
+    assert MWS(region="MX", *FAKE_CREDS).domain == "https://mws.amazonservices.com.mx"
+    assert MWS(region="NL", *FAKE_CREDS).domain == "https://mws-eu.amazonservices.com"
+    assert MWS(region="SA", *FAKE_CREDS).domain == "https://mws-eu.amazonservices.com"
+    assert MWS(region="SG", *FAKE_CREDS).domain == "https://mws-fe.amazonservices.com"
+    assert MWS(region="TR", *FAKE_CREDS).domain == "https://mws-eu.amazonservices.com"
+    assert MWS(region="US", *FAKE_CREDS).domain == "https://mws.amazonservices.com"
+
+
+def test_region_aliases():
+    # GB alias
+    uk_api = MWS(region="UK", *FAKE_CREDS)
+    gb_api = MWS(region="GB", *FAKE_CREDS)
     assert uk_api.domain == gb_api.domain
 
 
 def test_marketplaces_enum():
-    """
-    The way to access the values.
-    """
+    """Test that attrs of marketplace enumerations work as expected."""
     assert Marketplaces.CA.endpoint == "https://mws.amazonservices.ca"
     assert Marketplaces.CA.marketplace_id == "A2EUQ1WTGCTBG2"
