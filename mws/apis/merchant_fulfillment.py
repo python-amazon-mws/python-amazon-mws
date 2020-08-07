@@ -96,6 +96,35 @@ class MerchantFulfillment(MWS):
         )
         return self.make_request(data)
 
+    def get_additional_seller_inputs(
+        self, order_id, shipping_service_id, ship_from_address
+    ):
+        """Returns a list of additional seller inputs that are required from the seller
+        to purchase the shipping service that you specify.
+
+        Docs:
+        https://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_GetAdditionalSellerInputs.html
+
+        - `order_id` refers to an AmazonOrderId for a given order.
+        - `shipping_service_id` should be an identifier returned by a previous call to
+          `get_eligible_shipping_services`.
+        - `ship_from_address` should be a dict with keys matching the
+          `Address` datatype:
+          https://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_Datatypes.html#Address
+          (passing a non-dict value will result in a ValueError exception)
+        """
+        # TODO replace `ship_from_address` dict with a more useful dataclass.
+        if not isinstance(ship_from_address, dict):
+            raise ValueError("`ship_from_address` must be a dict object.")
+
+        data = {
+            "Action": "GetAdditionalSellerInputs",
+            "OrderId": order_id,
+            "ShippingServiceId": shipping_service_id,
+        }
+        data.update(utils.dict_keyed_param("ShipFromAddress", ship_from_address))
+        return self.make_request(data)
+
     def create_shipment(
         self,
         amazon_order_id=None,
