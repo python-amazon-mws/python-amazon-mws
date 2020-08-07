@@ -26,6 +26,7 @@ class MerchantFulfillment(MWS):
         ship_date=None,
         shipping_service_options=None,
         label_customization=None,
+        include_complex_options=None,
     ):
         """Returns a list of shipping service offers.
 
@@ -42,7 +43,7 @@ class MerchantFulfillment(MWS):
         :return:
 
         Docs:
-        http://docs.developer.amazonservices.com/en_UK/merch_fulfill/MerchFulfill_GetEligibleShippingServices.html
+        http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_GetEligibleShippingServices.html
         """
 
         if ship_from_address is None:
@@ -57,6 +58,8 @@ class MerchantFulfillment(MWS):
             shipping_service_options = {}
         if label_customization is None:
             label_customization = {}
+        if include_complex_options is not None:
+            include_complex_options = bool(include_complex_options)
 
         data = {
             "Action": "GetEligibleShippingServices",
@@ -64,6 +67,7 @@ class MerchantFulfillment(MWS):
             "ShipmentRequestDetails.SellerOrderId": seller_order_id,
             "ShipmentRequestDetails.MustArriveByDate": must_arrive_by_date,
             "ShipmentRequestDetails.ShipDate": ship_date,
+            "ShippingOfferingFilter.IncludeComplexShippingOptions": include_complex_options,
         }
         data.update(
             utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", items)
@@ -127,7 +131,7 @@ class MerchantFulfillment(MWS):
         :return:
 
         Docs:
-        http://docs.developer.amazonservices.com/en_UK/merch_fulfill/MerchFulfill_CreateShipment.html
+        http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_CreateShipment.html
         """
 
         if items is None:
