@@ -462,8 +462,8 @@ class MWS(object):
         if not isinstance(parameters, dict):
             raise ValueError("`parameters` must be a dict.")
         data = {"Action": action}
-        data.update(RequestParameter(value=parameters))
-        self.make_request(data, method=method, **kwargs)
+        data.update(RequestParameter(value=parameters).to_dict())
+        return self.make_request(data, method=method, **kwargs)
 
 
 # TODO Move this to its own module when things are being reworked!
