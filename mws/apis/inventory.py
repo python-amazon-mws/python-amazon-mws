@@ -1,6 +1,7 @@
 """Amazon MWS Inventory Fulfillment API."""
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.parameters import enumerate_param
 from mws.decorators import next_token_action
 
 
@@ -40,7 +41,7 @@ class Inventory(MWS):
             "ResponseGroup": response_group,
             "MarketplaceId": marketplace_id,
         }
-        data.update(utils.enumerate_param("SellerSkus.member.", skus))
+        data.update(enumerate_param("SellerSkus.member.", skus))
         return self.make_request(data, "POST")
 
     def list_inventory_supply_by_next_token(self, token):

@@ -1,6 +1,9 @@
 """Amazon MWS Fulfillment Outbound Shipments API."""
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.parameters import enumerate_param
+from mws.utils.parameters import enumerate_keyed_param
+from mws.utils.parameters import dict_keyed_param
 from mws.decorators import next_token_action
 
 
@@ -65,14 +68,12 @@ class OutboundShipments(MWS):
             "ShippingSpeedCategory": shipping_speed_category,
             "FulfillmentPolicy": fulfillment_policy,
         }
-        data.update(utils.enumerate_keyed_param("Items.member", items or []))
+        data.update(enumerate_keyed_param("Items.member", items or []))
+        data.update(dict_keyed_param("DestinationAddress", destination_address or {}))
+        data.update(dict_keyed_param("CODSettings", cod_settings or {}))
+        data.update(dict_keyed_param("DeliveryWindow", delivery_window or {}))
         data.update(
-            utils.dict_keyed_param("DestinationAddress", destination_address or {})
-        )
-        data.update(utils.dict_keyed_param("CODSettings", cod_settings or {}))
-        data.update(utils.dict_keyed_param("DeliveryWindow", delivery_window or {}))
-        data.update(
-            utils.enumerate_param(
+            enumerate_param(
                 "NotificationEmailList.member", notification_email_list or []
             )
         )

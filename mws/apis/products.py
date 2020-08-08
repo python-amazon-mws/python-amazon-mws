@@ -1,6 +1,7 @@
 """Amazon MWS Products API."""
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.parameters import enumerate_param
 
 
 class Products(MWS):
@@ -39,7 +40,7 @@ class Products(MWS):
             "Action": "GetMatchingProduct",
             "MarketplaceId": marketplace_id,
         }
-        data.update(utils.enumerate_param("ASINList.ASIN.", asins))
+        data.update(enumerate_param("ASINList.ASIN.", asins))
         return self.make_request(data)
 
     def get_matching_product_for_id(self, marketplace_id, type_, ids):
@@ -55,7 +56,7 @@ class Products(MWS):
             "IdType": type_,
         }
 
-        data.update(utils.enumerate_param("IdList.Id.", ids))
+        data.update(enumerate_param("IdList.Id.", ids))
         return self.make_request(data)
 
     def get_competitive_pricing_for_sku(self, marketplace_id, skus):
@@ -68,7 +69,7 @@ class Products(MWS):
             "Action": "GetCompetitivePricingForSKU",
             "MarketplaceId": marketplace_id,
         }
-        data.update(utils.enumerate_param("SellerSKUList.SellerSKU.", skus))
+        data.update(enumerate_param("SellerSKUList.SellerSKU.", skus))
         return self.make_request(data)
 
     def get_competitive_pricing_for_asin(self, marketplace_id, asins):
@@ -81,7 +82,7 @@ class Products(MWS):
             "Action": "GetCompetitivePricingForASIN",
             "MarketplaceId": marketplace_id,
         }
-        data.update(utils.enumerate_param("ASINList.ASIN.", asins))
+        data.update(enumerate_param("ASINList.ASIN.", asins))
         return self.make_request(data)
 
     def get_lowest_offer_listings_for_sku(
@@ -99,7 +100,7 @@ class Products(MWS):
             "ItemCondition": condition,
             "ExcludeMe": exclude_me,
         }
-        data.update(utils.enumerate_param("SellerSKUList.SellerSKU.", skus))
+        data.update(enumerate_param("SellerSKUList.SellerSKU.", skus))
         return self.make_request(data)
 
     def get_lowest_offer_listings_for_asin(
@@ -116,7 +117,7 @@ class Products(MWS):
             "ItemCondition": condition,
             "ExcludeMe": exclude_me,
         }
-        data.update(utils.enumerate_param("ASINList.ASIN.", asins))
+        data.update(enumerate_param("ASINList.ASIN.", asins))
         return self.make_request(data)
 
     def get_lowest_priced_offers_for_sku(
@@ -168,7 +169,7 @@ class Products(MWS):
             "MarketplaceId": marketplace_id,
             "ItemCondition": condition,
         }
-        data.update(utils.enumerate_param("SellerSKUList.SellerSKU.", skus))
+        data.update(enumerate_param("SellerSKUList.SellerSKU.", skus))
         return self.make_request(data)
 
     def get_my_price_for_asin(self, marketplace_id, asins, condition=None):
@@ -182,7 +183,7 @@ class Products(MWS):
             "MarketplaceId": marketplace_id,
             "ItemCondition": condition,
         }
-        data.update(utils.enumerate_param("ASINList.ASIN.", asins))
+        data.update(enumerate_param("ASINList.ASIN.", asins))
         return self.make_request(data)
 
     def get_product_categories_for_sku(self, marketplace_id, sku):

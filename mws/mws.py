@@ -18,6 +18,7 @@ from requests import request
 from requests.exceptions import HTTPError
 
 from mws import utils
+from mws.utils.parameters import enumerate_param
 
 
 __version__ = "1.0.0dev14"
@@ -420,17 +421,17 @@ class MWS(object):
         )
 
     def enumerate_param(self, param, values):
-        """DEPRECATED, alias for `utils.enumerate_param`."""
+        """DEPRECATED, alias for `utils.parameters.enumerate_param`."""
         # TODO remove in 1.0 release.
         # No tests needed.
         warnings.warn(
             (
-                "Please use `utils.enumerate_param` for one param, or "
-                "`utils.enumerate_params` for multiple params."
+                "Please use `utils.parameters.enumerate_param` for one param, or "
+                "`utils.parameters.enumerate_params` for multiple params."
             ),
             DeprecationWarning,
         )
-        return utils.enumerate_param(param, values)
+        return enumerate_param(param, values)
 
     def generic_request(self, action, parameters=None, method="GET", **kwargs):
         """Builds a generic request with arbitrary parameter arguments.

@@ -1,6 +1,7 @@
 """Amazon MWS Feeds API."""
 
 from mws import MWS, utils
+from mws.utils.parameters import enumerate_param
 from mws.decorators import next_token_action
 
 
@@ -91,7 +92,7 @@ class Feeds(MWS):
             # allowed values: ShippingLabel, Invoice, Warranty
             if document_type:
                 data.update({"DocumentType": document_type})
-        data.update(utils.enumerate_param("MarketplaceIdList.Id.", marketplace_ids))
+        data.update(enumerate_param("MarketplaceIdList.Id.", marketplace_ids))
         md5_hash = utils.calc_md5(feed)
         return self.make_request(
             data,
@@ -126,12 +127,10 @@ class Feeds(MWS):
             "SubmittedFromDate": from_date,
             "SubmittedToDate": to_date,
         }
-        data.update(utils.enumerate_param("FeedSubmissionIdList.Id", feed_ids))
-        data.update(utils.enumerate_param("FeedTypeList.Type.", feed_types))
+        data.update(enumerate_param("FeedSubmissionIdList.Id", feed_ids))
+        data.update(enumerate_param("FeedTypeList.Type.", feed_types))
         data.update(
-            utils.enumerate_param(
-                "FeedProcessingStatusList.Status.", processing_statuses
-            )
+            enumerate_param("FeedProcessingStatusList.Status.", processing_statuses)
         )
         return self.make_request(data)
 
@@ -157,11 +156,9 @@ class Feeds(MWS):
             "SubmittedFromDate": from_date,
             "SubmittedToDate": to_date,
         }
-        data.update(utils.enumerate_param("FeedTypeList.Type.", feed_types))
+        data.update(enumerate_param("FeedTypeList.Type.", feed_types))
         data.update(
-            utils.enumerate_param(
-                "FeedProcessingStatusList.Status.", processing_statuses
-            )
+            enumerate_param("FeedProcessingStatusList.Status.", processing_statuses)
         )
         return self.make_request(data)
 
@@ -179,8 +176,8 @@ class Feeds(MWS):
             "SubmittedFromDate": from_date,
             "SubmittedToDate": to_date,
         }
-        data.update(utils.enumerate_param("FeedSubmissionIdList.Id.", feed_ids))
-        data.update(utils.enumerate_param("FeedTypeList.Type.", feed_types))
+        data.update(enumerate_param("FeedSubmissionIdList.Id.", feed_ids))
+        data.update(enumerate_param("FeedTypeList.Type.", feed_types))
         return self.make_request(data)
 
     def get_feed_submission_result(self, feed_id):

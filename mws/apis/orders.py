@@ -1,6 +1,8 @@
 """Amazon Orders API."""
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.parameters import enumerate_param
+from mws.utils.parameters import enumerate_params
 from mws.decorators import next_token_action
 
 
@@ -62,7 +64,7 @@ class Orders(MWS):
             "MaxResultsPerPage": max_results,
         }
         data.update(
-            utils.enumerate_params(
+            enumerate_params(
                 {
                     "OrderStatus.Status.": order_statuses,
                     "MarketplaceId.Id.": marketplace_ids,
@@ -92,7 +94,7 @@ class Orders(MWS):
         data = {
             "Action": "GetOrder",
         }
-        data.update(utils.enumerate_param("AmazonOrderId.Id.", amazon_order_ids))
+        data.update(enumerate_param("AmazonOrderId.Id.", amazon_order_ids))
         return self.make_request(data)
 
     @next_token_action("ListOrderItems")

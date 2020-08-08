@@ -2,7 +2,9 @@
 import urllib.parse
 from enum import Enum
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.parameters import enumerate_param
+from mws.utils.parameters import enumerate_params
 from mws.decorators import next_token_action
 
 # TODO Add Schedule enumerations as constants
@@ -76,7 +78,7 @@ class Reports(MWS):
             "EndDate": end_date,
             "ReportOptions": report_options_str(report_options),
         }
-        data.update(utils.enumerate_param("MarketplaceIdList.Id.", marketplace_ids))
+        data.update(enumerate_param("MarketplaceIdList.Id.", marketplace_ids))
         return self.make_request(data)
 
     @next_token_action("GetReportRequestList")
@@ -108,7 +110,7 @@ class Reports(MWS):
             "RequestedToDate": to_date,
         }
         data.update(
-            utils.enumerate_params(
+            enumerate_params(
                 {
                     "ReportRequestIdList.Id.": request_ids,
                     "ReportTypeList.Type.": report_types,
@@ -143,7 +145,7 @@ class Reports(MWS):
             "RequestedToDate": to_date,
         }
         data.update(
-            utils.enumerate_params(
+            enumerate_params(
                 {
                     "ReportTypeList.Type.": report_types,
                     "ReportProcessingStatusList.Status.": processing_statuses,
@@ -185,7 +187,7 @@ class Reports(MWS):
             "MaxCount": max_count,
         }
         data.update(
-            utils.enumerate_params(
+            enumerate_params(
                 {
                     "ReportRequestIdList.Id.": request_ids,
                     "ReportTypeList.Type.": report_types,
@@ -218,7 +220,7 @@ class Reports(MWS):
             "AvailableFromDate": from_date,
             "AvailableToDate": to_date,
         }
-        data.update(utils.enumerate_param("ReportTypeList.Type.", report_types))
+        data.update(enumerate_param("ReportTypeList.Type.", report_types))
         return self.make_request(data)
 
     def get_report(self, report_id):
@@ -251,7 +253,7 @@ class Reports(MWS):
         data = {
             "Action": "GetReportScheduleList",
         }
-        data.update(utils.enumerate_param("ReportTypeList.Type.", report_types))
+        data.update(enumerate_param("ReportTypeList.Type.", report_types))
         return self.make_request(data)
 
     def get_report_schedule_list_by_next_token(self, token):
@@ -272,7 +274,7 @@ class Reports(MWS):
         data = {
             "Action": "GetReportScheduleCount",
         }
-        data.update(utils.enumerate_param("ReportTypeList.Type.", report_types))
+        data.update(enumerate_param("ReportTypeList.Type.", report_types))
         return self.make_request(data)
 
     def update_report_acknowledgements(self, report_ids=None, acknowledged=None):
@@ -288,7 +290,7 @@ class Reports(MWS):
             "Action": "UpdateReportAcknowledgements",
             "Acknowledged": acknowledged,
         }
-        data.update(utils.enumerate_param("ReportIdList.Id.", report_ids))
+        data.update(enumerate_param("ReportIdList.Id.", report_ids))
         return self.make_request(data)
 
 

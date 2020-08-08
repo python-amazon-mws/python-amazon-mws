@@ -11,16 +11,6 @@ with open("README.md") as readme:
 requires = [
     "requests",
 ]
-extras_require = {
-    ":python_version<'3.4'": ["enum34"],
-}
-
-# Fix for old setuptools versions.
-# (Copied from source of the flake8 package)
-if int(setuptools.__version__.split(".")[0]) < 18:
-    extras_require = {}
-    if sys.version_info < (3, 4):
-        requires.append("enum34")
 
 setuptools.setup(
     name="mws",
@@ -32,9 +22,8 @@ setuptools.setup(
     description=short_description,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=["mws", "mws.apis"],
+    packages=["mws", "mws.apis", "mws.utils"],
     install_requires=requires,
-    extras_require=extras_require,
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Environment :: Web Environment",

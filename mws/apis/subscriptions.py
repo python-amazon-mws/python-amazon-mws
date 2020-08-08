@@ -1,6 +1,7 @@
 """Amazon MWS Subscriptions API."""
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.parameters import enumerate_keyed_param
 
 # TODO include NotificationType enumeration
 # TODO set up a basic object for Subscription and Destination types?
@@ -50,7 +51,7 @@ class Subscriptions(MWS):
             "Destination.DeliveryChannel": delivery_channel,
         }
         data.update(
-            utils.enumerate_keyed_param(
+            enumerate_keyed_param(
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
@@ -76,7 +77,7 @@ class Subscriptions(MWS):
             "Destination.DeliveryChannel": delivery_channel,
         }
         data.update(
-            utils.enumerate_keyed_param(
+            enumerate_keyed_param(
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
@@ -111,7 +112,7 @@ class Subscriptions(MWS):
             "Destination.DeliveryChannel": delivery_channel,
         }
         data.update(
-            utils.enumerate_keyed_param(
+            enumerate_keyed_param(
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
@@ -146,7 +147,7 @@ class Subscriptions(MWS):
             "Subscription.NotificationType": notification_type,
         }
         data.update(
-            utils.enumerate_keyed_param(
+            enumerate_keyed_param(
                 "Subscription.Destination.AttributeList.member",
                 self._parse_attributes(attributes),
             )
@@ -180,7 +181,7 @@ class Subscriptions(MWS):
             "NotificationType": notification_type,
         }
         data.update(
-            utils.enumerate_keyed_param(
+            enumerate_keyed_param(
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
@@ -213,7 +214,7 @@ class Subscriptions(MWS):
             "NotificationType": notification_type,
         }
         data.update(
-            utils.enumerate_keyed_param(
+            enumerate_keyed_param(
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
@@ -260,7 +261,7 @@ class Subscriptions(MWS):
             "Subscription.NotificationType": notification_type,
         }
         data.update(
-            utils.enumerate_keyed_param(
+            enumerate_keyed_param(
                 "Subscription.Destination.AttributeList.member",
                 self._parse_attributes(attributes),
             )

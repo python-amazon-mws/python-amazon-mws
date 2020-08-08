@@ -2,7 +2,10 @@
 
 import pytest
 
-import mws
+from mws.utils.parameters import enumerate_param
+from mws.utils.parameters import enumerate_params
+from mws.utils.parameters import enumerate_keyed_param
+from mws.utils.parameters import dict_keyed_param
 
 
 def test_keyed_param_fails_without_dict():
@@ -10,30 +13,29 @@ def test_keyed_param_fails_without_dict():
     param = "something"
     values = ["this is not a dict like it should be!"]
     with pytest.raises(ValueError):
-        mws.utils.enumerate_keyed_param(param, values)
+        enumerate_keyed_param(param, values)
 
 
-# TODO parameterize the defaults tests?
 def test_param_defaults_single():
     """Sending a param and an empty list == empty dict."""
-    assert mws.utils.enumerate_param("something", []) == {}
+    assert enumerate_param("something", []) == {}
 
 
 def test_param_defaults_multi_empty():
     """Sending no params == empty dict."""
-    assert mws.utils.enumerate_params() == {}
+    assert enumerate_params() == {}
 
 
 def test_param_defaults_multi_nondict():
     """Sending anything other than a dict containing the params == empty dict."""
-    assert mws.utils.enumerate_params("antler") == {}
+    assert enumerate_params("antler") == {}
 
 
 def test_param_defaults_keyed():
     # Sending a param with an empty list == empty dict
     # (The case for the list not empty and not containing dicts as expected
     # is handled by TestParamsRaiseExceptions)
-    assert mws.utils.enumerate_keyed_param("acorn", []) == {}
+    assert enumerate_keyed_param("acorn", []) == {}
 
 
 def test_single_param_not_dotted_list_values():
@@ -42,7 +44,7 @@ def test_single_param_not_dotted_list_values():
     """
     param = "SomethingOrOther"
     values = (123, 765, 3512, 756437, 3125)
-    result = mws.utils.enumerate_param(param, values)
+    result = enumerate_param(param, values)
     expected = {
         "SomethingOrOther.1": 123,
         "SomethingOrOther.2": 765,
@@ -60,7 +62,7 @@ def test_single_param_dotted_single_value():
     """
     param = "FooBar."
     values = "eleven"
-    result = mws.utils.enumerate_param(param, values)
+    result = enumerate_param(param, values)
     expected = {
         "FooBar.1": "eleven",
     }
@@ -80,9 +82,7 @@ def test_multi_params():
     values3 = ["something", "or", "other"]
     # We could test with values as a set, but we cannot be 100% of the order of the output,
     # and I don't feel it necessary to flesh this out enough to account for it.
-    result = mws.utils.enumerate_params(
-        {param1: values1, param2: values2, param3: values3}
-    )
+    result = enumerate_params({param1: values1, param2: values2, param3: values3})
     expected = {
         "Summat.1": "colorful",
         "Summat.2": "cheery",
@@ -129,7 +129,7 @@ def test_keyed_params():
         "stuff": "foobarbazmatazz",
         "stuff2": "foobarbazmatazz5",
     }
-    result_1 = mws.utils.enumerate_keyed_param(param, [item1, item2, item3])
+    result_1 = enumerate_keyed_param(param, [item1, item2, item3])
     expected_1 = {
         "AthingToKeyUp.member.1.thing": "stuff",
         "AthingToKeyUp.member.1.foo": "baz",
@@ -142,7 +142,7 @@ def test_keyed_params():
     assert result_1 == expected_1
     # Test param with single value, which should work similarly
     # (value should auto-convert to list with one element)
-    result_2 = mws.utils.enumerate_keyed_param(param, item3)
+    result_2 = enumerate_keyed_param(param, item3)
     expected_2 = {
         "AthingToKeyUp.member.1.stuff": "foobarbazmatazz",
         "AthingToKeyUp.member.1.stuff2": "foobarbazmatazz5",
@@ -163,7 +163,7 @@ def test_keyed_params_with_dot():
         "thing": 123,
         "foo": 908,
     }
-    result_1 = mws.utils.enumerate_keyed_param(param, [item1, item2])
+    result_1 = enumerate_keyed_param(param, [item1, item2])
     expected_1 = {
         "AthingToKeyUp.member.1.thing": "stuff",
         "AthingToKeyUp.member.1.foo": "baz",
@@ -173,7 +173,7 @@ def test_keyed_params_with_dot():
     assert result_1 == expected_1
     # Test param with single value, which should work similarly
     # (value should auto-convert to list with one element)
-    result_2 = mws.utils.enumerate_keyed_param(param, item1)
+    result_2 = enumerate_keyed_param(param, item1)
     expected_2 = {
         "AthingToKeyUp.member.1.thing": "stuff",
         "AthingToKeyUp.member.1.foo": "baz",
@@ -182,10 +182,10 @@ def test_keyed_params_with_dot():
 
 
 def test_dict_keyed_param_not_dotted():
-    """Testing results of utils.dict_keyed_param, for param not dotted"""
+    """Testing results of dict_keyed_param, for param not dotted"""
     param = "ShipmentRequestDetails.PackageDimensions"
     dict_from = {"Length": 5, "Width": 5, "Height": 5, "Unit": "inches"}
-    result = mws.utils.dict_keyed_param(param, dict_from)
+    result = dict_keyed_param(param, dict_from)
     expected = {
         "ShipmentRequestDetails.PackageDimensions.Length": 5,
         "ShipmentRequestDetails.PackageDimensions.Width": 5,
@@ -196,10 +196,10 @@ def test_dict_keyed_param_not_dotted():
 
 
 def test_dict_keyed_param_dotted():
-    """Testing results of utils.dict_keyed_param, for param not dotted"""
+    """Testing results of dict_keyed_param, for param not dotted"""
     param = "ShipmentRequestDetails.PackageDimensions."
     dict_from = {"Length": 5, "Width": 5, "Height": 5, "Unit": "inches"}
-    result = mws.utils.dict_keyed_param(param, dict_from)
+    result = dict_keyed_param(param, dict_from)
     expected = {
         "ShipmentRequestDetails.PackageDimensions.Length": 5,
         "ShipmentRequestDetails.PackageDimensions.Width": 5,
@@ -207,3 +207,9 @@ def test_dict_keyed_param_dotted():
         "ShipmentRequestDetails.PackageDimensions.Unit": "inches",
     }
     assert result == expected
+
+
+class TestRequestParameterClass:
+    """Group of tests related to the mws.mws.RequestParameter."""
+
+    pass

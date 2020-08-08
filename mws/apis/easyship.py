@@ -4,7 +4,8 @@ As EasyShip is particular to India region, docs links in this module
 should point to the "en_IN" version.
 """
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.parameters import enumerate_keyed_param
 
 
 def validate_package_update_details(package_update_details):
@@ -140,7 +141,7 @@ class EasyShip(MWS):
             package_update_data_list.append(package_update_data)
 
         data.update(
-            utils.enumerate_keyed_param(
+            enumerate_keyed_param(
                 "ScheduledPackageUpdateDetailsList.PackageUpdateDetails",
                 package_update_data_list,
             )

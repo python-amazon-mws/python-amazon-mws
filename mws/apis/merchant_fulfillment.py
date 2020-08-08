@@ -1,6 +1,8 @@
 """Amazon MWS Merchant Fulfillment API."""
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.parameters import enumerate_keyed_param
+from mws.utils.parameters import dict_keyed_param
 
 
 class MerchantFulfillment(MWS):
@@ -70,27 +72,27 @@ class MerchantFulfillment(MWS):
             "ShippingOfferingFilter.IncludeComplexShippingOptions": include_complex_options,
         }
         data.update(
-            utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", items)
+            enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", items)
         )
         data.update(
-            utils.dict_keyed_param(
+            dict_keyed_param(
                 "ShipmentRequestDetails.ShipFromAddress", ship_from_address
             )
         )
         data.update(
-            utils.dict_keyed_param(
+            dict_keyed_param(
                 "ShipmentRequestDetails.PackageDimensions", package_dimensions
             )
         )
-        data.update(utils.dict_keyed_param("ShipmentRequestDetails.Weight", weight))
+        data.update(dict_keyed_param("ShipmentRequestDetails.Weight", weight))
         data.update(
-            utils.dict_keyed_param(
+            dict_keyed_param(
                 "ShipmentRequestDetails.ShippingServiceOptions",
                 shipping_service_options,
             )
         )
         data.update(
-            utils.dict_keyed_param(
+            dict_keyed_param(
                 "ShipmentRequestDetails.LabelCustomization", label_customization
             )
         )
@@ -122,7 +124,7 @@ class MerchantFulfillment(MWS):
             "OrderId": order_id,
             "ShippingServiceId": shipping_service_id,
         }
-        data.update(utils.dict_keyed_param("ShipFromAddress", ship_from_address))
+        data.update(dict_keyed_param("ShipFromAddress", ship_from_address))
         return self.make_request(data)
 
     def create_shipment(
@@ -187,27 +189,27 @@ class MerchantFulfillment(MWS):
             "HazmatType": hazmat_type,
         }
         data.update(
-            utils.enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", items)
+            enumerate_keyed_param("ShipmentRequestDetails.ItemList.Item", items)
         )
         data.update(
-            utils.dict_keyed_param(
+            dict_keyed_param(
                 "ShipmentRequestDetails.ShipFromAddress", ship_from_address
             )
         )
         data.update(
-            utils.dict_keyed_param(
+            dict_keyed_param(
                 "ShipmentRequestDetails.PackageDimensions", package_dimensions
             )
         )
-        data.update(utils.dict_keyed_param("ShipmentRequestDetails.Weight", weight))
+        data.update(dict_keyed_param("ShipmentRequestDetails.Weight", weight))
         data.update(
-            utils.dict_keyed_param(
+            dict_keyed_param(
                 "ShipmentRequestDetails.ShippingServiceOptions",
                 shipping_service_options,
             )
         )
         data.update(
-            utils.dict_keyed_param(
+            dict_keyed_param(
                 "ShipmentRequestDetails.LabelCustomization", label_customization
             )
         )
