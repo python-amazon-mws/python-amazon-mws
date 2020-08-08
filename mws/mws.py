@@ -1,27 +1,23 @@
 # -*- coding: utf-8 -*-
 """Main module for python-amazon-mws package."""
 
+from collections.abc import Iterable
+from enum import Enum
+from io import BytesIO
+from urllib.parse import quote
+from xml.etree.ElementTree import ParseError as XMLError
+from zipfile import ZipFile
 import base64
 import datetime
 import hashlib
 import hmac
 import re
 import warnings
-from zipfile import ZipFile
-from io import BytesIO
-from collections.abc import Iterable
 
 from requests import request
 from requests.exceptions import HTTPError
-from enum import Enum
 
 from mws import utils
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-from xml.etree.ElementTree import ParseError as XMLError
 
 
 __version__ = "1.0.0dev14"
