@@ -40,30 +40,26 @@ class ToyClass(object):
 
 
 class NextTokenTestCase(unittest.TestCase):
-    """
-    Cases that cover the use of the next_token_action decorator.
-    """
+    """Cases that cover the use of the next_token_action decorator."""
 
     def test_request_run_normal(self):
-        """
-        Call the target request method with no next_token, and we should
+        """Call the target request method with no next_token, and we should
         see that method run normally.
         """
         instance = ToyClass()
         action, token = instance.target_request_method()
-        self.assertEqual(action, ACTION)
-        self.assertIs(token, None)
-        self.assertEqual(instance.method_run, "target_function")
+        assert action == ACTION
+        assert token is None
+        assert instance.method_run == "target_function"
 
     def test_request_run_with_next_token(self):
-        """
-        Call the target request method with no next_token, and we should
+        """Call the target request method with no next_token, and we should
         see that method run normally.
         """
         instance = ToyClass()
         next_token = "Olly Olly Oxen Free!"
         action, token = instance.target_request_method(next_token=next_token)
         what_action_should_be = "{}ByNextToken".format(ACTION)
-        self.assertEqual(action, what_action_should_be)
-        self.assertEqual(token, next_token)
-        self.assertEqual(instance.method_run, "action_by_next_token")
+        assert action == what_action_should_be
+        assert token == next_token
+        assert instance.method_run == "action_by_next_token"

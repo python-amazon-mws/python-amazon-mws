@@ -49,21 +49,21 @@ class CommonAPIRequestTools(object):
     def assert_common_params(self, params, action=None):
         """Tests the common parameters expected in every call."""
         if action:
-            self.assertEqual(params["Action"], transform_string(action))
+            assert params["Action"] == transform_string(action)
 
-        self.assertEqual(params["AWSAccessKeyId"], self.CREDENTIAL_ACCESS)
-        self.assertEqual(params[self.api.ACCOUNT_TYPE], self.CREDENTIAL_ACCOUNT)
-        self.assertEqual(params["MWSAuthToken"], self.CREDENTIAL_TOKEN)
+        assert params["AWSAccessKeyId"] == self.CREDENTIAL_ACCESS
+        assert params[self.api.ACCOUNT_TYPE] == self.CREDENTIAL_ACCOUNT
+        assert params["MWSAuthToken"] == self.CREDENTIAL_TOKEN
 
         # Signature keys (below) are defined with string literals in MWS.get_params
         # If test fails here, check that method.
-        self.assertEqual(params["SignatureMethod"], "HmacSHA256")
-        self.assertEqual(params["SignatureVersion"], "2")
+        assert params["SignatureMethod"] == "HmacSHA256"
+        assert params["SignatureVersion"] == "2"
         isoformat_str = "%Y-%m-%dT%H%%3A%M%%3A%S"
         try:
             datetime.datetime.strptime(params["Timestamp"], isoformat_str)
         except ValueError:
-            self.fail(
+            pytest.fail(
                 "Timestamp expected an ISO-8601 datetime string url encoded"
                 " with format [YYYY-MM-DDTHH%3AMM%3ASS]."
             )
@@ -72,7 +72,7 @@ class CommonAPIRequestTools(object):
         """Test the `GetServiceStatus` common request."""
         response = self.api.get_service_status()
         # Only key we care about here is GetServiceStatus
-        self.assertEqual(response["Action"], "GetServiceStatus")
+        assert response["Action"] == "GetServiceStatus"
 
     def test_generic_request_uri_correct_value(self):
         """If the API's `.uri` attr is an incorrect value, should raise `ValueError`.
@@ -115,25 +115,6 @@ class CommonAPIRequestTools(object):
             with pytest.raises(ValueError):
                 assert self.api.generic_request(action=action, parameters=parameters)
 
-    def test_basic_generic_request(self):
-        """Test an arbitrary generic request within a given API class."""
-        action = "BasicGenericRequest"
-        test_datetime = datetime.datetime.utcnow()
-
-        # Send a basic payload.
-        parameters = {
-            "ADateTime": test_datetime,
-            "ATrueBool": True,
-            "AFalseBool": False,
-            "NoneShouldNotExist": None,
-        }
-
-        request_params = self.api.generic_request(action=action, parameters=parameters)
-        self.assert_common_params(request_params, action="BasicGenericRequest")
-        self.assertEqual(request_params["ADateTime"], transform_date(test_datetime))
-        self.assertEqual(request_params["ATrueBool"], transform_bool(True))
-        self.assertEqual(request_params["AFalseBool"], transform_bool(False))
-
     def test_generic_request_correct_parameters_type(self):
         """Generic requests with a non-dict value for `parameters`
         should raise `ValueError`.
@@ -155,7 +136,67 @@ class CommonAPIRequestTools(object):
             with pytest.raises(ValueError):
                 assert self.api.generic_request(action, parameters=val)
 
-    # TODO test complex request paramter with nested lists and dicts.
+    def test_basic_generic_request(self):
+        """Test an arbitrary generic request with a series of simple data elements."""
+        action = "BasicGenericRequest"
+        test_datetime = datetime.datetime.utcnow()
+
+        # Send a basic payload.
+        parameters = {
+            "ADateTime": test_datetime,
+            "ATrueBool": True,
+            "AFalseBool": False,
+            "NoneShouldNotExist": None,
+        }
+
+        request_params = self.api.generic_request(action=action, parameters=parameters)
+        self.assert_common_params(request_params, action="BasicGenericRequest")
+        assert request_params["ADateTime"] == transform_date(test_datetime)
+        assert request_params["ATrueBool"] == transform_bool(True)
+        assert request_params["AFalseBool"] == transform_bool(False)
+        assert "NoneShouldNotExist" not in request_params
+
+    def test_complex_generic_request(self):
+        """Test generic request with nested data structures in its parameters."""
+        action = "ComplexGenericRequest"
+        parameters = {
+            "Enumerated": ["A", "B", "C"],
+            "Keyed": {"Foo": "bar", "Bar": 4, "Baz": False},
+            "Multi": {
+                "A": [
+                    {"Foo": "baz", "Bar": 12},
+                    {"Foo": "what", "Bar": "ever", "Something": [4, 6, 7, 9]},
+                ],
+                "B": [1, 2, 3],
+            },
+        }
+
+        request_params = self.api.generic_request(action=action, parameters=parameters)
+
+        self.assert_common_params(request_params, action=action)
+
+        expected = {
+            "Enumerated.1": "A",
+            "Enumerated.2": "B",
+            "Enumerated.3": "C",
+            "Keyed.Foo": "bar",
+            "Keyed.Bar": "4",
+            "Keyed.Baz": "false",
+            "Multi.A.1.Foo": "baz",
+            "Multi.A.1.Bar": "12",
+            "Multi.A.1.Bar": "12",
+            "Multi.A.2.Foo": "what",
+            "Multi.A.2.Bar": "ever",
+            "Multi.A.2.Something.1": "4",
+            "Multi.A.2.Something.2": "6",
+            "Multi.A.2.Something.3": "7",
+            "Multi.A.2.Something.4": "9",
+            "Multi.B.1": "1",
+            "Multi.B.2": "2",
+            "Multi.B.3": "3",
+        }
+        for key, val in expected.items():
+            assert request_params[key] == val
 
 
 def transform_string(s):
