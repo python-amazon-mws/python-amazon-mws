@@ -1,9 +1,9 @@
 """Amazon MWS Feeds API."""
 
-from mws import MWS, utils
-from mws.utils.parameters import enumerate_param
+from mws import MWS
 from mws.decorators import next_token_action
-
+from mws.utils.crypto import calc_md5
+from mws.utils.parameters import enumerate_param
 
 # TODO Add FeedProcessingStatus enumeration
 # TODO Add FeedType enumeration
@@ -93,7 +93,7 @@ class Feeds(MWS):
             if document_type:
                 data.update({"DocumentType": document_type})
         data.update(enumerate_param("MarketplaceIdList.Id.", marketplace_ids))
-        md5_hash = utils.calc_md5(feed)
+        md5_hash = calc_md5(feed)
         return self.make_request(
             data,
             method="POST",

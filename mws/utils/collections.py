@@ -1,15 +1,23 @@
-# -*- coding: utf-8 -*-
-"""A bunch of cruddy utilities.
+"""Complex data structures for processing MWS responses.
+
+Also includes some helper methods for manipulating arbitrary data.
 
 XML to Dict code Borrowed from https://github.com/timotheus/ebaysdk-python
 """
-# TODO break utils module into a utils package,
-# with separate modules for different concerns
+
 import re
-import base64
-import datetime
-import hashlib
 import xml.etree.ElementTree as ET
+
+
+def unique_list_order_preserved(seq):
+    """Returns a unique list of items from the sequence
+    while preserving original ordering.
+    The first occurence of an item is returned in the new sequence:
+    any subsequent occurrences of the same item are ignored.
+    """
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
 
 
 class ObjectDict(dict):
@@ -113,29 +121,6 @@ class XML2Dict(object):
         text = ET.fromstring(str_)
         root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
         return ObjectDict({root_tag: root_tree})
-
-
-def calc_md5(string):
-    """Generates base64-encoded MD5 hash of `string`."""
-    md5_hash = hashlib.md5()
-    md5_hash.update(string)
-    return base64.b64encode(md5_hash.digest()).strip(b"\n")
-
-
-def unique_list_order_preserved(seq):
-    """Returns a unique list of items from the sequence
-    while preserving original ordering.
-    The first occurence of an item is returned in the new sequence:
-    any subsequent occurrences of the same item are ignored.
-    """
-    seen = set()
-    seen_add = seen.add
-    return [x for x in seq if not (x in seen or seen_add(x))]
-
-
-def get_utc_timestamp():
-    """Returns the current UTC timestamp in ISO-8601 format."""
-    return datetime.datetime.utcnow().replace(microsecond=0).isoformat()
 
 
 # DEPRECATION: these are old names for these objects, which have been updated

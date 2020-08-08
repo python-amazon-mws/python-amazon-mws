@@ -17,8 +17,10 @@ import warnings
 from requests import request
 from requests.exceptions import HTTPError
 
-from mws import utils
 from mws.utils.parameters import enumerate_param
+from mws.utils.collections import XML2Dict
+from mws.utils.crypto import calc_md5
+from mws.utils.timezone import utc_timestamp
 
 
 __version__ = "1.0.0dev14"
@@ -140,7 +142,7 @@ class DictWrapper(object):
 
         self.response = None
         self._rootkey = rootkey
-        self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
+        self._mydict = XML2Dict().fromstring(remove_namespace(xml))
         self._response_dict = self._mydict.get(
             list(self._mydict.keys())[0], self._mydict
         )
@@ -161,7 +163,7 @@ class DataWrapper(object):
         self.response = None
         self.headers = headers
         if "content-md5" in self.headers:
-            hash_ = utils.calc_md5(self.original)
+            hash_ = calc_md5(self.original)
             if self.headers["content-md5"].encode() != hash_:
                 raise MWSError("Wrong Content length, maybe amazon error...")
 
@@ -268,7 +270,7 @@ class MWS(object):
             "AWSAccessKeyId": self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
             "SignatureVersion": "2",
-            "Timestamp": utils.get_utc_timestamp(),
+            "Timestamp": utc_timestamp(),
             "Version": self.version,
             "SignatureMethod": "HmacSHA256",
         }

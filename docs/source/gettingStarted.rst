@@ -134,7 +134,7 @@ responses will be ``DictWrapper``\ s containing a few main attributes:
 -  ``response.original``: original response content stored as a string.
 -  ``response.response``: HTTP response code for the request (usually
    200).
--  ``response.parsed``: an ``mws.utils.ObjectDict`` (a subclass of the
+-  ``response.parsed``: an ``mws.utils.collections.ObjectDict`` (a subclass of the
    built-in ``dict``) containing the parsed data from the response for
    easier access.
 
@@ -176,7 +176,7 @@ or ``.get()`` will provide the ObjectDict instead:
     >>> response.parsed.get('Status')
     {'value': 'GREEN'}
     >>> type(response.parsed['Status'])
-    <class 'mws.utils.ObjectDict'>
+    <class 'mws.utils.collections.ObjectDict'>
 
 To account for this, if you access a node with data using a dict key or
 ``.get()``, you must access its ``value`` attribute manually:

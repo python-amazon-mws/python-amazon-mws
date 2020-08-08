@@ -3,6 +3,7 @@
 from mws import MWS, MWSError, utils
 from mws.utils.parameters import enumerate_param
 from mws.utils.parameters import enumerate_keyed_param
+from mws.utils.collections import unique_list_order_preserved
 from mws.decorators import next_token_action
 
 # TODO Add label type enumeration
@@ -389,7 +390,7 @@ class InboundShipments(MWS):
         skus = skus or []
 
         # 'skus' should be a unique list, or there may be an error returned.
-        skus = utils.unique_list_order_preserved(skus)
+        skus = unique_list_order_preserved(skus)
 
         data = {
             "Action": "GetPrepInstructionsForSKU",
@@ -408,7 +409,7 @@ class InboundShipments(MWS):
         asins = asins or []
 
         # 'asins' should be a unique list, or there may be an error returned.
-        asins = utils.unique_list_order_preserved(asins)
+        asins = unique_list_order_preserved(asins)
 
         data = {
             "Action": "GetPrepInstructionsForASIN",
