@@ -106,7 +106,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
             "HXfSfZimui",
         ]
         params = self.api.get_competitive_pricing_for_asin(
-            marketplace_id=marketplace_id, asins=asins,
+            marketplaceid=marketplace_id, asins=asins,
         )
         self.assert_common_params(params)
         self.assertEqual(params["Action"], "GetCompetitivePricingForASIN")
@@ -127,7 +127,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         exclude_me = True
         # exclude_me_str = str(exclude_me)
         params = self.api.get_lowest_offer_listings_for_sku(
-            marketplace_id=marketplace_id,
+            marketplaceid=marketplace_id,
             skus=skus,
             condition=condition,
             exclude_me=exclude_me,
@@ -155,7 +155,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         exclude_me = True
         # exclude_me_str = str(exclude_me)
         params = self.api.get_lowest_offer_listings_for_asin(
-            marketplace_id=marketplace_id,
+            marketplaceid=marketplace_id,
             asins=asins,
             condition=condition,
             exclude_me=exclude_me,
@@ -180,7 +180,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         exclude_me = True
         # exclude_me_str = str(exclude_me)
         params = self.api.get_lowest_priced_offers_for_sku(
-            marketplace_id=marketplace_id,
+            marketplaceid=marketplace_id,
             sku=sku,
             condition=condition,
             exclude_me=exclude_me,
@@ -204,7 +204,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         exclude_me = True
         # exclude_me_str = str(exclude_me)
         params = self.api.get_lowest_priced_offers_for_asin(
-            marketplace_id=marketplace_id,
+            marketplaceid=marketplace_id,
             asin=asin,
             condition=condition,
             exclude_me=exclude_me,
@@ -235,7 +235,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         ]
         condition = "Near-Mint Chocolate Chip"
         params = self.api.get_my_price_for_sku(
-            marketplace_id=marketplace_id, skus=skus, condition=condition,
+            marketplaceid=marketplace_id, skus=skus, condition=condition,
         )
         self.assert_common_params(params)
         self.assertEqual(params["Action"], "GetMyPriceForSKU")
@@ -255,7 +255,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         ]
         condition = "Generally Specific"
         params = self.api.get_my_price_for_asin(
-            marketplace_id=marketplace_id, asins=asins, condition=condition,
+            marketplaceid=marketplace_id, asins=asins, condition=condition,
         )
         self.assert_common_params(params)
         self.assertEqual(params["Action"], "GetMyPriceForASIN")
@@ -271,7 +271,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         marketplace_id = "WEIRD STAR WARS PLANET 87"
         sku = "B3KpfAmBK8"
         params = self.api.get_product_categories_for_sku(
-            marketplace_id=marketplace_id, sku=sku,
+            marketplaceid=marketplace_id, sku=sku,
         )
         self.assert_common_params(params)
         self.assertEqual(params["Action"], "GetProductCategoriesForSKU")
@@ -285,7 +285,7 @@ class ProductsTestCase(unittest.TestCase, CommonRequestTestTools):
         marketplace_id = "THAT WAS THE JOKE DOT JPEG"
         asin = "k1UOfaOWfa"
         params = self.api.get_product_categories_for_asin(
-            marketplace_id=marketplace_id, asin=asin,
+            marketplaceid=marketplace_id, asin=asin,
         )
         self.assert_common_params(params)
         self.assertEqual(params["Action"], "GetProductCategoriesForASIN")
