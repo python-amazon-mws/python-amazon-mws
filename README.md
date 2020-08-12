@@ -1,8 +1,8 @@
-# python-amazon-mws
+# Python-Amazon-MWS
 
-A Python package for interacting with [Amazon Marketplace Web Services (MWS)][2].
-
-This project is a fork and continuation of [czpython/python-amazon-mws][3] with Python 3 support, more MWS API coverage, and new features.
+Python-Amazon-MWS is a Python connector to [Amazon Marketplace Web Services][2]
+(or MWS). It provides a simple way to build and send requests to MWS,
+allowing access to all that MWS can do from your Python application.
 
 **Join us on [Slack][1]!**
 
