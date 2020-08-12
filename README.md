@@ -85,17 +85,36 @@ GetServiceStatusResponse>\n'
 
 ## Development
 
-All dependencies for developing on `mws` are in `requirements-dev.txt`.
+All dependencies for developing on `python-amazon-mws`, including testing and documentation building, can be installed using:
+
+```shell
+pip install -r requirements-dev.txt
+```
 
 ### Tests
 
-Tests are run with `pytest`. We test against Python 3.5+ using GitHub Actions, on latest Ubuntu, Mac, and Windows OSes.
+Tests are run with `pytest`. To run tests, simply install our dev requirements and then run:
+
+```shell
+pytest
+```
+
+See [pytest docs](https://docs.pytest.org/en/latest/usage.html#specifying-tests-selecting-tests)
+for details on selecting specific tests, rather than the entire test suite, as needed.
+
+We also perform coverage reporting using `pytest-cov`. You can generate a coverage report locally using:
+
+```shell
+pytest --cov=mws
+```
+
+The test suite and coverage reporting to Codecov are run automatically in the repo on pushes and pull requests, using GitHub Actions workflows. We test on latest versions of Python 3.5+, and on latest Ubuntu, Mac, and Windows OSes.
 
 ### Documentation
 
-Docs are built using Sphinx. Change into the `docs/` directory and install any dependencies from the `requirements.txt` there.
+Docs are built using Sphinx.
 
-To build HTML documentation, run:
+To build docs locally, use `make`:
 
 ```shell
 make html
@@ -103,10 +122,24 @@ make html
 
 The output HTML documentation will be in `docs/build/`.
 
-To run a live reloading server serving the HTML documentation (on port 8000 by default):
+To run a live reloading server serving the HTML documentation (on `localhost:8000` or `127.0.0.1:8000` by default):
 
 ```shell
 make livehtml
+```
+
+#### On Windows
+
+`make` may not be available on Windows. To build the docs locally, instead use `sphinx-build`:
+
+```shell
+sphinx-build -b source build
+```
+
+You can also run a live-reloading server using `sphinx-autobuild` (on `localhost:8000` or `127.0.0.1:8000` by default):
+
+```shell
+sphinx-autobuild source build
 ```
 
 ### Contributing
