@@ -39,6 +39,3 @@ pip-log.txt
 
 # Virtual Env ignore
 venv
-
-# Built docs
-docs/_build/
