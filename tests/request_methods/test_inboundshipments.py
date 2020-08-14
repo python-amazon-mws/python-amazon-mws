@@ -3,13 +3,20 @@ Tests for the InboundShipments API class.
 """
 import datetime
 import unittest
-import mws
-from mws import MWSError
+import itertools
+
+import pytest
+
+# MWS objects
+from mws import MWSError, InboundShipments
 from mws.apis.inbound_shipments import parse_item_args
+
+# Testing tools
 from .utils import CommonAPIRequestTools
 from .utils import transform_date
 from .utils import transform_bool
 from .utils import transform_string
+from .utils import get_api_instance
 
 
 class ParseItemArgsTestCase(unittest.TestCase):
@@ -128,7 +135,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
     """Test case covering `msw.InboundShipments.set_ship_from_address`."""
 
     def setUp(self):
-        self.inbound = mws.InboundShipments("", "", "")
+        self.inbound = InboundShipments("", "", "")
 
     def test_address_empty_raises_exception(self):
         """Empty address dict should raise MWSError."""
@@ -223,7 +230,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             "address_1": "500 Summat Cully Lane",
             "city": "Gilead",
         }
-        inbound_constructed = mws.InboundShipments("", "", "", from_address=address)
+        inbound_constructed = InboundShipments("", "", "", from_address=address)
         expected = {
             "ShipFromAddress.Name": "Roland Deschain",
             "ShipFromAddress.AddressLine1": "500 Summat Cully Lane",
@@ -242,7 +249,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
     These cases require `from_address` to be set, while others do not.
     """
 
-    api_class = mws.InboundShipments
+    api_class = InboundShipments
 
     def setUp(self):
         """Override adds the `from_address` to the API instance
@@ -637,7 +644,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
     FBA shipment handling and do not require `from_address` to be set.
     """
 
-    api_class = mws.InboundShipments
+    api_class = InboundShipments
 
     def test_get_inbound_guidance_for_sku(self):
         """GetInboundGuidanceForSKU operation."""
@@ -952,3 +959,39 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         params = self.api.list_inbound_shipment_items_by_next_token(next_token)
         self.assert_common_params(params, action="ListInboundShipmentItemsByNextToken")
         self.assertEqual(params["NextToken"], next_token)
+
+
+### Mix of statuses and IDs for list_inbound_shipments ###
+# Given these potential status and ID types:
+# - a single string
+# - a list of strings
+# - an empty list
+# - None
+# ...creates a Cartesian product of these potential types, generates a fixture,
+# then parameterizes (or "parametrizes", per pytest's spelling) the test
+# that uses this fixture.
+# Doing so, we can easily test 16 scenarios for this test.
+potential_statuses = [
+    "STATUS1",
+    ["STATUS1", "STATUS2"],
+    [],
+    None,
+]
+potential_ids = [
+    "ID1",
+    ["ID1", "ID2"],
+    [],
+    None,
+]
+status_id_fixture = list(itertools.product(potential_statuses, potential_ids))
+
+
+@pytest.mark.parametrize("statuses, ids", status_id_fixture)
+def test_list_inbound_shipments_status_and_id(statuses, ids):
+    """Check that a mixture of different argument types for `shipment_statuses`
+    and `shipment_ids` will work in `InboundShipments.list_inbound_shipments`.
+
+    Should cover scenarios like ticket #199.
+    """
+    api = get_api_instance(InboundShipments)
+    api.list_inbound_shipments(shipment_statuses=statuses, shipment_ids=ids)

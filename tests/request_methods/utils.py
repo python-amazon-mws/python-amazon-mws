@@ -209,3 +209,15 @@ def transform_bool(b):
 
 def transform_date(date):
     return quote(date.isoformat(), safe="-_.~")
+
+
+def get_api_instance(api_class):
+    """Return an testing instance of `api_class`.
+
+    Uses `CommonAPIRequestTools`, performs `setUp` using `api_class`,
+    then returns an instance of that class, ready to send requests.
+    """
+    tools = CommonAPIRequestTools()
+    tools.api_class = api_class
+    tools.setUp()
+    return tools.api
