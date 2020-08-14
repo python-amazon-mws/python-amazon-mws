@@ -970,17 +970,27 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
 # ...creates a Cartesian product of these potential types, generates a fixture,
 # then parameterizes (or "parametrizes", per pytest's spelling) the test
 # that uses this fixture.
-# Doing so, we can easily test 16 scenarios for this test.
+# Doing so, we can easily test multiple scenarios at once test.
+
+# NOTE:
 potential_statuses = [
     "STATUS1",
-    ["STATUS1", "STATUS2"],
-    [],
+    ["STATUS1", "STATUS2"],  # list
+    ("STATUS1", "STATUS2"),  # tuple
+    {"STATUS1", "STATUS2"},  # set
+    list(),  # empty list
+    tuple(),  # empty tuple
+    set(),  # empty set
     None,
 ]
 potential_ids = [
     "ID1",
-    ["ID1", "ID2"],
-    [],
+    ["ID1", "ID2"],  # list
+    ("ID1", "ID2"),  # tuple
+    {"ID1", "ID2"},  # set
+    list(),  # empty list
+    tuple(),  # empty tuple
+    set(),  # empty set
     None,
 ]
 status_id_fixture = list(itertools.product(potential_statuses, potential_ids))
@@ -994,4 +1004,36 @@ def test_list_inbound_shipments_status_and_id(statuses, ids):
     Should cover scenarios like ticket #199.
     """
     api = get_api_instance(InboundShipments)
-    api.list_inbound_shipments(shipment_statuses=statuses, shipment_ids=ids)
+    params = api.list_inbound_shipments(shipment_statuses=statuses, shipment_ids=ids)
+
+    # Check statuses:
+    if statuses is None:
+        # Explicitly `None`, should output nothing
+        assert "ShipmentStatusList.member.1" not in params
+    if not statuses:
+        # Evaluates "falsey", should output nothing
+        assert "ShipmentStatusList.member.1" not in params
+    if isinstance(statuses, str):
+        # Single entry string should have one member only.
+        assert params["ShipmentStatusList.member.1"] == statuses
+        assert "ShipmentStatusList.member.2" not in params
+    if isinstance(statuses, (list, tuple, set)):
+        for idx, status in enumerate(statuses):
+            key = "ShipmentStatusList.member.{}".format(idx + 1)
+            assert params[key] == status
+
+    # Check IDs:
+    if ids is None:
+        # Explicitly `None`, should output nothing
+        assert "ShipmentIdList.member.1" not in params
+    if not ids:
+        # Evaluates "falsey", should output nothing
+        assert "ShipmentIdList.member.1" not in params
+    if isinstance(ids, str):
+        # Single entry string should have one member only.
+        assert params["ShipmentIdList.member.1"] == ids
+        assert "ShipmentIdList.member.2" not in params
+    if isinstance(ids, (list, tuple, set)):
+        for idx, id_ in enumerate(ids):
+            key = "ShipmentIdList.member.{}".format(idx + 1)
+            assert params[key] == id_
