@@ -1,14 +1,13 @@
-# main
-requests
+-r requirements.txt
 
 # testing
 pytest
 pytest-cov
 
-# releasing
-twine
-
 # documentation
 sphinx>=3.2.0,<3.3
 sphinx-autobuild>=0.7.1
 sphinx-rtd-theme
+
+# releasing
+twine
