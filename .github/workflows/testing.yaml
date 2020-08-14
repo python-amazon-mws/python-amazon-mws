@@ -3,7 +3,7 @@ name: Testing
 on: [push, pull_request]
 
 jobs:
-  build:
+  test_suite:
     runs-on: ${{ matrix.os }}
 
     # Strategy sets up a matrix of python versions to run the tests against
