@@ -322,8 +322,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             params["ShipFromAddress.City"], clean_string(self.addr["city"])
         )
         self.assertEqual(
-            params["ShipFromAddress.CountryCode"],
-            clean_string(self.addr["country"]),
+            params["ShipFromAddress.CountryCode"], clean_string(self.addr["country"]),
         )
         # item data
         self.assertEqual(
@@ -418,8 +417,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assert_common_params(params, action="CreateInboundShipment")
         self.assertEqual(params["ShipmentId"], shipment_id)
         self.assertEqual(
-            params["InboundShipmentHeader.ShipmentName"],
-            clean_string(shipment_name),
+            params["InboundShipmentHeader.ShipmentName"], clean_string(shipment_name),
         )
         self.assertEqual(
             params["InboundShipmentHeader.DestinationFulfillmentCenterId"], destination
@@ -428,8 +426,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             params["InboundShipmentHeader.LabelPrepPreference"], label_preference
         )
         self.assertEqual(
-            params["InboundShipmentHeader.AreCasesRequired"],
-            clean_bool(case_required),
+            params["InboundShipmentHeader.AreCasesRequired"], clean_bool(case_required),
         )
         self.assertEqual(
             params["InboundShipmentHeader.ShipmentStatus"], shipment_status
@@ -530,8 +527,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assertEqual(params_1["Action"], "UpdateInboundShipment")
         self.assertEqual(params_1["ShipmentId"], shipment_id)
         self.assertEqual(
-            params_1["InboundShipmentHeader.ShipmentName"],
-            clean_string(shipment_name),
+            params_1["InboundShipmentHeader.ShipmentName"], clean_string(shipment_name),
         )
         self.assertEqual(
             params_1["InboundShipmentHeader.DestinationFulfillmentCenterId"],
@@ -597,8 +593,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assertEqual(params_2["Action"], "UpdateInboundShipment")
         self.assertEqual(params_2["ShipmentId"], shipment_id)
         self.assertEqual(
-            params_2["InboundShipmentHeader.ShipmentName"],
-            clean_string(shipment_name),
+            params_2["InboundShipmentHeader.ShipmentName"], clean_string(shipment_name),
         )
         self.assertEqual(
             params_2["InboundShipmentHeader.DestinationFulfillmentCenterId"],
@@ -910,9 +905,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
             last_updated_after=last_updated_after,
         )
         self.assert_common_params(params, action="ListInboundShipments")
-        self.assertEqual(
-            params["LastUpdatedBefore"], clean_date(last_updated_before)
-        )
+        self.assertEqual(params["LastUpdatedBefore"], clean_date(last_updated_before))
         self.assertEqual(params["LastUpdatedAfter"], clean_date(last_updated_after))
         self.assertEqual(params["ShipmentStatusList.member.1"], shipment_statuses[0])
         self.assertEqual(params["ShipmentStatusList.member.2"], shipment_statuses[1])
@@ -945,9 +938,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         )
         self.assert_common_params(params, action="ListInboundShipmentItems")
         self.assertEqual(params["ShipmentId"], shipment_id)
-        self.assertEqual(
-            params["LastUpdatedBefore"], clean_date(last_updated_before)
-        )
+        self.assertEqual(params["LastUpdatedBefore"], clean_date(last_updated_before))
         self.assertEqual(params["LastUpdatedAfter"], clean_date(last_updated_after))
 
     def test_list_inbound_shipment_items_by_next_token(self):

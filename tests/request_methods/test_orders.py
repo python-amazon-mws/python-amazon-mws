@@ -62,9 +62,7 @@ class OrdersTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assertEqual(params["CreatedAfter"], clean_date(created_after))
         self.assertEqual(params["CreatedBefore"], clean_date(created_before))
         self.assertEqual(params["LastUpdatedAfter"], clean_date(last_updated_after))
-        self.assertEqual(
-            params["LastUpdatedBefore"], clean_date(last_updated_before)
-        )
+        self.assertEqual(params["LastUpdatedBefore"], clean_date(last_updated_before))
         self.assertEqual(params["BuyerEmail"], "dudley.do.right%40example.com")
         self.assertEqual(params["SellerOrderId"], seller_order_id)
         self.assertEqual(params["MaxResultsPerPage"], str(max_results))
