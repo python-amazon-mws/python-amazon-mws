@@ -1,3 +1,5 @@
+"""Tests covering utility functions."""
+
 from mws.mws import calc_request_description
 from mws.utils import calc_md5
 

@@ -1,7 +1,7 @@
 import pytest
 from mws import MWSError
-from mws.mws import DataWrapper
-from mws.mws import DictWrapper
+from mws.utils import DataWrapper
+from mws.utils import DictWrapper
 
 
 def test_content_md5_comparison():

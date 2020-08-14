@@ -4,8 +4,9 @@ Tests for the Finances API class.
 import unittest
 import datetime
 import mws
+from mws.utils import clean_date
+
 from .utils import CommonAPIRequestTools
-from .utils import transform_date
 
 
 class FinancesTestCase(CommonAPIRequestTools, unittest.TestCase):
@@ -29,10 +30,10 @@ class FinancesTestCase(CommonAPIRequestTools, unittest.TestCase):
         )
         self.assert_common_params(params, action="ListFinancialEventGroups")
         self.assertEqual(
-            params["FinancialEventGroupStartedAfter"], transform_date(created_after)
+            params["FinancialEventGroupStartedAfter"], clean_date(created_after)
         )
         self.assertEqual(
-            params["FinancialEventGroupStartedBefore"], transform_date(created_before)
+            params["FinancialEventGroupStartedBefore"], clean_date(created_before)
         )
         self.assertEqual(params["MaxResultsPerPage"], str(max_results))
 
@@ -73,8 +74,8 @@ class FinancesTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assert_common_params(params, action="ListFinancialEvents")
         self.assertEqual(params["FinancialEventGroupId"], financial_event_group_id)
         self.assertEqual(params["AmazonOrderId"], amazon_order_id)
-        self.assertEqual(params["PostedAfter"], transform_date(posted_after))
-        self.assertEqual(params["PostedBefore"], transform_date(posted_before))
+        self.assertEqual(params["PostedAfter"], clean_date(posted_after))
+        self.assertEqual(params["PostedBefore"], clean_date(posted_before))
         self.assertEqual(params["MaxResultsPerPage"], str(max_results))
 
     def test_list_financial_events_by_next_token(self):

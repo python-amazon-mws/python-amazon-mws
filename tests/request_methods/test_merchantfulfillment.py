@@ -5,9 +5,9 @@ import unittest
 import mws
 from .utils import (
     CommonAPIRequestTools,
-    transform_date,
-    transform_string,
-    transform_bool,
+    clean_date,
+    clean_string,
+    clean_bool,
 )
 
 
@@ -81,33 +81,33 @@ class MerchantFulfillmentTestCase(CommonAPIRequestTools, unittest.TestCase):
         # Check for our expected parameters
         # fmt: off
         expected = {
-            "ShipmentRequestDetails.AmazonOrderId": transform_string(amazon_order_id),
-            "ShipmentRequestDetails.SellerOrderId": transform_string(seller_order_id),
-            "ShipmentRequestDetails.MustArriveByDate": transform_date(must_arrive_by_date),
-            "ShipmentRequestDetails.PackageDimensions.Length": transform_string(package_dimensions["Length"]),
-            "ShipmentRequestDetails.PackageDimensions.Width": transform_string(package_dimensions["Width"]),
-            "ShipmentRequestDetails.PackageDimensions.Height": transform_string(package_dimensions["Height"]),
-            "ShipmentRequestDetails.PackageDimensions.Unit": transform_string(package_dimensions["Unit"]),
-            "ShipmentRequestDetails.Weight.Value": transform_string(weight["Value"]),
-            "ShipmentRequestDetails.Weight.Unit": transform_string(weight["Unit"]),
-            "ShipmentRequestDetails.ShipDate": transform_date(ship_date),
-            "ShipmentRequestDetails.ShipFromAddress.Name": transform_string(ship_from_address["Name"]),
-            "ShipmentRequestDetails.ShipFromAddress.AddressLine1": transform_string(ship_from_address["AddressLine1"]),
-            "ShipmentRequestDetails.ShipFromAddress.City": transform_string(ship_from_address["City"]),
-            "ShipmentRequestDetails.ShipFromAddress.StateOrProvinceCode": transform_string(ship_from_address["StateOrProvinceCode"]),
-            "ShipmentRequestDetails.ShipFromAddress.PostalCode": transform_string(ship_from_address["PostalCode"]),
-            "ShipmentRequestDetails.ShipFromAddress.CountryCode": transform_string(ship_from_address["CountryCode"]),
-            "ShipmentRequestDetails.ShipFromAddress.Email": transform_string(ship_from_address["Email"]),
-            "ShipmentRequestDetails.ShipFromAddress.Phone": transform_string(ship_from_address["Phone"]),
-            "ShipmentRequestDetails.ShippingServiceOptions.DeliveryExperience": transform_string(shipping_service_options["DeliveryExperience"]),
-            "ShipmentRequestDetails.ShippingServiceOptions.CarrierWillPickUp": transform_bool(shipping_service_options["CarrierWillPickUp"]),
-            "ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.CurrencyCode": transform_string(shipping_service_options["DeclaredValue.CurrencyCode"]),
-            "ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.Amount": transform_string(shipping_service_options["DeclaredValue.Amount"]),
-            "ShipmentRequestDetails.ItemList.Item.1.OrderItemId": transform_string(items[0]["OrderItemId"]),
-            "ShipmentRequestDetails.ItemList.Item.1.Quantity": transform_string(items[0]["Quantity"]),
-            "ShipmentRequestDetails.ItemList.Item.2.OrderItemId": transform_string(items[1]["OrderItemId"]),
-            "ShipmentRequestDetails.ItemList.Item.2.Quantity": transform_string(items[1]["Quantity"]),
-            "ShippingOfferingFilter.IncludeComplexShippingOptions": transform_bool(include_complex_options),
+            "ShipmentRequestDetails.AmazonOrderId": clean_string(amazon_order_id),
+            "ShipmentRequestDetails.SellerOrderId": clean_string(seller_order_id),
+            "ShipmentRequestDetails.MustArriveByDate": clean_date(must_arrive_by_date),
+            "ShipmentRequestDetails.PackageDimensions.Length": clean_string(package_dimensions["Length"]),
+            "ShipmentRequestDetails.PackageDimensions.Width": clean_string(package_dimensions["Width"]),
+            "ShipmentRequestDetails.PackageDimensions.Height": clean_string(package_dimensions["Height"]),
+            "ShipmentRequestDetails.PackageDimensions.Unit": clean_string(package_dimensions["Unit"]),
+            "ShipmentRequestDetails.Weight.Value": clean_string(weight["Value"]),
+            "ShipmentRequestDetails.Weight.Unit": clean_string(weight["Unit"]),
+            "ShipmentRequestDetails.ShipDate": clean_date(ship_date),
+            "ShipmentRequestDetails.ShipFromAddress.Name": clean_string(ship_from_address["Name"]),
+            "ShipmentRequestDetails.ShipFromAddress.AddressLine1": clean_string(ship_from_address["AddressLine1"]),
+            "ShipmentRequestDetails.ShipFromAddress.City": clean_string(ship_from_address["City"]),
+            "ShipmentRequestDetails.ShipFromAddress.StateOrProvinceCode": clean_string(ship_from_address["StateOrProvinceCode"]),
+            "ShipmentRequestDetails.ShipFromAddress.PostalCode": clean_string(ship_from_address["PostalCode"]),
+            "ShipmentRequestDetails.ShipFromAddress.CountryCode": clean_string(ship_from_address["CountryCode"]),
+            "ShipmentRequestDetails.ShipFromAddress.Email": clean_string(ship_from_address["Email"]),
+            "ShipmentRequestDetails.ShipFromAddress.Phone": clean_string(ship_from_address["Phone"]),
+            "ShipmentRequestDetails.ShippingServiceOptions.DeliveryExperience": clean_string(shipping_service_options["DeliveryExperience"]),
+            "ShipmentRequestDetails.ShippingServiceOptions.CarrierWillPickUp": clean_bool(shipping_service_options["CarrierWillPickUp"]),
+            "ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.CurrencyCode": clean_string(shipping_service_options["DeclaredValue.CurrencyCode"]),
+            "ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.Amount": clean_string(shipping_service_options["DeclaredValue.Amount"]),
+            "ShipmentRequestDetails.ItemList.Item.1.OrderItemId": clean_string(items[0]["OrderItemId"]),
+            "ShipmentRequestDetails.ItemList.Item.1.Quantity": clean_string(items[0]["Quantity"]),
+            "ShipmentRequestDetails.ItemList.Item.2.OrderItemId": clean_string(items[1]["OrderItemId"]),
+            "ShipmentRequestDetails.ItemList.Item.2.Quantity": clean_string(items[1]["Quantity"]),
+            "ShippingOfferingFilter.IncludeComplexShippingOptions": clean_bool(include_complex_options),
         }
         # fmt: on
 
@@ -144,16 +144,16 @@ class MerchantFulfillmentTestCase(CommonAPIRequestTools, unittest.TestCase):
 
         # fmt: off
         expected = {
-            "OrderId": transform_string(order_id),
-            "ShippingServiceId": transform_string(shipping_service_id),
-            "ShipFromAddress.Name": transform_string(ship_from_address["Name"]),
-            "ShipFromAddress.AddressLine1": transform_string(ship_from_address["AddressLine1"]),
-            "ShipFromAddress.City": transform_string(ship_from_address["City"]),
-            "ShipFromAddress.StateOrProvinceCode": transform_string(ship_from_address["StateOrProvinceCode"]),
-            "ShipFromAddress.PostalCode": transform_string(ship_from_address["PostalCode"]),
-            "ShipFromAddress.CountryCode": transform_string(ship_from_address["CountryCode"]),
-            "ShipFromAddress.Email": transform_string(ship_from_address["Email"]),
-            "ShipFromAddress.Phone": transform_string(ship_from_address["Phone"]),
+            "OrderId": clean_string(order_id),
+            "ShippingServiceId": clean_string(shipping_service_id),
+            "ShipFromAddress.Name": clean_string(ship_from_address["Name"]),
+            "ShipFromAddress.AddressLine1": clean_string(ship_from_address["AddressLine1"]),
+            "ShipFromAddress.City": clean_string(ship_from_address["City"]),
+            "ShipFromAddress.StateOrProvinceCode": clean_string(ship_from_address["StateOrProvinceCode"]),
+            "ShipFromAddress.PostalCode": clean_string(ship_from_address["PostalCode"]),
+            "ShipFromAddress.CountryCode": clean_string(ship_from_address["CountryCode"]),
+            "ShipFromAddress.Email": clean_string(ship_from_address["Email"]),
+            "ShipFromAddress.Phone": clean_string(ship_from_address["Phone"]),
         }
         # fmt: on
 

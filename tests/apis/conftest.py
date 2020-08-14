@@ -1,49 +1,26 @@
-"""
-Utilities common to request method tests.
-"""
-import datetime
-import mws
-
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
+"""Configurations for tests in this directory, including fixtures."""
 
 import pytest
 
+from mws.utils.parameters import clean_string, clean_bool, clean_date
 
-class CommonAPIRequestTools(object):
-    """A set of common tools to use with MWS API request method tests.
 
-    Should be subclassed by a test case class for an API as:
+@pytest.fixture(scope="session")
+def mws_credentials():
+    """Fake set of MWS credentials"""
+    return {
+        "access_key": "cred_access",
+        "secret_key": "cred_secret",
+        "account_id": "cred_account",
+        "auth_token": "cred_token",
+    }
 
-        class APITestCase(CommonAPIRequestTools, unittest.TestCase):
-            test_class = mws.APIClass
 
-    `test_class` must point the API class intended for the TestCase.
-    The class will be instantiated on the TestCase as `self.api`
-    with fake credentials and the flag `_test_request_params` set to True
-    (see `setUp` method for details).
-    """
+class APITestBase:
+    api_class = None
 
-    CREDENTIAL_ACCESS = "cred_access"
-    CREDENTIAL_SECRET = "cred_secret"
-    CREDENTIAL_ACCOUNT = "cred_account"
-    CREDENTIAL_TOKEN = "cred_token"
-
-    api_class = mws.mws.MWS
-    """Define within a subclassing API TestCase with the class to be tested."""
-
-    def setUp(self):
-        """Set up the API class with fake credentials,
-        and set `_test_request_params` to prevent sending a live request.
-        """
-        self.api = self.api_class(
-            self.CREDENTIAL_ACCESS,
-            self.CREDENTIAL_SECRET,
-            self.CREDENTIAL_ACCOUNT,
-            auth_token=self.CREDENTIAL_TOKEN,
-        )
+    def __init__(self, mws_credentials):
+        self.api = self.api_class(**mws_credentials)
         self.api._test_request_params = True
 
     def assert_common_params(self, params, action=None):
@@ -197,27 +174,3 @@ class CommonAPIRequestTools(object):
         }
         for key, val in expected.items():
             assert request_params[key] == val
-
-
-def clean_string(s):
-    return quote(s, safe="-_.~")
-
-
-def clean_bool(b):
-    return str(b).lower()
-
-
-def clean_date(date):
-    return quote(date.isoformat(), safe="-_.~")
-
-
-def get_api_instance(api_class):
-    """Return an testing instance of `api_class`.
-
-    Uses `CommonAPIRequestTools`, performs `setUp` using `api_class`,
-    then returns an instance of that class, ready to send requests.
-    """
-    tools = CommonAPIRequestTools()
-    tools.api_class = api_class
-    tools.setUp()
-    return tools.api

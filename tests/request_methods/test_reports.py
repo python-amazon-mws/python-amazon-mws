@@ -3,9 +3,9 @@
 import datetime
 import unittest
 import mws
+from mws.utils import clean_bool, clean_date
+
 from .utils import CommonAPIRequestTools
-from .utils import transform_date
-from .utils import transform_bool
 
 
 class ReportsTestCase(CommonAPIRequestTools, unittest.TestCase):
@@ -83,8 +83,8 @@ class ReportsTestCase(CommonAPIRequestTools, unittest.TestCase):
         )
         self.assert_common_params(params, action="GetReportRequestList")
         self.assertEqual(params["MaxCount"], str(max_count))
-        self.assertEqual(params["RequestedFromDate"], transform_date(from_date))
-        self.assertEqual(params["RequestedToDate"], transform_date(to_date))
+        self.assertEqual(params["RequestedFromDate"], clean_date(from_date))
+        self.assertEqual(params["RequestedToDate"], clean_date(to_date))
         self.assertEqual(params["ReportRequestIdList.Id.1"], request_ids[0])
         self.assertEqual(params["ReportRequestIdList.Id.2"], request_ids[1])
         self.assertEqual(params["ReportTypeList.Type.1"], report_types[0])
@@ -129,8 +129,8 @@ class ReportsTestCase(CommonAPIRequestTools, unittest.TestCase):
             to_date=to_date,
         )
         self.assert_common_params(params, action="GetReportRequestCount")
-        self.assertEqual(params["RequestedFromDate"], transform_date(from_date))
-        self.assertEqual(params["RequestedToDate"], transform_date(to_date))
+        self.assertEqual(params["RequestedFromDate"], clean_date(from_date))
+        self.assertEqual(params["RequestedToDate"], clean_date(to_date))
         self.assertEqual(params["ReportTypeList.Type.1"], report_types[0])
         self.assertEqual(params["ReportTypeList.Type.2"], report_types[1])
         self.assertEqual(
@@ -163,9 +163,9 @@ class ReportsTestCase(CommonAPIRequestTools, unittest.TestCase):
             to_date=to_date,
         )
         self.assert_common_params(params, action="GetReportList")
-        self.assertEqual(params["Acknowledged"], transform_bool(acknowledged))
-        self.assertEqual(params["AvailableFromDate"], transform_date(from_date))
-        self.assertEqual(params["AvailableToDate"], transform_date(to_date))
+        self.assertEqual(params["Acknowledged"], clean_bool(acknowledged))
+        self.assertEqual(params["AvailableFromDate"], clean_date(from_date))
+        self.assertEqual(params["AvailableToDate"], clean_date(to_date))
         self.assertEqual(params["MaxCount"], str(max_count))
         self.assertEqual(params["ReportRequestIdList.Id.1"], request_ids[0])
         self.assertEqual(params["ReportRequestIdList.Id.2"], request_ids[1])
@@ -202,9 +202,9 @@ class ReportsTestCase(CommonAPIRequestTools, unittest.TestCase):
             to_date=to_date,
         )
         self.assert_common_params(params, action="GetReportCount")
-        self.assertEqual(params["Acknowledged"], transform_bool(acknowledged))
-        self.assertEqual(params["AvailableFromDate"], transform_date(from_date))
-        self.assertEqual(params["AvailableToDate"], transform_date(to_date))
+        self.assertEqual(params["Acknowledged"], clean_bool(acknowledged))
+        self.assertEqual(params["AvailableFromDate"], clean_date(from_date))
+        self.assertEqual(params["AvailableToDate"], clean_date(to_date))
         self.assertEqual(params["ReportTypeList.Type.1"], report_types[0])
         self.assertEqual(params["ReportTypeList.Type.2"], report_types[1])
 

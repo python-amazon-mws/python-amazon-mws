@@ -4,8 +4,9 @@ Tests for the MWS.Inventory API class.
 import unittest
 import datetime
 import mws
+from mws.utils import clean_date
+
 from .utils import CommonAPIRequestTools
-from .utils import transform_date
 
 
 class InventoryTestCase(CommonAPIRequestTools, unittest.TestCase):
@@ -22,7 +23,7 @@ class InventoryTestCase(CommonAPIRequestTools, unittest.TestCase):
             skus, now, response_group=response_group
         )
         self.assert_common_params(params, action="ListInventorySupply")
-        self.assertEqual(params["QueryStartDateTime"], transform_date(now))
+        self.assertEqual(params["QueryStartDateTime"], clean_date(now))
         self.assertEqual(params["ResponseGroup"], "Detailed")
         self.assertEqual(params["SellerSkus.member.1"], "thing1")
         self.assertEqual(params["SellerSkus.member.2"], "thing2")

@@ -3,6 +3,7 @@ Utilities common to request method tests.
 """
 import datetime
 import mws
+from mws.utils import clean_bool, clean_date, clean_string
 
 try:
     from urllib.parse import quote
@@ -197,27 +198,3 @@ class CommonAPIRequestTools(object):
         }
         for key, val in expected.items():
             assert request_params[key] == val
-
-
-def clean_string(s):
-    return quote(s, safe="-_.~")
-
-
-def clean_bool(b):
-    return str(b).lower()
-
-
-def clean_date(date):
-    return quote(date.isoformat(), safe="-_.~")
-
-
-def get_api_instance(api_class):
-    """Return an testing instance of `api_class`.
-
-    Uses `CommonAPIRequestTools`, performs `setUp` using `api_class`,
-    then returns an instance of that class, ready to send requests.
-    """
-    tools = CommonAPIRequestTools()
-    tools.api_class = api_class
-    tools.setUp()
-    return tools.api

@@ -1,5 +1,11 @@
 """Parameter manipulation utilities."""
 
+import datetime
+from urllib.parse import quote
+import json
+
+from mws.errors import MWSError
+
 
 def enumerate_param(param, values):
     """Builds a dictionary of an enumerated parameter, using the param string and some values.
@@ -118,3 +124,39 @@ def dict_keyed_param(param, dict_from):
     for k, v in dict_from.items():
         params.update({"{param}{key}".format(param=param, key=k): v})
     return params
+
+
+def clean_param_value(val):
+    """Attempts to clean a value so that it can be sent in a request."""
+    if isinstance(val, (dict, list, set, tuple)):
+        raise ValueError("Cannot clean parameter value of type %s" % str(type(val)))
+
+    if isinstance(val, (datetime.datetime, datetime.date)):
+        return clean_date(val)
+    if isinstance(val, bool):
+        return clean_bool(val)
+
+    # For all else, assume a string, and clean that.
+    return clean_string(str(val))
+
+
+def clean_string(val):
+    """Passes a string value through `urllib.parse.quote` to clean it.
+
+    Safe characters permitted: -_.~
+    """
+    return quote(val, safe="-_.~")
+
+
+def clean_bool(val):
+    """Converts a boolean value to its JSON string equivalent."""
+    if val is not True and val is not False:
+        raise ValueError("Expected a boolean, got %s" % val)
+    return json.dumps(val)
+
+
+def clean_date(val):
+    """Converts a datetime.datetime or datetime.date to ISO 8601 string.
+    Further passes that string through `urllib.parse.quote`.
+    """
+    return clean_string(val.isoformat())

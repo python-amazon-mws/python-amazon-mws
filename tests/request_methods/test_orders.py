@@ -3,8 +3,9 @@
 import datetime
 import unittest
 import mws
+from mws.utils import clean_date
+
 from .utils import CommonAPIRequestTools
-from .utils import transform_date
 
 
 class OrdersTestCase(CommonAPIRequestTools, unittest.TestCase):
@@ -58,11 +59,11 @@ class OrdersTestCase(CommonAPIRequestTools, unittest.TestCase):
             tfm_shipment_statuses=tfm_shipment_statuses,
         )
         self.assert_common_params(params, action="ListOrders")
-        self.assertEqual(params["CreatedAfter"], transform_date(created_after))
-        self.assertEqual(params["CreatedBefore"], transform_date(created_before))
-        self.assertEqual(params["LastUpdatedAfter"], transform_date(last_updated_after))
+        self.assertEqual(params["CreatedAfter"], clean_date(created_after))
+        self.assertEqual(params["CreatedBefore"], clean_date(created_before))
+        self.assertEqual(params["LastUpdatedAfter"], clean_date(last_updated_after))
         self.assertEqual(
-            params["LastUpdatedBefore"], transform_date(last_updated_before)
+            params["LastUpdatedBefore"], clean_date(last_updated_before)
         )
         self.assertEqual(params["BuyerEmail"], "dudley.do.right%40example.com")
         self.assertEqual(params["SellerOrderId"], seller_order_id)

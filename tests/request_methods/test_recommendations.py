@@ -2,8 +2,9 @@
 
 import unittest
 import mws
+from mws.utils import clean_string
+
 from .utils import CommonAPIRequestTools
-from .utils import transform_string
 
 
 class RecommendationsTestCase(CommonAPIRequestTools, unittest.TestCase):
@@ -33,7 +34,7 @@ class RecommendationsTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assert_common_params(params, action="ListRecommendations")
         self.assertEqual(params["MarketplaceId"], marketplace_id)
         self.assertEqual(
-            params["RecommendationCategory"], transform_string(recommendation_category)
+            params["RecommendationCategory"], clean_string(recommendation_category)
         )
 
     def test_list_recommendations_by_next_token(self):

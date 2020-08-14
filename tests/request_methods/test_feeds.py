@@ -3,8 +3,9 @@
 import unittest
 import datetime
 import mws
+from mws.utils import clean_date
+
 from .utils import CommonAPIRequestTools
-from .utils import transform_date
 
 
 class FeedsTestCase(CommonAPIRequestTools, unittest.TestCase):
@@ -20,9 +21,9 @@ class FeedsTestCase(CommonAPIRequestTools, unittest.TestCase):
     def test_get_feed_submission_list(self):
         """GetFeedSubmissionList operation"""
         from_date = datetime.datetime.utcnow()
-        from_date_stamp = transform_date(from_date)
+        from_date_stamp = clean_date(from_date)
         to_date = datetime.datetime.utcnow()
-        to_date_stamp = transform_date(to_date)
+        to_date_stamp = clean_date(to_date)
         feed_ids = [
             "1058369303",
             "1228369302",
@@ -76,9 +77,9 @@ class FeedsTestCase(CommonAPIRequestTools, unittest.TestCase):
     def test_get_feed_submission_count(self):
         """GetFeedSubmissionCount operation"""
         from_date = datetime.datetime.utcnow()
-        from_date_stamp = transform_date(from_date)
+        from_date_stamp = clean_date(from_date)
         to_date = datetime.datetime.utcnow()
-        to_date_stamp = transform_date(to_date)
+        to_date_stamp = clean_date(to_date)
         feed_types = [
             "_POST_PRODUCT_OVERRIDES_DATA_",
             "_POST_FLAT_FILE_FULFILLMENT_ORDER_CANCELLATION_REQUEST_DATA_",
@@ -108,9 +109,9 @@ class FeedsTestCase(CommonAPIRequestTools, unittest.TestCase):
     def test_cancel_feed_submissions(self):
         """CancelFeedSubmissions operation"""
         from_date = datetime.datetime.utcnow()
-        from_date_stamp = transform_date(from_date)
+        from_date_stamp = clean_date(from_date)
         to_date = datetime.datetime.utcnow()
-        to_date_stamp = transform_date(to_date)
+        to_date_stamp = clean_date(to_date)
         feed_ids = [
             "SUB63kvutS",
             "l8dM04jxGD",

@@ -3,10 +3,9 @@
 
 from collections.abc import Iterable
 from enum import Enum
-from io import BytesIO
+
 from urllib.parse import quote
 from xml.etree.ElementTree import ParseError as XMLError
-from zipfile import ZipFile
 import base64
 import datetime
 import hashlib
@@ -17,9 +16,10 @@ import warnings
 from requests import request
 from requests.exceptions import HTTPError
 
-from mws.utils.parameters import enumerate_param
-from mws.utils.collections import XML2Dict
+from mws.errors import MWSError
 from mws.utils.crypto import calc_md5
+from mws.utils.parameters import clean_param_value, enumerate_param
+from mws.utils.parsers import DictWrapper, DataWrapper, XML2Dict
 from mws.utils.timezone import utc_timestamp
 
 
@@ -60,14 +60,6 @@ class Marketplaces(Enum):
         self.marketplace_id = marketplace_id
 
 
-class MWSError(Exception):
-    """Main MWS Exception class"""
-
-    # Allows quick access to the response object.
-    # Do not rely on this attribute, always check if its not None.
-    response = None
-
-
 def calc_request_description(params):
     """Builds the request description as a single string from the set of params.
 
@@ -93,105 +85,13 @@ def clean_params(params):
     # silently remove parameter where values are empty
     params = {k: v for k, v in params.items() if v is not None and v != ""}
 
-    params_enc = dict()
-    for key, value in params.items():
-        if isinstance(value, (dict, list, set, tuple)):
-            message = (
-                "expected string or datetime datatype, got {},"
-                "for key {} and value {}".format(type(value), key, str(value))
-            )
-            raise MWSError(message)
-        if isinstance(value, (datetime.datetime, datetime.date)):
-            value = value.isoformat()
-        if isinstance(value, bool):
-            value = str(value).lower()
-        value = str(value)
-
-        params_enc[key] = quote(value, safe="-_.~")
-    return params_enc
-
-
-def remove_namespace(xml):
-    """Strips the namespace from XML document contained in a string.
-    Returns the stripped string.
-    """
-    regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
-    return regex.sub("", xml)
-
-
-class DictWrapper(object):
-    """Converts XML data to a parsed response object as a tree of `ObjectDict`s.
-
-    Use `.parsed` for direct access to those contents, and `.original` for
-    the original XML document string.
-    """
-
-    # TODO create a base class for DictWrapper and DataWrapper with all the keys we expect in responses.
-    # This will make it easier to use either class in place of each other.
-    # Either this, or pile everything into DataWrapper and make it able to handle all cases.
-
-    def __init__(self, xml, rootkey=None):
-        if isinstance(xml, bytes):
-            try:
-                xml = xml.decode(encoding="iso-8859-1")
-            except UnicodeDecodeError as exc:
-                # In the very rare occurence of a decode error, attach the original xml to the .response of the MWSError
-                error = MWSError(str(exc.response.text))
-                error.response = xml
-                raise error
-
-        self.response = None
-        self._rootkey = rootkey
-        self._mydict = XML2Dict().fromstring(remove_namespace(xml))
-        self._response_dict = self._mydict.get(
-            list(self._mydict.keys())[0], self._mydict
-        )
-
-    @property
-    def parsed(self):
-        """Returns parsed XML contents as a tree of `ObjectDict`s."""
-        if self._rootkey:
-            return self._response_dict.get(self._rootkey, self._response_dict)
-        return self._response_dict
-
-
-class DataWrapper(object):
-    """Text wrapper in charge of validating the hash sent by Amazon."""
-
-    def __init__(self, data, headers):
-        self.original = data
-        self.response = None
-        self.headers = headers
-        if "content-md5" in self.headers:
-            hash_ = calc_md5(self.original)
-            if self.headers["content-md5"].encode() != hash_:
-                raise MWSError("Wrong Content length, maybe amazon error...")
-
-    @property
-    def parsed(self):
-        """Returns original content.
-
-        Used to provide an identical interface as `DictWrapper`, even if
-        content could not be parsed as XML.
-        """
-        return self.original
-
-    @property
-    def unzipped(self):
-        """Returns a `ZipFile` of file contents if response contains zip file bytes.
-
-        Otherwise, returns None.
-        """
-        if self.headers["content-type"] == "application/zip":
-            try:
-                with ZipFile(BytesIO(self.original)) as unzipped_fileobj:
-                    # unzipped the zip file contents
-                    unzipped_fileobj.extractall()
-                    # return original zip file object to the user
-                    return unzipped_fileobj
-            except Exception as exc:
-                raise MWSError(str(exc))
-        return None  # 'The response is not a zipped file.'
+    cleaned_params = dict()
+    for key, val in params.items():
+        try:
+            cleaned_params[key] = clean_param_value(val)
+        except ValueError as exc:
+            raise MWSError(str(exc)) from exc
+    return cleaned_params
 
 
 class MWS(object):
@@ -330,7 +230,7 @@ class MWS(object):
             try:
                 try:
                     parsed_response = DictWrapper(data, rootkey)
-                except TypeError:  # raised when using Python 3 and trying to remove_namespace()
+                except TypeError:
                     # When we got CSV as result, we will got error on this
                     parsed_response = DictWrapper(response.text, rootkey)
 
