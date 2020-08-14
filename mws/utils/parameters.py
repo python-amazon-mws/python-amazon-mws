@@ -302,7 +302,7 @@ class RequestParameter:
         where the output of that sub-parameter's `to_dict()` method is recursively
         added back to the return value dictionary here.
         """
-        if not self._val_is_dict:
+        if not self._val_is_dict():
             raise ValueError("Cannot generate keyed value for non-dict `value`.")
         output = {}
         for sub_key, val in self.value.items():
@@ -322,7 +322,7 @@ class RequestParameter:
         generating a sub-parameter and dict output that is added back
         to the return value dictionary.
         """
-        if not self._val_is_iterable:
+        if not self._val_is_iterable():
             raise ValueError(
                 "Cannot generate enumerated value for non-iterable `value`."
             )
