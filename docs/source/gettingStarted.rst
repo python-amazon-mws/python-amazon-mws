@@ -60,7 +60,7 @@ For most responses (including our example ``list_matching_products``), the ``res
 
 - ``response.original``, the original XML document;
 - ``response.response``, the HTTP response code of the request (200, 400, etc.); and
-- ``response.parsed``, a parsed version of the XML tree. (See :ref:`parsed_xml_responses`).
+- ``response.parsed``, a parsed version of the XML tree. (See :ref:`page_parsed_attr`).
 
 Certain responses (such as the `GetReport
 <http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReport.html>`_ operation, under

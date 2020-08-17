@@ -130,16 +130,18 @@ make livehtml
 
 #### On Windows
 
-`make` may not be available on Windows. To build the docs locally, instead use `sphinx-build`:
+`make` may not be available on Windows, but you can still build documentation with `sphinx-build` and `sphinc-autobuild`.
+
+To build the docs locally, use `sphinx-build`:
 
 ```shell
-sphinx-build -b source build
+sphinx-build -b html docs/source docs/build
 ```
 
 You can also run a live-reloading server using `sphinx-autobuild` (on `localhost:8000` or `127.0.0.1:8000` by default):
 
 ```shell
-sphinx-autobuild source build
+sphinx-autobuild docs/source docs/build
 ```
 
 ### Contributing
