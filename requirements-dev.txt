@@ -1,6 +1,6 @@
 -r requirements.txt
 
-# linting
+# python linting
 flake8
 
 # testing
@@ -11,6 +11,9 @@ pytest-cov
 sphinx>=3.2.0,<3.3
 sphinx-autobuild>=0.7.1
 sphinx-rtd-theme
+
+# reStructuredText (rST) linting for documentation
+rstcheck
 
 # releasing
 twine
