@@ -12,11 +12,11 @@ from mws.errors import MWSError
 from mws.utils.crypto import calc_md5
 
 
-class ObjectDict(dict):
+class DotDict(dict):
     """Extension of dict to allow accessing keys as attributes.
 
     Example:
-    >>> a = ObjectDict()
+    >>> a = DotDict()
     >>> a.fish = 'fish'
     >>> a['fish']
     'fish'
@@ -31,39 +31,56 @@ class ObjectDict(dict):
         dict.__init__(self, initd)
 
     def __getattr__(self, item):
-        node = self.__getitem__(item)
+        """Allow access to dict keys as though they were attributes."""
+        return self.__getitem__(item)
 
-        if isinstance(node, dict) and "value" in node and len(node) == 1:
+    def __setattr__(self, item, value):
+        """Allows setting dict keys like attributes, opposite of `__getattr__`."""
+        self.__setitem__(item, value)
+
+    def _value_or_node(self, node):
+        """If `node` contains only a single 'value' key, returns the raw value.
+        Otherwise, returns the node unchanged.
+        """
+        if isinstance(node, self.__class__) and "value" in node and len(node) == 1:
             return node["value"]
         return node
 
-    # if value is the only key in object, you can omit it
+    def __getitem__(self, key):
+        """Returns single-value nodes as the raw value, and all else unchanged."""
+        node = super().__getitem__(key)
+        return self._value_or_node(node)
+
     def __setstate__(self, item):
         return False
 
-    def __setattr__(self, item, value):
-        self.__setitem__(item, value)
-
     def __iter__(self):
-        """A fix for instances where we expect a list, but get a single item.
+        """Nodes are iterable be default, even with just one child node.
 
-        If the parser finds multiple keys by the same name under the same parent node,
-        the node will create a list of ObjectDicts to that key. However, if we expect a list
-        in downstream code when only a single item is returned, we will find a single ObjectDict.
-        Attempting to iterate over that object will iterate through dict keys,
-        which is not what we want.
-
-        This override will send back an iterator of a list with a single element if necessary
-        to allow iteration of any node with a single element. If accessing directly, we will
-        still get a list or ObjectDict, as originally expected.
+        Returns non-list nodes wrapped in an iterator, so they can be iterated
+        and return the child node.
         """
+        # If the parser finds multiple sibling nodes by the same name
+        # (under the same parent node), that node will return a list of DotDicts.
+        # However, if the same node is returned with only one child in other responses,
+        # downstream code may expect the list, but iterating the single node will
+        # throw an error.
+        # So, when iteration is required, we return single nodes as an iterator
+        # wrapping that single instance.
         if not isinstance(self, list):
             return iter([self])
         return self
 
-    def getvalue(self, item, value=None):
-        """Old Python 2-compatible getter method for default value."""
-        return self.get(item, {}).get("value", value)
+    def get(self, key, default=None):
+        """Returns single-value nodes as the raw value, and all else unchanged."""
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            return default
+
+
+# DEPRECATED
+ObjectDict = DotDict
 
 
 def remove_xml_namespace(xml):
@@ -79,12 +96,15 @@ class XML2Dict(object):
         pass
 
     def _parse_node(self, node):
-        node_tree = ObjectDict()
+        node_tree = DotDict()
         # Save attrs and text, hope there will not be a child with same name
-        if node.text:
+        if node.text and node.text.strip():
+            # Only assign a value if both the value and its `.strip`ped version work.
+            # (a falsey .strip() will exclude values like "\n      ")
             node_tree.value = node.text
         for key, val in node.attrib.items():
-            key, val = self._namespace_split(key, ObjectDict({"value": val}))
+            # if val.strip():
+            key, val = self._namespace_split(key, DotDict({"value": val}))
             node_tree[key] = val
         # Save childrens
         for child in node:
@@ -117,10 +137,10 @@ class XML2Dict(object):
         return self.fromstring(file_.read())
 
     def fromstring(self, str_):
-        """Convert XML-formatted string to an ObjectDict."""
+        """Convert XML-formatted string to an DotDict."""
         text = ET.fromstring(str_)
         root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
-        return ObjectDict({root_tag: root_tree})
+        return DotDict({root_tag: root_tree})
 
 
 # DEPRECATION: these are old names for these objects, which have been updated
@@ -132,7 +152,7 @@ xml2dict = XML2Dict
 
 
 class DictWrapper(object):
-    """Converts XML data to a parsed response object as a tree of `ObjectDict`s.
+    """Converts XML data to a parsed response object as a tree of `DotDict`s.
 
     Use `.parsed` for direct access to those contents, and `.original` for
     the original XML document string.
@@ -153,18 +173,25 @@ class DictWrapper(object):
                 raise error
 
         self.response = None
+        self._original = xml
         self._rootkey = rootkey
-        self._mydict = XML2Dict().fromstring(remove_xml_namespace(xml))
+        # TODO try this with xmltodict library?
+        self._mydict = XML2Dict().fromstring(remove_xml_namespace(self.original))
         self._response_dict = self._mydict.get(
             list(self._mydict.keys())[0], self._mydict
         )
 
     @property
     def parsed(self):
-        """Returns parsed XML contents as a tree of `ObjectDict`s."""
+        """Returns parsed XML contents as a tree of `DotDict`s."""
         if self._rootkey:
             return self._response_dict.get(self._rootkey, self._response_dict)
         return self._response_dict
+
+    @property
+    def original(self):
+        """Returns original XML content."""
+        return self._original
 
 
 class DataWrapper(object):

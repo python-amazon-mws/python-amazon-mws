@@ -13,6 +13,7 @@ from .parameters import (
 from .parsers import (
     DataWrapper,
     DictWrapper,
+    DotDict,
     ObjectDict,
     XML2Dict,
 )
@@ -30,6 +31,7 @@ __all__ = [
     "DataWrapper",
     "dict_keyed_param",
     "DictWrapper",
+    "DotDict",
     "enumerate_keyed_param",
     "enumerate_param",
     "enumerate_params",

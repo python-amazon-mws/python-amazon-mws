@@ -730,3 +730,77 @@ def test_decode_byte_xml_x94():
     # Process and assert
     output = DictWrapper(stripped_original)
     assert output.parsed == expected
+
+
+def test_dotdict_attr_key_access_methods():
+    """Various methods for accessing contents of a parsed XML response
+    should all return the same way.
+
+    - dotted attribute access
+    - using dict keys
+    - using `DotDict.get` (an overwrite of `dict.get`)
+    - `values` containing just newlines and spaces ('\n    ') should be stripped
+      and not exist at all.
+    """
+
+    content = """<TestResponse>
+      <TestResponseResult>
+        <Content>
+          <Item1>foo</Item1>
+          <Item2>
+            <Details SomeAttr="spam">
+              <Inner SomeOtherAttr="ham">eggs</Inner>
+            </Details>
+          </Item2>
+        </Content>
+      </TestResponseResult>
+    </TestResponse>"""
+
+    response = DictWrapper(content, rootkey="TestResponseResult")
+
+    # fmt: off
+    # Root should be "TestResponseResult", so "Content" is the first node at `.parsed`
+    assert "Content" in response.parsed
+    # "Content" has no value, so it should have no "value" key
+    assert "value" not in response.parsed.Content
+    # .Content, ["Content"], and .get("Content") should all be the same object.
+    # (using `is` identity check to be certain, not just equality check)
+    assert response.parsed.Content is response.parsed["Content"]
+    assert response.parsed.Content is response.parsed.get("Content")
+    # All should return the "foo" string
+    assert response.parsed.Content.Item1 == "foo"
+    assert response.parsed.Content["Item1"] == "foo"
+    assert response.parsed.Content.get("Item1") == "foo"
+    # Same for the attribute `SomeAttr`
+    assert response.parsed.Content.Item2.Details.SomeAttr == "spam"
+    assert response.parsed.Content.Item2.Details["SomeAttr"] == "spam"
+    assert response.parsed.Content.Item2.Details.get("SomeAttr") == "spam"
+
+    # Item2.Details.Inner should have a value
+    assert "value" in response.parsed.Content.Item2.Details.Inner
+    # You CANNOT access that value directly from "Inner", because it has a tag attr.
+    assert response.parsed.Content.Item2.Details.Inner != "eggs"
+    # Combinations of the "Inner" key and its "value" key
+    assert response.parsed.Content.Item2.Details.Inner.value == "eggs"
+    assert response.parsed.Content.Item2.Details["Inner"].value == "eggs"
+    assert response.parsed.Content.Item2.Details.get("Inner").value == "eggs"
+    assert response.parsed.Content.Item2.Details.Inner["value"] == "eggs"
+    assert response.parsed.Content.Item2.Details["Inner"]["value"] == "eggs"
+    assert response.parsed.Content.Item2.Details.get("Inner")["value"] == "eggs"
+    assert response.parsed.Content.Item2.Details.Inner.get("value") == "eggs"
+    assert response.parsed.Content.Item2.Details["Inner"].get("value") == "eggs"
+    assert response.parsed.Content.Item2.Details.get("Inner").get("value") == "eggs"
+
+    # The tag attr "SomeOtherAttr" is also there.
+    assert "SomeOtherAttr" in response.parsed.Content.Item2.Details.Inner
+    # Combinations of "Inner" and "SomeOtherAttr"
+    assert response.parsed.Content.Item2.Details.Inner.SomeOtherAttr == "ham"
+    assert response.parsed.Content.Item2.Details["Inner"].SomeOtherAttr == "ham"
+    assert response.parsed.Content.Item2.Details.get("Inner").SomeOtherAttr == "ham"
+    assert response.parsed.Content.Item2.Details.Inner["SomeOtherAttr"] == "ham"
+    assert response.parsed.Content.Item2.Details["Inner"]["SomeOtherAttr"] == "ham"
+    assert response.parsed.Content.Item2.Details.get("Inner")["SomeOtherAttr"] == "ham"
+    assert response.parsed.Content.Item2.Details.Inner.get("SomeOtherAttr") == "ham"
+    assert response.parsed.Content.Item2.Details["Inner"].get("SomeOtherAttr") == "ham"
+    assert response.parsed.Content.Item2.Details.get("Inner").get("SomeOtherAttr") == "ham"
+    # fmt: on
