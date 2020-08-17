@@ -1,5 +1,8 @@
 -r requirements.txt
 
+# linting
+flake8
+
 # testing
 pytest
 pytest-cov
