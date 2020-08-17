@@ -25,6 +25,11 @@ create and manage FBA Inbound Shipments... do it all with Python-Amazon-MWS!
    prerequisites
    installation
    gettingStarted
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Topics
+
    parsedXMLResponses
 
 .. Indices and tables

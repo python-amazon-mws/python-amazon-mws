@@ -1,38 +1,105 @@
 .. _page_parsed_attr:
 
-Parsed XML Responses
-####################
+Using Parsed XML Responses
+##########################
 
-Most responses from MWS take the form of ISO-8859-1 encoded XML documents. Python-Amazon-MWS
-wraps these responses in a ``DictWrapper`` object for convenient access to its meta attributes.
+Most responses to MWS requests take the form of XML documents `encoded using ISO 8859-1
+<http://docs.developer.amazonservices.com/en_US/dev_guide/DG_ISO8859.html>`_. You can access the raw XML document
+directly using the property ``response.original``.
 
-Of particular interest is the ``.parsed`` property, which provides access to nodes in the
-XML tree using either dict keys - ``reponse.parsed["key1"]["key2"]`` - or dotted attrs
-- ``response.parsed.key1.key2``.
+Python-Amazon-MWS also performs some XML parsing automatically, turning the document tree into nested Python objects
+that resemble dictionaries. This parsed version can be accessed from the response object, using ``response.parsed``.
 
-.. tip:: Accessing contents of the parsed XML using dotted attrs is highly recommended,
-   and will be used throughout the following examples.
+Below, we'll go into more detail on how to use ``response.parsed`` in your application to get the most from MWS.
 
-Parsing rules
-=============
+Dict Keys as Dotted Attrs
+=========================
+
+``response.parsed`` returns an instance of ``mws.utils.parsers.DotDict``, a dict-like object with some
+added features. Each node in the XML tree is automatically converted into one of these ``DotDict``, so child nodes
+share the same features.
+
+Most notably, keys in a ``DotDict`` can be accessed like dotted attrs on a class object, in addition to accessing
+like dict keys:
+
+.. code-block:: python
+
+    # The following are all equivalent:
+    response.parsed['foo']['bar']['baz']
+    response.parsed.foo.bar.baz
+    response.parsed.foo.bar.get('baz')
+
+    # And any combination therein:
+    response.parsed.get('foo').bar['baz']
+
+.. tip:: Using dotted attrs is highly recommended to make your code more concise, with the exception of cases where
+   ``.get(key, default)`` may be useful (nodes that may be missing, providing defaults, etc.).
+
+General parsing rules
+=====================
 
 The following general rules are followed for this parsing method:
 
-1. Attributes found on a tag, such as ``<TagName attr1="foo">``, will be converted to their
-   own nodes:
+- For convenience, ``response.parsed`` will start from the ``{operation}Result`` node of the XML document,
+  where ``{operation}`` is the name of the MWS operation used to make the request. This makes it a little
+  easier to get to the heart of the response content.
 
-   .. code-block:: python
+  For example, when requesting the **ListMatchingProducts** operation (in the **Products** API),
+  the response XML will look something like:
 
-      print(response.parsed.TagName.attr1)
-      # foo
+  .. code-block:: xml
 
-   - ``xmlns`` namespace attributes are stripped ahead of time, and will not appear in parsed output.
+      <ListMatchingProductsResponse xmlns="http://mws.amazonservices.com/schema/Products/2011-10-01">
+        <ListMatchingProductsResult>
+          <Product>foo</Product>
+        </ListMatchingProductsResult>
+      </ListMatchingProductsResponse>
 
-2. Sibling nodes with the same name will be grouped into a list accessible by that sibling tag's name.
+  After the response is processed, ``.parsed`` will be set with ``<ListMatchingProductsResult>`` as its root.
+  To access the contents of the ``<Product>`` tag beneath it, use ``response.parsed.Product`` (returning ``"foo"``).
 
-   For example, the ``<Item>`` tags below are siblings, under the ``SomeItems`` parent tag:
+  - If no root node is provided - such as when working with the ``DictWrapper`` utility class directly and providing
+    raw XML content) - ``.parsed`` will default to the document root node. In the above example, this
+    would be ``<ListMatchingProductsResponse>``; and you would access the ``<Product>`` tag using
+    ``response.parsed.ListMatchingProductsResult.Product``.
 
-   .. code-block:: xml
+- Tags that contain a value with no tag attributes and no child tags will return that value directly when accessed:
+
+  .. code-block:: python
+
+      response = example_api.example_request()
+
+      # with XML response of:
+      # <Response>
+      #   <SomeTag>foo</SomeTag>
+      # </Response>
+
+      print(response.parsed.SomeTag)
+      # 'foo'
+
+- Tags that contain at least one attribute will return a dict-like object containing that value and all attributes.
+  The value of the tag can be accessed by a ``value`` key.
+
+  .. code-block:: python
+
+      # with XML response of:
+      # <Response>
+      #   <SomeTag Name="bar">foo</SomeTag>
+      # </Response>
+
+      print(response.parsed.SomeTag)
+      # {'value': 'foo', 'Name': {'value': 'bar'}}
+
+  .. note:: The parsed ``Name`` attribute in the example also returns a dict-like object with a single key, ``value``.
+      Internally, all leaf nodes
+
+  - ``xmlns`` namespace attributes are stripped ahead of time, and will not appear in parsed output.
+
+- Sibling nodes with the same name will be grouped into a list accessible by that sibling tag's name.
+
+  For example, the ``<Item>`` tags below are siblings, under the ``SomeItems`` parent tag:
+
+  .. code-block:: xml
 
       <SomeItems>
         <Item>
@@ -43,10 +110,10 @@ The following general rules are followed for this parsing method:
         </Item>
       </SomeItems>
 
-   These will be collected into a list under ``.parsed.SomeItems.Item``. You can access the child
-   items of these nodes either by list index:
+  These will be collected into a list under ``.parsed.SomeItems.Item``. You can access the child
+  items of these nodes either by list index:
 
-   .. code-block:: python
+  .. code-block:: python
 
       print(response.parsed.SomeItems.Item[0].Name)
       # foo
@@ -54,9 +121,9 @@ The following general rules are followed for this parsing method:
       print(response.parsed.SomeItems.Item[1].Name)
       # bar
 
-   ...or by iterating on the node itself:
+  ...or by iterating on the node itself:
 
-   .. code-block:: python
+  .. code-block:: python
 
       for item in response.parsed.SomeItems.Item:
           print(item.Name)
@@ -64,15 +131,15 @@ The following general rules are followed for this parsing method:
       # foo
       # bar
 
-3. The parser does not know ahead of time that a given node *may* contain a list of siblings.
-   From the previous example, if only a single ``<Item>`` is returned, then
-   ``response.parsed.SomeItems.Item`` will **not** be a list, and using list indices may result
-   in an ``IndexError``.
+- The parser does not know ahead of time that a given node *may* contain a list of siblings.
+  From the previous example, if only a single ``<Item>`` is returned, then
+  ``response.parsed.SomeItems.Item`` will **not** be a list, and using list indices may result
+  in an ``IndexError``.
 
-   Fortunately, all nodes are iterable by default. If you expect a list of items, you may safely
-   iterate on the node to access its contents, even if only one item is returned:
+  Fortunately, all nodes are iterable by default. If you expect a list of items, you may safely
+  iterate on the node to access its contents, even if only one item is returned:
 
-   .. code-block:: python
+  .. code-block:: python
 
       # for the response:
       # <SomeItems>
@@ -86,23 +153,23 @@ The following general rules are followed for this parsing method:
 
       # foo
 
-4. Self-terminated tags, i.e. ``<NothingIsHere/>``, can still be accessed, but will return an empty
-   ``ObjectDict``, similar to an empty dict. Also similar to a dict, they will evaluate as ``False``
-   when used as a conditional, so that you know to ignore them.
+- Self-terminated tags, i.e. ``<NothingIsHere/>``, can still be accessed, but will return an empty
+  ``DotDict``, similar to an empty dict. Also similar to a dict, they will evaluate as ``False``
+  when used as a conditional, so that you know to ignore them.
 
-   .. warning:: Iterating on these "empty" nodes will produce one iteration, returing the single empty
-      ``ObjectDict`` itself:
+  .. warning:: Iterating on these "empty" nodes will produce one iteration, returning the single empty
+     ``DotDict`` itself:
 
-      .. code-block:: python
+     .. code-block:: python
 
-          for item in response.parsed.NothingIsHere:
-              print(item)
-              print(type(item))
+        for item in response.parsed.NothingIsHere:
+            print(item)
+            print(type(item))
 
-          # {}
-          # <class 'mws.utils.collections.ObjectDict'>
+        # {}
+        # <class 'mws.utils.collections.DotDict'>
 
-      A future dev version of the project will attempt to remove this inconsistency.
+     A future dev version of the project will attempt to remove this inconsistency.
 
 Example parsed response
 =======================
@@ -172,7 +239,7 @@ Going further, let's process some of the ``ItemAttributes`` available:
 
         creator_tag = attributes.Creator
         # `<ns2:Creator>` contains a "Role" attribute as well as a value.
-        # Thus, the return value of `.Creator` is another `ObjectDict` containing both.
+        # Thus, the return value of `.Creator` is another `DotDict` containing both.
 
         role = creator_tag.Role
         # We access `Role` as though it were another child node.
