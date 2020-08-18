@@ -72,7 +72,7 @@ class DotDict(dict):
         return self
 
     def get(self, key, default=None):
-        """Returns single-value nodes as the raw value, and all else unchanged."""
+        """Access a node like `dict.get`, including default values."""
         try:
             return self.__getitem__(key)
         except KeyError:
