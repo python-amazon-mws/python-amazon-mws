@@ -26,11 +26,11 @@ class Recommendations(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_GetLastUpdatedTimeForRecommendations.html
         """
-        data = {
-            "Action": "GetLastUpdatedTimeForRecommendations",
-            "MarketplaceId": marketplace_id,
-        }
-        return self.make_request(data, "POST")
+        return self.make_request(
+            "GetLastUpdatedTimeForRecommendations",
+            {"MarketplaceId": marketplace_id},
+            method="POST",
+        )
 
     @next_token_action("ListRecommendations")
     def list_recommendations(
@@ -44,12 +44,14 @@ class Recommendations(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_ListRecommendations.html
         """
-        data = {
-            "Action": "ListRecommendations",
-            "MarketplaceId": marketplace_id,
-            "RecommendationCategory": recommendation_category,
-        }
-        return self.make_request(data, "POST")
+        return self.make_request(
+            "ListRecommendations",
+            {
+                "MarketplaceId": marketplace_id,
+                "RecommendationCategory": recommendation_category,
+            },
+            method="POST",
+        )
 
     def list_recommendations_by_next_token(self, token):
         """Alias for `list_recommendations(next_token=token)` instead.

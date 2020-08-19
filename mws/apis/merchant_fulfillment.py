@@ -64,7 +64,6 @@ class MerchantFulfillment(MWS):
             include_complex_options = bool(include_complex_options)
 
         data = {
-            "Action": "GetEligibleShippingServices",
             "ShipmentRequestDetails.AmazonOrderId": amazon_order_id,
             "ShipmentRequestDetails.SellerOrderId": seller_order_id,
             "ShipmentRequestDetails.MustArriveByDate": must_arrive_by_date,
@@ -96,7 +95,7 @@ class MerchantFulfillment(MWS):
                 "ShipmentRequestDetails.LabelCustomization", label_customization
             )
         )
-        return self.make_request(data)
+        return self.make_request("GetEligibleShippingServices", data)
 
     def get_additional_seller_inputs(
         self, order_id, shipping_service_id, ship_from_address
@@ -120,12 +119,11 @@ class MerchantFulfillment(MWS):
             raise ValueError("`ship_from_address` must be a dict object.")
 
         data = {
-            "Action": "GetAdditionalSellerInputs",
             "OrderId": order_id,
             "ShippingServiceId": shipping_service_id,
         }
         data.update(dict_keyed_param("ShipFromAddress", ship_from_address))
-        return self.make_request(data)
+        return self.make_request("GetAdditionalSellerInputs", data)
 
     def create_shipment(
         self,
@@ -179,7 +177,6 @@ class MerchantFulfillment(MWS):
             label_customization = {}
 
         data = {
-            "Action": "CreateShipment",
             "ShipmentRequestDetails.AmazonOrderId": amazon_order_id,
             "ShipmentRequestDetails.SellerOrderId": seller_order_id,
             "ShipmentRequestDetails.MustArriveByDate": must_arrive_by_date,
@@ -213,7 +210,7 @@ class MerchantFulfillment(MWS):
                 "ShipmentRequestDetails.LabelCustomization", label_customization
             )
         )
-        return self.make_request(data)
+        return self.make_request("CreateShipment", data)
 
     def get_shipment(self, shipment_id=None):
         """Returns an existing shipment for a given identifier.
@@ -221,11 +218,7 @@ class MerchantFulfillment(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_GetShipment.html
         """
-        data = {
-            "Action": "GetShipment",
-            "ShipmentId": shipment_id,
-        }
-        return self.make_request(data)
+        return self.make_request("GetShipment", {"ShipmentId": shipment_id})
 
     def cancel_shipment(self, shipment_id=None):
         """Cancels an existing shipment.
@@ -233,8 +226,4 @@ class MerchantFulfillment(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_CancelShipment.html
         """
-        data = {
-            "Action": "CancelShipment",
-            "ShipmentId": shipment_id,
-        }
-        return self.make_request(data)
+        return self.make_request("CancelShipment", {"ShipmentId": shipment_id})

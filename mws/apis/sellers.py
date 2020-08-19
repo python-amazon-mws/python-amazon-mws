@@ -28,10 +28,7 @@ class Sellers(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/sellers/Sellers_ListMarketplaceParticipations.html
         """
-        data = {
-            "Action": "ListMarketplaceParticipations",
-        }
-        return self.make_request(data)
+        return self.make_request("ListMarketplaceParticipations")
 
     def list_marketplace_participations_by_next_token(self, token):
         """Alias for `list_marketplace_participations(next_token=token)`

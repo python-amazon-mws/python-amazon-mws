@@ -79,7 +79,6 @@ class Feeds(MWS):
             # Convert dict of options to str value
             feed_options = feed_options_str(feed_options)
         data = {
-            "Action": "SubmitFeed",
             "FeedType": feed_type,
             "FeedOptions": feed_options,
             "PurgeAndReplace": purge,
@@ -93,12 +92,11 @@ class Feeds(MWS):
             if document_type:
                 data.update({"DocumentType": document_type})
         data.update(enumerate_param("MarketplaceIdList.Id.", marketplace_ids))
-        md5_hash = calc_md5(feed)
+
+        # Add headers to this request.
+        extra_headers = {"Content-MD5": calc_md5(feed), "Content-Type": content_type}
         return self.make_request(
-            data,
-            method="POST",
-            body=feed,
-            extra_headers={"Content-MD5": md5_hash, "Content-Type": content_type},
+            "SubmitFeed", data, method="POST", body=feed, extra_headers=extra_headers,
         )
 
     @next_token_action("GetFeedSubmissionList")
@@ -122,7 +120,6 @@ class Feeds(MWS):
         http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionList.html
         """
         data = {
-            "Action": "GetFeedSubmissionList",
             "MaxCount": max_count,
             "SubmittedFromDate": from_date,
             "SubmittedToDate": to_date,
@@ -132,7 +129,7 @@ class Feeds(MWS):
         data.update(
             enumerate_param("FeedProcessingStatusList.Status.", processing_statuses)
         )
-        return self.make_request(data)
+        return self.make_request("GetFeedSubmissionList", data)
 
     def get_feed_submission_list_by_next_token(self, token):
         """Alias for `get_feed_submission_list(next_token=token)`.
@@ -152,7 +149,6 @@ class Feeds(MWS):
         http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionCount.html
         """
         data = {
-            "Action": "GetFeedSubmissionCount",
             "SubmittedFromDate": from_date,
             "SubmittedToDate": to_date,
         }
@@ -160,7 +156,7 @@ class Feeds(MWS):
         data.update(
             enumerate_param("FeedProcessingStatusList.Status.", processing_statuses)
         )
-        return self.make_request(data)
+        return self.make_request("GetFeedSubmissionCount", data)
 
     def cancel_feed_submissions(
         self, feed_ids=None, feed_types=None, from_date=None, to_date=None
@@ -172,13 +168,12 @@ class Feeds(MWS):
         http://docs.developer.amazonservices.com/en_US/feeds/Feeds_CancelFeedSubmissions.html
         """
         data = {
-            "Action": "CancelFeedSubmissions",
             "SubmittedFromDate": from_date,
             "SubmittedToDate": to_date,
         }
         data.update(enumerate_param("FeedSubmissionIdList.Id.", feed_ids))
         data.update(enumerate_param("FeedTypeList.Type.", feed_types))
-        return self.make_request(data)
+        return self.make_request("CancelFeedSubmissions", data)
 
     def get_feed_submission_result(self, feed_id):
         """Returns the feed processing report and the Content-MD5 header.
@@ -186,8 +181,8 @@ class Feeds(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionResult.html
         """
-        data = {
-            "Action": "GetFeedSubmissionResult",
-            "FeedSubmissionId": feed_id,
-        }
-        return self.make_request(data, result_key="Message")
+        return self.make_request(
+            "GetFeedSubmissionResult",
+            {"FeedSubmissionId": feed_id},
+            result_key="Message",
+        )

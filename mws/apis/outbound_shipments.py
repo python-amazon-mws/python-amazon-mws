@@ -58,7 +58,6 @@ class OutboundShipments(MWS):
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_CreateFulfillmentOrder.html
         """
         data = {
-            "Action": "CreateFulfillmentOrder",
             "MarketplaceId": marketplace_id,
             "SellerFulfillmentOrderId": seller_fulfillment_order_id,
             "FulfillmentAction": fulfillment_action,
@@ -77,7 +76,7 @@ class OutboundShipments(MWS):
                 "NotificationEmailList.member", notification_email_list or []
             )
         )
-        return self.make_request(data)
+        return self.make_request("CreateFulfillmentOrder", data)
 
     def update_fulfillment_order(self):
         """Updates and/or requests shipment for a fulfillment order with an order hold on it.
@@ -93,11 +92,10 @@ class OutboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetFulfillmentOrder.html
         """
-        data = dict(
-            Action="GetFulfillmentOrder",
-            SellerFulfillmentOrderId=seller_fulfillment_order_id,
+        return self.make_request(
+            "GetFulfillmentOrder",
+            {"SellerFulfillmentOrderId": seller_fulfillment_order_id},
         )
-        return self.make_request(data)
 
     @next_token_action("ListAllFulfillmentOrders")
     def list_all_fulfillment_orders(self, query_start_date_time=None, next_token=None):
@@ -108,11 +106,9 @@ class OutboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_ListAllFulfillmentOrders.html
         """
-        data = {
-            "Action": "ListAllFulfillmentOrders",
-            "QueryStartDateTime": query_start_date_time,
-        }
-        return self.make_request(data)
+        return self.make_request(
+            "ListAllFulfillmentOrders", {"QueryStartDateTime": query_start_date_time}
+        )
 
     def list_all_fulfillment_orders_by_next_token(self, token):
         """Alias for `list_all_fulfillment_orders(next_token=token)`.
@@ -129,8 +125,9 @@ class OutboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetPackageTrackingDetails.html
         """
-        data = dict(Action="GetPackageTrackingDetails", PackageNumber=package_number)
-        return self.make_request(data)
+        return self.make_request(
+            "GetPackageTrackingDetails", {"PackageNumber": package_number}
+        )
 
     def cancel_fulfillment_order(self):
         """Requests that Amazon stop attempting to fulfill an existing fulfillment order.

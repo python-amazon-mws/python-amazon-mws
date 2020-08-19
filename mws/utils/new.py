@@ -3,111 +3,144 @@ from xml.parsers.expat import ExpatError
 import pprint
 from collections.abc import Mapping, MutableSequence
 
-import chardet
+# import chardet
 import xmltodict
 
 # from mws.utils import DotDict
+MWS_ENCODING = "iso-8859-1"
+"""Amazon documents this as the encoding to expect in responses.
+If it doesn't work, :shrug:, we'll have to wing it.
+"""
 
 
-class MWSResponse(object):
+def extract_xml_namespaces(data):
+    """Return namespaces found in the XML data."""
+    pattern = re.compile(r'xmlns[:ns2]*="\S+"')
+    raw_namespaces = pattern.findall(data)
+    return {x.split('"')[1]: None for x in raw_namespaces}
+
+
+def mws_xml_to_dict(data, encoding=MWS_ENCODING, force_cdata=False, **kwargs):
+    """Convert XML expected from MWS to a Python dict.
+    Extracts namespaces and passes data into `xmltodict.parse`
+    with some useful defaults:
+        force_cdata
+    """
+    # Extracted namespaces
+    namespaces = extract_xml_namespaces(data)
+    # Run the parser
+    xmldict = xmltodict.parse(
+        data,
+        encoding=encoding,
+        process_namespaces=True,
+        dict_constructor=dict,
+        namespaces=namespaces,
+        force_cdata=force_cdata,
+    )
+    # Return the results of the first key (?), otherwise the original
+    finaldict = xmldict.get(list(xmldict.keys())[0], xmldict)
+    return finaldict
+
+
+def mws_xml_to_dotdict(data, result_key=None, force_cdata=False):
+    """Convert XML expected from MWS to a DotDict object.
+    first using `mws_xml_to_dict` for our default args to `xmltodict.parse`
+    and then sending the res
+    """
+    xmldict = mws_xml_to_dict(data, force_cdata=force_cdata)
+    if result_key:
+        xmldict = xmldict.get(result_key, xmldict)
+    return DotDict(xmldict)
+
+
+class MWSResponse:
     """Wraps a requests.Response object and extracts some known data points.
 
     Particularly for XML responses, parsed contents can be found in the `.parsed`
-    property as DotDicts; and metadata in `.meta` (mainly for `.meta.RequestId`).
-
-    Also gives quick access to `.headers`, the `.original` response object,
-    and the raw `.textdata` from the response.
+    property as DotDicts; and metadata in `.metadata` (mainly for `.metadata.RequestId`).
     """
 
-    def __init__(self, response, rootkey=None, force_cdata=False):
+    def __init__(self, response_obj, result_key=None, force_cdata=False):
         # Fallback, raw and meta attributes for xml and textfiles
         # requests.request response object, link above
-        self.original = response
-        self.headers = self.original.headers
+        self.original = response_obj
 
-        # Recommended attributes only for xml
-        self.pydict = None  # alternative to xml parsed or dot_dict
-        self.dot_dict = None  # fallback for xml parsed
-        self._meta = None
-
-        # Recommended attribute only for textdata
-        self.textdata = None
+        # Attrs for collecting parsed XML data
+        self._dict = None
+        self._dotdict = None
+        self._metadata = None
 
         # parsing
-        self._rootkey = rootkey
-        self._force_cdata = force_cdata
-        self._parse_content()
+        self._result_key = result_key
 
-    def _parse_content(self):
-        """Attempt to process and parse the response content."""
-        # a better guess for the correct encoding
-        self.original.encoding = self.guess_encoding()
-        textdata = self.original.text
         try:
-            # try to parse as xml
-            self._xml2dict(textdata)
+            # Attempt to convert text content to an
+            self._dict = mws_xml_to_dict(self.original.text, force_cdata=force_cdata)
         except ExpatError:
-            # if it's not xml its a plain textfile, like a csv
-            self.textdata = textdata
+            # Probably not XML content: just ignore it.
+            pass
+        else:
+            # No exception? Cool
+            self._build_dotdict_data()
 
-    def guess_encoding(self):
-        """Returns the possible encoding for the response using chardet."""
-        # fix for one none ascii character
-        chardet.utf8prober.UTF8Prober.ONE_CHAR_PROB = 0.26
-        bytelist = self.original.content.splitlines()
-        detector = chardet.UniversalDetector()
-        for line in bytelist:
-            detector.feed(line)
-            if detector.done:
-                break
-        detector.close()
-        return detector.result["encoding"]
+    ### NOTE encoding guessing was used in a prior version of this code before merge,
+    ### but it's unclear if we'd ever need to guess it.
+    # def guess_encoding(self):
+    #     """Returns the possible encoding for the response using chardet."""
+    #     # fix for one none ascii character
+    #     chardet.utf8prober.UTF8Prober.ONE_CHAR_PROB = 0.26
+    #     bytelist = self.original.content.splitlines()
+    #     detector = chardet.UniversalDetector()
+    #     for line in bytelist:
+    #         detector.feed(line)
+    #         if detector.done:
+    #             break
+    #     detector.close()
+    #     return detector.result["encoding"]
 
-    def _xml2dict(self, rawdata):
+    def _build_dotdict_data(self):
         """Convert XML response content to a Python dictionary using `xmltodict`."""
-        namespaces = self._extract_namespaces(rawdata)
-        self._mydict = xmltodict.parse(
-            rawdata,
-            dict_constructor=dict,
-            process_namespaces=True,
-            namespaces=namespaces,
-            force_cdata=self._force_cdata,
-        )
-        # unpack if possible, important for accessing the rootkey
-        self.pydict = self._mydict.get(list(self._mydict.keys())[0], self._mydict)
-        self.dot_dict = DotDict(self.pydict)
-        if "ResponseMetaData" in self.pydict:
-            # Create a DotDict for the meta data on `self.meta`
-            self._meta = DotDict(self.pydict["ResponseMetaData"])
+        self._dotdict = DotDict(self._dict)
 
-    def _extract_namespaces(self, rawdata):
-        """Return namespaces found in the XML data."""
-        pattern = re.compile(r'xmlns[:ns2]*="\S+"')
-        raw_namespaces = pattern.findall(rawdata)
-        return {x.split('"')[1]: None for x in raw_namespaces}
+        # Extract ResponseMetaData as a separate DotDict, if provided
+        if "ResponseMetaData" in self._dict:
+            self._metadata = DotDict(self._dict["ResponseMetaData"])
+
+    @property
+    def text(self):
+        """Shortcut to `.original.text`."""
+        return self.original.text
 
     @property
     def parsed(self):
         """Return a parsed version of the response.
         For XML documents, returns a nested DotDict of the parsed XML content,
-        starting from `_rootkey`.
+        starting from `_result_key`.
         """
-        if self.dot_dict is not None:
-            if self._rootkey == "ignore":
-                # With a special "ignore" flag, return the dot_dict
-                # without attempting to use _rootkey
-                return self.dot_dict
-            return self.dot_dict.get(self._rootkey, None)
-        # If no parsed content exists, return the raw textdata, instead.
-        return self.textdata
+        if self._dotdict is not None:
+            if self._result_key is None:
+                # Use the full DotDict without going to a root key first
+                return self._dotdict
+            return self._dotdict.get(self._result_key, None)
+        # If no parsed content exists, return the raw text, instead.
+        return self.text
 
     @property
-    def meta(self):
+    def metadata(self):
         """Returns a metadata DotDict from the response content.
-
-        Typically the only key of note here is `reponse.meta.RequestId`.
+        Typically the only key of note here is `reponse.metadata.RequestId`
+        (which can also be accessed from the shortcut `response.request_id`).
         """
-        return self._meta
+        return self._metadata
+
+    @property
+    def request_id(self):
+        """Shortcut to ResponseMetaData.RequestId if present.
+        Returns None if not found.
+        """
+        if self.metadata is not None:
+            return self.metadata.get("RequestId")
+        return None
 
 
 class DotDict(dict):
@@ -131,7 +164,7 @@ class DotDict(dict):
     """
 
     def __init__(self, mapping):
-        self.__data = mapping
+        self._data = mapping
 
     def __getattr__(self, name):
         """Simply returns an attr if the object has one by that name.
@@ -139,25 +172,25 @@ class DotDict(dict):
         If not, assumes `name` is a key of the underlying dict data,
         passing the call to `__getitem__`.
         """
-        if hasattr(self.__data, name):
+        if hasattr(self._data, name):
             # Use an attribute present on the original
-            return getattr(self.__data, name)
+            return getattr(self._data, name)
 
         # it's not an attribute, so use it as a key for the data
         return self.__getitem__(name)
 
     def __getitem__(self, key):
         """Return a child item as another DotDict instance."""
-        return self.__class__.build(self.__data[key])
+        return self.__class__.build(self._data[key])
 
     def __repr__(self):
         return "{}({})".format(
-            self.__class__.__name__, self.__dict__["_DotDict__data"],
+            self.__class__.__name__, self.__dict__["_data"],
         )
 
     def __str__(self):
         """Print contents using pprint."""
-        return pprint.pformat(self.__dict__["_DotDict__data"])
+        return pprint.pformat(self.__dict__["_data"])
 
     def __iter__(self):
         """Nodes are iterable be default, even with just one child node.

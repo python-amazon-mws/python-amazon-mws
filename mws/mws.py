@@ -162,9 +162,10 @@ class MWS(object):
             )
             raise MWSError(error_msg)
 
-    def get_default_params(self):
+    def get_default_params(self, action):
         """Get the parameters required in all MWS requests."""
         params = {
+            "Action": action,
             "AWSAccessKeyId": self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
             "SignatureVersion": "2",
@@ -178,9 +179,9 @@ class MWS(object):
         # need a branch test to check for auth_token being skipped (no key present)
         return params
 
-    def make_request(self, extra_data, method="GET", **kwargs):
+    def make_request(self, action, extra_data, method="GET", **kwargs):
         """Make request to Amazon MWS API with these parameters."""
-        params = self.get_default_params()
+        params = self.get_default_params(action)
         proxies = self.get_proxies()
         params.update(extra_data)
         params = clean_params(params)
@@ -293,11 +294,7 @@ class MWS(object):
 
         action = "{}ByNextToken".format(action)
 
-        data = {
-            "Action": action,
-            "NextToken": next_token,
-        }
-        return self.make_request(data, method="POST")
+        return self.make_request(action, {"NextToken": next_token}, method="POST")
 
     def calc_signature(self, method, request_description):
         """Calculate MWS signature to interface with Amazon
@@ -358,6 +355,5 @@ class MWS(object):
             )
         if not isinstance(parameters, dict):
             raise ValueError("`parameters` must be a dict.")
-        data = {"Action": action}
-        data.update(RequestParameter(value=parameters).to_dict())
-        return self.make_request(data, method=method, **kwargs)
+        data = RequestParameter(value=parameters).to_dict()
+        return self.make_request(action, data, method=method, **kwargs)

@@ -54,7 +54,6 @@ class Orders(MWS):
         # for easyship orders, available only for India marketplace
         easyship_statuses = easyship_statuses or []
         data = {
-            "Action": "ListOrders",
             "CreatedAfter": created_after,
             "CreatedBefore": created_before,
             "LastUpdatedAfter": last_updated_after,
@@ -75,7 +74,7 @@ class Orders(MWS):
                 }
             )
         )
-        return self.make_request(data)
+        return self.make_request("ListOrders", data)
 
     def list_orders_by_next_token(self, token):
         """Alias for `list_orders(next_token=token)`
@@ -91,11 +90,8 @@ class Orders(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_GetOrder.html
         """
-        data = {
-            "Action": "GetOrder",
-        }
-        data.update(enumerate_param("AmazonOrderId.Id.", amazon_order_ids))
-        return self.make_request(data)
+        data = enumerate_param("AmazonOrderId.Id.", amazon_order_ids)
+        return self.make_request("GetOrder", data)
 
     @next_token_action("ListOrderItems")
     def list_order_items(self, amazon_order_id=None, next_token=None):
@@ -106,11 +102,7 @@ class Orders(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrderItems.html
         """
-        data = {
-            "Action": "ListOrderItems",
-            "AmazonOrderId": amazon_order_id,
-        }
-        return self.make_request(data)
+        return self.make_request("ListOrderItems", {"AmazonOrderId": amazon_order_id})
 
     def list_order_items_by_next_token(self, token):
         """Alias for `list_order_items(next_token=token)`

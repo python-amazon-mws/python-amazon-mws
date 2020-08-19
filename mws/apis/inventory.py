@@ -36,13 +36,12 @@ class Inventory(MWS):
         http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupply.html
         """
         data = {
-            "Action": "ListInventorySupply",
             "QueryStartDateTime": datetime_,
             "ResponseGroup": response_group,
             "MarketplaceId": marketplace_id,
         }
         data.update(enumerate_param("SellerSkus.member.", skus))
-        return self.make_request(data, "POST")
+        return self.make_request("ListInventorySupply", data, method="POST")
 
     def list_inventory_supply_by_next_token(self, token):
         """Alias for `list_inventory_supply(next_token=token)`

@@ -22,13 +22,14 @@ class Products(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_ListMatchingProducts.html
         """
-        data = {
-            "Action": "ListMatchingProducts",
-            "MarketplaceId": marketplace_id,
-            "Query": query,
-            "QueryContextId": context_id,
-        }
-        return self.make_request(data)
+        return self.make_request(
+            "ListMatchingProducts",
+            {
+                "MarketplaceId": marketplace_id,
+                "Query": query,
+                "QueryContextId": context_id,
+            },
+        )
 
     def get_matching_product(self, marketplace_id, asins):
         """Returns a list of products and their attributes, based on a list of ASIN values.
@@ -36,12 +37,9 @@ class Products(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProduct.html
         """
-        data = {
-            "Action": "GetMatchingProduct",
-            "MarketplaceId": marketplace_id,
-        }
+        data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("ASINList.ASIN.", asins))
-        return self.make_request(data)
+        return self.make_request("GetMatchingProduct", data)
 
     def get_matching_product_for_id(self, marketplace_id, type_, ids):
         """Returns a list of products and their attributes, based on a list of
@@ -51,13 +49,11 @@ class Products(MWS):
         http://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProductForId.html
         """
         data = {
-            "Action": "GetMatchingProductForId",
             "MarketplaceId": marketplace_id,
             "IdType": type_,
         }
-
         data.update(enumerate_param("IdList.Id.", ids))
-        return self.make_request(data)
+        return self.make_request("GetMatchingProductForId", data)
 
     def get_competitive_pricing_for_sku(self, marketplace_id, skus):
         """Returns the current competitive price of a product, based on SellerSKU.
@@ -65,12 +61,9 @@ class Products(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForSKU.html
         """
-        data = {
-            "Action": "GetCompetitivePricingForSKU",
-            "MarketplaceId": marketplace_id,
-        }
+        data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("SellerSKUList.SellerSKU.", skus))
-        return self.make_request(data)
+        return self.make_request("GetCompetitivePricingForSKU", data)
 
     def get_competitive_pricing_for_asin(self, marketplace_id, asins):
         """Returns the current competitive price of a product, based on ASIN.
@@ -78,12 +71,9 @@ class Products(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForASIN.html
         """
-        data = {
-            "Action": "GetCompetitivePricingForASIN",
-            "MarketplaceId": marketplace_id,
-        }
+        data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("ASINList.ASIN.", asins))
-        return self.make_request(data)
+        return self.make_request("GetCompetitivePricingForASIN", data)
 
     def get_lowest_offer_listings_for_sku(
         self, marketplace_id, skus, condition="Any", exclude_me="false"
@@ -95,13 +85,12 @@ class Products(MWS):
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForSKU.html
         """
         data = {
-            "Action": "GetLowestOfferListingsForSKU",
             "MarketplaceId": marketplace_id,
             "ItemCondition": condition,
             "ExcludeMe": exclude_me,
         }
         data.update(enumerate_param("SellerSKUList.SellerSKU.", skus))
-        return self.make_request(data)
+        return self.make_request("GetLowestOfferListingsForSKU", data)
 
     def get_lowest_offer_listings_for_asin(
         self, marketplace_id, asins, condition="Any", exclude_me="false"
@@ -112,13 +101,12 @@ class Products(MWS):
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForASIN.html
         """
         data = {
-            "Action": "GetLowestOfferListingsForASIN",
             "MarketplaceId": marketplace_id,
             "ItemCondition": condition,
             "ExcludeMe": exclude_me,
         }
         data.update(enumerate_param("ASINList.ASIN.", asins))
-        return self.make_request(data)
+        return self.make_request("GetLowestOfferListingsForASIN", data)
 
     def get_lowest_priced_offers_for_sku(
         self, marketplace_id, sku, condition="New", exclude_me="false"
@@ -128,14 +116,15 @@ class Products(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForSKU.html
         """
-        data = {
-            "Action": "GetLowestPricedOffersForSKU",
-            "MarketplaceId": marketplace_id,
-            "SellerSKU": sku,
-            "ItemCondition": condition,
-            "ExcludeMe": exclude_me,
-        }
-        return self.make_request(data)
+        return self.make_request(
+            "GetLowestPricedOffersForSKU",
+            {
+                "MarketplaceId": marketplace_id,
+                "SellerSKU": sku,
+                "ItemCondition": condition,
+                "ExcludeMe": exclude_me,
+            },
+        )
 
     def get_lowest_priced_offers_for_asin(
         self, marketplace_id, asin, condition="New", exclude_me="false"
@@ -145,14 +134,15 @@ class Products(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForASIN.html
         """
-        data = {
-            "Action": "GetLowestPricedOffersForASIN",
-            "MarketplaceId": marketplace_id,
-            "ASIN": asin,
-            "ItemCondition": condition,
-            "ExcludeMe": exclude_me,
-        }
-        return self.make_request(data)
+        return self.make_request(
+            "GetLowestPricedOffersForASIN",
+            {
+                "MarketplaceId": marketplace_id,
+                "ASIN": asin,
+                "ItemCondition": condition,
+                "ExcludeMe": exclude_me,
+            },
+        )
 
     # # # TODO add this
     # def get_my_fees_estimate(self):
@@ -165,12 +155,11 @@ class Products(MWS):
         http://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForSKU.html
         """
         data = {
-            "Action": "GetMyPriceForSKU",
             "MarketplaceId": marketplace_id,
             "ItemCondition": condition,
         }
         data.update(enumerate_param("SellerSKUList.SellerSKU.", skus))
-        return self.make_request(data)
+        return self.make_request("GetMyPriceForSKU", data)
 
     def get_my_price_for_asin(self, marketplace_id, asins, condition=None):
         """Returns pricing information for your own offer listings, based on ASIN.
@@ -179,12 +168,11 @@ class Products(MWS):
         http://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForASIN.html
         """
         data = {
-            "Action": "GetMyPriceForASIN",
             "MarketplaceId": marketplace_id,
             "ItemCondition": condition,
         }
         data.update(enumerate_param("ASINList.ASIN.", asins))
-        return self.make_request(data)
+        return self.make_request("GetMyPriceForASIN", data)
 
     def get_product_categories_for_sku(self, marketplace_id, sku):
         """Returns the parent product categories that a product belongs to, based on SellerSKU.
@@ -192,12 +180,10 @@ class Products(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForSKU.html
         """
-        data = {
-            "Action": "GetProductCategoriesForSKU",
-            "MarketplaceId": marketplace_id,
-            "SellerSKU": sku,
-        }
-        return self.make_request(data)
+        return self.make_request(
+            "GetProductCategoriesForSKU",
+            {"MarketplaceId": marketplace_id, "SellerSKU": sku,},
+        )
 
     def get_product_categories_for_asin(self, marketplace_id, asin):
         """Returns the parent product categories that a product belongs to, based on ASIN.
@@ -205,9 +191,7 @@ class Products(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForASIN.html
         """
-        data = {
-            "Action": "GetProductCategoriesForASIN",
-            "MarketplaceId": marketplace_id,
-            "ASIN": asin,
-        }
-        return self.make_request(data)
+        return self.make_request(
+            "GetProductCategoriesForASIN",
+            {"MarketplaceId": marketplace_id, "ASIN": asin,},
+        )

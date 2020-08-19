@@ -31,13 +31,14 @@ class Finances(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventGroups.html
         """
-        data = {
-            "Action": "ListFinancialEventGroups",
-            "FinancialEventGroupStartedAfter": created_after,
-            "FinancialEventGroupStartedBefore": created_before,
-            "MaxResultsPerPage": max_results,
-        }
-        return self.make_request(data)
+        return self.make_request(
+            "ListFinancialEventGroups",
+            {
+                "FinancialEventGroupStartedAfter": created_after,
+                "FinancialEventGroupStartedBefore": created_before,
+                "MaxResultsPerPage": max_results,
+            },
+        )
 
     def list_financial_event_groups_by_next_token(self, token):
         """Alias for `list_financial_event_groups(next_token=token)`.
@@ -65,15 +66,16 @@ class Finances(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEvents.html
         """
-        data = {
-            "Action": "ListFinancialEvents",
-            "FinancialEventGroupId": financial_event_group_id,
-            "AmazonOrderId": amazon_order_id,
-            "PostedAfter": posted_after,
-            "PostedBefore": posted_before,
-            "MaxResultsPerPage": max_results,
-        }
-        return self.make_request(data)
+        return self.make_request(
+            "ListFinancialEvents",
+            {
+                "FinancialEventGroupId": financial_event_group_id,
+                "AmazonOrderId": amazon_order_id,
+                "PostedAfter": posted_after,
+                "PostedBefore": posted_before,
+                "MaxResultsPerPage": max_results,
+            },
+        )
 
     def list_financial_events_by_next_token(self, token):
         """Alias for `list_financial_events(next_token=token)`

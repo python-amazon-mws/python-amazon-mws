@@ -168,12 +168,10 @@ class InboundShipments(MWS):
         """
         if not isinstance(skus, (list, tuple, set)):
             skus = [skus]
-        data = {
-            "Action": "GetInboundGuidanceForSKU",
-            "MarketplaceId": marketplace_id,
-        }
+
+        data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("SellerSKUList.Id", skus))
-        return self.make_request(data)
+        return self.make_request("GetInboundGuidanceForSKU", data)
 
     def get_inbound_guidance_for_asin(self, asins, marketplace_id):
         """Returns inbound guidance for a list of items by ASIN.
@@ -183,12 +181,10 @@ class InboundShipments(MWS):
         """
         if not isinstance(asins, (list, tuple, set)):
             asins = [asins]
-        data = {
-            "Action": "GetInboundGuidanceForASIN",
-            "MarketplaceId": marketplace_id,
-        }
+
+        data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("ASINList.Id", asins))
-        return self.make_request(data)
+        return self.make_request("GetInboundGuidanceForASIN", data)
 
     def create_inbound_shipment_plan(
         self, items, country_code="US", subdivision_code="", label_preference=""
@@ -222,7 +218,6 @@ class InboundShipments(MWS):
             )
 
         data = {
-            "Action": "CreateInboundShipmentPlan",
             "ShipToCountryCode": country_code,
             "ShipToCountrySubdivisionCode": subdivision_code,
             "LabelPrepPreference": label_preference,
@@ -231,7 +226,7 @@ class InboundShipments(MWS):
         data.update(
             enumerate_keyed_param("InboundShipmentPlanRequestItems.member", items,)
         )
-        return self.make_request(data, method="POST")
+        return self.make_request("CreateInboundShipmentPlan", data, method="POST")
 
     def create_inbound_shipment(
         self,
@@ -279,7 +274,6 @@ class InboundShipments(MWS):
         }
 
         data = {
-            "Action": "CreateInboundShipment",
             "ShipmentId": shipment_id,
             "InboundShipmentHeader.ShipmentName": shipment_name,
             "InboundShipmentHeader.DestinationFulfillmentCenterId": destination,
@@ -290,7 +284,7 @@ class InboundShipments(MWS):
         }
         data.update(from_address)
         data.update(enumerate_keyed_param("InboundShipmentItems.member", items,))
-        return self.make_request(data, method="POST")
+        return self.make_request("CreateInboundShipment", data, method="POST")
 
     def update_inbound_shipment(
         self,
@@ -337,7 +331,6 @@ class InboundShipments(MWS):
         }
 
         data = {
-            "Action": "UpdateInboundShipment",
             "ShipmentId": shipment_id,
             "InboundShipmentHeader.ShipmentName": shipment_name,
             "InboundShipmentHeader.DestinationFulfillmentCenterId": destination,
@@ -350,7 +343,7 @@ class InboundShipments(MWS):
         if items:
             # Update with an items paramater only if they exist.
             data.update(enumerate_keyed_param("InboundShipmentItems.member", items,))
-        return self.make_request(data, method="POST")
+        return self.make_request("UpdateInboundShipment", data, method="POST")
 
     def get_preorder_info(self, shipment_id):
         """Returns pre-order information, including dates, that a seller needs
@@ -360,11 +353,7 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPreorderInfo.html
         """
-        data = {
-            "Action": "GetPreorderInfo",
-            "ShipmentId": shipment_id,
-        }
-        return self.make_request(data)
+        return self.make_request("GetPreorderInfo", {"ShipmentId": shipment_id})
 
     def confirm_preorder(self, shipment_id, need_by_date):
         """Confirms a shipment for pre-order.
@@ -372,12 +361,9 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmPreorder.html
         """
-        data = {
-            "Action": "ConfirmPreorder",
-            "ShipmentId": shipment_id,
-            "NeedByDate": need_by_date,
-        }
-        return self.make_request(data)
+        return self.make_request(
+            "ConfirmPreorder", {"ShipmentId": shipment_id, "NeedByDate": need_by_date,}
+        )
 
     def get_prep_instructions_for_sku(self, skus=None, country_code=None):
         """Returns labeling requirements and item preparation instructions
@@ -392,12 +378,9 @@ class InboundShipments(MWS):
         # 'skus' should be a unique list, or there may be an error returned.
         skus = unique_list_order_preserved(skus)
 
-        data = {
-            "Action": "GetPrepInstructionsForSKU",
-            "ShipToCountryCode": country_code,
-        }
+        data = {"ShipToCountryCode": country_code}
         data.update(enumerate_param("SellerSKUList.ID.", skus))
-        return self.make_request(data, method="POST")
+        return self.make_request("GetPrepInstructionsForSKU", data, method="POST")
 
     def get_prep_instructions_for_asin(self, asins=None, country_code=None):
         """Returns item preparation instructions to help with item sourcing decisions.
@@ -411,12 +394,9 @@ class InboundShipments(MWS):
         # 'asins' should be a unique list, or there may be an error returned.
         asins = unique_list_order_preserved(asins)
 
-        data = {
-            "Action": "GetPrepInstructionsForASIN",
-            "ShipToCountryCode": country_code,
-        }
+        data = {"ShipToCountryCode": country_code}
         data.update(enumerate_param("ASINList.ID.", asins))
-        return self.make_request(data, method="POST")
+        return self.make_request("GetPrepInstructionsForASIN", data, method="POST")
 
     # # TODO this method is incomplete: it should be able to account for all TransportDetailInput types
     # def put_transport_content(self, shipment_id, is_partnered, shipment_type, carrier_name, tracking_id):
@@ -427,7 +407,6 @@ class InboundShipments(MWS):
     #     http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#TransportDetailInput
     #     """
     #     data = {
-    #         'Action': 'PutTransportContent',
     #         'ShipmentId': shipment_id,
     #         'IsPartnered': is_partnered,
     #         'ShipmentType': shipment_type,
@@ -439,7 +418,7 @@ class InboundShipments(MWS):
     #             data[
     #                 'TransportDetails.NonPartneredSmallParcelData.PackageList.member.{}.TrackingId'.format(count + 1)
     #             ] = track
-    #     return self.make_request(data)
+    #     return self.make_request("PutTransportContent", data)
 
     def estimate_transport_request(self, shipment_id):
         """Requests an estimate of the shipping cost for an inbound shipment.
@@ -447,11 +426,9 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_EstimateTransportRequest.html
         """
-        data = {
-            "Action": "EstimateTransportRequest",
-            "ShipmentId": shipment_id,
-        }
-        return self.make_request(data, method="POST")
+        return self.make_request(
+            "EstimateTransportRequest", {"ShipmentId": shipment_id}, method="POST"
+        )
 
     def get_transport_content(self, shipment_id):
         """Returns current transportation information about an inbound shipment.
@@ -459,11 +436,9 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetTransportContent.html
         """
-        data = {
-            "Action": "GetTransportContent",
-            "ShipmentId": shipment_id,
-        }
-        return self.make_request(data, method="POST")
+        return self.make_request(
+            "GetTransportContent", {"ShipmentId": shipment_id}, method="POST"
+        )
 
     def confirm_transport_request(self, shipment_id):
         """Confirms that you accept the Amazon-partnered shipping estimate and
@@ -472,11 +447,7 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmTransportRequest.html
         """
-        data = {
-            "Action": "ConfirmTransportRequest",
-            "ShipmentId": shipment_id,
-        }
-        return self.make_request(data)
+        return self.make_request("ConfirmTransportRequest", {"ShipmentId": shipment_id})
 
     def void_transport_request(self, shipment_id):
         """Voids a previously-confirmed request to ship your inbound shipment
@@ -485,11 +456,9 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_VoidTransportRequest.html
         """
-        data = {
-            "Action": "VoidTransportRequest",
-            "ShipmentId": shipment_id,
-        }
-        return self.make_request(data, method="POST")
+        return self.make_request(
+            "VoidTransportRequest", {"ShipmentId": shipment_id}, method="POST"
+        )
 
     def get_package_labels(self, shipment_id, num_labels, page_type=None):
         """Returns PDF document data for printing package labels for an inbound shipment.
@@ -497,13 +466,15 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPackageLabels.html
         """
-        data = {
-            "Action": "GetPackageLabels",
-            "ShipmentId": shipment_id,
-            "PageType": page_type,
-            "NumberOfPackages": num_labels,
-        }
-        return self.make_request(data, method="POST")
+        return self.make_request(
+            "GetPackageLabels",
+            {
+                "ShipmentId": shipment_id,
+                "PageType": page_type,
+                "NumberOfPackages": num_labels,
+            },
+            method="POST",
+        )
 
     def get_unique_package_labels(self, shipment_id, page_type, package_ids):
         """Returns unique package labels for faster and more accurate shipment
@@ -527,14 +498,13 @@ class InboundShipments(MWS):
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetUniquePackageLabels.html
         """
         data = {
-            "Action": "GetUniquePackageLabels",
             "ShipmentId": shipment_id,
             "PageType": page_type,
         }
         if not isinstance(package_ids, (list, tuple, set)):
             package_ids = [package_ids]
         data.update(enumerate_param("PackageLabelsToPrint.member.", package_ids))
-        return self.make_request(data)
+        return self.make_request("GetUniquePackageLabels", data)
 
     def get_pallet_labels(self, shipment_id, page_type, num_labels):
         """Returns pallet labels.
@@ -556,12 +526,11 @@ class InboundShipments(MWS):
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPalletLabels.html
         """
         data = {
-            "Action": "GetPalletLabels",
             "ShipmentId": shipment_id,
             "PageType": page_type,
             "NumberOfPallets": num_labels,
         }
-        return self.make_request(data)
+        return self.make_request("GetPalletLabels", data)
 
     def get_bill_of_lading(self, shipment_id):
         """Returns PDF document data for printing a bill of lading for an
@@ -570,11 +539,9 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetBillOfLading.html
         """
-        data = {
-            "Action": "GetBillOfLading",
-            "ShipmentId": shipment_id,
-        }
-        return self.make_request(data, "POST")
+        return self.make_request(
+            "GetBillOfLading", {"ShipmentId": shipment_id}, method="POST"
+        )
 
     @next_token_action("ListInboundShipments")
     def list_inbound_shipments(
@@ -593,13 +560,12 @@ class InboundShipments(MWS):
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipments.html
         """
         data = {
-            "Action": "ListInboundShipments",
             "LastUpdatedAfter": last_updated_after,
             "LastUpdatedBefore": last_updated_before,
         }
         data.update(enumerate_param("ShipmentStatusList.member.", shipment_statuses))
         data.update(enumerate_param("ShipmentIdList.member.", shipment_ids))
-        return self.make_request(data, method="POST")
+        return self.make_request("ListInboundShipments", data, method="POST")
 
     def list_inbound_shipments_by_next_token(self, token):
         """Alias for `list_inbound_shipments(next_token=token)`
@@ -624,13 +590,15 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItems.html
         """
-        data = {
-            "Action": "ListInboundShipmentItems",
-            "ShipmentId": shipment_id,
-            "LastUpdatedAfter": last_updated_after,
-            "LastUpdatedBefore": last_updated_before,
-        }
-        return self.make_request(data, method="POST")
+        return self.make_request(
+            "ListInboundShipmentItems",
+            {
+                "ShipmentId": shipment_id,
+                "LastUpdatedAfter": last_updated_after,
+                "LastUpdatedBefore": last_updated_before,
+            },
+            method="POST",
+        )
 
     def list_inbound_shipment_items_by_next_token(self, token):
         """Alias for `list_inbound_shipment_items(next_token=token)`

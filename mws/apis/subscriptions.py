@@ -46,7 +46,6 @@ class Subscriptions(MWS):
             raise ValueError("attributes cannot be None")
 
         data = {
-            "Action": "RegisterDestination",
             "MarketplaceId": marketplace_id,
             "Destination.DeliveryChannel": delivery_channel,
         }
@@ -55,7 +54,7 @@ class Subscriptions(MWS):
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
-        return self.make_request(data, "POST")
+        return self.make_request("RegisterDestination", data, method="POST")
 
     def deregister_destination(
         self, marketplace_id, attributes=None, delivery_channel="SQS"
@@ -72,7 +71,6 @@ class Subscriptions(MWS):
             raise ValueError("attributes cannot be None")
 
         data = {
-            "Action": "DeregisterDestination",
             "MarketplaceId": marketplace_id,
             "Destination.DeliveryChannel": delivery_channel,
         }
@@ -81,7 +79,7 @@ class Subscriptions(MWS):
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
-        return self.make_request(data, "POST")
+        return self.make_request("DeregisterDestination", data, method="POST")
 
     def list_registered_destinations(self, marketplace_id):
         """Lists all current destinations that you have registered.
@@ -89,11 +87,14 @@ class Subscriptions(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListRegisteredDestinations.html
         """
-        data = {"Action": "ListRegisteredDestinations", "MarketplaceId": marketplace_id}
-        return self.make_request(data, "POST")
+        return self.make_request(
+            "ListRegisteredDestinations",
+            {"MarketplaceId": marketplace_id},
+            method="POST",
+        )
 
     def send_test_notification_to_destination(
-        self, marketplace_id, attributes=None, delivery_channel="SQS"
+        self, marketplace_id, attributes, delivery_channel="SQS"
     ):
         """Sends a test notification to an existing destination.
 
@@ -103,11 +104,7 @@ class Subscriptions(MWS):
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
         """
-        if attributes is None:
-            raise ValueError("attributes cannot be None")
-
         data = {
-            "Action": "SendTestNotificationToDestination",
             "MarketplaceId": marketplace_id,
             "Destination.DeliveryChannel": delivery_channel,
         }
@@ -116,13 +113,15 @@ class Subscriptions(MWS):
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
-        return self.make_request(data, method="POST")
+        return self.make_request(
+            "SendTestNotificationToDestination", data, method="POST"
+        )
 
     def create_subscription(
         self,
         marketplace_id,
-        attributes=None,
-        notification_type=None,
+        attributes,
+        notification_type,
         is_enabled=True,
         delivery_channel="SQS",
     ):
@@ -134,13 +133,7 @@ class Subscriptions(MWS):
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
         """
-        if attributes is None:
-            raise ValueError("attributes cannot be None")
-
-        if notification_type is None:
-            raise ValueError("notification_type cannot be None")
         data = {
-            "Action": "CreateSubscription",
             "MarketplaceId": marketplace_id,
             "Subscription.Destination.DeliveryChannel": delivery_channel,
             "Subscription.IsEnabled": str(is_enabled).lower(),
@@ -152,14 +145,10 @@ class Subscriptions(MWS):
                 self._parse_attributes(attributes),
             )
         )
-        return self.make_request(data, "POST")
+        return self.make_request("CreateSubscription", data, method="POST")
 
     def get_subscription(
-        self,
-        marketplace_id,
-        attributes=None,
-        notification_type=None,
-        delivery_channel="SQS",
+        self, marketplace_id, attributes, notification_type, delivery_channel="SQS",
     ):
         """Gets the subscription for the specified notification type and destination.
 
@@ -169,13 +158,7 @@ class Subscriptions(MWS):
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
         """
-        if attributes is None:
-            raise ValueError("attributes cannot be None")
-
-        if notification_type is None:
-            raise ValueError("notification_type cannot be None")
         data = {
-            "Action": "GetSubscription",
             "MarketplaceId": marketplace_id,
             "Destination.DeliveryChannel": delivery_channel,
             "NotificationType": notification_type,
@@ -185,14 +168,10 @@ class Subscriptions(MWS):
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
-        return self.make_request(data, "POST")
+        return self.make_request("GetSubscription", data, method="POST")
 
     def delete_subscription(
-        self,
-        marketplace_id,
-        attributes=None,
-        notification_type=None,
-        delivery_channel="SQS",
+        self, marketplace_id, attributes, notification_type, delivery_channel="SQS",
     ):
         """Deletes the subscription for the specified notification type and destination.
 
@@ -202,13 +181,7 @@ class Subscriptions(MWS):
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
         """
-        if attributes is None:
-            raise ValueError("attributes cannot be None")
-
-        if notification_type is None:
-            raise ValueError("notification_type cannot be None")
         data = {
-            "Action": "DeleteSubscription",
             "MarketplaceId": marketplace_id,
             "Destination.DeliveryChannel": delivery_channel,
             "NotificationType": notification_type,
@@ -218,7 +191,7 @@ class Subscriptions(MWS):
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
-        return self.make_request(data, "POST")
+        return self.make_request("DeleteSubscription", data, method="POST")
 
     def list_subscriptions(self, marketplace_id):
         """Returns a list of all your current subscriptions.
@@ -226,17 +199,15 @@ class Subscriptions(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListSubscriptions.html
         """
-        data = {
-            "Action": "ListSubscriptions",
-            "MarketplaceId": marketplace_id,
-        }
-        return self.make_request(data, "POST")
+        return self.make_request(
+            "ListSubscriptions", {"MarketplaceId": marketplace_id}, method="POST"
+        )
 
     def update_subscription(
         self,
         marketplace_id,
-        attributes=None,
-        notification_type=None,
+        attributes,
+        notification_type,
         is_enabled=True,
         delivery_channel="SQS",
     ):
@@ -248,13 +219,7 @@ class Subscriptions(MWS):
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
         """
-        if attributes is None:
-            raise ValueError("attributes cannot be None")
-
-        if notification_type is None:
-            raise ValueError("notification_type cannot be None")
         data = {
-            "Action": "UpdateSubscription",
             "MarketplaceId": marketplace_id,
             "Subscription.Destination.DeliveryChannel": delivery_channel,
             "Subscription.IsEnabled": str(is_enabled).lower(),
@@ -266,4 +231,4 @@ class Subscriptions(MWS):
                 self._parse_attributes(attributes),
             )
         )
-        return self.make_request(data, "POST")
+        return self.make_request("UpdateSubscription", data, method="POST")
