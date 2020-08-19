@@ -190,4 +190,4 @@ class Feeds(MWS):
             "Action": "GetFeedSubmissionResult",
             "FeedSubmissionId": feed_id,
         }
-        return self.make_request(data, rootkey="Message")
+        return self.make_request(data, result_key="Message")

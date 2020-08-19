@@ -224,13 +224,13 @@ class MWS(object):
             data = response.content
             # I do not check the headers to decide which content structure to server simply because sometimes
             # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
-            rootkey = kwargs.get("rootkey", extra_data.get("Action") + "Result")
+            result_key = kwargs.get("result_key", extra_data.get("Action") + "Result")
             try:
                 try:
-                    parsed_response = DictWrapper(data, rootkey)
+                    parsed_response = DictWrapper(data, result_key)
                 except TypeError:
                     # When we got CSV as result, we will got error on this
-                    parsed_response = DictWrapper(response.text, rootkey)
+                    parsed_response = DictWrapper(response.text, result_key)
 
             except XMLError:
                 parsed_response = DataWrapper(data, response.headers)

@@ -756,7 +756,7 @@ def test_dotdict_attr_key_access_methods():
       </TestResponseResult>
     </TestResponse>"""
 
-    response = DictWrapper(content, rootkey="TestResponseResult")
+    response = DictWrapper(content, result_key="TestResponseResult")
 
     # fmt: off
     # Root should be "TestResponseResult", so "Content" is the first node at `.parsed`

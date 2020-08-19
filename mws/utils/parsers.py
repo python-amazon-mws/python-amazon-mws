@@ -162,7 +162,7 @@ class DictWrapper(object):
     # This will make it easier to use either class in place of each other.
     # Either this, or pile everything into DataWrapper and make it able to handle all cases.
 
-    def __init__(self, xml, rootkey=None):
+    def __init__(self, xml, result_key=None):
         if isinstance(xml, bytes):
             try:
                 xml = xml.decode(encoding="iso-8859-1")
@@ -174,7 +174,7 @@ class DictWrapper(object):
 
         self.response = None
         self._original = xml
-        self._rootkey = rootkey
+        self._result_key = result_key
         # TODO try this with xmltodict library?
         self._mydict = XML2Dict().fromstring(remove_xml_namespace(self.original))
         self._response_dict = self._mydict.get(
@@ -184,8 +184,8 @@ class DictWrapper(object):
     @property
     def parsed(self):
         """Returns parsed XML contents as a tree of `DotDict`s."""
-        if self._rootkey:
-            return self._response_dict.get(self._rootkey, self._response_dict)
+        if self._result_key:
+            return self._response_dict.get(self._result_key, self._response_dict)
         return self._response_dict
 
     @property
