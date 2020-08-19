@@ -22,6 +22,10 @@ from mws.utils.timezone import utc_timestamp
 
 
 __version__ = "1.0.0dev14"
+PAM_USER_AGENT = "python-amazon-mws/{} (Language=Python)".format(__version__)
+"""See recommended user agent string format:
+https://docs.developer.amazonservices.com/en_US/dev_guide/DG_UserAgentHeader.html
+"""
 
 
 class Marketplaces(Enum):
@@ -56,6 +60,15 @@ class Marketplaces(Enum):
         """Easy dot access like: Marketplaces.endpoint ."""
         self.endpoint = endpoint
         self.marketplace_id = marketplace_id
+
+
+def validate_hash(response):
+    """
+    Input is a requests.response object, see the test class FakeResponse.
+    """
+    hash_ = calc_md5(response.content)
+    if response.headers["content-md5"].encode() != hash_:
+        raise MWSError("MD5 hash validation failed: wrong content length for response")
 
 
 def calc_request_description(params):
@@ -139,6 +152,8 @@ class MWS(object):
         version="",
         auth_token="",
         proxy=None,
+        user_agent_str="",
+        headers=None,
     ):
         self.access_key = access_key
         self.secret_key = secret_key
@@ -147,6 +162,8 @@ class MWS(object):
         self.version = version or self.VERSION
         self.uri = uri or self.URI
         self.proxy = proxy
+        self.user_agent_str = user_agent_str or PAM_USER_AGENT
+        self.extra_headers = headers or {}
 
         # * TESTING FLAGS * #
         self._test_request_params = False
@@ -179,19 +196,39 @@ class MWS(object):
         # need a branch test to check for auth_token being skipped (no key present)
         return params
 
-    def make_request(self, action, extra_data, method="GET", **kwargs):
-        """Make request to Amazon MWS API with these parameters."""
-        params = self.get_default_params(action)
+    def make_request(
+        self,
+        action,
+        params=None,
+        method="GET",
+        timeout=300,
+        **kwargs
+    ):
+        """Make request to Amazon MWS API with these parameters.
+
+        `action` is a string matching the name of the request action
+        (i.e. "ListOrders").
+
+        `params` is a flat dict containing parameters to pass to the operation.
+
+        `method` is a string, matching an HTTP verb ("GET", "POST", etc.),
+        which sets the method for a `requests.request` call.
+
+        `timeout` passes to `requests.request`, setting the timeout for this request.
+        """
+        params = params or {}
+
+        request_params = self.get_default_params(action)
         proxies = self.get_proxies()
-        params.update(extra_data)
-        params = clean_params(params)
+        request_params.update(params)
+        request_params = clean_params(request_params)
 
         if self._test_request_params:
             # Testing method: return the params from this request before the request is made.
-            return params
+            return request_params
         # TODO: All current testing stops here. More branches needed.
 
-        request_description = calc_request_description(params)
+        request_description = calc_request_description(request_params)
         signature = self.calc_signature(method, request_description)
         url = "{domain}{uri}?{description}&Signature={signature}".format(
             domain=self.domain,
@@ -199,42 +236,53 @@ class MWS(object):
             description=request_description,
             signature=quote(signature),
         )
-        headers = {
-            "User-Agent": "python-amazon-mws/{} (Language=Python)".format(__version__)
-        }
-        headers.update(kwargs.get("extra_headers", {}))
+        headers = {"User-Agent": self.user_agent_str}
+        headers.update(self.extra_headers)
+
+        result_key = kwargs.get("result_key", "{}Result".format(action))
 
         try:
             # Some might wonder as to why i don't pass the params dict as the params argument to request.
             # My answer is, here i have to get the url parsed string of params in order to sign it, so
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
+
+            # TODO ^^ Because that's not how a POST request works, man!
+            # We're gonna fix this!
             response = request(
                 method,
                 url,
                 data=kwargs.get("body", ""),
                 headers=headers,
                 proxies=proxies,
-                timeout=kwargs.get("timeout", 300),
+                timeout=timeout,
             )
             response.raise_for_status()
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
             # response.content and converts it to unicode.
 
-            data = response.content
-            # I do not check the headers to decide which content structure to server simply because sometimes
-            # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
-            result_key = kwargs.get("result_key", extra_data.get("Action") + "Result")
-            try:
-                try:
-                    parsed_response = DictWrapper(data, result_key)
-                except TypeError:
-                    # When we got CSV as result, we will got error on this
-                    parsed_response = DictWrapper(response.text, result_key)
+            if "content-md5" in response.headers:
+                validate_hash(response)
 
-            except XMLError:
-                parsed_response = DataWrapper(data, response.headers)
+            # TODO temp stuff
+            import mws
+
+            parsed_response = mws.utils.new.MWSResponse(response, result_key=result_key)
+
+            # data = response.content
+            # # I do not check the headers to decide which content structure to server simply because sometimes
+            # # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
+            # result_key = kwargs.get("result_key", "{}Result".format(action))
+            # try:
+            #     try:
+            #         parsed_response = DictWrapper(data, result_key)
+            #     except TypeError:
+            #         # When we got CSV as result, we will got error on this
+            #         parsed_response = DictWrapper(response.text, result_key)
+
+            # except XMLError:
+            #     parsed_response = DataWrapper(data, response.headers)
 
         except HTTPError as exc:
             error = MWSError(str(exc.response.text))
@@ -273,7 +321,7 @@ class MWS(object):
         Docs (from Orders API example):
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/MWS_GetServiceStatus.html
         """
-        return self.make_request(extra_data=dict(Action="GetServiceStatus"))
+        return self.make_request("GetServiceStatus")
 
     def action_by_next_token(self, action, next_token):
         """Run a '...ByNextToken' action for the given action.
@@ -355,5 +403,6 @@ class MWS(object):
             )
         if not isinstance(parameters, dict):
             raise ValueError("`parameters` must be a dict.")
+
         data = RequestParameter(value=parameters).to_dict()
         return self.make_request(action, data, method=method, **kwargs)
