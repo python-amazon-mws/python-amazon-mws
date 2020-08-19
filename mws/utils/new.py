@@ -184,9 +184,7 @@ class DotDict(dict):
         return self.__class__.build(self._data[key])
 
     def __repr__(self):
-        return "{}({})".format(
-            self.__class__.__name__, self.__dict__["_data"],
-        )
+        return "{}({})".format(self.__class__.__name__, self.__dict__["_data"],)
 
     def __str__(self):
         """Print contents using pprint."""

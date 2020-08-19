@@ -362,7 +362,7 @@ class InboundShipments(MWS):
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmPreorder.html
         """
         return self.make_request(
-            "ConfirmPreorder", {"ShipmentId": shipment_id, "NeedByDate": need_by_date,}
+            "ConfirmPreorder", {"ShipmentId": shipment_id, "NeedByDate": need_by_date}
         )
 
     def get_prep_instructions_for_sku(self, skus=None, country_code=None):

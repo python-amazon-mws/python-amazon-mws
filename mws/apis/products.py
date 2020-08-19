@@ -182,7 +182,7 @@ class Products(MWS):
         """
         return self.make_request(
             "GetProductCategoriesForSKU",
-            {"MarketplaceId": marketplace_id, "SellerSKU": sku,},
+            {"MarketplaceId": marketplace_id, "SellerSKU": sku},
         )
 
     def get_product_categories_for_asin(self, marketplace_id, asin):
@@ -193,5 +193,5 @@ class Products(MWS):
         """
         return self.make_request(
             "GetProductCategoriesForASIN",
-            {"MarketplaceId": marketplace_id, "ASIN": asin,},
+            {"MarketplaceId": marketplace_id, "ASIN": asin},
         )

@@ -196,14 +196,7 @@ class MWS(object):
         # need a branch test to check for auth_token being skipped (no key present)
         return params
 
-    def make_request(
-        self,
-        action,
-        params=None,
-        method="GET",
-        timeout=300,
-        **kwargs
-    ):
+    def make_request(self, action, params=None, method="GET", timeout=300, **kwargs):
         """Make request to Amazon MWS API with these parameters.
 
         `action` is a string matching the name of the request action
