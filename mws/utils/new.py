@@ -1,7 +1,7 @@
 import re
 from xml.parsers.expat import ExpatError
 import pprint
-from collections.abc import Mapping, MutableSequence
+from collections.abc import Mapping, Iterable
 
 # import chardet
 import xmltodict
@@ -191,11 +191,7 @@ class DotDict(dict):
         return pprint.pformat(self.__dict__["_data"])
 
     def __iter__(self):
-        """Nodes are iterable be default, even with just one child node.
-
-        Returns non-list nodes wrapped in an iterator, so they can be iterated
-        and return the child node.
-        """
+        """Nodes must be iterable by default."""
         # If the parser finds multiple sibling nodes by the same name
         # (under the same parent node), that node will return a list of DotDicts.
         # However, if the same node is returned with only one child in other responses,
@@ -203,9 +199,7 @@ class DotDict(dict):
         # throw an error.
         # So, when iteration is required, we return single nodes as an iterator
         # wrapping that single instance.
-        if not isinstance(self, MutableSequence):
-            return iter([self])
-        return self
+        return iter([self])
 
     def get(self, key, default=None):
         """Access a node like `dict.get`, including default values."""
@@ -223,8 +217,10 @@ class DotDict(dict):
         if isinstance(obj, Mapping):
             # Return a new DotDict object wrapping `obj`.
             return cls(obj)
-        if isinstance(obj, MutableSequence):
-            # Build each item in the `obj` sequence, and return a list containing them.
-            return [cls.build(item) for item in obj]
+        if not isinstance(obj, str) and isinstance(obj, Iterable):
+            # Build each item in the `obj` sequence,
+            # then construct a new sequence matching `obj`'s type.
+            # Must be careful not to pass strings here, even though they are iterable!
+            return obj.__class__(cls.build(x) for x in obj)
         # In all other cases, return `obj` unchanged.
         return obj
