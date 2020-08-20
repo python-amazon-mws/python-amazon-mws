@@ -957,41 +957,32 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
 
 
 ### Mix of statuses and IDs for list_inbound_shipments ###
-# Given these potential status and ID types:
-# - a single string
-# - a list of strings
-# - an empty list
-# - None
-# ...creates a Cartesian product of these potential types, generates a fixture,
-# then parameterizes (or "parametrizes", per pytest's spelling) the test
-# that uses this fixture.
-# Doing so, we can easily test multiple scenarios at once test.
-
-# NOTE:
-potential_statuses = [
-    "STATUS1",
-    ["STATUS1", "STATUS2"],  # list
-    ("STATUS1", "STATUS2"),  # tuple
-    {"STATUS1", "STATUS2"},  # set
-    list(),  # empty list
-    tuple(),  # empty tuple
-    set(),  # empty set
-    None,
-]
-potential_ids = [
-    "ID1",
-    ["ID1", "ID2"],  # list
-    ("ID1", "ID2"),  # tuple
-    {"ID1", "ID2"},  # set
-    list(),  # empty list
-    tuple(),  # empty tuple
-    set(),  # empty set
-    None,
-]
-status_and_id_args = list(itertools.product(potential_statuses, potential_ids))
-
-
-@pytest.mark.parametrize("statuses, ids", status_and_id_args)
+@pytest.mark.parametrize(
+    "statuses",
+    [
+        "STATUS1",
+        ["STATUS1", "STATUS2"],  # list
+        ("STATUS1", "STATUS2"),  # tuple
+        {"STATUS1", "STATUS2"},  # set
+        list(),  # empty list
+        tuple(),  # empty tuple
+        set(),  # empty set
+        None,
+    ],
+)
+@pytest.mark.parametrize(
+    "ids",
+    [
+        "ID1",
+        ["ID1", "ID2"],  # list
+        ("ID1", "ID2"),  # tuple
+        {"ID1", "ID2"},  # set
+        list(),  # empty list
+        tuple(),  # empty tuple
+        set(),  # empty set
+        None,
+    ],
+)
 def test_list_inbound_shipments_status_and_id(inboundshipments_api, statuses, ids):
     """Check that a mixture of different argument types for `shipment_statuses`
     and `shipment_ids` will work in `InboundShipments.list_inbound_shipments`.
