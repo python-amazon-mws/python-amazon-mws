@@ -224,32 +224,35 @@ class RequestParameter:
     def __init__(self, key=None, value=None):
         self.key = key
         self.value = value
-        self.validate()
+        self._validate()
 
-    def validate(self):
-        if not self.key and not self._val_is_dict() and not self._val_is_iterable():
+    def _validate(self):
+        if self.key:
+            return
+        # No key provided. All recursive methods provide keys, so the user set this.
+        if not self._value_is_dict() and not self._value_is_iterable():
             raise ValueError(
                 "Parameter with empty `key` must have a dict or iterable `value`."
             )
 
-    def _val_is_str(self):
+    def _value_is_str(self):
         """Return bool, whether the value is a string.
 
-        Used solely in the `_val_is_iterable` test.
+        Used solely in the `_value_is_iterable` test.
         """
         return isinstance(self.value, str)
 
-    def _val_is_dict(self):
+    def _value_is_dict(self):
         """Return bool, whether the value is a dict."""
         return isinstance(self.value, dict)
 
-    def _val_is_iterable(self):
+    def _value_is_iterable(self):
         """Return bool, whether the value is a "psuedo-iterable".
 
         As a special case, returns False if the value is a dict or str,
         because we want to treat those objects differently.
         """
-        if self._val_is_dict() or self._val_is_str():
+        if self._value_is_dict() or self._value_is_str():
             return False
         return isinstance(self.value, Iterable)
 
@@ -260,9 +263,9 @@ class RequestParameter:
         if self.value is None:
             # Returns nothing for a `None` value
             return {}
-        if self._val_is_dict():
+        if self._value_is_dict():
             return self.keyed_value()
-        if self._val_is_iterable():
+        if self._value_is_iterable():
             return self.enumerated_value()
         return {self.key: self.value}
 
@@ -302,7 +305,7 @@ class RequestParameter:
         where the output of that sub-parameter's `to_dict()` method is recursively
         added back to the return value dictionary here.
         """
-        if not self._val_is_dict():
+        if not self._value_is_dict():
             raise ValueError("Cannot generate keyed value for non-dict `value`.")
         output = {}
         for sub_key, val in self.value.items():
@@ -322,7 +325,7 @@ class RequestParameter:
         generating a sub-parameter and dict output that is added back
         to the return value dictionary.
         """
-        if not self._val_is_iterable():
+        if not self._value_is_iterable():
             raise ValueError(
                 "Cannot generate enumerated value for non-iterable `value`."
             )
