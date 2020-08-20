@@ -391,6 +391,22 @@ class MWS(object):
         or a nested dictionary, that is then passed to
         `mws.utils.parameters.RequestParameter` in order to flatten it.
         """
+        # NOTE you may be asking why this method exists. Why not simply put the logic
+        # of `RequestParameter` into `make_request`, and let every request method
+        # pass nested objects freely?
+        # Well, I tried that. Turns out giving up that kind of control has some
+        # unintended consequences.
+        # For instance, say you know that a given parameter for your request only takes
+        # one value, such as `ReportType=_SOME_REPORT_TYPE_`.
+        # If the user passes a list wrapping that string, `RequestParameter` will
+        # happily enumerate that value: `ReportType.1=_SOME_REPORT_TYPE_`.
+        # For that particular request, we would know this to be an error: MWS will
+        # not accept that entry. Surfacing that error to the end user would be quite
+        # difficult, and trying to prevent it would introduce the hassle of verifying
+        # argument types in every request method.
+        # It is better to allow that list object to pass through the params to
+        # `make_request`, where it can raise an error in our code, rather than have
+        # the request get sent to MWS.
         if not self.uri or self.uri == "/":
             raise ValueError(
                 (
