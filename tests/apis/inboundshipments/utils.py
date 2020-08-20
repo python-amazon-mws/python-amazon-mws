@@ -99,31 +99,31 @@ class CommonAPIRequestTools(object):
         """If the API's `.uri` attr is an incorrect value, should raise `ValueError`.
         """
         action = "GenericRequestURIException"
-        parameters = {"DoesNotMatter": "foobar"}
+        params = {"DoesNotMatter": "foobar"}
 
         # First assert that the API's real URI (unchanged up to here) works.
         # This will indicate that the API class's `URI` class attribute is not set.
-        assert self.api.generic_request(action=action, parameters=parameters)
+        assert self.api.generic_request(action=action, params=params)
 
         # Next we check what should be a known value.
         self.api.uri = "/Something/that/should/work"
-        assert self.api.generic_request(action=action, parameters=parameters)
+        assert self.api.generic_request(action=action, params=params)
 
         # Finally we check that values known to fail will raise `ValueError` correctly.
         uri_values = [None, False, "", "/"]
         for val in uri_values:
             self.api.uri = val
             with pytest.raises(ValueError):
-                assert self.api.generic_request(action=action, parameters=parameters)
+                assert self.api.generic_request(action=action, params=params)
 
     def test_generic_request_correct_parameters_type(self):
-        """Generic requests with a non-dict value for `parameters`
+        """Generic requests with a non-dict value for `params`
         should raise `ValueError`.
         """
         action = "GenericRequestBadParameterssException"
 
         # Any dict should pass (including an empty one)
-        assert self.api.generic_request(action=action, parameters={})
+        assert self.api.generic_request(action=action, params={})
 
         # Non-dict values should NOT pass
         param_values = [
@@ -135,7 +135,7 @@ class CommonAPIRequestTools(object):
         ]
         for val in param_values:
             with pytest.raises(ValueError):
-                assert self.api.generic_request(action, parameters=val)
+                assert self.api.generic_request(action, params=val)
 
     def test_basic_generic_request(self):
         """Test an arbitrary generic request with a series of simple data elements."""
@@ -143,14 +143,14 @@ class CommonAPIRequestTools(object):
         test_datetime = datetime.datetime.utcnow()
 
         # Send a basic payload.
-        parameters = {
+        params = {
             "ADateTime": test_datetime,
             "ATrueBool": True,
             "AFalseBool": False,
             "NoneShouldNotExist": None,
         }
 
-        request_params = self.api.generic_request(action=action, parameters=parameters)
+        request_params = self.api.generic_request(action=action, params=params)
         self.assert_common_params(request_params, action="BasicGenericRequest")
         assert request_params["ADateTime"] == clean_date(test_datetime)
         assert request_params["ATrueBool"] == clean_bool(True)
@@ -158,9 +158,9 @@ class CommonAPIRequestTools(object):
         assert "NoneShouldNotExist" not in request_params
 
     def test_complex_generic_request(self):
-        """Test generic request with nested data structures in its parameters."""
+        """Test generic request with nested data structures in its params."""
         action = "ComplexGenericRequest"
-        parameters = {
+        params = {
             "Enumerated": ["A", "B", "C"],
             "Keyed": {"Foo": "bar", "Bar": 4, "Baz": False},
             "Multi": {
@@ -172,7 +172,7 @@ class CommonAPIRequestTools(object):
             },
         }
 
-        request_params = self.api.generic_request(action=action, parameters=parameters)
+        request_params = self.api.generic_request(action=action, params=params)
 
         self.assert_common_params(request_params, action=action)
 
