@@ -170,9 +170,11 @@ class Feeds(MWS):
         data = {
             "SubmittedFromDate": from_date,
             "SubmittedToDate": to_date,
+            **enumerate_param("FeedSubmissionIdList.Id.", feed_ids),
+            **enumerate_param("FeedTypeList.Type.", feed_types),
         }
-        data.update(enumerate_param("FeedSubmissionIdList.Id.", feed_ids))
-        data.update(enumerate_param("FeedTypeList.Type.", feed_types))
+        # data.update()
+        # data.update()
         return self.make_request("CancelFeedSubmissions", data)
 
     def get_feed_submission_result(self, feed_id):
