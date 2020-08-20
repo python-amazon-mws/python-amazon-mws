@@ -27,6 +27,8 @@ PAM_USER_AGENT = "python-amazon-mws/{} (Language=Python)".format(__version__)
 https://docs.developer.amazonservices.com/en_US/dev_guide/DG_UserAgentHeader.html
 """
 
+PAM_DEFAULT_TIMEOUT = 300
+
 
 class Marketplaces(Enum):
     """Enumeration for MWS marketplaces, containing endpoints and marketplace IDs.
@@ -196,7 +198,9 @@ class MWS(object):
         # need a branch test to check for auth_token being skipped (no key present)
         return params
 
-    def make_request(self, action, params=None, method="GET", timeout=300, **kwargs):
+    def make_request(
+        self, action, params=None, method="GET", timeout=PAM_DEFAULT_TIMEOUT, **kwargs
+    ):
         """Make request to Amazon MWS API with these parameters.
 
         `action` is a string matching the name of the request action
@@ -208,6 +212,12 @@ class MWS(object):
         which sets the method for a `requests.request` call.
 
         `timeout` passes to `requests.request`, setting the timeout for this request.
+
+        `kwargs` may include:
+
+        - `result_key`, providing a custom key to use as the root for results
+          returned by `response.parsed`.
+        - `body`, primarily used in Feeds requests to send a data file in the request.
         """
         params = params or {}
 
@@ -371,18 +381,15 @@ class MWS(object):
         )
         return enumerate_param(param, values)
 
-    def generic_request(self, action, parameters=None, method="GET", **kwargs):
+    def generic_request(
+        self, action, params=None, method="GET", timeout=PAM_DEFAULT_TIMEOUT, **kwargs
+    ):
         """Builds a generic request with arbitrary parameter arguments.
 
-        `action` is a string matching the name of the request action
-        (i.e. "ListOrders").
-
-        `parameters` must be a dict, and is passed to `RequestParameter` as `value`
-        (no `key` arg is used). See docs for `RequestParameter` for details.
-
-        Set `method` to `"POST"` to send this request via POST. Defaults to `"GET"`.
-
-        `kwargs` are passed unchanged to `make_request`.
+        This method's signature matches that of `MWS.make_request`, as the two methods
+        are similar. However, `params` is expected to be either the default `None`
+        or a nested dictionary, that is then passed to
+        `mws.utils.parameters.RequestParameter` in order to flatten it.
         """
         if not self.uri or self.uri == "/":
             raise ValueError(
@@ -394,8 +401,9 @@ class MWS(object):
                 )
                 % self.uri
             )
-        if not isinstance(parameters, dict):
-            raise ValueError("`parameters` must be a dict.")
-
-        data = RequestParameter(value=parameters).to_dict()
-        return self.make_request(action, data, method=method, **kwargs)
+        if not isinstance(params, dict):
+            raise ValueError("`params` must be a dict.")
+        data = RequestParameter(value=params).to_dict()
+        return self.make_request(
+            action=action, params=data, method=method, timeout=timeout, **kwargs
+        )
