@@ -62,6 +62,11 @@ class DotDict(dict):
         """Print contents using pprint."""
         return str(self.__dict__["_data"])
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self._data == other._data
+        return self._data == other
+
     def __iter__(self):
         """Nodes must be iterable by default."""
         # If the parser finds multiple sibling nodes by the same name
