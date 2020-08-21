@@ -175,170 +175,175 @@ def test_decode_byte_xml():
     """
 
     # We expect the following DotDict output from `.parsed`
-    expected = DotDict({
-        "ListMatchingProductsResult": {
-            "Products": {
-                "Product": [
-                    {
-                        "Identifiers": {
-                            "MarketplaceASIN": {
-                                "MarketplaceId": "APJ6JRA9NG5V4",
-                                "ASIN": "8891808660",
-                            }
-                        },
-                        "AttributeSets": {
-                            "ItemAttributes": {
-                                "@lang": "it-IT",
-                                "Binding": "Copertina rigida",
-                                "Creator": [
-                                    {
-                                        "#text": "Mizielinska, Aleksandra",
-                                        "@Role": "Autore",
-                                    },
-                                    {
-                                        "#text": "Mizielinski, Daniel",
-                                        "@Role": "Autore",
-                                    },
-                                    {"#text": "Parisi, V.", "@Role": "Traduttore"},
-                                ],
-                                "ItemDimensions": {
-                                    "Height": {
-                                        "#text": "14.80312",
-                                        "@Units": "inches",
-                                    },
-                                    "Length": {
-                                        "#text": "10.86612",
-                                        "@Units": "inches",
-                                    },
-                                    "Width": {"#text": "1.06299", "@Units": "inches"},
-                                    "Weight": {"#text": "3.17", "@Units": "pounds"},
-                                },
-                                "Label": "Mondadori Electa",
-                                "Languages": {
-                                    "Language": [
-                                        {"Name": "italian", "Type": "Pubblicato"},
+    expected = DotDict(
+        {
+            "ListMatchingProductsResult": {
+                "Products": {
+                    "Product": [
+                        {
+                            "Identifiers": {
+                                "MarketplaceASIN": {
+                                    "MarketplaceId": "APJ6JRA9NG5V4",
+                                    "ASIN": "8891808660",
+                                }
+                            },
+                            "AttributeSets": {
+                                "ItemAttributes": {
+                                    "@lang": "it-IT",
+                                    "Binding": "Copertina rigida",
+                                    "Creator": [
                                         {
-                                            "Name": "italian",
-                                            "Type": "Lingua originale",
+                                            "#text": "Mizielinska, Aleksandra",
+                                            "@Role": "Autore",
                                         },
-                                    ]
-                                },
-                                "ListPrice": {
-                                    "Amount": "25.00",
-                                    "CurrencyCode": "EUR",
-                                },
-                                "Manufacturer": "Mondadori Electa",
-                                "NumberOfPages": "144",
-                                "PackageDimensions": {
-                                    "Height": {
-                                        "#text": "0.8661417314",
-                                        "@Units": "inches",
+                                        {
+                                            "#text": "Mizielinski, Daniel",
+                                            "@Role": "Autore",
+                                        },
+                                        {"#text": "Parisi, V.", "@Role": "Traduttore"},
+                                    ],
+                                    "ItemDimensions": {
+                                        "Height": {
+                                            "#text": "14.80312",
+                                            "@Units": "inches",
+                                        },
+                                        "Length": {
+                                            "#text": "10.86612",
+                                            "@Units": "inches",
+                                        },
+                                        "Width": {
+                                            "#text": "1.06299",
+                                            "@Units": "inches",
+                                        },
+                                        "Weight": {"#text": "3.17", "@Units": "pounds"},
                                     },
-                                    "Length": {
-                                        "#text": "14.9606299060",
-                                        "@Units": "inches",
+                                    "Label": "Mondadori Electa",
+                                    "Languages": {
+                                        "Language": [
+                                            {"Name": "italian", "Type": "Pubblicato"},
+                                            {
+                                                "Name": "italian",
+                                                "Type": "Lingua originale",
+                                            },
+                                        ]
                                     },
-                                    "Width": {
-                                        "#text": "11.0236220360",
-                                        "@Units": "inches",
+                                    "ListPrice": {
+                                        "Amount": "25.00",
+                                        "CurrencyCode": "EUR",
                                     },
-                                    "Weight": {
-                                        "#text": "3.1746565728",
-                                        "@Units": "pounds",
+                                    "Manufacturer": "Mondadori Electa",
+                                    "NumberOfPages": "144",
+                                    "PackageDimensions": {
+                                        "Height": {
+                                            "#text": "0.8661417314",
+                                            "@Units": "inches",
+                                        },
+                                        "Length": {
+                                            "#text": "14.9606299060",
+                                            "@Units": "inches",
+                                        },
+                                        "Width": {
+                                            "#text": "11.0236220360",
+                                            "@Units": "inches",
+                                        },
+                                        "Weight": {
+                                            "#text": "3.1746565728",
+                                            "@Units": "pounds",
+                                        },
                                     },
-                                },
-                                "ProductGroup": "Libro",
-                                "ProductTypeName": "ABIS_BOOK",
-                                "PublicationDate": "2016-10-25",
-                                "Publisher": "Mondadori Electa",
-                                "ReleaseDate": "2016-10-25",
-                                "SmallImage": {
-                                    "URL": "http://ecx.images-amazon.com/images/I/61K2xircqJL._SL75_.jpg",
-                                    "Height": {"#text": "75", "@Units": "pixels"},
-                                    "Width": {"#text": "55", "@Units": "pixels"},
-                                },
-                                "Studio": "Mondadori Electa",
-                                "Title": "Mappe. Un atlante per viaggiare tra terra, mari e culture del mondo",
-                            }
+                                    "ProductGroup": "Libro",
+                                    "ProductTypeName": "ABIS_BOOK",
+                                    "PublicationDate": "2016-10-25",
+                                    "Publisher": "Mondadori Electa",
+                                    "ReleaseDate": "2016-10-25",
+                                    "SmallImage": {
+                                        "URL": "http://ecx.images-amazon.com/images/I/61K2xircqJL._SL75_.jpg",
+                                        "Height": {"#text": "75", "@Units": "pixels"},
+                                        "Width": {"#text": "55", "@Units": "pixels"},
+                                    },
+                                    "Studio": "Mondadori Electa",
+                                    "Title": "Mappe. Un atlante per viaggiare tra terra, mari e culture del mondo",
+                                }
+                            },
+                            "Relationships": None,
                         },
-                        "Relationships": None,
-                    },
-                    {
-                        "Identifiers": {
-                            "MarketplaceASIN": {
-                                "MarketplaceId": "APJ6JRA9NG5V4",
-                                "ASIN": "8832706571",
-                            }
+                        {
+                            "Identifiers": {
+                                "MarketplaceASIN": {
+                                    "MarketplaceId": "APJ6JRA9NG5V4",
+                                    "ASIN": "8832706571",
+                                }
+                            },
+                            "AttributeSets": {
+                                "ItemAttributes": {
+                                    "@lang": "it-IT",
+                                    "Binding": "Copertina flessibile",
+                                    "Creator": {"#text": "aa.vv.", "@Role": "Autore"},
+                                    "Genre": "Diritto",
+                                    "Label": "Neldiritto Editore",
+                                    "Languages": {
+                                        "Language": {
+                                            "Name": "italian",
+                                            "Type": "Pubblicato",
+                                        }
+                                    },
+                                    "ListPrice": {
+                                        "Amount": "90.00",
+                                        "CurrencyCode": "EUR",
+                                    },
+                                    "Manufacturer": "Neldiritto Editore",
+                                    "NumberOfItems": "1",
+                                    "NumberOfPages": "1200",
+                                    "PackageDimensions": {
+                                        "Height": {
+                                            "#text": "3.0708661386",
+                                            "@Units": "inches",
+                                        },
+                                        "Length": {
+                                            "#text": "9.8425196750",
+                                            "@Units": "inches",
+                                        },
+                                        "Width": {
+                                            "#text": "6.7716535364",
+                                            "@Units": "inches",
+                                        },
+                                        "Weight": {
+                                            "#text": "5.291094288000000881849048",
+                                            "@Units": "pounds",
+                                        },
+                                    },
+                                    "ProductGroup": "Libro",
+                                    "ProductTypeName": "ABIS_BOOK",
+                                    "PublicationDate": "2020-01-24",
+                                    "Publisher": "Neldiritto Editore",
+                                    "ReleaseDate": "2020-01-24",
+                                    "SmallImage": {
+                                        "URL": "http://ecx.images-amazon.com/images/I/41HeNbq4xKL._SL75_.jpg",
+                                        "Height": {"#text": "75", "@Units": "pixels"},
+                                        "Width": {"#text": "53", "@Units": "pixels"},
+                                    },
+                                    "Studio": "Neldiritto Editore",
+                                    "Title": "Concorso Magistratura 2020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo",
+                                }
+                            },
+                            "Relationships": None,
+                            "SalesRankings": {
+                                "SalesRank": [
+                                    {
+                                        "ProductCategoryId": "book_display_on_website",
+                                        "Rank": "62044",
+                                    },
+                                    {"ProductCategoryId": "1346646031", "Rank": "617"},
+                                    {"ProductCategoryId": "1346648031", "Rank": "754"},
+                                ]
+                            },
                         },
-                        "AttributeSets": {
-                            "ItemAttributes": {
-                                "@lang": "it-IT",
-                                "Binding": "Copertina flessibile",
-                                "Creator": {"#text": "aa.vv.", "@Role": "Autore"},
-                                "Genre": "Diritto",
-                                "Label": "Neldiritto Editore",
-                                "Languages": {
-                                    "Language": {
-                                        "Name": "italian",
-                                        "Type": "Pubblicato",
-                                    }
-                                },
-                                "ListPrice": {
-                                    "Amount": "90.00",
-                                    "CurrencyCode": "EUR",
-                                },
-                                "Manufacturer": "Neldiritto Editore",
-                                "NumberOfItems": "1",
-                                "NumberOfPages": "1200",
-                                "PackageDimensions": {
-                                    "Height": {
-                                        "#text": "3.0708661386",
-                                        "@Units": "inches",
-                                    },
-                                    "Length": {
-                                        "#text": "9.8425196750",
-                                        "@Units": "inches",
-                                    },
-                                    "Width": {
-                                        "#text": "6.7716535364",
-                                        "@Units": "inches",
-                                    },
-                                    "Weight": {
-                                        "#text": "5.291094288000000881849048",
-                                        "@Units": "pounds",
-                                    },
-                                },
-                                "ProductGroup": "Libro",
-                                "ProductTypeName": "ABIS_BOOK",
-                                "PublicationDate": "2020-01-24",
-                                "Publisher": "Neldiritto Editore",
-                                "ReleaseDate": "2020-01-24",
-                                "SmallImage": {
-                                    "URL": "http://ecx.images-amazon.com/images/I/41HeNbq4xKL._SL75_.jpg",
-                                    "Height": {"#text": "75", "@Units": "pixels"},
-                                    "Width": {"#text": "53", "@Units": "pixels"},
-                                },
-                                "Studio": "Neldiritto Editore",
-                                "Title": "Concorso Magistratura 2020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo",
-                            }
-                        },
-                        "Relationships": None,
-                        "SalesRankings": {
-                            "SalesRank": [
-                                {
-                                    "ProductCategoryId": "book_display_on_website",
-                                    "Rank": "62044",
-                                },
-                                {"ProductCategoryId": "1346646031", "Rank": "617"},
-                                {"ProductCategoryId": "1346648031", "Rank": "754"},
-                            ]
-                        },
-                    },
-                ]
-            }
-        },
-        "ResponseMetadata": {"RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"},
-    })
+                    ]
+                }
+            },
+            "ResponseMetadata": {"RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"},
+        }
+    )
 
     # Get a mock requests.Response object wrapping the content
     response = mock_mws_response(original)
@@ -494,152 +499,175 @@ def test_decode_byte_xml_x94():
 
     # We expect the following dict output from `.parsed`
     # Note the \x94 control characters are still present.
-    expected = DotDict({
-        "ListMatchingProductsResult": {
-            "Products": {
-                "Product": [
-                    {
-                        "Identifiers": {
-                            "MarketplaceASIN": {
-                                "MarketplaceId": "APJ6JRA9NG5V4",
-                                "ASIN": "8891808660",
-                            }
+    expected = DotDict(
+        {
+            "ListMatchingProductsResult": {
+                "Products": {
+                    "Product": [
+                        {
+                            "Identifiers": {
+                                "MarketplaceASIN": {
+                                    "MarketplaceId": "APJ6JRA9NG5V4",
+                                    "ASIN": "8891808660",
+                                }
+                            },
+                            "AttributeSets": {
+                                "ItemAttributes": {
+                                    "@lang": "it-IT",
+                                    "Binding": "Copertina rigida",
+                                    "Creator": [
+                                        {
+                                            "@Role": "Autore",
+                                            "#text": "Mizielinska, Aleksandra",
+                                        },
+                                        {
+                                            "@Role": "Autore",
+                                            "#text": "Mizielinski, Daniel",
+                                        },
+                                        {"@Role": "Traduttore", "#text": "Parisi, V."},
+                                    ],
+                                    "ItemDimensions": {
+                                        "Height": {
+                                            "@Units": "inches",
+                                            "#text": "14.80312",
+                                        },
+                                        "Length": {
+                                            "@Units": "inches",
+                                            "#text": "10.86612",
+                                        },
+                                        "Width": {
+                                            "@Units": "inches",
+                                            "#text": "1.06299",
+                                        },
+                                        "Weight": {"@Units": "pounds", "#text": "3.17"},
+                                    },
+                                    "Label": "Mondadori Electa",
+                                    "Languages": {
+                                        "Language": [
+                                            {"Name": "italian", "Type": "Pubblicato"},
+                                            {
+                                                "Name": "italian",
+                                                "Type": "Lingua originale",
+                                            },
+                                        ]
+                                    },
+                                    "ListPrice": {
+                                        "Amount": "25.00",
+                                        "CurrencyCode": "EUR",
+                                    },
+                                    "Manufacturer": "Mondadori Electa",
+                                    "NumberOfPages": "144",
+                                    "PackageDimensions": {
+                                        "Height": {
+                                            "@Units": "inches",
+                                            "#text": "0.8661417314",
+                                        },
+                                        "Length": {
+                                            "@Units": "inches",
+                                            "#text": "14.9606299060",
+                                        },
+                                        "Width": {
+                                            "@Units": "inches",
+                                            "#text": "11.0236220360",
+                                        },
+                                        "Weight": {
+                                            "@Units": "pounds",
+                                            "#text": "3.1746565728",
+                                        },
+                                    },
+                                    "ProductGroup": "Libro",
+                                    "ProductTypeName": "ABIS_BOOK",
+                                    "PublicationDate": "2016-10-25",
+                                    "Publisher": "Mondadori Electa",
+                                    "ReleaseDate": "2016-10-25",
+                                    "SmallImage": {
+                                        "URL": "http://ecx.images-amazon.com/images/I/61K2xircqJL._SL75_.jpg",
+                                        "Height": {"@Units": "pixels", "#text": "75"},
+                                        "Width": {"@Units": "pixels", "#text": "55"},
+                                    },
+                                    "Studio": "Mondadori Electa",
+                                    "Title": "Mappe.\x94Un atlante per viaggiare tra terra, mari e culture del mondo",
+                                }
+                            },
+                            "Relationships": None,
                         },
-                        "AttributeSets": {
-                            "ItemAttributes": {
-                                "@lang": "it-IT",
-                                "Binding": "Copertina rigida",
-                                "Creator": [
+                        {
+                            "Identifiers": {
+                                "MarketplaceASIN": {
+                                    "MarketplaceId": "APJ6JRA9NG5V4",
+                                    "ASIN": "8832706571",
+                                }
+                            },
+                            "AttributeSets": {
+                                "ItemAttributes": {
+                                    "@lang": "it-IT",
+                                    "Binding": "Copertina flessibile",
+                                    "Creator": {"@Role": "Autore", "#text": "aa.vv."},
+                                    "Genre": "Diritto",
+                                    "Label": "Neldiritto Editore",
+                                    "Languages": {
+                                        "Language": {
+                                            "Name": "italian",
+                                            "Type": "Pubblicato",
+                                        }
+                                    },
+                                    "ListPrice": {
+                                        "Amount": "90.00",
+                                        "CurrencyCode": "EUR",
+                                    },
+                                    "Manufacturer": "Neldiritto Editore",
+                                    "NumberOfItems": "1",
+                                    "NumberOfPages": "1200",
+                                    "PackageDimensions": {
+                                        "Height": {
+                                            "@Units": "inches",
+                                            "#text": "3.0708661386",
+                                        },
+                                        "Length": {
+                                            "@Units": "inches",
+                                            "#text": "9.8425196750",
+                                        },
+                                        "Width": {
+                                            "@Units": "inches",
+                                            "#text": "6.7716535364",
+                                        },
+                                        "Weight": {
+                                            "@Units": "pounds",
+                                            "#text": "5.291094288000000881849048",
+                                        },
+                                    },
+                                    "ProductGroup": "Libro",
+                                    "ProductTypeName": "ABIS_BOOK",
+                                    "PublicationDate": "2020-01-24",
+                                    "Publisher": "Neldiritto Editore",
+                                    "ReleaseDate": "2020-01-24",
+                                    "SmallImage": {
+                                        "URL": "http://ecx.images-amazon.com/images/I/41HeNbq4xKL._SL75_.jpg",
+                                        "Height": {"@Units": "pixels", "#text": "75"},
+                                        "Width": {"@Units": "pixels", "#text": "53"},
+                                    },
+                                    "Studio": "Neldiritto Editore",
+                                    "Title": "Concorso Magistratura\x942020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo",
+                                }
+                            },
+                            "Relationships": None,
+                            "SalesRankings": {
+                                "SalesRank": [
                                     {
-                                        "@Role": "Autore",
-                                        "#text": "Mizielinska, Aleksandra",
+                                        "ProductCategoryId": "book_display_on_website",
+                                        "Rank": "62044",
                                     },
-                                    {"@Role": "Autore", "#text": "Mizielinski, Daniel"},
-                                    {"@Role": "Traduttore", "#text": "Parisi, V."},
-                                ],
-                                "ItemDimensions": {
-                                    "Height": {"@Units": "inches", "#text": "14.80312"},
-                                    "Length": {"@Units": "inches", "#text": "10.86612"},
-                                    "Width": {"@Units": "inches", "#text": "1.06299"},
-                                    "Weight": {"@Units": "pounds", "#text": "3.17"},
-                                },
-                                "Label": "Mondadori Electa",
-                                "Languages": {
-                                    "Language": [
-                                        {"Name": "italian", "Type": "Pubblicato"},
-                                        {"Name": "italian", "Type": "Lingua originale"},
-                                    ]
-                                },
-                                "ListPrice": {"Amount": "25.00", "CurrencyCode": "EUR"},
-                                "Manufacturer": "Mondadori Electa",
-                                "NumberOfPages": "144",
-                                "PackageDimensions": {
-                                    "Height": {
-                                        "@Units": "inches",
-                                        "#text": "0.8661417314",
-                                    },
-                                    "Length": {
-                                        "@Units": "inches",
-                                        "#text": "14.9606299060",
-                                    },
-                                    "Width": {
-                                        "@Units": "inches",
-                                        "#text": "11.0236220360",
-                                    },
-                                    "Weight": {
-                                        "@Units": "pounds",
-                                        "#text": "3.1746565728",
-                                    },
-                                },
-                                "ProductGroup": "Libro",
-                                "ProductTypeName": "ABIS_BOOK",
-                                "PublicationDate": "2016-10-25",
-                                "Publisher": "Mondadori Electa",
-                                "ReleaseDate": "2016-10-25",
-                                "SmallImage": {
-                                    "URL": "http://ecx.images-amazon.com/images/I/61K2xircqJL._SL75_.jpg",
-                                    "Height": {"@Units": "pixels", "#text": "75"},
-                                    "Width": {"@Units": "pixels", "#text": "55"},
-                                },
-                                "Studio": "Mondadori Electa",
-                                "Title": "Mappe.\x94Un atlante per viaggiare tra terra, mari e culture del mondo",
-                            }
+                                    {"ProductCategoryId": "1346646031", "Rank": "617"},
+                                    {"ProductCategoryId": "1346648031", "Rank": "754"},
+                                ]
+                            },
                         },
-                        "Relationships": None,
-                    },
-                    {
-                        "Identifiers": {
-                            "MarketplaceASIN": {
-                                "MarketplaceId": "APJ6JRA9NG5V4",
-                                "ASIN": "8832706571",
-                            }
-                        },
-                        "AttributeSets": {
-                            "ItemAttributes": {
-                                "@lang": "it-IT",
-                                "Binding": "Copertina flessibile",
-                                "Creator": {"@Role": "Autore", "#text": "aa.vv."},
-                                "Genre": "Diritto",
-                                "Label": "Neldiritto Editore",
-                                "Languages": {
-                                    "Language": {
-                                        "Name": "italian",
-                                        "Type": "Pubblicato",
-                                    }
-                                },
-                                "ListPrice": {"Amount": "90.00", "CurrencyCode": "EUR"},
-                                "Manufacturer": "Neldiritto Editore",
-                                "NumberOfItems": "1",
-                                "NumberOfPages": "1200",
-                                "PackageDimensions": {
-                                    "Height": {
-                                        "@Units": "inches",
-                                        "#text": "3.0708661386",
-                                    },
-                                    "Length": {
-                                        "@Units": "inches",
-                                        "#text": "9.8425196750",
-                                    },
-                                    "Width": {
-                                        "@Units": "inches",
-                                        "#text": "6.7716535364",
-                                    },
-                                    "Weight": {
-                                        "@Units": "pounds",
-                                        "#text": "5.291094288000000881849048",
-                                    },
-                                },
-                                "ProductGroup": "Libro",
-                                "ProductTypeName": "ABIS_BOOK",
-                                "PublicationDate": "2020-01-24",
-                                "Publisher": "Neldiritto Editore",
-                                "ReleaseDate": "2020-01-24",
-                                "SmallImage": {
-                                    "URL": "http://ecx.images-amazon.com/images/I/41HeNbq4xKL._SL75_.jpg",
-                                    "Height": {"@Units": "pixels", "#text": "75"},
-                                    "Width": {"@Units": "pixels", "#text": "53"},
-                                },
-                                "Studio": "Neldiritto Editore",
-                                "Title": "Concorso Magistratura\x942020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo",
-                            }
-                        },
-                        "Relationships": None,
-                        "SalesRankings": {
-                            "SalesRank": [
-                                {
-                                    "ProductCategoryId": "book_display_on_website",
-                                    "Rank": "62044",
-                                },
-                                {"ProductCategoryId": "1346646031", "Rank": "617"},
-                                {"ProductCategoryId": "1346648031", "Rank": "754"},
-                            ]
-                        },
-                    },
-                ]
-            }
-        },
-        "ResponseMetadata": {"RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"},
-    })
+                    ]
+                }
+            },
+            "ResponseMetadata": {"RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"},
+        }
+    )
 
     # Get a mock requests.Response object wrapping the content
     response = mock_mws_response(original)
