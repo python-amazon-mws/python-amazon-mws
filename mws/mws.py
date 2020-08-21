@@ -12,7 +12,7 @@ from requests import request
 from requests.exceptions import HTTPError
 
 from mws.errors import MWSError
-from mws.utils.crypto import calc_md5
+from mws.utils.crypto import response_md5_is_valid
 from mws.utils.parsers import MWSResponse
 from mws.utils.params import clean_params_dict, enumerate_param, flat_param_dict
 from mws.utils.timezone import mws_utc_now
@@ -25,6 +25,12 @@ https://docs.developer.amazonservices.com/en_US/dev_guide/DG_UserAgentHeader.htm
 """
 
 PAM_DEFAULT_TIMEOUT = 300
+
+__all__ = [
+    "calc_request_description",
+    "Marketplaces",
+    "MWS",
+]
 
 
 class Marketplaces(Enum):
@@ -59,15 +65,6 @@ class Marketplaces(Enum):
         """Easy dot access like: Marketplaces.endpoint ."""
         self.endpoint = endpoint
         self.marketplace_id = marketplace_id
-
-
-def validate_hash(response):
-    """
-    Input is a requests.response object, see the test class FakeResponse.
-    """
-    hash_ = calc_md5(response.content)
-    if response.headers["content-md5"].encode() != hash_:
-        raise MWSError("MD5 hash validation failed: wrong content length for response")
 
 
 def calc_request_description(params):
@@ -269,8 +266,10 @@ class MWS(object):
             if self._use_feature_mwsresponse:
                 # Turn on the new response parser and DotDict parsed output
                 # (will be made standard in v1.0)
-                if "content-md5" in response.headers:
-                    validate_hash(response)
+                if not response_md5_is_valid(response):
+                    raise MWSError(
+                        "MD5 hash validation failed: wrong content length for response"
+                    )
 
                 parsed_response = MWSResponse(
                     response, result_key=result_key, request_timestamp=request_timestamp
