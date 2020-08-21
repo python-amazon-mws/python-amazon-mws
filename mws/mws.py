@@ -67,6 +67,7 @@ class Marketplaces(Enum):
         self.marketplace_id = marketplace_id
 
 
+## TODO DEPRECATE THIS ##
 def calc_request_description(params):
     """Builds the request description as a single string from the set of params.
 
