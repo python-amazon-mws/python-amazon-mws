@@ -108,6 +108,14 @@ We also perform coverage reporting using `pytest-cov`. You can generate a covera
 pytest --cov=mws
 ```
 
+You may also want to generate a local HTML report to navigate the code and see where coverage is missing:
+
+```shell
+pytest --cov=mws --cov-report html
+```
+
+This will create a `htmlcov/` directory, and you can open `htmlcov/index.html` to view the report in your browser.
+
 The test suite and coverage reporting to Codecov are run automatically in the repo on pushes and pull requests, using GitHub Actions workflows. We test on latest versions of Python 3.5+, and on latest Ubuntu, Mac, and Windows OSes.
 
 ### Documentation
