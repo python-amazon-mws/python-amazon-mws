@@ -199,7 +199,7 @@ def test_decode_byte_xml():
                                         "#text": "Mizielinski, Daniel",
                                         "@Role": "Autore",
                                     },
-                                    {"#text": "Parisi, V.", "@Role": "Traduttore",},
+                                    {"#text": "Parisi, V.", "@Role": "Traduttore"},
                                 ],
                                 "ItemDimensions": {
                                     "Height": {
@@ -210,13 +210,13 @@ def test_decode_byte_xml():
                                         "#text": "10.86612",
                                         "@Units": "inches",
                                     },
-                                    "Width": {"#text": "1.06299", "@Units": "inches",},
-                                    "Weight": {"#text": "3.17", "@Units": "pounds",},
+                                    "Width": {"#text": "1.06299", "@Units": "inches"},
+                                    "Weight": {"#text": "3.17", "@Units": "pounds"},
                                 },
                                 "Label": "Mondadori Electa",
                                 "Languages": {
                                     "Language": [
-                                        {"Name": "italian", "Type": "Pubblicato",},
+                                        {"Name": "italian", "Type": "Pubblicato"},
                                         {
                                             "Name": "italian",
                                             "Type": "Lingua originale",
@@ -254,8 +254,8 @@ def test_decode_byte_xml():
                                 "ReleaseDate": "2016-10-25",
                                 "SmallImage": {
                                     "URL": "http://ecx.images-amazon.com/images/I/61K2xircqJL._SL75_.jpg",
-                                    "Height": {"#text": "75", "@Units": "pixels",},
-                                    "Width": {"#text": "55", "@Units": "pixels",},
+                                    "Height": {"#text": "75", "@Units": "pixels"},
+                                    "Width": {"#text": "55", "@Units": "pixels"},
                                 },
                                 "Studio": "Mondadori Electa",
                                 "Title": "Mappe. Un atlante per viaggiare tra terra, mari e culture del mondo",
@@ -274,7 +274,7 @@ def test_decode_byte_xml():
                             "ItemAttributes": {
                                 "@lang": "it-IT",
                                 "Binding": "Copertina flessibile",
-                                "Creator": {"#text": "aa.vv.", "@Role": "Autore",},
+                                "Creator": {"#text": "aa.vv.", "@Role": "Autore"},
                                 "Genre": "Diritto",
                                 "Label": "Neldiritto Editore",
                                 "Languages": {
@@ -315,8 +315,8 @@ def test_decode_byte_xml():
                                 "ReleaseDate": "2020-01-24",
                                 "SmallImage": {
                                     "URL": "http://ecx.images-amazon.com/images/I/41HeNbq4xKL._SL75_.jpg",
-                                    "Height": {"#text": "75", "@Units": "pixels",},
-                                    "Width": {"#text": "53", "@Units": "pixels",},
+                                    "Height": {"#text": "75", "@Units": "pixels"},
+                                    "Width": {"#text": "53", "@Units": "pixels"},
                                 },
                                 "Studio": "Neldiritto Editore",
                                 "Title": "Concorso Magistratura 2020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo",
@@ -329,23 +329,15 @@ def test_decode_byte_xml():
                                     "ProductCategoryId": "book_display_on_website",
                                     "Rank": "62044",
                                 },
-                                {
-                                    "ProductCategoryId": "1346646031",
-                                    "Rank": "617",
-                                },
-                                {
-                                    "ProductCategoryId": "1346648031",
-                                    "Rank": "754",
-                                },
+                                {"ProductCategoryId": "1346646031", "Rank": "617"},
+                                {"ProductCategoryId": "1346648031", "Rank": "754"},
                             ]
                         },
                     },
                 ]
             }
         },
-        "ResponseMetadata": {
-            "RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"
-        },
+        "ResponseMetadata": {"RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"},
     }
 
     # Get a mock requests.Response object wrapping the content
@@ -518,7 +510,10 @@ def test_decode_byte_xml_x94():
                                 "@lang": "it-IT",
                                 "Binding": "Copertina rigida",
                                 "Creator": [
-                                    {"@Role": "Autore", "#text": "Mizielinska, Aleksandra"},
+                                    {
+                                        "@Role": "Autore",
+                                        "#text": "Mizielinska, Aleksandra",
+                                    },
                                     {"@Role": "Autore", "#text": "Mizielinski, Daniel"},
                                     {"@Role": "Traduttore", "#text": "Parisi, V."},
                                 ],
@@ -539,13 +534,22 @@ def test_decode_byte_xml_x94():
                                 "Manufacturer": "Mondadori Electa",
                                 "NumberOfPages": "144",
                                 "PackageDimensions": {
-                                    "Height": {"@Units": "inches", "#text": "0.8661417314"},
+                                    "Height": {
+                                        "@Units": "inches",
+                                        "#text": "0.8661417314",
+                                    },
                                     "Length": {
                                         "@Units": "inches",
                                         "#text": "14.9606299060",
                                     },
-                                    "Width": {"@Units": "inches", "#text": "11.0236220360"},
-                                    "Weight": {"@Units": "pounds", "#text": "3.1746565728"},
+                                    "Width": {
+                                        "@Units": "inches",
+                                        "#text": "11.0236220360",
+                                    },
+                                    "Weight": {
+                                        "@Units": "pounds",
+                                        "#text": "3.1746565728",
+                                    },
                                 },
                                 "ProductGroup": "Libro",
                                 "ProductTypeName": "ABIS_BOOK",
@@ -578,16 +582,28 @@ def test_decode_byte_xml_x94():
                                 "Genre": "Diritto",
                                 "Label": "Neldiritto Editore",
                                 "Languages": {
-                                    "Language": {"Name": "italian", "Type": "Pubblicato"}
+                                    "Language": {
+                                        "Name": "italian",
+                                        "Type": "Pubblicato",
+                                    }
                                 },
                                 "ListPrice": {"Amount": "90.00", "CurrencyCode": "EUR"},
                                 "Manufacturer": "Neldiritto Editore",
                                 "NumberOfItems": "1",
                                 "NumberOfPages": "1200",
                                 "PackageDimensions": {
-                                    "Height": {"@Units": "inches", "#text": "3.0708661386"},
-                                    "Length": {"@Units": "inches", "#text": "9.8425196750"},
-                                    "Width": {"@Units": "inches", "#text": "6.7716535364"},
+                                    "Height": {
+                                        "@Units": "inches",
+                                        "#text": "3.0708661386",
+                                    },
+                                    "Length": {
+                                        "@Units": "inches",
+                                        "#text": "9.8425196750",
+                                    },
+                                    "Width": {
+                                        "@Units": "inches",
+                                        "#text": "6.7716535364",
+                                    },
                                     "Weight": {
                                         "@Units": "pounds",
                                         "#text": "5.291094288000000881849048",
