@@ -90,7 +90,24 @@ def calc_request_description(params):
 
 
 class MWS(object):
-    """Base Amazon API class"""
+    """Base Amazon API class.
+
+    NOTICE FOR 1.0 RELEASE TESTING
+    ------------------------------
+
+    A new parser, ``mws.utils.parsers.MWSResponse``, can be used to process requests
+    made to MWS. To test the new parser:
+
+    .. code-block:: python
+
+        # instantiate your API class as usual
+        api = Product(access_key, secret_key, account_id, ...)
+        # Then set the `_use_feature_mwsresponse` flag on the instance.
+        api._use_feature_mwsresponse = True
+
+    Now all requests you make with this instance of the API class
+    will run through ``MWSResponse``.
+    """
 
     # This is used to post/get to the different uris used by amazon per api
     # ie. /Orders/2011-01-01
@@ -151,6 +168,7 @@ class MWS(object):
 
         # * TESTING FLAGS * #
         self._test_request_params = False
+        self._use_feature_mwsresponse = False
 
         if region in Marketplaces.__members__:
             self.domain = Marketplaces[region].endpoint
@@ -248,26 +266,32 @@ class MWS(object):
             # be aware that response.content returns the content in bytes while response.text calls
             # response.content and converts it to unicode.
 
-            if "content-md5" in response.headers:
-                validate_hash(response)
+            if self._use_feature_mwsresponse:
+                # Turn on the new response parser and DotDict parsed output
+                # (will be made standard in v1.0)
+                if "content-md5" in response.headers:
+                    validate_hash(response)
 
-            parsed_response = MWSResponse(
-                response, result_key=result_key, request_timestamp=request_timestamp
-            )
+                parsed_response = MWSResponse(
+                    response, result_key=result_key, request_timestamp=request_timestamp
+                )
+            else:
+                ### DEPRECATED ###
+                # Remove in v1.0
+                from xml.etree.ElementTree import ParseError as XMLError
+                from mws.utils.parsers import DictWrapper, DataWrapper
 
-            # data = response.content
-            # # I do not check the headers to decide which content structure to server simply because sometimes
-            # # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
-            # result_key = kwargs.get("result_key", "{}Result".format(action))
-            # try:
-            #     try:
-            #         parsed_response = DictWrapper(data, result_key)
-            #     except TypeError:
-            #         # When we got CSV as result, we will got error on this
-            #         parsed_response = DictWrapper(response.text, result_key)
+                data = response.content
+                result_key = kwargs.get("result_key", "{}Result".format(action))
+                try:
+                    try:
+                        parsed_response = DictWrapper(data, result_key)
+                    except TypeError:
+                        # When we got CSV as result, we will got error on this
+                        parsed_response = DictWrapper(response.text, result_key)
 
-            # except XMLError:
-            #     parsed_response = DataWrapper(data, response.headers)
+                except XMLError:
+                    parsed_response = DataWrapper(data, response.headers)
 
         except HTTPError as exc:
             error = MWSError(str(exc.response.text))
