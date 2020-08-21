@@ -6,17 +6,6 @@ import datetime
 from mws.utils.params import clean_string, clean_bool, clean_date
 
 
-@pytest.fixture(scope="session")
-def mws_credentials():
-    """Fake set of MWS credentials"""
-    return {
-        "access_key": "cred_access",
-        "secret_key": "cred_secret",
-        "account_id": "cred_account",
-        "auth_token": "cred_token",
-    }
-
-
 class APITestBase:
     api_class = None
 

@@ -4,10 +4,7 @@ Utilities common to request method tests.
 import datetime
 import mws
 
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
+from urllib.parse import quote
 
 import pytest
 

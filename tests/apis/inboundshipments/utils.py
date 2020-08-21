@@ -5,12 +5,11 @@ import datetime
 import mws
 from mws.utils import clean_bool, clean_date, clean_string
 
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-
 import pytest
+
+
+# TODO rework a lot of this testing package
+# Need these utilities to be in ``tests.api``, to be shared with different API classes.
 
 
 class CommonAPIRequestTools(object):

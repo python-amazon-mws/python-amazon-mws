@@ -8,11 +8,11 @@ def test_calc_md5():
     assert calc_md5(b"mws") == b"mA5nPbh1CSx9M3dbkr3Cyg=="
 
 
-def test_calc_request_description(access_key, account_id):
+def test_calc_request_description(cred_access_key, cred_account_id):
     request_description = calc_request_description(
         {
-            "AWSAccessKeyId": access_key,
-            "Markets": account_id,
+            "AWSAccessKeyId": cred_access_key,
+            "Markets": cred_account_id,
             "SignatureVersion": "2",
             "Timestamp": "2017-08-12T19%3A40%3A35Z",
             "Version": "2017-01-01",
@@ -23,9 +23,9 @@ def test_calc_request_description(access_key, account_id):
     assert (
         request_description
         == "AWSAccessKeyId="
-        + access_key
+        + cred_access_key
         + "&Markets="
-        + account_id
+        + cred_account_id
         + "&SignatureMethod=HmacSHA256"
         "&SignatureVersion=2"
         "&Timestamp=2017-08-12T19%3A40%3A35Z"

@@ -2,30 +2,31 @@ import pytest
 
 
 @pytest.fixture
-def access_key():
-    return "AAAAAAAAAAAAAAAAAAAA"
+def cred_access_key():
+    return "cred_access_key"
 
 
 @pytest.fixture
-def secret_key():
-    return "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+def cred_secret_key():
+    return "cred_secret_key"
 
 
 @pytest.fixture
-def account_id():
-    return "AAAAAAAAAAAAAA"
+def cred_account_id():
+    return "cred_account_id"
 
 
 @pytest.fixture
-def timestamp():
-    return "2017-08-12T19:40:35Z"
+def cred_auth_token():
+    return "cred_auth_token"
 
 
 @pytest.fixture
-def credentials(access_key, secret_key, account_id):
+def mws_credentials(cred_access_key, cred_secret_key, cred_account_id, cred_auth_token):
     """Fake set of MWS credentials"""
     return {
-        "access_key": access_key,
-        "secret_key": secret_key,
-        "account_id": account_id,
+        "access_key": cred_access_key,
+        "secret_key": cred_secret_key,
+        "account_id": cred_account_id,
+        "auth_token": cred_auth_token,
     }
