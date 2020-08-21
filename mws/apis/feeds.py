@@ -3,7 +3,7 @@
 from mws import MWS
 from mws.decorators import next_token_action
 from mws.utils.crypto import calc_md5
-from mws.utils.parameters import enumerate_param
+from mws.utils.params import enumerate_param
 
 # TODO Add FeedProcessingStatus enumeration
 # TODO Add FeedType enumeration
@@ -111,7 +111,7 @@ class Feeds(MWS):
         next_token=None,
     ):
         """Returns a list of all feed submissions submitted
-        between `from_date` and `to_date`. If these parameters are ommitted,
+        between `from_date` and `to_date`. If these params are ommitted,
         defaults to the previous 90 days.
 
         Pass `next_token` to call "GetFeedSubmissionListByNextToken" instead.
@@ -143,7 +143,7 @@ class Feeds(MWS):
         self, feed_types=None, processing_statuses=None, from_date=None, to_date=None
     ):
         """Returns a count of the feeds submitted between `from_date` and `to_date`.
-        If these parameters are ommitted, defaults to the previous 90 days.
+        If these params are ommitted, defaults to the previous 90 days.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionCount.html

@@ -3,7 +3,7 @@
 import pytest
 import datetime
 
-from mws.utils.parameters import clean_string, clean_bool, clean_date
+from mws.utils.params import clean_string, clean_bool, clean_date
 
 
 @pytest.fixture(scope="session")
@@ -25,7 +25,7 @@ class APITestBase:
         self.api._test_request_params = True
 
     def assert_common_params(self, params, action=None):
-        """Tests the common parameters expected in every call."""
+        """Tests the common params expected in every call."""
         if action:
             assert params["Action"] == clean_string(action)
 
@@ -93,11 +93,11 @@ class APITestBase:
             with pytest.raises(ValueError):
                 assert self.api.generic_request(action=action, params=params)
 
-    def test_generic_request_correct_parameters_type(self):
+    def test_generic_request_correct_params_type(self):
         """Generic requests with a non-dict value for `params`
         should raise `ValueError`.
         """
-        action = "GenericRequestBadParameterssException"
+        action = "GenericRequestBadParamsException"
 
         # Any dict should pass (including an empty one)
         assert self.api.generic_request(action=action, params={})

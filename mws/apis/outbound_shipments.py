@@ -1,9 +1,9 @@
 """Amazon MWS Fulfillment Outbound Shipments API."""
 
 from mws import MWS
-from mws.utils.parameters import enumerate_param
-from mws.utils.parameters import enumerate_keyed_param
-from mws.utils.parameters import dict_keyed_param
+from mws.utils.params import enumerate_param
+from mws.utils.params import enumerate_keyed_param
+from mws.utils.params import dict_keyed_param
 from mws.decorators import next_token_action
 
 

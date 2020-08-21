@@ -130,7 +130,7 @@ make livehtml
 
 #### On Windows
 
-`make` may not be available on Windows, but you can still build documentation with `sphinx-build` and `sphinc-autobuild`.
+`make` may not be available on Windows, but you can still build documentation with `sphinx-build` and `sphinx-autobuild`.
 
 To build the docs locally, use `sphinx-build`:
 
@@ -146,7 +146,7 @@ sphinx-autobuild docs/source docs/build
 
 ### Contributing
 
-Please make pull requests to `develop`. Code coverage isn't necessary but encouraged where possible (especially for anything which might behave differently between Python 2/3).
+Please make pull requests to `develop`. Code coverage isn't necessary but encouraged where possible.
 
 ## Support
 

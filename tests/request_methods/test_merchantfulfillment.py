@@ -78,7 +78,7 @@ class MerchantFulfillmentTestCase(CommonAPIRequestTools, unittest.TestCase):
 
         self.assert_common_params(params, action="GetEligibleShippingServices")
 
-        # Check for our expected parameters
+        # Check for our expected params
         # fmt: off
         expected = {
             "ShipmentRequestDetails.AmazonOrderId": clean_string(amazon_order_id),

@@ -1,8 +1,8 @@
 """Amazon MWS FulfillmentInboundShipment API."""
 
 from mws import MWS, MWSError, utils
-from mws.utils.parameters import enumerate_param
-from mws.utils.parameters import enumerate_keyed_param
+from mws.utils.params import enumerate_param
+from mws.utils.params import enumerate_keyed_param
 from mws.utils.collections import unique_list_order_preserved
 from mws.decorators import next_token_action
 

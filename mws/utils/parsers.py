@@ -6,13 +6,21 @@ XML to Dict code Borrowed from https://github.com/timotheus/ebaysdk-python
 from io import BytesIO
 from zipfile import ZipFile
 import re
+import warnings
 import xml.etree.ElementTree as ET
+from xml.parsers.expat import ExpatError
+
+from requests import Response
 
 from mws.errors import MWSError
 from mws.utils.crypto import calc_md5
+from mws.utils.deprecation import RemovedInPAM11Warning
+from mws.utils.xml import mws_xml_to_dict, MWS_ENCODING
+from mws.utils.collections import DotDict
 
 
-class DotDict(dict):
+### DEPRECATED - REMOVE IN 1.1 ###
+class ObjectDict(dict):
     """Extension of dict to allow accessing keys as attributes.
 
     Example:
@@ -26,6 +34,13 @@ class DotDict(dict):
     """
 
     def __init__(self, initd=None):
+        warnings.warn(
+            (
+                "'ObjectDict' is deprecated. "
+                "Use 'mws.utils.parsers.DotDict' instead. "
+            ),
+            RemovedInPAM11Warning,
+        )
         if initd is None:
             initd = {}
         dict.__init__(self, initd)
@@ -79,24 +94,40 @@ class DotDict(dict):
             return default
 
 
-# DEPRECATED
-ObjectDict = DotDict
-
-
+### DEPRECATED - REMOVE IN 1.1 ###
 def remove_xml_namespace(xml):
     """Strips the namespace from XML document contained in a string.
     Returns the stripped string.
     """
+    warnings.warn(
+        (
+            "'remove_xml_namespace' is deprecated. "
+            "There is no direct replacement for this function. "
+            "'mws.utils.xml.extract_xml_namespaces' now returns namespaces from XML, "
+            "which are passed to 'xmltodict.parse' for processing."
+        ),
+        RemovedInPAM11Warning,
+    )
     regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
     return regex.sub("", xml)
 
 
+### DEPRECATED - REMOVE IN 1.1 ###
 class XML2Dict(object):
     def __init__(self):
+        warnings.warn(
+            (
+                "'XML2Dict' is deprecated. "
+                "XML parsing is now performed by dependency 'xmltodict', "
+                "using 'xmltodict.parse' "
+                "(See module 'mws.utils.xml' for details). "
+            ),
+            RemovedInPAM11Warning,
+        )
         pass
 
     def _parse_node(self, node):
-        node_tree = DotDict()
+        node_tree = ObjectDict()
         # Save attrs and text, hope there will not be a child with same name
         if node.text and node.text.strip():
             # Only assign a value if both the value and its `.strip`ped version work.
@@ -104,7 +135,7 @@ class XML2Dict(object):
             node_tree.value = node.text
         for key, val in node.attrib.items():
             # if val.strip():
-            key, val = self._namespace_split(key, DotDict({"value": val}))
+            key, val = self._namespace_split(key, ObjectDict({"value": val}))
             node_tree[key] = val
         # Save childrens
         for child in node:
@@ -140,17 +171,10 @@ class XML2Dict(object):
         """Convert XML-formatted string to an DotDict."""
         text = ET.fromstring(str_)
         root_tag, root_tree = self._namespace_split(text.tag, self._parse_node(text))
-        return DotDict({root_tag: root_tree})
+        return ObjectDict({root_tag: root_tree})
 
 
-# DEPRECATION: these are old names for these objects, which have been updated
-# to more idiomatic naming convention. Leaving these names in place in case
-# anyone is using the old object names.
-# TODO: remove in 1.0.0
-object_dict = ObjectDict
-xml2dict = XML2Dict
-
-
+### DEPRECATED - REMOVE IN 1.1 ###
 class DictWrapper(object):
     """Converts XML data to a parsed response object as a tree of `DotDict`s.
 
@@ -163,6 +187,16 @@ class DictWrapper(object):
     # Either this, or pile everything into DataWrapper and make it able to handle all cases.
 
     def __init__(self, xml, result_key=None):
+        warnings.warn(
+            (
+                "DictWrapper is deprecated. "
+                "For parsing 'request.Response' objects, "
+                "use 'mws.utils.parsers.MWSResponse'. "
+                "For parsing raw XML content, "
+                "see module 'mws.utils.xml'. "
+            ),
+            RemovedInPAM11Warning,
+        )
         if isinstance(xml, bytes):
             try:
                 xml = xml.decode(encoding="iso-8859-1")
@@ -194,10 +228,19 @@ class DictWrapper(object):
         return self._original
 
 
+### DEPRECATED - REMOVE IN 1.1 ###
 class DataWrapper(object):
     """Text wrapper in charge of validating the hash sent by Amazon."""
 
     def __init__(self, data, headers):
+        warnings.warn(
+            (
+                "DataWrapper is deprecated. "
+                "For parsing request.Response objects, "
+                "use 'mws.utils.parsers.MWSResponse'. "
+            ),
+            RemovedInPAM11Warning,
+        )
         self.original = data
         self.response = None
         self.headers = headers
@@ -231,3 +274,161 @@ class DataWrapper(object):
             except Exception as exc:
                 raise MWSError(str(exc))
         return None  # 'The response is not a zipped file.'
+
+
+class ResponseWrapper:
+    """Wraps a ``requests.Response`` object, storing the object internally
+    and providing access to its public attributes as read-only properties.
+
+    Mainly serves as a base class for ``MWSResponse``, so as to separate this code.
+    """
+
+    def __init__(self, response):
+        self._response = response
+
+    @property
+    def response(self):
+        """Read-only shortcut to ``._response.``"""
+        return self._response
+
+    @property
+    def original(self):
+        """Alias for ``.response``."""
+        return self.response
+
+    @property
+    def text(self):
+        """Returns the requests.Response object ``text`` attr,
+        which returns unicode.
+        """
+        return self.response.text
+
+    @property
+    def content(self):
+        """Returns the requests.Response object ``content`` attr,
+        which returns bytes.
+        """
+        return self.response.content
+
+    @property
+    def status_code(self):
+        """Returns the requests.Response object ``status_code`` attr."""
+        return self.response.status_code
+
+    @property
+    def headers(self):
+        """Returns the requests.Response object ``headers`` attr."""
+        return self.response.headers
+
+    @property
+    def encoding(self):
+        """Returns the requests.Response object ``encoding`` attr."""
+        return self.response.encoding
+
+    @property
+    def reason(self):
+        """Returns the requests.Response object ``reason`` attr."""
+        return self.response.reason
+
+    @property
+    def cookies(self):
+        """Returns the requests.Response object ``cookies`` attr."""
+        return self.response.cookies
+
+    @property
+    def elapsed(self):
+        """Returns the requests.Response object ``elapsed`` attr."""
+        return self.response.elapsed
+
+    @property
+    def request(self):
+        """Returns the requests.Response object ``request`` attr."""
+        return self.response.request
+
+
+class MWSResponse(ResponseWrapper):
+    """Wraps a requests.Response object and extracts some known data.
+
+    Particularly for XML responses, parsed contents can be found in the ``.parsed``
+    property as a ``DotDict`` instance.
+
+    Find metadata in ``.metadata``, mainly for accessing ``.metadata.RequestId``;
+    or simply use the ``.request_id`` shortcut attr.
+    """
+
+    def __init__(
+        self, response, request_timestamp=None, result_key=None, force_cdata=False
+    ):
+        super().__init__(response)
+        if not self._response.encoding:
+            # If the response did not specify its encoding,
+            # we will assume Amazon's choice of encoding stands.
+            # Otherwise, the chardet detection may end up as Windows-1252
+            # or something else close, yet incorrect.
+            self._response.encoding = MWS_ENCODING
+
+        # Attrs for collecting parsed XML data
+        self._dict = None
+        self._dotdict = None
+        self._metadata = None
+
+        # parsing
+        self._request_timestamp = request_timestamp
+        self._result_key = result_key
+
+        try:
+            # Attempt to convert text content to an
+            self._dict = mws_xml_to_dict(self._response.text, force_cdata=force_cdata)
+        except ExpatError:
+            # Probably not XML content: just ignore it.
+            pass
+        else:
+            # No exception? Cool
+            self._build_dotdict_data()
+
+    def __repr__(self):
+        return "<{} [{}]>".format(self.__class__.__name__, self._response.status_code)
+
+    def _build_dotdict_data(self):
+        """Convert XML response content to a Python dictionary using `xmltodict`."""
+        self._dotdict = DotDict(self._dict)
+
+        # Extract ResponseMetaData as a separate DotDict, if provided
+        if "ResponseMetaData" in self._dict:
+            self._metadata = DotDict(self._dict["ResponseMetaData"])
+
+    @property
+    def parsed(self):
+        """Return a parsed version of the response.
+        For XML documents, returns a nested DotDict of the parsed XML content,
+        starting from `_result_key`.
+        """
+        if self._dotdict is not None:
+            if self._result_key is None:
+                # Use the full DotDict without going to a root key first
+                return self._dotdict
+            return self._dotdict.get(self._result_key, None)
+        # If no parsed content exists, return the raw text, instead.
+        return self.text
+
+    @property
+    def metadata(self):
+        """Returns a metadata DotDict from the response content.
+        Typically the only key of note here is `reponse.metadata.RequestId`
+        (which can also be accessed from the shortcut `response.request_id`).
+        """
+        return self._metadata
+
+    @property
+    def request_id(self):
+        """Shortcut to ResponseMetaData.RequestId if present.
+        Returns None if not found.
+        """
+        if self.metadata is not None:
+            return self.metadata.get("RequestId")
+        return None
+
+    @property
+    def timestamp(self):
+        """Returns the timestamp when the request was sent."""
+        return self._request_timestamp

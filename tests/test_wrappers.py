@@ -6,8 +6,8 @@ from mws.utils import DictWrapper
 
 def test_content_md5_comparison():
     data = b"abc\tdef"
-    hash = "Zj+Bh1BJ8HzBb9ToK28qFQ=="
-    DataWrapper(data, {"content-md5": hash})
+    hash_ = "Zj+Bh1BJ8HzBb9ToK28qFQ=="
+    DataWrapper(data, {"content-md5": hash_})
 
 
 def test_content_md5_check_raises_exception_if_fails():

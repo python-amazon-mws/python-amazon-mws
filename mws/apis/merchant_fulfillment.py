@@ -1,8 +1,8 @@
 """Amazon MWS Merchant Fulfillment API."""
 
 from mws import MWS
-from mws.utils.parameters import enumerate_keyed_param
-from mws.utils.parameters import dict_keyed_param
+from mws.utils.params import enumerate_keyed_param
+from mws.utils.params import dict_keyed_param
 
 
 class MerchantFulfillment(MWS):

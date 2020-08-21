@@ -1,7 +1,7 @@
 """Amazon MWS Inventory Fulfillment API."""
 
 from mws import MWS
-from mws.utils.parameters import enumerate_param
+from mws.utils.params import enumerate_param
 from mws.decorators import next_token_action
 
 

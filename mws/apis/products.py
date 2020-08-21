@@ -1,7 +1,7 @@
 """Amazon MWS Products API."""
 
 from mws import MWS
-from mws.utils.parameters import enumerate_param
+from mws.utils.params import enumerate_param
 
 
 class Products(MWS):

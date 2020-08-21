@@ -1,11 +1,12 @@
-"""Testing for enumerate_param, enumerate_params, and enumerate_keyed_param."""
+"""Testing for param utilities."""
 
 import pytest
 
-from mws.utils.parameters import enumerate_param
-from mws.utils.parameters import enumerate_params
-from mws.utils.parameters import enumerate_keyed_param
-from mws.utils.parameters import dict_keyed_param
+from mws.utils.params import enumerate_param
+from mws.utils.params import enumerate_params
+from mws.utils.params import enumerate_keyed_param
+from mws.utils.params import dict_keyed_param
+from mws.utils.params import flat_param_dict
 
 
 def test_keyed_param_fails_without_dict():
@@ -95,90 +96,39 @@ def test_multi_params():
     assert result == expected
 
 
-def test_keyed_params():
+enum_key_items1 = [
+    {"thing": "stuff", "foo": "baz"},
+    {"thing": 123, "foo": 908, "bar": "hello"},
+    {"stuff": "foobarbazmatazz", "stuff2": "foobarbazmatazz5"},
+]
+enum_key_expected1 = {
+    "AthingToKeyUp.member.1.thing": "stuff",
+    "AthingToKeyUp.member.1.foo": "baz",
+    "AthingToKeyUp.member.2.thing": 123,
+    "AthingToKeyUp.member.2.foo": 908,
+    "AthingToKeyUp.member.2.bar": "hello",
+    "AthingToKeyUp.member.3.stuff": "foobarbazmatazz",
+    "AthingToKeyUp.member.3.stuff2": "foobarbazmatazz5",
+}
+
+enum_key_items2 = {"stuff": "foobarbazmatazz", "stuff2": "foobarbazmatazz5"}
+enum_key_expected2 = {
+    "AthingToKeyUp.member.1.stuff": "foobarbazmatazz",
+    "AthingToKeyUp.member.1.stuff2": "foobarbazmatazz5",
+}
+
+
+### Parametrized tests for enumerate_keyed_param
+# Should expect the same outputs whether the param ends in '.' or not.
+@pytest.mark.parametrize("param", ("AthingToKeyUp.member", "AthingToKeyUp.member."))
+@pytest.mark.parametrize(
+    "items, expected",
+    ((enum_key_items1, enum_key_expected1), (enum_key_items2, enum_key_expected2),),
+)
+def test_enumerate_keyed_param(param, items, expected):
     """Asserting the result through enumerate_keyed_param is as expected."""
-    # Example:
-    #   param = "InboundShipmentPlanRequestItems.member"
-    #   values = [
-    #     {'SellerSKU': 'Football2415',
-    #     'Quantity': 3},
-    #     {'SellerSKU': 'TeeballBall3251',
-    #     'Quantity': 5},
-    #     ...
-    #   ]
-
-    # Returns:
-    #   {
-    #     'InboundShipmentPlanRequestItems.member.1.SellerSKU': 'Football2415',
-    #     'InboundShipmentPlanRequestItems.member.1.Quantity': 3,
-    #     'InboundShipmentPlanRequestItems.member.2.SellerSKU': 'TeeballBall3251',
-    #     'InboundShipmentPlanRequestItems.member.2.Quantity': 5,
-    #     ...
-    #   }
-    param = "AthingToKeyUp.member"
-    item1 = {
-        "thing": "stuff",
-        "foo": "baz",
-    }
-    item2 = {
-        "thing": 123,
-        "foo": 908,
-        "bar": "hello",
-    }
-    item3 = {
-        "stuff": "foobarbazmatazz",
-        "stuff2": "foobarbazmatazz5",
-    }
-    result_1 = enumerate_keyed_param(param, [item1, item2, item3])
-    expected_1 = {
-        "AthingToKeyUp.member.1.thing": "stuff",
-        "AthingToKeyUp.member.1.foo": "baz",
-        "AthingToKeyUp.member.2.thing": 123,
-        "AthingToKeyUp.member.2.foo": 908,
-        "AthingToKeyUp.member.2.bar": "hello",
-        "AthingToKeyUp.member.3.stuff": "foobarbazmatazz",
-        "AthingToKeyUp.member.3.stuff2": "foobarbazmatazz5",
-    }
-    assert result_1 == expected_1
-    # Test param with single value, which should work similarly
-    # (value should auto-convert to list with one element)
-    result_2 = enumerate_keyed_param(param, item3)
-    expected_2 = {
-        "AthingToKeyUp.member.1.stuff": "foobarbazmatazz",
-        "AthingToKeyUp.member.1.stuff2": "foobarbazmatazz5",
-    }
-    assert result_2 == expected_2
-
-
-def test_keyed_params_with_dot():
-    """Asserting the result through enumerate_keyed_param is as expected,
-    even when param ends with '.'.
-    """
-    param = "AthingToKeyUp.member."
-    item1 = {
-        "thing": "stuff",
-        "foo": "baz",
-    }
-    item2 = {
-        "thing": 123,
-        "foo": 908,
-    }
-    result_1 = enumerate_keyed_param(param, [item1, item2])
-    expected_1 = {
-        "AthingToKeyUp.member.1.thing": "stuff",
-        "AthingToKeyUp.member.1.foo": "baz",
-        "AthingToKeyUp.member.2.thing": 123,
-        "AthingToKeyUp.member.2.foo": 908,
-    }
-    assert result_1 == expected_1
-    # Test param with single value, which should work similarly
-    # (value should auto-convert to list with one element)
-    result_2 = enumerate_keyed_param(param, item1)
-    expected_2 = {
-        "AthingToKeyUp.member.1.thing": "stuff",
-        "AthingToKeyUp.member.1.foo": "baz",
-    }
-    assert result_2 == expected_2
+    result = enumerate_keyed_param(param, items)
+    assert result == expected
 
 
 def test_dict_keyed_param_not_dotted():
@@ -209,7 +159,66 @@ def test_dict_keyed_param_dotted():
     assert result == expected
 
 
-class TestRequestParameterClass:
-    """Group of tests related to the mws.mws.RequestParameter."""
+def test_flat_param_dict():
+    """Checks the output of `mws.utils.params.flat_param_dict`."""
+    value = {
+        "a": 1,
+        "b": "hello",
+        "c": ["foo", "bar", {"spam": "ham", "eggs": [5, 6, 7]}],
+    }
 
-    pass
+    output = flat_param_dict(value)
+
+    expected = {
+        "a": 1,
+        "b": "hello",
+        "c.1": "foo",
+        "c.2": "bar",
+        "c.3.spam": "ham",
+        "c.3.eggs.1": 5,
+        "c.3.eggs.2": 6,
+        "c.3.eggs.3": 7,
+    }
+
+    assert output == expected
+
+
+def test_flat_param_dict_prefixed():
+    """Checks the output of `mws.utils.params.flat_param_dict` with a prefix."""
+    value = {
+        "a": 1,
+        "b": "hello",
+        "c": ["foo", "bar", {"spam": "ham", "eggs": [5, 6, 7]}],
+    }
+
+    output = flat_param_dict(value, prefix="foobarbaz")
+
+    expected = {
+        "foobarbaz.a": 1,
+        "foobarbaz.b": "hello",
+        "foobarbaz.c.1": "foo",
+        "foobarbaz.c.2": "bar",
+        "foobarbaz.c.3.spam": "ham",
+        "foobarbaz.c.3.eggs.1": 5,
+        "foobarbaz.c.3.eggs.2": 6,
+        "foobarbaz.c.3.eggs.3": 7,
+    }
+
+    assert output == expected
+
+
+@pytest.mark.parametrize(
+    "value, prefix",
+    (
+        ("spam", None),  # string value (which is excluded from checks for Iterables)
+        ("spam", ""),  # also check the prefix empty string
+        (5, None),  # basically any other value that isn't a dict or Iterable
+        (5, ""),
+    ),
+)
+def test_flat_param_dict_exceptions(value, prefix):
+    """Check that certain inputs to `mws.utils.params.flat_param_dict`
+    raise expected exceptions.
+    """
+    with pytest.raises(ValueError):
+        flat_param_dict(value, prefix=prefix)

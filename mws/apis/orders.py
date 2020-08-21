@@ -1,8 +1,8 @@
 """Amazon Orders API."""
 
 from mws import MWS
-from mws.utils.parameters import enumerate_param
-from mws.utils.parameters import enumerate_params
+from mws.utils.params import enumerate_param
+from mws.utils.params import enumerate_params
 from mws.decorators import next_token_action
 
 

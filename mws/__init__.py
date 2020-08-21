@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import warnings
+
 from .mws import Marketplaces, MWS
 from .errors import MWSError
 from .apis import (
@@ -37,3 +39,5 @@ __all__ = [
     "Sellers",
     "Subscriptions",
 ]
+
+warnings.simplefilter("default")

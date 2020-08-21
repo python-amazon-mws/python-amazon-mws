@@ -1,11 +1,12 @@
 from .collections import unique_list_order_preserved
 from .crypto import calc_md5
-from .parameters import (
+from .params import (
     dict_keyed_param,
     enumerate_keyed_param,
     enumerate_param,
     enumerate_params,
-    clean_param_value,
+    flat_param_dict,
+    clean_value,
     clean_bool,
     clean_date,
     clean_string,
@@ -13,31 +14,26 @@ from .parameters import (
 from .parsers import (
     DataWrapper,
     DictWrapper,
-    DotDict,
     ObjectDict,
     XML2Dict,
 )
-
-# DEPRECATED objects, imported for backwards compatibility
-# TODO remove in 1.0
-from .parsers import object_dict, xml2dict
+from .timezone import mws_utc_now
 
 __all__ = [
     "calc_md5",
     "clean_bool",
     "clean_date",
-    "clean_param_value",
     "clean_string",
+    "clean_value",
     "DataWrapper",
     "dict_keyed_param",
     "DictWrapper",
-    "DotDict",
     "enumerate_keyed_param",
     "enumerate_param",
     "enumerate_params",
-    "object_dict",
+    "flat_param_dict",
+    "mws_utc_now",
     "ObjectDict",
     "unique_list_order_preserved",
-    "xml2dict",
     "XML2Dict",
 ]

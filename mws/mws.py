@@ -3,12 +3,9 @@
 
 from enum import Enum
 from urllib.parse import quote
-from xml.etree.ElementTree import ParseError as XMLError
 import base64
-import datetime
 import hashlib
 import hmac
-import re
 import warnings
 
 from requests import request
@@ -16,9 +13,9 @@ from requests.exceptions import HTTPError
 
 from mws.errors import MWSError
 from mws.utils.crypto import calc_md5
-from mws.utils.parameters import clean_param_value, enumerate_param, RequestParameter
-from mws.utils.parsers import DictWrapper, DataWrapper, XML2Dict
-from mws.utils.timezone import utc_timestamp
+from mws.utils.parsers import MWSResponse
+from mws.utils.params import clean_params_dict, enumerate_param, flat_param_dict
+from mws.utils.timezone import mws_utc_now
 
 
 __version__ = "1.0.0dev14"
@@ -90,21 +87,6 @@ def calc_request_description(params):
         encoded_val = params[item]
         description_items.append("{}={}".format(item, encoded_val))
     return "&".join(description_items)
-
-
-# TODO incorporate the clean method into `RequestParameter`
-def clean_params(params):
-    """Input cleanup and prevent a lot of common input mistakes."""
-    # silently remove parameter where values are empty
-    params = {k: v for k, v in params.items() if v is not None and v != ""}
-
-    cleaned_params = dict()
-    for key, val in params.items():
-        try:
-            cleaned_params[key] = clean_param_value(val)
-        except ValueError as exc:
-            raise MWSError(str(exc)) from exc
-    return cleaned_params
 
 
 class MWS(object):
@@ -181,14 +163,14 @@ class MWS(object):
             )
             raise MWSError(error_msg)
 
-    def get_default_params(self, action):
-        """Get the parameters required in all MWS requests."""
+    def get_default_params(self, action, timestamp):
+        """Get the params required in all MWS requests."""
         params = {
             "Action": action,
             "AWSAccessKeyId": self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
             "SignatureVersion": "2",
-            "Timestamp": utc_timestamp(),
+            "Timestamp": timestamp,
             "Version": self.version,
             "SignatureMethod": "HmacSHA256",
         }
@@ -201,12 +183,12 @@ class MWS(object):
     def make_request(
         self, action, params=None, method="GET", timeout=PAM_DEFAULT_TIMEOUT, **kwargs
     ):
-        """Make request to Amazon MWS API with these parameters.
+        """Make request to Amazon MWS API with these params.
 
         `action` is a string matching the name of the request action
         (i.e. "ListOrders").
 
-        `params` is a flat dict containing parameters to pass to the operation.
+        `params` is a flat dict containing params to pass to the operation.
 
         `method` is a string, matching an HTTP verb ("GET", "POST", etc.),
         which sets the method for a `requests.request` call.
@@ -221,10 +203,11 @@ class MWS(object):
         """
         params = params or {}
 
-        request_params = self.get_default_params(action)
+        request_timestamp = mws_utc_now()
+        request_params = self.get_default_params(action, request_timestamp)
         proxies = self.get_proxies()
         request_params.update(params)
-        request_params = clean_params(request_params)
+        request_params = clean_params_dict(request_params)
 
         if self._test_request_params:
             # Testing method: return the params from this request before the request is made.
@@ -268,10 +251,9 @@ class MWS(object):
             if "content-md5" in response.headers:
                 validate_hash(response)
 
-            # TODO temp stuff
-            import mws
-
-            parsed_response = mws.utils.new.MWSResponse(response, result_key=result_key)
+            parsed_response = MWSResponse(
+                response, result_key=result_key, request_timestamp=request_timestamp
+            )
 
             # data = response.content
             # # I do not check the headers to decide which content structure to server simply because sometimes
@@ -369,13 +351,13 @@ class MWS(object):
         )
 
     def enumerate_param(self, param, values):
-        """DEPRECATED, alias for `utils.parameters.enumerate_param`."""
+        """DEPRECATED, alias for `utils.params.enumerate_param`."""
         # TODO remove in 1.0 release.
         # No tests needed.
         warnings.warn(
             (
-                "Please use `utils.parameters.enumerate_param` for one param, or "
-                "`utils.parameters.enumerate_params` for multiple params."
+                "Please use `utils.params.enumerate_param` for one param, or "
+                "`utils.params.enumerate_params` for multiple params."
             ),
             DeprecationWarning,
         )
@@ -389,16 +371,16 @@ class MWS(object):
         This method's signature matches that of `MWS.make_request`, as the two methods
         are similar. However, `params` is expected to be either the default `None`
         or a nested dictionary, that is then passed to
-        `mws.utils.parameters.RequestParameter` in order to flatten it.
+        `mws.utils.params.flat_param_dict` in order to flatten it.
         """
         # NOTE you may be asking why this method exists. Why not simply put the logic
-        # of `RequestParameter` into `make_request`, and let every request method
+        # of `flat_param_dict` into `make_request`, and let every request method
         # pass nested objects freely?
         # Well, I tried that. Turns out giving up that kind of control has some
         # unintended consequences.
         # For instance, say you know that a given parameter for your request only takes
         # one value, such as `ReportType=_SOME_REPORT_TYPE_`.
-        # If the user passes a list wrapping that string, `RequestParameter` will
+        # If the user passes a list wrapping that string, `flat_param_dict` will
         # happily enumerate that value: `ReportType.1=_SOME_REPORT_TYPE_`.
         # For that particular request, we would know this to be an error: MWS will
         # not accept that entry. Surfacing that error to the end user would be quite
@@ -419,7 +401,7 @@ class MWS(object):
             )
         if not isinstance(params, dict):
             raise ValueError("`params` must be a dict.")
-        data = RequestParameter(value=params).to_dict()
+        data = flat_param_dict(params)
         return self.make_request(
             action=action, params=data, method=method, timeout=timeout, **kwargs
         )
