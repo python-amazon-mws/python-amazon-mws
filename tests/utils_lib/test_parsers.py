@@ -1,20 +1,41 @@
+"""Testing for parsing wrappers, typically those in ``mws.utils.parsers``."""
+
 import pytest
+
+from requests import Response
+
 from mws import MWSError
 from mws.utils import DataWrapper
 from mws.utils import DictWrapper
+from mws.utils.parsers import MWSResponse, DotDict
+from mws.utils.xml import MWS_ENCODING
+
+
+def mock_mws_response(content):
+    response = Response()
+    response._content = content
+    response.encoding = MWS_ENCODING
+    response.status_code = 200
+    return response
 
 
 def test_content_md5_comparison():
-    data = b"abc\tdef"
-    hash_ = "Zj+Bh1BJ8HzBb9ToK28qFQ=="
-    DataWrapper(data, {"content-md5": hash_})
+    correct_hash = "Zj+Bh1BJ8HzBb9ToK28qFQ=="
+    response = Response()
+    response._content = b"abc\tdef"
+    response.headers["content-md5"] = correct_hash
+    # Should raise no error
+    MWSResponse(response)
 
 
 def test_content_md5_check_raises_exception_if_fails():
-    data = b"abc\tdef"
-    hash = "notthehash"
+    incorrect_hash = "notthehash"
+    response = Response()
+    response._content = b"abc\tdef"
+    response.headers["content-md5"] = incorrect_hash
+    # Should raise an error due to incorrect hash value.
     with pytest.raises(MWSError):
-        DataWrapper(data, {"content-md5": hash})
+        MWSResponse(response)
 
 
 def test_decode_byte_xml():
@@ -153,12 +174,7 @@ def test_decode_byte_xml():
     </ListMatchingProductsResponse>
     """
 
-    # Clean out the spacing used above, matching the output we expected from MWS
-    intermediate = original.decode("iso-8859-1").split("\n")
-    stripped = "".join([x.strip() for x in intermediate])
-    stripped_original = stripped.encode("iso-8859-1")
-
-    # We expect the following dict output from `.parsed`
+    # We expect the following DotDict output from `.parsed`
     expected = {
         "ListMatchingProductsResult": {
             "Products": {
@@ -166,197 +182,160 @@ def test_decode_byte_xml():
                     {
                         "Identifiers": {
                             "MarketplaceASIN": {
-                                "MarketplaceId": {"value": "APJ6JRA9NG5V4"},
-                                "ASIN": {"value": "8891808660"},
+                                "MarketplaceId": "APJ6JRA9NG5V4",
+                                "ASIN": "8891808660",
                             }
                         },
                         "AttributeSets": {
                             "ItemAttributes": {
-                                "lang": {"value": "it-IT"},
-                                "Binding": {"value": "Copertina rigida"},
+                                "@lang": "it-IT",
+                                "Binding": "Copertina rigida",
                                 "Creator": [
                                     {
-                                        "value": "Mizielinska, Aleksandra",
-                                        "Role": {"value": "Autore"},
+                                        "#text": "Mizielinska, Aleksandra",
+                                        "@Role": "Autore",
                                     },
                                     {
-                                        "value": "Mizielinski, Daniel",
-                                        "Role": {"value": "Autore"},
+                                        "#text": "Mizielinski, Daniel",
+                                        "@Role": "Autore",
                                     },
-                                    {
-                                        "value": "Parisi, V.",
-                                        "Role": {"value": "Traduttore"},
-                                    },
+                                    {"#text": "Parisi, V.", "@Role": "Traduttore",},
                                 ],
                                 "ItemDimensions": {
                                     "Height": {
-                                        "value": "14.80312",
-                                        "Units": {"value": "inches"},
+                                        "#text": "14.80312",
+                                        "@Units": "inches",
                                     },
                                     "Length": {
-                                        "value": "10.86612",
-                                        "Units": {"value": "inches"},
+                                        "#text": "10.86612",
+                                        "@Units": "inches",
                                     },
-                                    "Width": {
-                                        "value": "1.06299",
-                                        "Units": {"value": "inches"},
-                                    },
-                                    "Weight": {
-                                        "value": "3.17",
-                                        "Units": {"value": "pounds"},
-                                    },
+                                    "Width": {"#text": "1.06299", "@Units": "inches",},
+                                    "Weight": {"#text": "3.17", "@Units": "pounds",},
                                 },
-                                "Label": {"value": "Mondadori Electa"},
+                                "Label": "Mondadori Electa",
                                 "Languages": {
                                     "Language": [
+                                        {"Name": "italian", "Type": "Pubblicato",},
                                         {
-                                            "Name": {"value": "italian"},
-                                            "Type": {"value": "Pubblicato"},
-                                        },
-                                        {
-                                            "Name": {"value": "italian"},
-                                            "Type": {"value": "Lingua originale"},
+                                            "Name": "italian",
+                                            "Type": "Lingua originale",
                                         },
                                     ]
                                 },
                                 "ListPrice": {
-                                    "Amount": {"value": "25.00"},
-                                    "CurrencyCode": {"value": "EUR"},
+                                    "Amount": "25.00",
+                                    "CurrencyCode": "EUR",
                                 },
-                                "Manufacturer": {"value": "Mondadori Electa"},
-                                "NumberOfPages": {"value": "144"},
+                                "Manufacturer": "Mondadori Electa",
+                                "NumberOfPages": "144",
                                 "PackageDimensions": {
                                     "Height": {
-                                        "value": "0.8661417314",
-                                        "Units": {"value": "inches"},
+                                        "#text": "0.8661417314",
+                                        "@Units": "inches",
                                     },
                                     "Length": {
-                                        "value": "14.9606299060",
-                                        "Units": {"value": "inches"},
+                                        "#text": "14.9606299060",
+                                        "@Units": "inches",
                                     },
                                     "Width": {
-                                        "value": "11.0236220360",
-                                        "Units": {"value": "inches"},
+                                        "#text": "11.0236220360",
+                                        "@Units": "inches",
                                     },
                                     "Weight": {
-                                        "value": "3.1746565728",
-                                        "Units": {"value": "pounds"},
+                                        "#text": "3.1746565728",
+                                        "@Units": "pounds",
                                     },
                                 },
-                                "ProductGroup": {"value": "Libro"},
-                                "ProductTypeName": {"value": "ABIS_BOOK"},
-                                "PublicationDate": {"value": "2016-10-25"},
-                                "Publisher": {"value": "Mondadori Electa"},
-                                "ReleaseDate": {"value": "2016-10-25"},
+                                "ProductGroup": "Libro",
+                                "ProductTypeName": "ABIS_BOOK",
+                                "PublicationDate": "2016-10-25",
+                                "Publisher": "Mondadori Electa",
+                                "ReleaseDate": "2016-10-25",
                                 "SmallImage": {
-                                    "URL": {
-                                        "value": "http://ecx.images-amazon.com/images/I/61K2xircqJL._SL75_.jpg"
-                                    },
-                                    "Height": {
-                                        "value": "75",
-                                        "Units": {"value": "pixels"},
-                                    },
-                                    "Width": {
-                                        "value": "55",
-                                        "Units": {"value": "pixels"},
-                                    },
+                                    "URL": "http://ecx.images-amazon.com/images/I/61K2xircqJL._SL75_.jpg",
+                                    "Height": {"#text": "75", "@Units": "pixels",},
+                                    "Width": {"#text": "55", "@Units": "pixels",},
                                 },
-                                "Studio": {"value": "Mondadori Electa"},
-                                "Title": {
-                                    "value": "Mappe. Un atlante per viaggiare tra terra, mari e culture del mondo"
-                                },
+                                "Studio": "Mondadori Electa",
+                                "Title": "Mappe. Un atlante per viaggiare tra terra, mari e culture del mondo",
                             }
                         },
-                        "Relationships": {},
+                        "Relationships": None,
                     },
                     {
                         "Identifiers": {
                             "MarketplaceASIN": {
-                                "MarketplaceId": {"value": "APJ6JRA9NG5V4"},
-                                "ASIN": {"value": "8832706571"},
+                                "MarketplaceId": "APJ6JRA9NG5V4",
+                                "ASIN": "8832706571",
                             }
                         },
                         "AttributeSets": {
                             "ItemAttributes": {
-                                "lang": {"value": "it-IT"},
-                                "Binding": {"value": "Copertina flessibile"},
-                                "Creator": {
-                                    "value": "aa.vv.",
-                                    "Role": {"value": "Autore"},
-                                },
-                                "Genre": {"value": "Diritto"},
-                                "Label": {"value": "Neldiritto Editore"},
+                                "@lang": "it-IT",
+                                "Binding": "Copertina flessibile",
+                                "Creator": {"#text": "aa.vv.", "@Role": "Autore",},
+                                "Genre": "Diritto",
+                                "Label": "Neldiritto Editore",
                                 "Languages": {
                                     "Language": {
-                                        "Name": {"value": "italian"},
-                                        "Type": {"value": "Pubblicato"},
+                                        "Name": "italian",
+                                        "Type": "Pubblicato",
                                     }
                                 },
                                 "ListPrice": {
-                                    "Amount": {"value": "90.00"},
-                                    "CurrencyCode": {"value": "EUR"},
+                                    "Amount": "90.00",
+                                    "CurrencyCode": "EUR",
                                 },
-                                "Manufacturer": {"value": "Neldiritto Editore"},
-                                "NumberOfItems": {"value": "1"},
-                                "NumberOfPages": {"value": "1200"},
+                                "Manufacturer": "Neldiritto Editore",
+                                "NumberOfItems": "1",
+                                "NumberOfPages": "1200",
                                 "PackageDimensions": {
                                     "Height": {
-                                        "value": "3.0708661386",
-                                        "Units": {"value": "inches"},
+                                        "#text": "3.0708661386",
+                                        "@Units": "inches",
                                     },
                                     "Length": {
-                                        "value": "9.8425196750",
-                                        "Units": {"value": "inches"},
+                                        "#text": "9.8425196750",
+                                        "@Units": "inches",
                                     },
                                     "Width": {
-                                        "value": "6.7716535364",
-                                        "Units": {"value": "inches"},
+                                        "#text": "6.7716535364",
+                                        "@Units": "inches",
                                     },
                                     "Weight": {
-                                        "value": "5.291094288000000881849048",
-                                        "Units": {"value": "pounds"},
+                                        "#text": "5.291094288000000881849048",
+                                        "@Units": "pounds",
                                     },
                                 },
-                                "ProductGroup": {"value": "Libro"},
-                                "ProductTypeName": {"value": "ABIS_BOOK"},
-                                "PublicationDate": {"value": "2020-01-24"},
-                                "Publisher": {"value": "Neldiritto Editore"},
-                                "ReleaseDate": {"value": "2020-01-24"},
+                                "ProductGroup": "Libro",
+                                "ProductTypeName": "ABIS_BOOK",
+                                "PublicationDate": "2020-01-24",
+                                "Publisher": "Neldiritto Editore",
+                                "ReleaseDate": "2020-01-24",
                                 "SmallImage": {
-                                    "URL": {
-                                        "value": "http://ecx.images-amazon.com/images/I/41HeNbq4xKL._SL75_.jpg"
-                                    },
-                                    "Height": {
-                                        "value": "75",
-                                        "Units": {"value": "pixels"},
-                                    },
-                                    "Width": {
-                                        "value": "53",
-                                        "Units": {"value": "pixels"},
-                                    },
+                                    "URL": "http://ecx.images-amazon.com/images/I/41HeNbq4xKL._SL75_.jpg",
+                                    "Height": {"#text": "75", "@Units": "pixels",},
+                                    "Width": {"#text": "53", "@Units": "pixels",},
                                 },
-                                "Studio": {"value": "Neldiritto Editore"},
-                                "Title": {
-                                    "value": "Concorso Magistratura 2020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo"
-                                },
+                                "Studio": "Neldiritto Editore",
+                                "Title": "Concorso Magistratura 2020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo",
                             }
                         },
-                        "Relationships": {},
+                        "Relationships": None,
                         "SalesRankings": {
                             "SalesRank": [
                                 {
-                                    "ProductCategoryId": {
-                                        "value": "book_display_on_website"
-                                    },
-                                    "Rank": {"value": "62044"},
+                                    "ProductCategoryId": "book_display_on_website",
+                                    "Rank": "62044",
                                 },
                                 {
-                                    "ProductCategoryId": {"value": "1346646031"},
-                                    "Rank": {"value": "617"},
+                                    "ProductCategoryId": "1346646031",
+                                    "Rank": "617",
                                 },
                                 {
-                                    "ProductCategoryId": {"value": "1346648031"},
-                                    "Rank": {"value": "754"},
+                                    "ProductCategoryId": "1346648031",
+                                    "Rank": "754",
                                 },
                             ]
                         },
@@ -365,13 +344,24 @@ def test_decode_byte_xml():
             }
         },
         "ResponseMetadata": {
-            "RequestId": {"value": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"}
+            "RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"
         },
     }
 
-    # Process and assert
-    output = DictWrapper(stripped_original)
-    assert output.parsed == expected
+    # Get a mock requests.Response object wrapping the content
+    response = mock_mws_response(original)
+
+    # Process in our target object
+    resp = MWSResponse(response)
+
+    # You may be tempted to test the equality of `.parsed`
+    # and wrap `expected` in `DotDict`; but that way lies ruin, I'm afraid.
+    # In our current implementation, an equality check using `DotDict` will always
+    # return True, even when the results are way off.
+
+    # The easiest method (for now) to compare results is to use the `_dict` attr
+    # of our response, which is the native Python dictionary content.
+    assert resp._dict == expected
 
 
 def test_decode_byte_xml_x94():
@@ -510,11 +500,6 @@ def test_decode_byte_xml_x94():
     </ListMatchingProductsResponse>
     """
 
-    # Clean out the spacing used above, matching the output we expected from MWS
-    intermediate = original.decode("iso-8859-1").split("\n")
-    stripped = "".join([x.strip() for x in intermediate])
-    stripped_original = stripped.encode("iso-8859-1")
-
     # We expect the following dict output from `.parsed`
     # Note the \x94 control characters are still present.
     expected = {
@@ -524,212 +509,136 @@ def test_decode_byte_xml_x94():
                     {
                         "Identifiers": {
                             "MarketplaceASIN": {
-                                "MarketplaceId": {"value": "APJ6JRA9NG5V4"},
-                                "ASIN": {"value": "8891808660"},
+                                "MarketplaceId": "APJ6JRA9NG5V4",
+                                "ASIN": "8891808660",
                             }
                         },
                         "AttributeSets": {
                             "ItemAttributes": {
-                                "lang": {"value": "it-IT"},
-                                "Binding": {"value": "Copertina rigida"},
+                                "@lang": "it-IT",
+                                "Binding": "Copertina rigida",
                                 "Creator": [
-                                    {
-                                        "value": "Mizielinska, Aleksandra",
-                                        "Role": {"value": "Autore"},
-                                    },
-                                    {
-                                        "value": "Mizielinski, Daniel",
-                                        "Role": {"value": "Autore"},
-                                    },
-                                    {
-                                        "value": "Parisi, V.",
-                                        "Role": {"value": "Traduttore"},
-                                    },
+                                    {"@Role": "Autore", "#text": "Mizielinska, Aleksandra"},
+                                    {"@Role": "Autore", "#text": "Mizielinski, Daniel"},
+                                    {"@Role": "Traduttore", "#text": "Parisi, V."},
                                 ],
                                 "ItemDimensions": {
-                                    "Height": {
-                                        "value": "14.80312",
-                                        "Units": {"value": "inches"},
-                                    },
-                                    "Length": {
-                                        "value": "10.86612",
-                                        "Units": {"value": "inches"},
-                                    },
-                                    "Width": {
-                                        "value": "1.06299",
-                                        "Units": {"value": "inches"},
-                                    },
-                                    "Weight": {
-                                        "value": "3.17",
-                                        "Units": {"value": "pounds"},
-                                    },
+                                    "Height": {"@Units": "inches", "#text": "14.80312"},
+                                    "Length": {"@Units": "inches", "#text": "10.86612"},
+                                    "Width": {"@Units": "inches", "#text": "1.06299"},
+                                    "Weight": {"@Units": "pounds", "#text": "3.17"},
                                 },
-                                "Label": {"value": "Mondadori Electa"},
+                                "Label": "Mondadori Electa",
                                 "Languages": {
                                     "Language": [
-                                        {
-                                            "Name": {"value": "italian"},
-                                            "Type": {"value": "Pubblicato"},
-                                        },
-                                        {
-                                            "Name": {"value": "italian"},
-                                            "Type": {"value": "Lingua originale"},
-                                        },
+                                        {"Name": "italian", "Type": "Pubblicato"},
+                                        {"Name": "italian", "Type": "Lingua originale"},
                                     ]
                                 },
-                                "ListPrice": {
-                                    "Amount": {"value": "25.00"},
-                                    "CurrencyCode": {"value": "EUR"},
-                                },
-                                "Manufacturer": {"value": "Mondadori Electa"},
-                                "NumberOfPages": {"value": "144"},
+                                "ListPrice": {"Amount": "25.00", "CurrencyCode": "EUR"},
+                                "Manufacturer": "Mondadori Electa",
+                                "NumberOfPages": "144",
                                 "PackageDimensions": {
-                                    "Height": {
-                                        "value": "0.8661417314",
-                                        "Units": {"value": "inches"},
-                                    },
+                                    "Height": {"@Units": "inches", "#text": "0.8661417314"},
                                     "Length": {
-                                        "value": "14.9606299060",
-                                        "Units": {"value": "inches"},
+                                        "@Units": "inches",
+                                        "#text": "14.9606299060",
                                     },
-                                    "Width": {
-                                        "value": "11.0236220360",
-                                        "Units": {"value": "inches"},
-                                    },
-                                    "Weight": {
-                                        "value": "3.1746565728",
-                                        "Units": {"value": "pounds"},
-                                    },
+                                    "Width": {"@Units": "inches", "#text": "11.0236220360"},
+                                    "Weight": {"@Units": "pounds", "#text": "3.1746565728"},
                                 },
-                                "ProductGroup": {"value": "Libro"},
-                                "ProductTypeName": {"value": "ABIS_BOOK"},
-                                "PublicationDate": {"value": "2016-10-25"},
-                                "Publisher": {"value": "Mondadori Electa"},
-                                "ReleaseDate": {"value": "2016-10-25"},
+                                "ProductGroup": "Libro",
+                                "ProductTypeName": "ABIS_BOOK",
+                                "PublicationDate": "2016-10-25",
+                                "Publisher": "Mondadori Electa",
+                                "ReleaseDate": "2016-10-25",
                                 "SmallImage": {
-                                    "URL": {
-                                        "value": "http://ecx.images-amazon.com/images/I/61K2xircqJL._SL75_.jpg"
-                                    },
-                                    "Height": {
-                                        "value": "75",
-                                        "Units": {"value": "pixels"},
-                                    },
-                                    "Width": {
-                                        "value": "55",
-                                        "Units": {"value": "pixels"},
-                                    },
+                                    "URL": "http://ecx.images-amazon.com/images/I/61K2xircqJL._SL75_.jpg",
+                                    "Height": {"@Units": "pixels", "#text": "75"},
+                                    "Width": {"@Units": "pixels", "#text": "55"},
                                 },
-                                "Studio": {"value": "Mondadori Electa"},
-                                "Title": {
-                                    "value": "Mappe.\x94Un atlante per viaggiare tra terra, mari e culture del mondo"
-                                },
+                                "Studio": "Mondadori Electa",
+                                "Title": "Mappe.\x94Un atlante per viaggiare tra terra, mari e culture del mondo",
                             }
                         },
-                        "Relationships": {},
+                        "Relationships": None,
                     },
                     {
                         "Identifiers": {
                             "MarketplaceASIN": {
-                                "MarketplaceId": {"value": "APJ6JRA9NG5V4"},
-                                "ASIN": {"value": "8832706571"},
+                                "MarketplaceId": "APJ6JRA9NG5V4",
+                                "ASIN": "8832706571",
                             }
                         },
                         "AttributeSets": {
                             "ItemAttributes": {
-                                "lang": {"value": "it-IT"},
-                                "Binding": {"value": "Copertina flessibile"},
-                                "Creator": {
-                                    "value": "aa.vv.",
-                                    "Role": {"value": "Autore"},
-                                },
-                                "Genre": {"value": "Diritto"},
-                                "Label": {"value": "Neldiritto Editore"},
+                                "@lang": "it-IT",
+                                "Binding": "Copertina flessibile",
+                                "Creator": {"@Role": "Autore", "#text": "aa.vv."},
+                                "Genre": "Diritto",
+                                "Label": "Neldiritto Editore",
                                 "Languages": {
-                                    "Language": {
-                                        "Name": {"value": "italian"},
-                                        "Type": {"value": "Pubblicato"},
-                                    }
+                                    "Language": {"Name": "italian", "Type": "Pubblicato"}
                                 },
-                                "ListPrice": {
-                                    "Amount": {"value": "90.00"},
-                                    "CurrencyCode": {"value": "EUR"},
-                                },
-                                "Manufacturer": {"value": "Neldiritto Editore"},
-                                "NumberOfItems": {"value": "1"},
-                                "NumberOfPages": {"value": "1200"},
+                                "ListPrice": {"Amount": "90.00", "CurrencyCode": "EUR"},
+                                "Manufacturer": "Neldiritto Editore",
+                                "NumberOfItems": "1",
+                                "NumberOfPages": "1200",
                                 "PackageDimensions": {
-                                    "Height": {
-                                        "value": "3.0708661386",
-                                        "Units": {"value": "inches"},
-                                    },
-                                    "Length": {
-                                        "value": "9.8425196750",
-                                        "Units": {"value": "inches"},
-                                    },
-                                    "Width": {
-                                        "value": "6.7716535364",
-                                        "Units": {"value": "inches"},
-                                    },
+                                    "Height": {"@Units": "inches", "#text": "3.0708661386"},
+                                    "Length": {"@Units": "inches", "#text": "9.8425196750"},
+                                    "Width": {"@Units": "inches", "#text": "6.7716535364"},
                                     "Weight": {
-                                        "value": "5.291094288000000881849048",
-                                        "Units": {"value": "pounds"},
+                                        "@Units": "pounds",
+                                        "#text": "5.291094288000000881849048",
                                     },
                                 },
-                                "ProductGroup": {"value": "Libro"},
-                                "ProductTypeName": {"value": "ABIS_BOOK"},
-                                "PublicationDate": {"value": "2020-01-24"},
-                                "Publisher": {"value": "Neldiritto Editore"},
-                                "ReleaseDate": {"value": "2020-01-24"},
+                                "ProductGroup": "Libro",
+                                "ProductTypeName": "ABIS_BOOK",
+                                "PublicationDate": "2020-01-24",
+                                "Publisher": "Neldiritto Editore",
+                                "ReleaseDate": "2020-01-24",
                                 "SmallImage": {
-                                    "URL": {
-                                        "value": "http://ecx.images-amazon.com/images/I/41HeNbq4xKL._SL75_.jpg"
-                                    },
-                                    "Height": {
-                                        "value": "75",
-                                        "Units": {"value": "pixels"},
-                                    },
-                                    "Width": {
-                                        "value": "53",
-                                        "Units": {"value": "pixels"},
-                                    },
+                                    "URL": "http://ecx.images-amazon.com/images/I/41HeNbq4xKL._SL75_.jpg",
+                                    "Height": {"@Units": "pixels", "#text": "75"},
+                                    "Width": {"@Units": "pixels", "#text": "53"},
                                 },
-                                "Studio": {"value": "Neldiritto Editore"},
-                                "Title": {
-                                    "value": "Concorso Magistratura\x942020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo"
-                                },
+                                "Studio": "Neldiritto Editore",
+                                "Title": "Concorso Magistratura\x942020: Mappe e schemi di Diritto civile-Diritto penale-Diritto amministrativo",
                             }
                         },
-                        "Relationships": {},
+                        "Relationships": None,
                         "SalesRankings": {
                             "SalesRank": [
                                 {
-                                    "ProductCategoryId": {
-                                        "value": "book_display_on_website"
-                                    },
-                                    "Rank": {"value": "62044"},
+                                    "ProductCategoryId": "book_display_on_website",
+                                    "Rank": "62044",
                                 },
-                                {
-                                    "ProductCategoryId": {"value": "1346646031"},
-                                    "Rank": {"value": "617"},
-                                },
-                                {
-                                    "ProductCategoryId": {"value": "1346648031"},
-                                    "Rank": {"value": "754"},
-                                },
+                                {"ProductCategoryId": "1346646031", "Rank": "617"},
+                                {"ProductCategoryId": "1346648031", "Rank": "754"},
                             ]
                         },
                     },
                 ]
             }
         },
-        "ResponseMetadata": {
-            "RequestId": {"value": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"}
-        },
+        "ResponseMetadata": {"RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"},
     }
 
-    # Process and assert
-    output = DictWrapper(stripped_original)
-    assert output.parsed == expected
+    # Get a mock requests.Response object wrapping the content
+    response = mock_mws_response(original)
+
+    # Process in our target object
+    resp = MWSResponse(response)
+
+    # You may be tempted to test the equality of `.parsed`
+    # and wrap `expected` in `DotDict`; but that way lies ruin, I'm afraid.
+    # In our current implementation, an equality check using `DotDict` will always
+    # return True, even when the results are way off.
+
+    # The easiest method (for now) to compare results is to use the `_dict` attr
+    # of our response, which is the native Python dictionary content.
+    assert resp._dict == expected
 
 
 def test_dotdict_attr_key_access_methods():
