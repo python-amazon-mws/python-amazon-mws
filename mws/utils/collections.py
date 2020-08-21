@@ -60,7 +60,7 @@ class DotDict(dict):
 
     def __str__(self):
         """Print contents using pprint."""
-        return pprint.pformat(self.__dict__["_data"])
+        return str(self.__dict__["_data"])
 
     def __iter__(self):
         """Nodes must be iterable by default."""

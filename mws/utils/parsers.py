@@ -15,7 +15,7 @@ from requests import Response
 from mws.errors import MWSError
 from mws.utils.crypto import calc_md5
 from mws.utils.deprecation import RemovedInPAM11Warning
-from mws.utils.xml import mws_xml_to_dict, MWS_ENCODING
+from mws.utils.xml import mws_xml_to_dict, MWS_ENCODING, remove_xml_namespaces
 from mws.utils.collections import DotDict
 
 
@@ -92,24 +92,6 @@ class ObjectDict(dict):
             return self.__getitem__(key)
         except KeyError:
             return default
-
-
-### DEPRECATED - REMOVE IN 1.1 ###
-def remove_xml_namespace(xml):
-    """Strips the namespace from XML document contained in a string.
-    Returns the stripped string.
-    """
-    warnings.warn(
-        (
-            "'remove_xml_namespace' is deprecated. "
-            "There is no direct replacement for this function. "
-            "'mws.utils.xml.extract_xml_namespaces' now returns namespaces from XML, "
-            "which are passed to 'xmltodict.parse' for processing."
-        ),
-        RemovedInPAM11Warning,
-    )
-    regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
-    return regex.sub("", xml)
 
 
 ### DEPRECATED - REMOVE IN 1.1 ###
@@ -210,7 +192,7 @@ class DictWrapper(object):
         self._original = xml
         self._result_key = result_key
         # TODO try this with xmltodict library?
-        self._mydict = XML2Dict().fromstring(remove_xml_namespace(self.original))
+        self._mydict = XML2Dict().fromstring(remove_xml_namespaces(self.original))
         self._response_dict = self._mydict.get(
             list(self._mydict.keys())[0], self._mydict
         )
@@ -366,6 +348,11 @@ class MWSResponse(ResponseWrapper):
             # Otherwise, the chardet detection may end up as Windows-1252
             # or something else close, yet incorrect.
             self._response.encoding = MWS_ENCODING
+
+        if self._response.headers and "content-md5" in self._response.headers:
+            hash_ = calc_md5(self._response.content)
+            if self._response.headers["content-md5"].encode() != hash_:
+                raise MWSError("Wrong Content length, maybe amazon error...")
 
         # Attrs for collecting parsed XML data
         self._dict = None

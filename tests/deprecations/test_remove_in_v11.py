@@ -7,7 +7,6 @@ from mws.utils.parsers import (
     DataWrapper,
     DictWrapper,
     ObjectDict,
-    remove_xml_namespace,
     XML2Dict,
 )
 
@@ -34,19 +33,13 @@ def test_objectdict_removed_in_v11():
         ObjectDict({"This": "is", "going": "away", "in": "favor", "of": "DotDict!"})
 
 
-def test_remove_xml_namespaces_removed_in_v11():
-    """remove_xml_namespaces function."""
-    with pytest.warns(RemovedInPAM11Warning):
-        remove_xml_namespace("Only ever used by DictWrapper, don't need it!")
-
-
 def test_xml2dict_removed_in_v11():
     """XML2Dict class."""
     with pytest.warns(RemovedInPAM11Warning):
         # Strangely, nothing in __init__
         # Only real use was the `fromstring` method, which wasn't even a class method.
         # Typical usage was:
-        #   XML2Dict().fromstring(remove_xml_namespace("content"))
+        #   XML2Dict().fromstring(remove_xml_namespaces("content"))
         # which itself was only called in `DictWrapper` class.
         # Just... odd, really. Better to replace the entire mess with a pure function.
         XML2Dict()

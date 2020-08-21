@@ -15,11 +15,11 @@ If it doesn't work, :shrug:, we'll have to wing it.
 """
 
 
-def extract_xml_namespaces(data):
+def remove_xml_namespaces(data):
     """Return namespaces found in the XML data."""
-    pattern = re.compile(r'xmlns[:ns2]*="\S+"')
-    raw_namespaces = pattern.findall(data)
-    return {x.split('"')[1]: None for x in raw_namespaces}
+    # pattern = re.compile(r'xmlns[:ns2]*="\S+"')
+    pattern = re.compile(r'xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
+    return pattern.sub("", data)
 
 
 def mws_xml_to_dict(data, encoding=MWS_ENCODING, force_cdata=False, **kwargs):
@@ -29,14 +29,14 @@ def mws_xml_to_dict(data, encoding=MWS_ENCODING, force_cdata=False, **kwargs):
         force_cdata
     """
     # Extracted namespaces
-    namespaces = extract_xml_namespaces(data)
+    data = remove_xml_namespaces(data)
     # Run the parser
     xmldict = xmltodict.parse(
         data,
         encoding=encoding,
-        process_namespaces=True,
+        process_namespaces=False,
         dict_constructor=dict,
-        namespaces=namespaces,
+        # namespaces=namespaces,
         force_cdata=force_cdata,
     )
     # Return the results of the first key (?), otherwise the original
