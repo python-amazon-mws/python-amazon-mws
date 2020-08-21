@@ -40,7 +40,29 @@ def test_region_aliases():
     assert uk_api.domain == gb_api.domain
 
 
-def test_marketplaces_enum():
+@pytest.mark.parametrize("market_shortname, endpoint, marketplace_id", (
+    ("AE", "https://mws.amazonservices.ae", "A2VIGQ35RCS4UG"),
+    ("AU", "https://mws.amazonservices.com.au", "A39IBJ37TRP1C6"),
+    ("BR", "https://mws.amazonservices.com", "A2Q3Y263D00KWC"),
+    ("CA", "https://mws.amazonservices.ca", "A2EUQ1WTGCTBG2"),
+    ("DE", "https://mws-eu.amazonservices.com", "A1PA6795UKMFR9"),
+    ("EG", "https://mws-eu.amazonservices.com", "ARBP9OOSHTCHU"),
+    ("ES", "https://mws-eu.amazonservices.com", "A1RKKUPIHCS9HS"),
+    ("FR", "https://mws-eu.amazonservices.com", "A13V1IB3VIYZZH"),
+    ("GB", "https://mws-eu.amazonservices.com", "A1F83G8C2ARO7P"),
+    ("IN", "https://mws.amazonservices.in", "A21TJRUUN4KGV"),
+    ("IT", "https://mws-eu.amazonservices.com", "APJ6JRA9NG5V4"),
+    ("JP", "https://mws.amazonservices.jp", "A1VC38T7YXB528"),
+    ("MX", "https://mws.amazonservices.com.mx", "A1AM78C64UM0Y8"),
+    ("NL", "https://mws-eu.amazonservices.com", "A1805IZSGTT6HS"),
+    ("SA", "https://mws-eu.amazonservices.com", "A17E79C6D8DWNP"),
+    ("SG", "https://mws-fe.amazonservices.com", "A19VAU5U5O7RUS"),
+    ("TR", "https://mws-eu.amazonservices.com", "A33AVAJ2PDY3EV"),
+    ("UK", "https://mws-eu.amazonservices.com", "A1F83G8C2ARO7P"),
+    ("US", "https://mws.amazonservices.com", "ATVPDKIKX0DER"),
+))
+def test_marketplaces_enum(market_shortname, endpoint, marketplace_id):
     """Test that attrs of marketplace enumerations work as expected."""
-    assert Marketplaces.CA.endpoint == "https://mws.amazonservices.ca"
-    assert Marketplaces.CA.marketplace_id == "A2EUQ1WTGCTBG2"
+    market = getattr(Marketplaces, market_shortname)
+    assert market.endpoint == endpoint
+    assert market.marketplace_id == marketplace_id
