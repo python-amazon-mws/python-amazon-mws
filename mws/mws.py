@@ -56,6 +56,7 @@ class Marketplaces(Enum):
     MX = ("https://mws.amazonservices.com.mx", "A1AM78C64UM0Y8")
     NL = ("https://mws-eu.amazonservices.com", "A1805IZSGTT6HS")
     SA = ("https://mws-eu.amazonservices.com", "A17E79C6D8DWNP")
+    SE = ("https://mws-eu.amazonservices.com", "A2NODRKZP88ZB9")
     SG = ("https://mws-fe.amazonservices.com", "A19VAU5U5O7RUS")
     TR = ("https://mws-eu.amazonservices.com", "A33AVAJ2PDY3EV")
     UK = ("https://mws-eu.amazonservices.com", "A1F83G8C2ARO7P")  # alias for GB
