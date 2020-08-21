@@ -49,7 +49,19 @@ class DotDict(dict):
             return getattr(self._data, name)
 
         # it's not an attribute, so use it as a key for the data
-        return self.__getitem__(name)
+
+        try:
+            return self.__getitem__(name)
+        except KeyError:
+            # No key by that name? Let's try being helpful.
+            if "@{}".format(name) in self._data:
+                # Does this same name occur starting with ``@``?
+                return self.__getitem__("@{}".format(name))
+            if "#{}".format(name) in self._data:
+                # Does this same name occur starting with ``#``?
+                return self.__getitem__("#{}".format(name))
+            # Otherwise, raise the original exception
+            raise
 
     def __getitem__(self, key):
         """Return a child item as another DotDict instance."""
