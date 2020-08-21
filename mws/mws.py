@@ -23,7 +23,7 @@ except ImportError:
 from xml.etree.ElementTree import ParseError as XMLError
 
 
-__version__ = "1.0.0dev11"
+__version__ = "1.0.0dev14"
 
 
 class Marketplaces(Enum):
