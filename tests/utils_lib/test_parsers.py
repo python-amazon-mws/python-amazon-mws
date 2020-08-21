@@ -175,7 +175,7 @@ def test_decode_byte_xml():
     """
 
     # We expect the following DotDict output from `.parsed`
-    expected = {
+    expected = DotDict({
         "ListMatchingProductsResult": {
             "Products": {
                 "Product": [
@@ -338,7 +338,7 @@ def test_decode_byte_xml():
             }
         },
         "ResponseMetadata": {"RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"},
-    }
+    })
 
     # Get a mock requests.Response object wrapping the content
     response = mock_mws_response(original)
@@ -353,7 +353,7 @@ def test_decode_byte_xml():
 
     # The easiest method (for now) to compare results is to use the `_dict` attr
     # of our response, which is the native Python dictionary content.
-    assert resp._dict == expected
+    assert resp.parsed == expected
 
 
 def test_decode_byte_xml_x94():
@@ -494,7 +494,7 @@ def test_decode_byte_xml_x94():
 
     # We expect the following dict output from `.parsed`
     # Note the \x94 control characters are still present.
-    expected = {
+    expected = DotDict({
         "ListMatchingProductsResult": {
             "Products": {
                 "Product": [
@@ -639,7 +639,7 @@ def test_decode_byte_xml_x94():
             }
         },
         "ResponseMetadata": {"RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"},
-    }
+    })
 
     # Get a mock requests.Response object wrapping the content
     response = mock_mws_response(original)
@@ -654,7 +654,7 @@ def test_decode_byte_xml_x94():
 
     # The easiest method (for now) to compare results is to use the `_dict` attr
     # of our response, which is the native Python dictionary content.
-    assert resp._dict == expected
+    assert resp.parsed == expected
 
 
 def test_dotdict_attr_key_access_methods():
