@@ -101,7 +101,7 @@ class MWS(object):
     .. code-block:: python
 
         # instantiate your API class as usual
-        api = Product(access_key, secret_key, account_id, ...)
+        api = Products(access_key, secret_key, account_id, ...)
         # Then set the `_use_feature_mwsresponse` flag on the instance.
         api._use_feature_mwsresponse = True
 
