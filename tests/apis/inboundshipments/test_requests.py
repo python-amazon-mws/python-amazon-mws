@@ -3,7 +3,6 @@ Tests for the InboundShipments API class.
 """
 import datetime
 import unittest
-import itertools
 
 import pytest
 
@@ -18,63 +17,82 @@ from .utils import CommonAPIRequestTools
 
 @pytest.fixture
 def inboundshipments_api(mws_credentials):
+    """A base InboundShipments API class instance.
+
+    WARNING: NOT for request testing!
+    Use ``inboundshipments_api_for_request_testing`` fixture instead!
+    """
     api = InboundShipments(**mws_credentials)
+    return api
+
+
+@pytest.fixture
+def inbound_from_address():
+    """A dummy address known to pass testing.
+    We already check address format in other tests, without using this fixture,
+    so if this one breaks something, then something is actually broken.
+    """
+    return {
+        "name": "Roland Deschain",
+        "address_1": "500 Summat Cully Lane",
+        "city": "Gilead",
+        "country": "Mid-World",
+    }
+
+
+@pytest.fixture
+def inboundshipments_api_for_request_testing(inboundshipments_api):
+    """An instance of InboundShipments API class for testing request params."""
+    api = inboundshipments_api
     api._test_request_params = True
     return api
 
 
-class ParseItemArgsTestCase(unittest.TestCase):
+@pytest.fixture
+def inboundshipments_api_for_request_testing_with_address(
+    inboundshipments_api_for_request_testing, inbound_from_address
+):
+    """Instance of InboundShipments ready for request testing
+    that includes a ``from_address``.
+    """
+    api = inboundshipments_api_for_request_testing
+    api.set_ship_from_address(inbound_from_address)
+    return api
+
+
+class TestInboundShipmentsParseItemArgsMethod:
     """Test cases that ensure `parse_item_args` raises exceptions where appropriate."""
 
     def test_empty_args_list(self):
         """Should raise `MWSError` for an empty set of arguments."""
         item_args = []
         operation = "dummy"
-        with self.assertRaises(MWSError):
+        with pytest.raises(MWSError):
             parse_item_args(item_args, operation)
 
     def test_item_not_a_dict(self):
         """Should raise `MWSError` if item arguments are not all dict objects."""
         item_args = ["this is not a dict"]
         operation = "dummy"
-        with self.assertRaises(MWSError):
+        with pytest.raises(MWSError):
             parse_item_args(item_args, operation)
 
-    def test_required_keys_missing_CreateInboundShipmentPlan(self):
+    @pytest.mark.parametrize(
+        "operation", ["CreateInboundShipmentPlan", "any other operation"]
+    )
+    @pytest.mark.parametrize(
+        "item_arg",
+        [
+            [{"quantity": 34}],  # SKU missing
+            [{"sku": "something"}],  # quantity missing
+        ],
+    )
+    def test_parse_items_required_keys_missing(self, operation, item_arg):
         """Should raise `MWSError` if a required key is missing from at least
         one item dict for the CreateInboundShipmentPlan operation.
         """
-        operation = "CreateInboundShipmentPlan"
-        # SKU missing
-        item_args_1 = [
-            {"quantity": 34},
-        ]
-        with self.assertRaises(MWSError):
-            parse_item_args(item_args_1, operation)
-        # Quantity missing
-        item_args_2 = [
-            {"sku": "something"},
-        ]
-        with self.assertRaises(MWSError):
-            parse_item_args(item_args_2, operation)
-
-    def test_required_keys_missing_other_operation(self):
-        """Should raise `MWSError` if a required key is missing from at least
-        one item dict for operations other than CreateInboundShipmentPlan.
-        """
-        operation = "other operation"
-        # SKU missing
-        item_args_1 = [
-            {"quantity": 56},
-        ]
-        with self.assertRaises(MWSError):
-            parse_item_args(item_args_1, operation)
-        # Quantity missing
-        item_args_2 = [
-            {"sku": "soemthingelse"},
-        ]
-        with self.assertRaises(MWSError):
-            parse_item_args(item_args_2, operation)
+        with pytest.raises(MWSError):
+            parse_item_args(item_arg, operation)
 
     def test_args_built_CreateInboundShipmentPlan(self):
         """Item args should build successfully for the
@@ -109,8 +127,8 @@ class ParseItemArgsTestCase(unittest.TestCase):
                 "Condition": None,
             },
         ]
-        self.assertEqual(parsed_items[0], expected[0])
-        self.assertEqual(parsed_items[1], expected[1])
+        assert parsed_items[0] == expected[0]
+        assert parsed_items[1] == expected[1]
 
     def test_args_built_other_operation(self):
         """Item args should build successfully for operations other than
@@ -131,53 +149,39 @@ class ParseItemArgsTestCase(unittest.TestCase):
                 "QuantityInCase": None,
             },
         ]
-        self.assertEqual(parsed_items[0], expected[0])
-        self.assertEqual(parsed_items[1], expected[1])
+        assert parsed_items[0] == expected[0]
+        assert parsed_items[1] == expected[1]
 
 
-class SetShipFromAddressTestCase(unittest.TestCase):
+class TestSetShipFromAddressCases:
     """Test case covering `msw.InboundShipments.set_ship_from_address`."""
 
-    def setUp(self):
-        self.inbound = InboundShipments("", "", "")
-
-    def test_address_empty_raises_exception(self):
+    # TODO reformat manually after Black release update.
+    # Can't turn off fmt for decorators on current Black release, waiting for an update!
+    @pytest.mark.parametrize("address", [{}, "this is not a dict"])
+    def test_address_raises_exceptions(self, address, inboundshipments_api):
         """Empty address dict should raise MWSError."""
-        address = {}
-        with self.assertRaises(MWSError):
-            self.inbound.set_ship_from_address(address)
+        with pytest.raises(MWSError):
+            inboundshipments_api.set_ship_from_address(address)
 
-    def test_address_not_dict_raises_exception(self):
-        """Non-dict argument should raise MWSError."""
-        address = "this is not a dict"
-        with self.assertRaises(MWSError):
-            self.inbound.set_ship_from_address(address)
-
-    def test_required_keys_missing(self):
+    # TODO reformat manually after Black release update.
+    @pytest.mark.parametrize(
+        "address",
+        [
+            # name missing
+            {"address_1": "500 Summat Cully Lane", "city": "Gilead"},
+            # address_1 missing
+            {"name": "Roland Deschain", "city": "Gilead"},
+            # city missing
+            {"name": "Roland Deschain", "address_1": "500 Summat Cully Lane"},
+        ],
+    )
+    def test_required_address_keys_missing(self, address, inboundshipments_api):
         """Any missing required key should raise MWSError"""
-        # Missing name
-        address_1 = {
-            "address_1": "500 Summat Cully Lane",
-            "city": "Gilead",
-        }
-        # Missing address_1 (address line 1)
-        address_2 = {
-            "name": "Roland Deschain",
-            "city": "Gilead",
-        }
-        # Missing city
-        address_3 = {
-            "name": "Roland Deschain",
-            "address_1": "500 Summat Cully Lane",
-        }
-        with self.assertRaises(MWSError):
-            self.inbound.set_ship_from_address(address_1)
-        with self.assertRaises(MWSError):
-            self.inbound.set_ship_from_address(address_2)
-        with self.assertRaises(MWSError):
-            self.inbound.set_ship_from_address(address_3)
+        with pytest.raises(MWSError):
+            inboundshipments_api.set_ship_from_address(address)
 
-    def test_full_address_built_properly(self):
+    def test_full_address_built_properly(self, inboundshipments_api):
         """An address with all fields covered should be contructed properly."""
         address = {
             "name": "Roland Deschain",
@@ -189,7 +193,8 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             "postal_code": "13019",
             "country": "Mid-World",
         }
-        self.inbound.set_ship_from_address(address)
+        inboundshipments_api.set_ship_from_address(address)
+        output = inboundshipments_api.from_address
         expected = {
             "ShipFromAddress.Name": "Roland Deschain",
             "ShipFromAddress.AddressLine1": "500 Summat Cully Lane",
@@ -200,9 +205,9 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             "ShipFromAddress.PostalCode": "13019",
             "ShipFromAddress.CountryCode": "Mid-World",
         }
-        self.assertEqual(self.inbound.from_address, expected)
+        assert output == expected
 
-    def test_partial_address_built_properly(self):
+    def test_partial_address_built_properly(self, inboundshipments_api):
         """An address with only required fields covered should be contructed properly,
         with ommitted keys filled in with defaults.
         """
@@ -211,7 +216,8 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             "address_1": "500 Summat Cully Lane",
             "city": "Gilead",
         }
-        self.inbound.set_ship_from_address(address)
+        inboundshipments_api.set_ship_from_address(address)
+        output = inboundshipments_api.from_address
         expected = {
             "ShipFromAddress.Name": "Roland Deschain",
             "ShipFromAddress.AddressLine1": "500 Summat Cully Lane",
@@ -222,9 +228,9 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             "ShipFromAddress.PostalCode": None,
             "ShipFromAddress.CountryCode": "US",
         }
-        self.assertEqual(self.inbound.from_address, expected)
+        assert output == expected
 
-    def test_set_address_with_constructor(self):
+    def test_set_address_with_constructor(self, mws_credentials):
         """An address passed to the InboundShipments constructor as a
         `from_address` kwarg should automatically set the `from_address` attribute
         (ignoring the self.inbound attribute in this case).
@@ -234,7 +240,7 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             "address_1": "500 Summat Cully Lane",
             "city": "Gilead",
         }
-        inbound_constructed = InboundShipments("", "", "", from_address=address)
+        inbound_constructed = InboundShipments(**mws_credentials, from_address=address)
         expected = {
             "ShipFromAddress.Name": "Roland Deschain",
             "ShipFromAddress.AddressLine1": "500 Summat Cully Lane",
@@ -245,9 +251,11 @@ class SetShipFromAddressTestCase(unittest.TestCase):
             "ShipFromAddress.PostalCode": None,
             "ShipFromAddress.CountryCode": "US",
         }
-        self.assertEqual(inbound_constructed.from_address, expected)
+        assert inbound_constructed.from_address == expected
 
 
+# TODO I don't know yet how to handle the generic testing here other than rewriting
+# CommonAPIRequestTools to work with pytest classes.
 class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
     """Test cases for InboundShipments involving FBA shipment handling.
     These cases require `from_address` to be set, while others do not.
@@ -957,40 +965,37 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
 
 
 ### Mix of statuses and IDs for list_inbound_shipments ###
-@pytest.mark.parametrize(
-    "statuses",
-    [
-        "STATUS1",
-        ["STATUS1", "STATUS2"],  # list
-        ("STATUS1", "STATUS2"),  # tuple
-        {"STATUS1", "STATUS2"},  # set
-        list(),  # empty list
-        tuple(),  # empty tuple
-        set(),  # empty set
-        None,
-    ],
-)
-@pytest.mark.parametrize(
-    "ids",
-    [
-        "ID1",
-        ["ID1", "ID2"],  # list
-        ("ID1", "ID2"),  # tuple
-        {"ID1", "ID2"},  # set
-        list(),  # empty list
-        tuple(),  # empty tuple
-        set(),  # empty set
-        None,
-    ],
-)
-def test_list_inbound_shipments_status_and_id(inboundshipments_api, statuses, ids):
+# fmt: off
+@pytest.mark.parametrize("statuses", [
+    "STATUS1",
+    ["STATUS1", "STATUS2"],  # list
+    ("STATUS1", "STATUS2"),  # tuple
+    {"STATUS1", "STATUS2"},  # set
+    list(),  # empty list
+    tuple(),  # empty tuple
+    set(),  # empty set
+    None,
+])
+@pytest.mark.parametrize("ids", [
+    "ID1",
+    ["ID1", "ID2"],  # list
+    ("ID1", "ID2"),  # tuple
+    {"ID1", "ID2"},  # set
+    list(),  # empty list
+    tuple(),  # empty tuple
+    set(),  # empty set
+    None,
+])
+# fmt: on
+def test_list_inbound_shipments_status_and_id(
+    inboundshipments_api_for_request_testing_with_address, statuses, ids
+):
     """Check that a mixture of different argument types for `shipment_statuses`
     and `shipment_ids` will work in `InboundShipments.list_inbound_shipments`.
 
     Should cover scenarios like ticket #199.
     """
-    api = inboundshipments_api
-    # api = get_api_instance(InboundShipments)
+    api = inboundshipments_api_for_request_testing_with_address
     params = api.list_inbound_shipments(shipment_statuses=statuses, shipment_ids=ids)
 
     # Check statuses:
