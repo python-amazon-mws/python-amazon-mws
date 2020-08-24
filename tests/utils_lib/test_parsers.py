@@ -38,7 +38,7 @@ def test_content_md5_check_raises_exception_if_fails():
 
 
 def test_decode_byte_xml():
-    """Test that XML decoding works for DictWrapper."""
+    """Test that XML decoding works for MWSResponse."""
     # Original XML.
     # Some products and sales rankings removed from the response this originally came from.
     original = b"""<?xml version="1.0"?>
