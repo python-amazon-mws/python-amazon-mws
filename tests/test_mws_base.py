@@ -3,6 +3,7 @@
 import datetime
 
 import pytest
+
 from mws import MWS, MWSError, Marketplaces
 
 
@@ -102,3 +103,25 @@ def test_no_authtoken_included_default_params(
         "Version": MWS.VERSION,
         "SignatureMethod": "HmacSHA256",
     }
+
+
+def test_mws_with_proxies(mws_credentials):
+    mws = MWS(**mws_credentials, proxy="example.com")
+    proxies = mws.get_proxies()
+    assert proxies["http"] == "http://example.com"
+    assert proxies["https"] == "https://example.com"
+
+
+def test_mws_without_proxies(mws_credentials):
+    mws = MWS(**mws_credentials)
+    proxies = mws.get_proxies()
+    assert proxies["http"] is None
+    assert proxies["https"] is None
+
+
+def test_mws_action_not_in_nexttokenops_raises_exception(mws_credentials):
+    mws = MWS(**mws_credentials)
+    action = "DefinitelyNotIntheNextTokenOperations"
+    token = "token"
+    with pytest.raises(MWSError):
+        mws.action_by_next_token(action, token)
