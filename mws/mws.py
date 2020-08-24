@@ -378,6 +378,7 @@ class MWS(object):
     def enumerate_param(self, param, values):
         """DEPRECATED, alias for `utils.params.enumerate_param`."""
         from mws.utils.deprecation import RemovedInPAM10Warning
+
         warnings.warn(
             (
                 "MWS.enumerate_param is deprecated. "
