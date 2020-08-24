@@ -70,7 +70,7 @@ class TestDotDictObject:
             dot_dict.b
 
     def test_dotdict_repr(self):
-        content = {"Content": {"Item1": "spam",}}
+        content = {"Content": {"Item1": "spam"}}
 
         dot_dict = DotDict(content)
 
