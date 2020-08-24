@@ -12,8 +12,8 @@ from requests import request
 from requests.exceptions import HTTPError
 
 from mws.errors import MWSError
+from mws.response import MWSResponse
 from mws.utils.crypto import response_md5_is_valid
-from mws.utils.parsers import MWSResponse
 from mws.utils.params import clean_params_dict, enumerate_param, flat_param_dict
 from mws.utils.timezone import mws_utc_now
 
@@ -293,6 +293,7 @@ class MWS(object):
 
                 except XMLError:
                     parsed_response = DataWrapper(data, response.headers)
+                parsed_response.response = response
 
         except HTTPError as exc:
             error = MWSError(str(exc.response.text))
@@ -300,7 +301,6 @@ class MWS(object):
             raise error
 
         # Store the response object in the parsed_response for quick access
-        parsed_response.response = response
         return parsed_response
 
     def get_proxies(self):

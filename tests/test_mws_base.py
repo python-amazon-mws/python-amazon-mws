@@ -1,5 +1,7 @@
 """Tests for the mws.MWS class and Marketplaces."""
 
+import datetime
+
 import pytest
 from mws import MWS, MWSError, Marketplaces
 
@@ -75,3 +77,28 @@ def test_marketplaces_enum(region, endpoint, marketplace_id):
 )
 def test_region_domains(region, domain, mws_credentials):
     assert MWS(region=region, **mws_credentials).domain == domain
+
+
+def test_no_authtoken_included_default_params(
+    cred_access_key, cred_account_id, cred_secret_key
+):
+    mws = MWS(
+        access_key=cred_access_key,
+        secret_key=cred_secret_key,
+        account_id=cred_account_id,
+    )
+    mws._test_request_params = True
+    timestamp = datetime.datetime(2020, 8, 24, 16, 30)
+    default_params = mws.get_default_params(action="Something", timestamp=timestamp)
+    assert "MWSAuthToken" not in default_params
+
+    # While we're here, check the other params
+    assert default_params == {
+        "Action": "Something",
+        "AWSAccessKeyId": cred_access_key,
+        "SellerId": cred_account_id,
+        "SignatureVersion": "2",
+        "Timestamp": timestamp,
+        "Version": MWS.VERSION,
+        "SignatureMethod": "HmacSHA256",
+    }

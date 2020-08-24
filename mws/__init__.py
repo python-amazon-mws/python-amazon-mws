@@ -19,6 +19,7 @@ from .apis import (
     Subscriptions,
     EasyShip,
 )
+from .response import MWSResponse
 
 __all__ = [
     "EasyShip",
@@ -30,6 +31,7 @@ __all__ = [
     "MerchantFulfillment",
     "MWS",
     "MWSError",
+    "MWSResponse",
     "OffAmazonPayments",
     "Orders",
     "OutboundShipments",

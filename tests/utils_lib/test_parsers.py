@@ -1,11 +1,12 @@
 """Testing for parsing wrappers, typically those in ``mws.utils.parsers``."""
 
+import datetime
+
 import pytest
 
 from requests import Response
 
-from mws import MWSError
-from mws.utils.parsers import MWSResponse
+from mws import MWSResponse, MWSError
 from mws.utils.collections import DotDict
 from mws.utils.xml import MWS_ENCODING
 
@@ -18,7 +19,7 @@ def mock_mws_response(content):
     return response
 
 
-def test_content_md5_comparison():
+def test_response_content_md5_comparison():
     correct_hash = "Zj+Bh1BJ8HzBb9ToK28qFQ=="
     response = Response()
     response._content = b"abc\tdef"
@@ -27,7 +28,7 @@ def test_content_md5_comparison():
     MWSResponse(response)
 
 
-def test_content_md5_check_raises_exception_if_fails():
+def test_response_content_md5_check_raises_exception_if_fails():
     incorrect_hash = "notthehash"
     response = Response()
     response._content = b"abc\tdef"
@@ -682,3 +683,51 @@ def test_decode_byte_xml_x94():
     # The easiest method (for now) to compare results is to use the `_dict` attr
     # of our response, which is the native Python dictionary content.
     assert resp.parsed == expected
+
+
+class TestMWSResponseObject:
+    """Test cases related to ``MWSResponse`` object."""
+
+    def test_mwsresponse_repr(self, simple_mwsresponse):
+        assert repr(simple_mwsresponse) == "<MWSResponse [200]>"
+
+    def test_mwsresponse_base_attrs(self, simple_mwsresponse):
+        # The original response object
+        mws_response = simple_mwsresponse
+        original = mws_response._response
+        assert isinstance(original, Response)
+        assert original is mws_response._response
+        assert original is mws_response.response
+        assert original is mws_response.original
+
+        # Other parts of the underlying object
+        assert mws_response.headers == original.headers
+        assert mws_response.text == original.text
+        assert mws_response.content == original.content
+        assert mws_response.status_code == original.status_code
+        assert mws_response.encoding == original.encoding
+        assert mws_response.reason == original.reason
+        assert mws_response.cookies == original.cookies
+        assert mws_response.elapsed == original.elapsed
+        assert mws_response.request == original.request
+        print(mws_response.timestamp)
+
+        # Also, the encoding should be known:
+        assert mws_response.encoding == MWS_ENCODING
+
+    def test_mwsresponse_with_key(self, simple_mwsresponse_with_resultkey):
+        mws_response = simple_mwsresponse_with_resultkey
+        # With a result key given, we should have metadata and request_id
+        assert mws_response.metadata == DotDict(
+            {"RequestId": "d384713e-7c79-4a6d-81cd-d0aa68c7b409"}
+        )
+        assert mws_response.request_id == "d384713e-7c79-4a6d-81cd-d0aa68c7b409"
+
+    def test_mwsresponse_no_metadata(self, simple_mwsresponse_no_metadata):
+        mws_response = simple_mwsresponse_no_metadata
+        assert mws_response.metadata is None
+        assert mws_response.request_id is None
+
+    def test_mwsresponse_with_timestamp(self, simple_mwsresponse_with_timestamp):
+        mws_response = simple_mwsresponse_with_timestamp
+        assert mws_response.timestamp == datetime.datetime(2020, 8, 24, 16, 30)
