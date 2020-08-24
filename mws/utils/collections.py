@@ -35,73 +35,143 @@ class DotDict(dict):
         # 'bar'
     """
 
-    def __init__(self, mapping):
-        self._data = mapping
+    def __init__(self, mapping=None, **kwargs):
+        """Recurvisely builds values in the passed mapping
+        through our build classmethod.
+
+        - Each nested mapping object will be converted to a DotDict.
+        - Each non-string, non-dict iterable will have elements built as well.
+        - All other objects in the data are left unchanged.
+        """
+        if mapping is None:
+            mapping = {}
+        mapping = {key: self.__class__.build(val) for key, val in mapping.items()}
+        dict.__init__(self, mapping)
+        self.update(**kwargs)
+
+    def __repr__(self):
+        return "{}({})".format(self.__class__.__name__, super().__repr__())
 
     def __getattr__(self, name):
-        """Simply returns an attr if the object has one by that name.
+        """Simply attempts to grab a key `name`.
 
-        If not, assumes `name` is a key of the underlying dict data,
-        passing the call to `__getitem__`.
+        Has some fallback logic for keys starting with '@' and '#',
+        which are output by xmltodict when a tag has attributes included.
+
+        In that case, will attempt to find a key starting with '@' or '#',
+        or will raise the original KeyError exception.
         """
-        if hasattr(self._data, name):
-            # Use an attribute present on the original
-            return getattr(self._data, name)
-
-        # it's not an attribute, so use it as a key for the data
-
         try:
-            return self.__getitem__(name)
+            return self[name]
         except KeyError:
             # No key by that name? Let's try being helpful.
-            if "@{}".format(name) in self._data:
+            if "@{}".format(name) in self:
                 # Does this same name occur starting with ``@``?
-                return self.__getitem__("@{}".format(name))
-            if "#{}".format(name) in self._data:
+                return self["@{}".format(name)]
+            if "#{}".format(name) in self:
                 # Does this same name occur starting with ``#``?
-                return self.__getitem__("#{}".format(name))
+                return self["#{}".format(name)]
             # Otherwise, raise the original exception
             raise
 
-    def __getitem__(self, key):
-        """Return a child item as another DotDict instance."""
-        return self.__class__.build(self._data[key])
+    def __setattr__(self, name, val):
+        """Allows assigning new values to a DotDict, which will automatically build
+        nested mapping objects into DotDicts, as well.
 
-    def __repr__(self):
-        return "{}({})".format(self.__class__.__name__, self.__dict__["_data"],)
+        Passes responsibility to ``__setitem__`` for consistency.
+        """
+        self.__setitem__(name, val)
 
-    def __str__(self):
-        """Print contents using pprint."""
-        return str(self.__dict__["_data"])
+    def __delattr__(self, name):
+        """Passes attr deletion to __delitem__."""
+        self.__delitem__(name)
 
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self._data == other._data
-        return self._data == other
+    def __setitem__(self, key, val):
+        """Allows assigning new values to a DotDict, which will automatically build
+        nested mapping objects into DotDicts, as well.
+        """
+        val = self.__class__.build(val)
+        dict.__setitem__(self, key, val)
 
     def __iter__(self):
-        """Nodes must be iterable by default."""
-        # If the parser finds multiple sibling nodes by the same name
-        # (under the same parent node), that node will return a list of DotDicts.
-        # However, if the same node is returned with only one child in other responses,
-        # downstream code may expect the list, but iterating the single node will
-        # throw an error.
-        # So, when iteration is required, we return single nodes as an iterator
-        # wrapping that single instance.
+        """Nodes must be iterable by default.
+
+        This is slightly different from standard behavior, where iterating a ``dict``
+        will return its keys. Here, instead, we assume that the user is iterating
+        a node which may either contain a single subnode or a list of subnodes.
+
+        Example:
+
+        .. code-block:: python
+
+            # For an xml response of:
+            # <Products>
+            #   <Product>
+            #     <Name>foo</Name>
+            #   </Product>
+            # </Products>
+
+            # The parsed DotDict will look like so:
+            xml_example1 = DotDict({
+                "Products": {
+                    "Product": {"Name": "foo"}
+                }
+            })
+
+            for product in xml_example1.Products.Product:
+                print(product.Name)
+            # foo
+
+        Here, ``product`` returns the child DotDict ``{'Name': 'foo'}``,
+        so ``product`` can be used to access child elements within the loop.
+
+        This mirrors how a similar response with multiple ``Product`` sibling tags
+        will return a list in the resulting ``DotDict`` instance:
+
+        .. code-block:: python
+
+            # For another response returning two Products:
+            # <Products>
+            #   <Product>
+            #     <Name>bar</Name>
+            #   </Product>
+            #   <Product>
+            #     <Name>baz</Name>
+            #   </Product>
+            # </Products>
+
+            # will parse as:
+            xml_example2 = DotDict({
+                "Products": {
+                    "Product": [
+                        {"Name": "bar"},
+                        {"Name": "baz"}
+                    ]
+                }
+            })
+
+            for product in xml_example2.Products.Product:
+                print(product.Name)
+            # bar
+            # baz
+
+        With this simple adjustment, both examples can be accessed by the same code,
+        with no need to test if the node is an iterable first.
+        """
         return iter([self])
 
-    def get(self, key, default=None):
-        """Access a node like `dict.get`, including default values."""
-        try:
-            return self.__getitem__(key)
-        except KeyError:
-            return default
+    def update(self, **kwargs):
+        """Build each value of our kwargs when doing an update."""
+        built = {key: self.__class__.build(val) for key, val in kwargs.items()}
+        dict.update(self, **built)
 
     @classmethod
     def build(cls, obj):
-        """Converts a nested mappings and mutable sequences to DotDicts and
-        lists of DotDicts, respectively.
-        All other objects are returned unchanged.
+        """Builds objects to work as recursive versions of this object.
+
+        - Mappings are converted to a DotDict object.
+        - For iterables, each element in the sequence is run through the build method recursively.
+        - All other objects are returned unchanged.
         """
         if isinstance(obj, Mapping):
             # Return a new DotDict object wrapping `obj`.
