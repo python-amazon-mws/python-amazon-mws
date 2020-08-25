@@ -36,3 +36,6 @@ pip-log.txt
 
 .editorconfig
 .DS_Store
+
+# Virtual Env ignore
+venv
