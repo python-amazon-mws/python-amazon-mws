@@ -3,21 +3,230 @@
 Using Parsed XML Responses
 ##########################
 
-Most responses to MWS requests take the form of XML documents `encoded using ISO 8859-1
-<http://docs.developer.amazonservices.com/en_US/dev_guide/DG_ISO8859.html>`_. You can access the raw XML document
-directly using the property ``response.original``.
+For most MWS operations, the returned response is an XML documents `encoded using ISO 8859-1
+<http://docs.developer.amazonservices.com/en_US/dev_guide/DG_ISO8859.html>`_. Python-Amazon-MWS will wrap all responses
+in a ``mws.response.MWSResponse`` object, which then parses these responses automatically using the ``xmltodict``
+package. This parsed content is then available as ``response.parsed``.
 
-Python-Amazon-MWS also performs some XML parsing automatically, turning the document tree into nested Python objects
-that resemble dictionaries. This parsed version can be accessed from the response object, using ``response.parsed``.
+Below, we'll go into more detail on how to use ``response.parsed`` in your application to get the most from
+these XML responses.
 
-Below, we'll go into more detail on how to use ``response.parsed`` in your application to get the most from MWS.
+.. note:: Throughout these docs, we refer to an instance of ``MWSResponse`` as ``response``. This should not be
+   confused with a ``requests.Response`` instance, which is returned from all requests sent through the ``requests``
+   package.
 
-Dict Keys as Dotted Attrs
-=========================
+   However, as ``MWSResponse`` wraps a ``requests.Response`` instance, it also provides direct access to its contents
+   through several shortcut properties (``headers``, ``status_code``, etc.). Thus, you can work with the original XML
+   document returned from the request using ``MWSResponse.content`` (bytes) and ``MWSResponse.text`` (Unicode string).
 
-``response.parsed`` returns an instance of ``mws.utils.parsers.DotDict``, a dict-like object with some
-added features. Each node in the XML tree is automatically converted into one of these ``DotDict``, so child nodes
-share the same features.
+Dictionary keys as attributes
+=============================
+
+``response.parsed`` returns an instance of ``mws.utils.collections.DotDict``, a subclass of ``dict`` that allows
+its keys to be accessed as attributes as well as standard ``dict`` keys:
+
+.. code-block:: python
+
+    from mws.utils.collections import DotDict
+
+    foo = DotDict({'bar': {'baz': 'spam'}})
+    print(foo.bar.baz)
+    # 'spam'
+
+This is useful for MWS responses and parsed XML documents in particular, which may have tags with long names
+and deeply-nested structures.
+
+Consider the following (truncated and edited) example response from the MWS operation ``ListMatchingProducts``:
+
+.. code-block:: xml
+
+    <?xml version="1.0"?>
+    <ListMatchingProductsResponse xmlns="http://mws.amazonservices.com/schema/Products/2011-10-01">
+      <ListMatchingProductsResult>
+        <Products>
+          <Product>
+            <Identifiers>
+              <MarketplaceASIN>
+                <MarketplaceId>ACBDEFGH</MarketplaceId>
+                <ASIN>B0987654</ASIN>
+              </MarketplaceASIN>
+            </Identifiers>
+            <AttributeSets>
+              ...
+            </AttributeSets>
+          </Product>
+          <Product>
+            ...
+          </Product>
+        </Products>
+      </ListMatchingProductsResult>
+    </ListMatchingProductsResponse>
+
+When this document is parsed to a standard ``dict``, accessing the ASIN of the first Product requires code like:
+
+.. code-block:: python
+
+    asin = parsed_dict['Products']['Product'][0]['Identifiers']['MarketplaceASIN']['ASIN']
+
+Using a ``DotDict``, the same content can be accessed by specifying attributes by the same names as the keys:
+
+.. code-block:: python
+
+    asin = response.parsed.Products.Product[0].Identifiers.MarketplaceASIN.ASIN
+
+Of course, using keys is still possible with ``response.parsed``. Further, as the keys, attrs, and ``dict.get()``
+method all return the same content, these methods can all be mixed as needed:
+
+.. code-block:: python
+
+    asin = response.parsed['Products'].get('Product')[0].Identifiers['MarketplaceASIN'].get('ASIN')
+
+While these still produce lengthy code lines, we can always assign chunks of the parsed document to a new variable:
+
+.. code-block:: python
+
+    product = response.parsed.Products.Product[0]
+    asin = product.Identifiers.MarketplaceASIN.ASIN
+
+Using the above pattern, breaking the document down in chunks, comes in handy as we get into additional features
+of the parsed response below.
+
+Iteration by default
+====================
+
+In the previous XML example, note there are two ``<Product>`` tags that are children of ``<Products>``. This is
+typical in XML documents, with multiple sibling tags of the same name indicating a sequence of similar objects.
+
+When this document is parsed by ``xmltodict``, sibling tags are collected into a list of dicts, accessible from
+a key by the same name as the sibling tag.
+
+.. note:: To demonstrate, we can use utility function ``mws_xml_to_dict`` to convert a simple XML document to a
+   standard ``dict``, or ``mws_xml_to_dotdict`` to produce a ``DotDict`` instance. In the following example,
+   we will use the latter method.
+
+   In this example, ``dotdict`` produces the same content as a full response accessed through ``response.parsed``.
+
+.. code-block:: python
+
+    from mws.utils.xml import mws_xml_to_dotdict
+
+    content = """<Response>
+      <Products>
+        <Product>
+          <Name>spam</Name>
+        </Product>
+        <Product>
+          <Name>ham</Name>
+        </Product>
+        <Product>
+          <Name>eggs</Name>
+        </Product>
+      </Products>
+    </Response>
+    """
+
+    dotdict = mws_xml_to_dotdict(content)
+    print(dotdict)
+    # DotDict({'Products': DotDict({'Product': [DotDict({'Name': 'spam'}), DotDict({'Name': 'ham'}), DotDict({'Name': 'eggs'})]})})
+
+    # iterate on .Product key to access the <Product> tags from the response:
+    for product in dotdict.Products.Product:
+        print(product.Name)
+
+    # 'spam'
+    # 'ham'
+    # 'eggs'
+
+Suppose the same request occasionally returns only one ``<Product>`` tag. The XML parser does not know that this may
+sometimes be a list, so it produces a single dict entry instead of a list of dicts.
+
+``DotDict`` will wrap itself in an iterator when needed, such that iterating on a single node provides the same
+interface as iterating on a list of nodes:
+
+.. code-block:: python
+
+    from mws.utils.xml import mws_xml_to_dotdict
+
+    # XML response with a single <Product> tag
+    content = """<Response>
+      <Products>
+        <Product>
+          <Name>spam</Name>
+        </Product>
+      </Products>
+    </Response>
+    """
+
+    # This produces a single DotDict entry, instead of a list of DotDicts as before:
+    dotdict = mws_xml_to_dotdict(content)
+    print(dotdict)
+    # DotDict({'Products': DotDict({'Product': DotDict({'Name': 'spam'})})})
+
+    # Iterating on the .Product key still works that same way:
+    for product in dotdict.Products.Product:
+        print(product.Name)
+
+    # 'spam'
+
+.. note:: While ``DotDict`` is a subclass of ``dict``, this behavior is different from that of the standard ``dict``,
+   where iterating directly on the ``dict`` object is equivalent to iterating on ``dict.keys()``. We have chosen to
+   implement the above behavior to more closely match most users' intended usage when working with parsed XML,
+   even though ``DotDict`` *can* be used much like a standard ``dict`` for (most) general purposes.
+
+Working with tag attributes
+===========================
+
+XML content can contain attributes on tags, as well. These attributes are parsed as dict keys beginning
+with ``@``, accessible as child nodes of the tag they appear on.
+
+Further, tags that contain an attribute and text content will store the text on a special key, ``#text``.
+
+Example:
+
+.. code-block:: python
+
+    from mws.utils.xml import mws_xml_to_dotdict
+
+    content = """<Response>
+      <Products>
+        <Product Name="spam">
+          <SomethingElse>ham</SomethingElse>
+          <WhatHaveYou anotherAttr="foo">eggs</WhatHaveYou>
+        </Product>
+      </Products>
+    </Response>
+    """
+
+    dotdict = mws_xml_to_dotdict(content)
+
+    print(dotdict)
+    # DotDict({'Products': DotDict({'Product': DotDict({'@Name': 'spam', 'SomethingElse': 'ham', 'WhatHaveYou': DotDict({'@anotherAttr': 'foo', '#text': 'eggs'})})})})
+
+These ``@`` and ``#text`` keys cannot be accessed directly as attributes due to Python syntax, which reserves the
+``@`` and ``#`` characters. You can still use standard dict keys to access this content:
+
+.. code-block:: python
+
+    print(dotdict.Products.Product['@Name'])
+    # 'spam'
+
+    print(dotdict.Products.Product.WhatHaveYou['#text'])
+    # 'eggs'
+
+``DotDict`` also allows accessing these keys using a fallback method. Simply provide the key name *without*
+``@`` or ``#`` in front, and it will attempt to find the match:
+
+.. code-block:: python
+
+    print(dotdict.Products.Product.Name)
+    # 'spam'
+
+    print(dotdict.Products.Product.WhatHaveYou.text)
+    # 'eggs'
+
+
+
+*TODO*
 
 Most notably, keys in a ``DotDict`` can be accessed like dotted attrs on a class object, in addition to accessing
 like dict keys:

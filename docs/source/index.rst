@@ -30,7 +30,7 @@ create and manage FBA Inbound Shipments... do it all with Python-Amazon-MWS!
    :maxdepth: 2
    :caption: Topics
 
-   parsedXMLResponses
+   topics/parsedXMLResponses
 
 .. Indices and tables
 .. ==================
