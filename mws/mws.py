@@ -57,6 +57,7 @@ MARKETPLACES = {
     "MX": "https://mws.amazonservices.com.mx",  # A1AM78C64UM0Y8
     "NL": "https://mws-eu.amazonservices.com",  # A1805IZSGTT6HS
     "SA": "https://mws-eu.amazonservices.com",  # A17E79C6D8DWNP
+    "SE": "https://mws-eu.amazonservices.com",  # A2NODRKZP88ZB9
     "SG": "https://mws-fe.amazonservices.com",  # A19VAU5U5O7RUS
     "TR": "https://mws-eu.amazonservices.com",  # A33AVAJ2PDY3EV
     "UK": "https://mws-eu.amazonservices.com",  # A1F83G8C2ARO7P - GB alias
@@ -336,11 +337,11 @@ class MWS(object):
 
 def feed_options_str(feed_options):
     """Convert a FeedOptions dict of values into an appropriate string value.
-    
+
     Amazon docs for VAT upload with details:
     https://m.media-amazon.com/images/G/01/B2B/DeveloperGuide/vat_calculation_service__dev_guide_H383rf73k4hsu1TYRH139kk134yzs.pdf
     (section 6.4)
-    
+
     Example:
       feed_options = {
         "shippingid": "283845474",
