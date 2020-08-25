@@ -12,12 +12,21 @@ Below, we'll go into more detail on how to use ``response.parsed`` in your appli
 these XML responses.
 
 .. note:: Throughout these docs, we refer to an instance of ``MWSResponse`` as ``response``. This should not be
-   confused with a ``requests.Response`` instance, which is returned from all requests sent through the ``requests``
-   package.
+   confused with |requests_response_link|_.
 
-   However, as ``MWSResponse`` wraps a ``requests.Response`` instance, it also provides direct access to its contents
-   through several shortcut properties (``headers``, ``status_code``, etc.). Thus, you can work with the original XML
-   document returned from the request using ``MWSResponse.content`` (bytes) and ``MWSResponse.text`` (Unicode string).
+   However, ``MWSResponse`` wraps a ``requests.Response`` instance and provides access to its contents through several
+   shortcut properties, such as ``headers``, ``status_code``, etc. That original ``requests.Response`` instance
+   can be found as either ``MWSResponse.response`` or ``MWSResponse.original``, and you can further access content of
+   the original response using, for instance, ``MWSResponse.original.content`` or ``MWSResponse.original.text``.
+
+   ``MWSResponse`` also provides shortcut methods to the same, i.e. ``MWSResponse.headers``,
+   ``MWSResponse.status_code``, ``MWSResponse.context``, and ``MWSResponse.text``.
+
+   **So**, if you wish to process the raw XML document yourself, you can work with any of the above methods to
+   get to the original response's ``.content`` (for bytes) or ``.text`` (for Unicode).
+
+.. |requests_response_link| replace:: an instance of ``requests.Response`` from the ``requests`` package
+.. _requests_response_link: https://2.python-requests.org/en/master/user/advanced/#request-and-response-objects
 
 Dictionary keys as attributes
 =============================
@@ -94,23 +103,14 @@ of the parsed response below.
 Iteration by default
 ====================
 
-In the previous XML example, note there are two ``<Product>`` tags that are children of ``<Products>``. This is
-typical in XML documents, with multiple sibling tags of the same name indicating a sequence of similar objects.
+Sibling XML tags with the same tag name represent sequences of similar objects. When parsed to a Python dict,
+they are collected into a list of dicts accessible from a key by the same name as the sibling tags.
 
-When this document is parsed by ``xmltodict``, sibling tags are collected into a list of dicts, accessible from
-a key by the same name as the sibling tag.
+For the following (simplified) XML document:
 
-.. note:: To demonstrate, we can use utility function ``mws_xml_to_dict`` to convert a simple XML document to a
-   standard ``dict``, or ``mws_xml_to_dotdict`` to produce a ``DotDict`` instance. In the following example,
-   we will use the latter method.
+.. code-block:: xml
 
-   In this example, ``dotdict`` produces the same content as a full response accessed through ``response.parsed``.
-
-.. code-block:: python
-
-    from mws.utils.xml import mws_xml_to_dotdict
-
-    content = """<Response>
+    <Response>
       <Products>
         <Product>
           <Name>spam</Name>
@@ -123,50 +123,48 @@ a key by the same name as the sibling tag.
         </Product>
       </Products>
     </Response>
-    """
 
-    dotdict = mws_xml_to_dotdict(content)
-    print(dotdict)
-    # DotDict({'Products': DotDict({'Product': [DotDict({'Name': 'spam'}), DotDict({'Name': 'ham'}), DotDict({'Name': 'eggs'})]})})
-
-    # iterate on .Product key to access the <Product> tags from the response:
-    for product in dotdict.Products.Product:
-        print(product.Name)
-
-    # 'spam'
-    # 'ham'
-    # 'eggs'
-
-Suppose the same request occasionally returns only one ``<Product>`` tag. The XML parser does not know that this may
-sometimes be a list, so it produces a single dict entry instead of a list of dicts.
-
-``DotDict`` will wrap itself in an iterator when needed, such that iterating on a single node provides the same
-interface as iterating on a list of nodes:
+Each ``<Product>`` tag's child nodes are parsed into a separate dict, and all dicts are joined in a list,
+which you will find at ``response.parsed.Products.Product``. Typically, you will want to access these ``Product``
+objects by iterating the ``Product`` node:
 
 .. code-block:: python
 
-    from mws.utils.xml import mws_xml_to_dotdict
+    names = []
+    for product in response.parsed.Products.Product:
+        names.append(product.Name)
 
-    # XML response with a single <Product> tag
-    content = """<Response>
+    print(names)
+    # ['spam', 'ham', 'eggs']
+
+If the same request returns only one ``<Product>`` tag, the ``Product`` key in the parsed response will return only
+a single ``DotDict``, similar to any other node in the XML tree. Trying to access the ``Product`` node in this case
+as though it were a list - such as using indices (``.Product[0]``) - will result in errors.
+
+However, when a ``DotDict`` is iterated, it will wrap itself in a list in order to provide the same interface as before.
+
+So, for an XML response like so:
+
+.. code-block:: xml
+
+    <Response>
       <Products>
         <Product>
-          <Name>spam</Name>
+          <Name>foo</Name>
         </Product>
       </Products>
     </Response>
-    """
 
-    # This produces a single DotDict entry, instead of a list of DotDicts as before:
-    dotdict = mws_xml_to_dotdict(content)
-    print(dotdict)
-    # DotDict({'Products': DotDict({'Product': DotDict({'Name': 'spam'})})})
+...the same Python code can be used to access "all" ``Product`` keys:
 
-    # Iterating on the .Product key still works that same way:
-    for product in dotdict.Products.Product:
-        print(product.Name)
+.. code-block:: python
 
-    # 'spam'
+    names = []
+    for product in response.parsed.Products.Product:
+        names.append(product.Name)
+
+    print(names)
+    # ['foo']
 
 .. note:: While ``DotDict`` is a subclass of ``dict``, this behavior is different from that of the standard ``dict``,
    where iterating directly on the ``dict`` object is equivalent to iterating on ``dict.keys()``. We have chosen to
@@ -213,8 +211,8 @@ These ``@`` and ``#text`` keys cannot be accessed directly as attributes due to 
     print(dotdict.Products.Product.WhatHaveYou['#text'])
     # 'eggs'
 
-``DotDict`` also allows accessing these keys using a fallback method. Simply provide the key name *without*
-``@`` or ``#`` in front, and it will attempt to find the match:
+``DotDict`` also allows accessing these keys using a fallback method. Simply provide the key name without
+``@`` or ``#`` in front, and it will attempt to find a matching key:
 
 .. code-block:: python
 
@@ -224,25 +222,18 @@ These ``@`` and ``#text`` keys cannot be accessed directly as attributes due to 
     print(dotdict.Products.Product.WhatHaveYou.text)
     # 'eggs'
 
+.. note:: In case of a conflicting key name, a key matching the attribute will be returned first:
 
+   .. code-block:: python
 
-*TODO*
+       dotdict = DotDict({'foo': 'spam', '@foo': 'ham'})
+       print(dotdict.foo)
+       # 'spam'
+       print(dotdict['@foo'])
+       # 'ham'
 
-Most notably, keys in a ``DotDict`` can be accessed like dotted attrs on a class object, in addition to accessing
-like dict keys:
-
-.. code-block:: python
-
-    # The following are all equivalent:
-    response.parsed['foo']['bar']['baz']
-    response.parsed.foo.bar.baz
-    response.parsed.foo.bar.get('baz')
-
-    # And any combination therein:
-    response.parsed.get('foo').bar['baz']
-
-.. tip:: Using dotted attrs is highly recommended to make your code more concise, with the exception of cases where
-   ``.get(key, default)`` may be useful (nodes that may be missing, providing defaults, etc.).
+   This conflict is a rare occurrence for most XML documents, however, as they are not likely to return a tag attribute
+   with the same name as an immediate child tag.
 
 General parsing rules
 =====================
