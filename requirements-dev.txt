@@ -1,7 +1,10 @@
 -r requirements.txt
 
-# python linting
+# linting
 flake8
+
+# formatting
+black
 
 # testing
 pytest
