@@ -17,19 +17,9 @@ def unique_list_order_preserved(seq):
 class DotDict(dict):
     """Read-only dict-like object class that wraps a mapping object."""
 
-    def __init__(self, __m=None, **kwargs):
-        """Recursively builds values in the passed mapping
-        through our build classmethod.
-
-        - Each nested mapping object will be converted to a DotDict.
-        - Each non-string, non-dict iterable will have elements built as well.
-        - All other objects in the data are left unchanged.
-        """
-        if __m is None:
-            __m = {}
-        __m = {key: self.__class__.build(val) for key, val in __m.items()}
-        dict.__init__(self, __m)
-        self.update(**kwargs)
+    def __init__(self, *args, **kwargs):
+        dict.__init__(self)
+        self.update(*args, **kwargs)
 
     def __repr__(self):
         return "{}({})".format(self.__class__.__name__, super().__repr__())
@@ -76,79 +66,28 @@ class DotDict(dict):
         dict.__setitem__(self, key, val)
 
     def __iter__(self):
-        """Nodes must be iterable by default.
+        """Nodes are natively iterable, returning an iterator wrapping this instance.
 
-        This is slightly different from standard behavior, where iterating a ``dict``
-        will return its keys. Here, instead, we assume that the user is iterating
-        a node which may either contain a single subnode or a list of subnodes.
+        This is slightly different from standard behavior: iterating a ``dict`` will
+        return its keys. Instead, we assume that the user is iterating an XML node
+        which they expect sometimes returns a list of nodes, and other times returns
+        a single instance of ``DotDict``. If the latter is true, we end up here.
 
-        Example:
-
-        .. code-block:: python
-
-            # For an xml response of:
-            # <Products>
-            #   <Product>
-            #     <Name>foo</Name>
-            #   </Product>
-            # </Products>
-
-            # The parsed DotDict will look like so:
-            xml_example1 = DotDict({
-                "Products": {
-                    "Product": {"Name": "foo"}
-                }
-            })
-
-            for product in xml_example1.Products.Product:
-                print(product.Name)
-            # foo
-
-        Here, ``product`` returns the child DotDict ``{'Name': 'foo'}``,
-        so ``product`` can be used to access child elements within the loop.
-
-        This mirrors how a similar response with multiple ``Product`` sibling tags
-        will return a list in the resulting ``DotDict`` instance:
-
-        .. code-block:: python
-
-            # For another response returning two Products:
-            # <Products>
-            #   <Product>
-            #     <Name>bar</Name>
-            #   </Product>
-            #   <Product>
-            #     <Name>baz</Name>
-            #   </Product>
-            # </Products>
-
-            # will parse as:
-            xml_example2 = DotDict({
-                "Products": {
-                    "Product": [
-                        {"Name": "bar"},
-                        {"Name": "baz"}
-                    ]
-                }
-            })
-
-            for product in xml_example2.Products.Product:
-                print(product.Name)
-            # bar
-            # baz
-
-        With this simple adjustment, both examples can be accessed by the same code,
-        with no need to test if the node is an iterable first.
+        So, we wrap this instance in an iterator, so that iterating on it will return
+        the ``DotDict`` itself, rather than its keys.
         """
         return iter([self])
 
-    def update(self, __m=None, **kwargs):
-        """Build each value of our kwargs when doing an update."""
-        built = {}
-        if isinstance(__m, Mapping):
-            built = {key: self.__class__.build(val) for key, val in __m.items()}
-        built.update({key: self.__class__.build(val) for key, val in kwargs.items()})
-        dict.update(self, **built)
+    def update(self, *args, **kwargs):
+        """Recursively builds values in any nested objects, such that any mapping
+        object in the nested structure is converted to a ``DotDict``.
+
+        - Each nested mapping object will be converted to ``DotDict``.
+        - Each non-string, non-dict iterable will have elements built, as well.
+        - All other objects in the data are left unchanged.
+        """
+        for key, val in dict(*args, **kwargs).items():
+            self[key] = self.__class__.build(val)
 
     @classmethod
     def build(cls, obj):
