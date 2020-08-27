@@ -8,7 +8,7 @@ Prerequisites for MWS connectivity
    regions, please see `Related Resources (MWS documentation link)
    <http://docs.developer.amazonservices.com/en_US/dev_guide/DG_Resources.html>`_.
 
-In order to use Python-Amazon-MWS, you must have an Amazon Professional Seller account,
+In order to use python-amazon-mws, you must have an Amazon Professional Seller account,
 and you must `register as a developer
 <http://docs.developer.amazonservices.com/en_US/dev_guide/DG_Registering.html>`_.
 You will then be provided a set of MWS credentials, which include your
@@ -16,7 +16,7 @@ You will then be provided a set of MWS credentials, which include your
 
 These credentials, along with a `Marketplace ID
 <http://docs.developer.amazonservices.com/en_US/dev_guide/DG_Endpoints.html>`_,
-will be needed to make requests to MWS, whether using Python-Amazon-MWS or
+will be needed to make requests to MWS, whether using python-amazon-mws or
 any other MWS-related service.
 
 Test MWS access using Scratchpad

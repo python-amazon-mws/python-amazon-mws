@@ -128,10 +128,8 @@ def simple_mwsresponse_no_metadata(simple_xml_response_no_meta):
 
 
 @pytest.fixture
-def simple_mwsresponse_with_timestamp(simple_xml_response_str):
+def simple_mwsresponse_with_timestamp(simple_mwsresponse_with_resultkey):
     timestamp = datetime.datetime(2020, 8, 24, 16, 30)  # 4:30PM (naive), 2020-08-24
-    content = simple_xml_response_str.encode(MWS_ENCODING)
-    response = mock_response(content)
-    return MWSResponse(
-        response, result_key="ListMatchingProductsResult", request_timestamp=timestamp
-    )
+    mws_response = simple_mwsresponse_with_resultkey
+    mws_response.timestamp = timestamp
+    return mws_response

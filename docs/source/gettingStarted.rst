@@ -38,7 +38,7 @@ For our example, we will use the `Products API
 <http://docs.developer.amazonservices.com/en_US/products/Products_Overview.html>`_
 operation `ListMatchingProducts
 <http://docs.developer.amazonservices.com/en_US/products/Products_ListMatchingProducts.html>`_.
-In Python-Amazon-MWS, this is done using an instance of the ``Products`` API class and its method
+In python-amazon-mws, this is done using an instance of the ``Products`` API class and its method
 ``list_matching_products``:
 
 .. code-block:: python
@@ -53,14 +53,14 @@ In Python-Amazon-MWS, this is done using an instance of the ``Products`` API cla
 The request is sent automatically when ``list_matching_products`` is called, and a
 ``response`` is returned. MWS typically returns an XML document encoded in ISO-8859-1
 (per `Amazon's standards <http://docs.developer.amazonservices.com/en_US/dev_guide/DG_ISO8859.html>`_),
-which Python-Amazon-MWS attempts to decode automatically.
+which python-amazon-mws attempts to decode automatically.
 
 For most responses (including our example ``list_matching_products``), the ``response`` will be a
 ``DictWrapper`` object containing:
 
 - ``response.original``, the original XML document;
 - ``response.response``, the HTTP response code of the request (200, 400, etc.); and
-- ``response.parsed``, a parsed version of the XML tree. (See :ref:`page_parsed_attr`).
+- ``response.parsed``, a parsed version of the XML tree. (See page_parsed_xml_responses).
 
 Certain responses (such as the `GetReport
 <http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReport.html>`_ operation, under

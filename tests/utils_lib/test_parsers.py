@@ -28,16 +28,6 @@ def test_response_content_md5_comparison():
     MWSResponse(response)
 
 
-def test_response_content_md5_check_raises_exception_if_fails():
-    incorrect_hash = "notthehash"
-    response = Response()
-    response._content = b"abc\tdef"
-    response.headers["content-md5"] = incorrect_hash
-    # Should raise an error due to incorrect hash value.
-    with pytest.raises(MWSError):
-        MWSResponse(response)
-
-
 def test_decode_byte_xml():
     """Test that XML decoding works for MWSResponse."""
     # Original XML.
@@ -694,22 +684,18 @@ class TestMWSResponseObject:
     def test_mwsresponse_base_attrs(self, simple_mwsresponse):
         # The original response object
         mws_response = simple_mwsresponse
-        original = mws_response._response
-        assert isinstance(original, Response)
-        assert original is mws_response._response
-        assert original is mws_response.response
-        assert original is mws_response.original
+        assert isinstance(mws_response.original, Response)
 
         # Other parts of the underlying object
-        assert mws_response.headers == original.headers
-        assert mws_response.text == original.text
-        assert mws_response.content == original.content
-        assert mws_response.status_code == original.status_code
-        assert mws_response.encoding == original.encoding
-        assert mws_response.reason == original.reason
-        assert mws_response.cookies == original.cookies
-        assert mws_response.elapsed == original.elapsed
-        assert mws_response.request == original.request
+        assert mws_response.headers == mws_response.original.headers
+        assert mws_response.text == mws_response.original.text
+        assert mws_response.content == mws_response.original.content
+        assert mws_response.status_code == mws_response.original.status_code
+        assert mws_response.encoding == mws_response.original.encoding
+        assert mws_response.reason == mws_response.original.reason
+        assert mws_response.cookies == mws_response.original.cookies
+        assert mws_response.elapsed == mws_response.original.elapsed
+        assert mws_response.request == mws_response.original.request
         print(mws_response.timestamp)
 
         # Also, the encoding should be known:

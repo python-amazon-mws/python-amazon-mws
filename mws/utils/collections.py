@@ -1,13 +1,12 @@
-"""Data structure utilties."""
+"""Data structure utilities."""
 
 from collections.abc import Mapping, Iterable
-import pprint
 
 
 def unique_list_order_preserved(seq):
     """Returns a unique list of items from the sequence
     while preserving original ordering.
-    The first occurence of an item is returned in the new sequence:
+    The first occurrence of an item is returned in the new sequence:
     any subsequent occurrences of the same item are ignored.
     """
     seen = set()
@@ -16,27 +15,10 @@ def unique_list_order_preserved(seq):
 
 
 class DotDict(dict):
-    """Read-only dict-like object class that wraps a mapping object.
-
-    Provides access to dict keys as dotted attrs. For example:
-
-        dd = DotDict({'hello': 'world'})
-        dd.hello
-        # 'world'
-        dd['hello']
-        # 'world'
-        dd.get('hello')
-        # 'world'
-
-    Nested mappings are converted to nested DotDicts, as well:
-
-        dd = DotDict({'ham': {'spam': {'eggs': {'foo': 'bar'}}}})
-        dd.ham.spam.eggs.foo
-        # 'bar'
-    """
+    """Read-only dict-like object class that wraps a mapping object."""
 
     def __init__(self, mapping=None, **kwargs):
-        """Recurvisely builds values in the passed mapping
+        """Recursively builds values in the passed mapping
         through our build classmethod.
 
         - Each nested mapping object will be converted to a DotDict.

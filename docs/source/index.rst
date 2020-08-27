@@ -5,16 +5,16 @@
 
 .. _page_index:
 
-Python-Amazon-MWS
+python-amazon-mws
 #################
 
-Python-Amazon-MWS is a Python connector to `Amazon Marketplace Web Services
+python-amazon-mws is a Python connector to `Amazon Marketplace Web Services
 <http://docs.developer.amazonservices.com/en_US/dev_guide/index.html>`_
 (or MWS). It provides a simple way to build and send requests to MWS,
 allowing access to all that MWS can do from your Python application.
 
 Use Feeds to update your product listings, run Reports, get updates on your Orders,
-create and manage FBA Inbound Shipments... do it all with Python-Amazon-MWS!
+create and manage FBA Inbound Shipments... do it all with python-amazon-mws!
 
 .. note:: This is a third-party connector with no direct affiliation to Amazon.
 
@@ -28,9 +28,17 @@ create and manage FBA Inbound Shipments... do it all with Python-Amazon-MWS!
 
 .. toctree::
    :maxdepth: 2
+   :glob:
    :caption: Topics
 
-   topics/parsedXMLResponses
+   topics/*
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+   :caption: Reference
+
+   reference/*
 
 .. Indices and tables
 .. ==================

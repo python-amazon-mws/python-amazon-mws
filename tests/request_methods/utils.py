@@ -92,8 +92,7 @@ class CommonAPIRequestTools(object):
             self.api.uri = api_orig_uri
 
     def _generic_request_uri_correct_value(self):
-        """If the API's `.uri` attr is an incorrect value, should raise `ValueError`.
-        """
+        """If the API's `.uri` attr is an incorrect value, should raise `ValueError`."""
         action = "GenericRequestURIException"
         params = {"DoesNotMatter": "foobar"}
 

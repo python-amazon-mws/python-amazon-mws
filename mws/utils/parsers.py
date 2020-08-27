@@ -115,7 +115,7 @@ class XML2Dict(object):
             # if val.strip():
             key, val = self._namespace_split(key, ObjectDict({"value": val}))
             node_tree[key] = val
-        # Save childrens
+        # Save children
         for child in node:
             tag, tree = self._namespace_split(child.tag, self._parse_node(child))
             if tag not in node_tree:  # the first time, so store it in dict
@@ -179,7 +179,7 @@ class DictWrapper(object):
             try:
                 xml = xml.decode(encoding="iso-8859-1")
             except UnicodeDecodeError as exc:
-                # In the very rare occurence of a decode error, attach the original xml to the .response of the MWSError
+                # In the very rare occurrence of a decode error, attach the original xml to the .response of the MWSError
                 error = MWSError(str(exc.response.text))
                 error.response = xml
                 raise error

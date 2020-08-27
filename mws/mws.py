@@ -175,7 +175,8 @@ class MWS(object):
             error_msg = (
                 "Incorrect region supplied: {region}. "
                 "Must be one of the following: {regions}".format(
-                    region=region, regions=", ".join(Marketplaces.__members__.keys()),
+                    region=region,
+                    regions=", ".join(Marketplaces.__members__.keys()),
                 )
             )
             raise MWSError(error_msg)
@@ -273,9 +274,8 @@ class MWS(object):
                         "MD5 hash validation failed: wrong content length for response"
                     )
 
-                parsed_response = MWSResponse(
-                    response, result_key=result_key, request_timestamp=request_timestamp
-                )
+                parsed_response = MWSResponse(response, result_key=result_key)
+                parsed_response.timestamp = request_timestamp
             else:
                 ### DEPRECATED ###
                 # Remove in v1.0
