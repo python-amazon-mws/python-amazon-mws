@@ -80,8 +80,8 @@ And, of course, a mix of the different methods is possible:
       product = response.parsed.Products.Product
       asin = product.Identifiers.MarketplaceASIN.ASIN
 
-Iteration by default
-====================
+Native iteration
+================
 
 XML represents sequences of similar objects by having sibling tags with the same tag name. Consider the following
 toy example with three ``<Product>`` tags:
@@ -170,14 +170,70 @@ So, for an XML response like so:
    implement the above behavior to more closely match most users' intended usage when working with parsed XML,
    even though ``DotDict`` *can* be used much like a standard ``dict`` for (most) general purposes.
 
+Recursive conversion of dict objects
+====================================
+
+``DotDict`` instances expect to hold nested data, as seen in the examples throughout this document. As such, any
+``dict`` assigned as a value to a ``DotDict`` is automatically converted to a ``DotDict``, as well. The values
+of the assigned ``dict`` are then recursively built the same way, such that every ``dict`` (or other mapping type)
+instance in the structure is also converted to ``DotDict``.
+
+This holds true in a variety of scenarios:
+
+- Wrapping a nested ``dict`` in ``DotDict``:
+
+  .. code-block:: python
+
+      example1 = DotDict({'spam': {'ham': {'eggs': 'juice'}}})
+      print(example1)
+      # DotDict({'spam': DotDict({'ham': DotDict({'eggs': 'juice'})})})
+
+- Using kwargs to build ``DotDict``, with a ``dict`` as one of the values:
+
+  .. code-block:: python
+
+      example2 = DotDict(spam={'muffin': {'cereal': 'milk'}})
+      print(example2)
+      DotDict({'spam': DotDict({'muffin': DotDict({'cereal': 'milk'})})})
+
+- Assigning a ``dict`` to a key of an existing ``DotDict``, including creating new keys:
+
+  .. code-block:: python
+
+      example3 = DotDict()
+      example3.pancakes = {'maple': 'syrup'}
+      print(example3)
+      # DotDict({'pancakes': DotDict({'maple': 'syrup'})})
+
+      example3.pancakes.toast = {'strawberry': 'jam'}
+      print(example3)
+      # DotDict({'pancakes': DotDict({'maple': 'syrup', 'toast': DotDict({'strawberry': 'jam'})})})
+
+- Using ``DotDict.update`` in a similar manner as ``dict.update``:
+
+  .. code-block:: python
+
+      example4 = DotDict()
+      example4.update({'chicken': {'waffles': 'honey'}})
+      print(example4)
+      # DotDict({'chicken': DotDict({'waffles': 'honey'})})
+
+      # Including a mix of a plain dict and kwargs
+      example5 = DotDict()
+      example5.update({'running': {'out': 'of'}}, food='examples', to={'use': 'here'})
+      print(example5)
+      # DotDict({'running': DotDict({'out': 'of'}), 'food': 'examples', 'to': DotDict({'use': 'here'})})
+
 .. _tag_attributes:
 
 Working with XML tag attributes
 ================================
 
-``DotDict`` is used in python-amazon-mws primarily for parsed XML content, and XML tags can contain attributes with
-additional data points. When parsed, these attributes are assigned to their own dict keys starting with ``@``,
-differentiating them from normal tag names.
+``DotDict`` is used in python-amazon-mws primarily for parsed XML content. As such, some features of the class are
+specialized for working with that content.
+
+XML tags can contain attributes with additional data points. When parsed, these attributes are assigned to their own
+dict keys starting with ``@``, differentiating them from normal tag names.
 
 Further, tags that contain an attribute and text content will store the text on a special key, ``#text``.
 
@@ -248,8 +304,8 @@ These ``@`` and ``#text`` keys cannot be accessed directly as attributes due to 
    This conflict is a rare occurrence for most XML documents, however, as they are not likely to return a tag attribute
    with the same name as an immediate child tag.
 
-Class reference
-===============
+DotDict API
+===========
 
 .. autoclass:: mws.utils.collections.DotDict
    :members:

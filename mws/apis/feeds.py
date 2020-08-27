@@ -4,6 +4,7 @@ from mws import MWS
 from mws.decorators import next_token_action
 from mws.utils.crypto import calc_md5
 from mws.utils.params import enumerate_param
+from mws.utils.params import clean_value
 
 # TODO Add FeedProcessingStatus enumeration
 # TODO Add FeedType enumeration
@@ -12,23 +13,26 @@ from mws.utils.params import enumerate_param
 def feed_options_str(feed_options):
     """Convert a FeedOptions dict of values into an appropriate string value.
 
-    Amazon docs for VAT upload with details:
-    https://m.media-amazon.com/images/G/01/B2B/DeveloperGuide/vat_calculation_service__dev_guide_H383rf73k4hsu1TYRH139kk134yzs.pdf
+    See `Amazon docs on VAT upload details
+    <https://m.media-amazon.com/images/G/01/B2B/DeveloperGuide/vat_calculation_service__dev_guide_H383rf73k4hsu1TYRH139kk134yzs.pdf>`_
     (section 6.4)
 
     Example:
-      feed_options = {
-        "shippingid": "283845474",
-        "totalAmount": 3.25,
-        "totalvatamount": 1.23,
-        "invoicenumber": "INT-3431-XJE3",
-        "documenttype": "CreditNote",
-        "transactionid": "amzn:crow:429491192ksjfhe39s",
-      }
-      print(feed_options_str(feed_options))
-      >>> "metadata:shippingid=283845474;metadata:totalAmount=3.25;metadata:totalvatamount=1.23;
-      metadata:invoicenumber=INT-3431-XJE3;metadata:documenttype=CreditNote;
-      metadata:transactionid=amzn:crow:429491192ksjfhe39s"
+
+    .. code-block:: python
+
+        options = {
+            "shippingid": "283845474",
+            "totalAmount": 3.25,
+            "totalvatamount": 1.23,
+        }
+        print(feed_options_str(options))
+        # "metadata:shippingid=283845474;metadata:totalAmount=3.25;metadata:totalvatamount=1.23"
+
+    :param dict feed_options: A dict containing key-value pairs to add to metadata.
+      Keys will be automatically prefixed with ``"metadata:"`` as required.
+      Values will be processed by :py:func:`clean_value <mws.utils.params.clean_value>`
+    :return: Metadata string, or None if ``feed_options`` is empty
     """
     if not feed_options:
         return None
@@ -36,10 +40,7 @@ def feed_options_str(feed_options):
         raise ValueError("`feed_options` should be a dict or None")
     output = []
     for key, val in feed_options.items():
-        outval = val
-        if outval is True or outval is False:
-            # Convert literal `True` or `False` to strings `"true"` and `"false"`
-            outval = str(outval).lower()
+        outval = clean_value(val)
         output.append("metadata:{}={}".format(key, outval))
     return ";".join(output)
 
@@ -67,13 +68,58 @@ class Feeds(MWS):
         amazon_order_id=None,
         document_type=None,
         content_type="text/xml",
-        purge="false",
+        purge=False,
     ):
-        """Uploads a feed for processing by Amazon MWS.
-        `feed` should contain a file object in XML or flat-file format.
+        """The `SubmitFeed operation.
+        <http://docs.developer.amazonservices.com/en_US/feeds/Feeds_SubmitFeed.html>`_
+        Uploads a feed for processing by Amazon MWS.
 
-        Docs:
-        http://docs.developer.amazonservices.com/en_US/feeds/Feeds_SubmitFeed.html
+        :param feed: A file object in XML or flat-file format, encoded to bytes.
+        :param str feed_type: A `FeedType
+          <https://docs.developer.amazonservices.com/en_US/feeds/Feeds_FeedType.html>`_
+          value, specifying the type of feed to send. The other options you specify
+          in this request may depend on the feed type you choose.
+        :param feed_options: Optional metadata to submit with the feed, particularly
+          for the ``_UPLOAD_VAT_INVOICE_`` feed type.
+          See Amazon doc, `Invoice Uploader Developer Guide
+          <https://m.media-amazon.com/images/G/03/B2B/invoice-uploader-developer-documentation.pdf>`_,
+          for details on the string formatting.
+
+          If a dict is provided, ``feed_options`` is passed to
+          :py:func:`feed_options_str`, where it is converted to a properly-formatted
+          string.
+        :type feed_options: dict, str, or None
+        :param marketplace_ids: A list of one or more marketplace IDs (of marketplaces
+          you are registered to sell in) that you want the feed to be applied to.
+
+          A string can be passed when only one marketplace ID is used, as well.
+        :type marketplace_ids: list, str, or None
+        :param amazon_order_id: An Amazon-defined order identifier, used to identify
+          an Amazon Easy Ship order.
+
+          Available for ``_POST_EASYSHIP_DOCUMENTS_`` feed type and the India
+          marketplace.
+        :type amazon_order_id: str or None
+        :param document_type: The type of PDF document that you want to get for the
+          Amazon Easy Ship order identified with the ``amazon_order_id`` parameter.
+
+          Accepts values ``"ShippingLabel"``, ``"Invoice"``, or ``"Warranty"``.
+          If left as ``None``, defaults to all types.
+
+          Available for ``_POST_EASYSHIP_DOCUMENTS_`` feed type and the India
+          marketplace.
+        :type document_type: str or None
+        :param str content_type: Specifies the type of ``feed``, setting the request
+          header ``"Content-Type"``.
+        :param bool purge: According to Amazon docs: "enables the purge and replace
+          functionality. Set to ``True`` to purge and replace the existing data;
+          otherwise ``False``. This value only applies to product-related flat file
+          feed types, which do not have a mechanism for specifying purge and
+          replace in the feed body. **Use this parameter only in exceptional cases.**
+          Usage is throttled to allow only one purge and replace within a 24-hour
+          period."
+
+          Defaults to ``False``.
         """
         if isinstance(feed_options, dict):
             # Convert dict of options to str value
@@ -87,7 +133,7 @@ class Feeds(MWS):
         # check http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_HowToGetEasyShipDocs.html
         if amazon_order_id:
             data.update({"AmazonOrderId": amazon_order_id})
-            # by default all document pdfs are included
+            # by default all document PDFs are included
             # allowed values: ShippingLabel, Invoice, Warranty
             if document_type:
                 data.update({"DocumentType": document_type})
