@@ -126,6 +126,32 @@ class TestDotDictObject:
         assert isinstance(dot_dict.d, dict)
         assert dot_dict.d.a == 3
 
+    def test_dotdict_update_plain_dict(self):
+        """``DotDict.update`` method."""
+        dot_dict = DotDict()
+        dot_dict.update({'a': 3, 'b': 4, 'c': {"d": "e"}, 'd': DotDict(a=3)})
+        assert dot_dict.a == 3
+        assert dot_dict.b == 4
+        assert isinstance(dot_dict.c, DotDict)
+        assert isinstance(dot_dict.c, dict)
+        assert dot_dict.c.d == "e"
+        assert isinstance(dot_dict.d, DotDict)
+        assert isinstance(dot_dict.d, dict)
+        assert dot_dict.d.a == 3
+
+    def test_dotdict_update_mixed(self):
+        """``DotDict.update`` method."""
+        dot_dict = DotDict()
+        dot_dict.update({'a': 3, 'b': 4}, c={"d": "e"}, d=DotDict(a=3))
+        assert dot_dict.a == 3
+        assert dot_dict.b == 4
+        assert isinstance(dot_dict.c, DotDict)
+        assert isinstance(dot_dict.c, dict)
+        assert dot_dict.c.d == "e"
+        assert isinstance(dot_dict.d, DotDict)
+        assert isinstance(dot_dict.d, dict)
+        assert dot_dict.d.a == 3
+
     def test_dotdict_attr_key_access_methods(self):
         """Various methods for accessing contents of a parsed XML response
         should all return the same way.
