@@ -17,7 +17,7 @@ def unique_list_order_preserved(seq):
 class DotDict(dict):
     """Read-only dict-like object class that wraps a mapping object."""
 
-    def __init__(self, mapping=None, **kwargs):
+    def __init__(self, __m=None, **kwargs):
         """Recursively builds values in the passed mapping
         through our build classmethod.
 
@@ -25,10 +25,10 @@ class DotDict(dict):
         - Each non-string, non-dict iterable will have elements built as well.
         - All other objects in the data are left unchanged.
         """
-        if mapping is None:
-            mapping = {}
-        mapping = {key: self.__class__.build(val) for key, val in mapping.items()}
-        dict.__init__(self, mapping)
+        if __m is None:
+            __m = {}
+        __m = {key: self.__class__.build(val) for key, val in __m.items()}
+        dict.__init__(self, __m)
         self.update(**kwargs)
 
     def __repr__(self):
@@ -142,9 +142,12 @@ class DotDict(dict):
         """
         return iter([self])
 
-    def update(self, **kwargs):
+    def update(self, __m=None, **kwargs):
         """Build each value of our kwargs when doing an update."""
-        built = {key: self.__class__.build(val) for key, val in kwargs.items()}
+        built = {}
+        if isinstance(__m, Mapping):
+            built = {key: self.__class__.build(val) for key, val in __m.items()}
+        built.update({key: self.__class__.build(val) for key, val in kwargs.items()})
         dict.update(self, **built)
 
     @classmethod
