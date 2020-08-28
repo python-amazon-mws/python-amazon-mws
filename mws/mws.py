@@ -392,11 +392,13 @@ class MWS(object):
         self, action, params=None, method="GET", timeout=PAM_DEFAULT_TIMEOUT, **kwargs
     ):
         """Builds a generic request with arbitrary parameter arguments.
+        This method should be called from an API subclass (``Orders``, ``Feeds``, etc.),
+        else the ``uri`` attribute of the class instance must be set manually.
 
-        This method's signature matches that of `MWS.make_request`, as the two methods
-        are similar. However, `params` is expected to be either the default `None`
+        This method's signature matches that of ``.make_request``, as the two methods
+        are similar. However, ``params`` is expected to be either the default ``None``
         or a nested dictionary, that is then passed to
-        `mws.utils.params.flat_param_dict` in order to flatten it.
+        :py:func:`flat_param_dict() <mws.utils.params.flat_param_dict>`.
         """
         # NOTE you may be asking why this method exists. Why not simply put the logic
         # of `flat_param_dict` into `make_request`, and let every request method
