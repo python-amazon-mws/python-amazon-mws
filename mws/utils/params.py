@@ -189,66 +189,12 @@ def flat_param_dict(value, prefix=""):
     - Elements of a non-string iterable will be enumerated using a 1-based index,
       with the index number concatenated to the parent key.
     - In both cases, keys are joined with '.'.
-
-    Example:
-        value = {
-            "a": 1,
-            "b": "hello",
-            "c": [
-                "foo",
-                "bar",
-                {
-                    "spam": "ham",
-                    "eggs": [
-                        5,
-                        6,
-                        7,
-                    ],
-                },
-            ],
-        }
-        print(flat_param_dict(value))
-        # Formatted for readability:
-        >>> {
-            "a": 1,
-            "b": "hello",
-            "c.1": "foo",
-            "c.2": "bar",
-            "c.3.spam": "ham",
-            "c.3.eggs.1": 5,
-            "c.3.eggs.2": 6,
-            "c.3.eggs.3": 7,
-        }
-
-    - "a" and "b" keys point to non-dict, non-sequence values (not including strings),
-      so they return their original values.
-    - "c" contains an iterable (list), which is enumerated with a 1-based index.
-      Each index is concatenated to "c" with ".", creating keys "c.1" and "c.2".
-    - At "c.3", another nested object was found. This is processed recursively,
-      and each key of the resulting dict is concatenated to the parent "c.3"
-      to create multiple keys in the final output.
-    - The same occurs for "c.3.eggs", where an iterable is found and is enumerated.
-    - The final output should always be a flat dictionary with key-value pairs.
-
-    If `prefix` is provided, it will be prepended to each key in the flat dict:
-
-        print(flat_param_dict(value, prefix="example"))
-        >>> {
-            "example.a": 1,
-            "example.b": "hello",
-            "example.c.1": "foo",
-            "example.c.2": "bar",
-            "example.c.3.spam": "ham",
-            "example.c.3.eggs.1": 5,
-            "example.c.3.eggs.2": 6,
-            "example.c.3.eggs.3": 7,
-        }
     """
     prefix = "" if not prefix else str(prefix)
     # Prefix is now either an empty string or a valid prefix string ending in '.'
     # NOTE should ensure that a `None` value is changed to empty string, as well.
 
-    if isinstance(value, str) or not isinstance(value, (dict, Iterable)):
+    if isinstance(value, str) or not isinstance(value, (Mapping, Iterable)):
         # Value is not one of the types we want to expand.
         if prefix:
             # Can return a single dict of the prefix and value as a base case
@@ -267,7 +213,7 @@ def flat_param_dict(value, prefix=""):
         prefix += "."
 
     output = {}
-    if isinstance(value, dict):
+    if isinstance(value, Mapping):
         for key, val in value.items():
             new_key = "{}{}".format(prefix, key)
             output.update(flat_param_dict(val, prefix=new_key))
