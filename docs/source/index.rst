@@ -27,18 +27,18 @@ create and manage FBA Inbound Shipments... do it all with python-amazon-mws!
    gettingStarted
 
 .. toctree::
-   :maxdepth: 1
-   :glob:
-   :caption: APIs
-
-   apis/*
-
-.. toctree::
    :maxdepth: 2
    :glob:
    :caption: Topics
 
    topics/*
+
+.. toctree::
+   :maxdepth: 1
+   :glob:
+   :caption: API Sections
+
+   apis/*
 
 .. toctree::
    :maxdepth: 2
