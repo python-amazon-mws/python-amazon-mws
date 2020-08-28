@@ -23,7 +23,7 @@ setuptools.setup(
     description=short_description,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=["mws", "mws.apis", "mws.utils"],
+    packages=setuptools.find_packages(),
     install_requires=requires,
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
