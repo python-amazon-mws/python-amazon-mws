@@ -6,7 +6,6 @@ from mws import MWS
 from mws.decorators import next_token_action
 from mws.utils.crypto import calc_md5
 from mws.utils.params import enumerate_param
-from mws.utils.params import clean_value
 
 # TODO Add FeedProcessingStatus enumeration
 # TODO Add FeedType enumeration
