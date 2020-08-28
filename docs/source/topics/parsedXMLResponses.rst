@@ -3,6 +3,9 @@
 Using Parsed XML Responses
 ##########################
 
+.. versionadded:: 1.0.0dev15
+.. include:: /newFeaturesTopNote100dev15.rst
+
 For most MWS operations, the returned response is an XML documents `encoded using ISO 8859-1
 <http://docs.developer.amazonservices.com/en_US/dev_guide/DG_ISO8859.html>`_. python-amazon-mws will wrap all responses
 in an instance of :py:class:`MWSResponse <mws.response.MWSResponse>`, which then parses these responses automatically

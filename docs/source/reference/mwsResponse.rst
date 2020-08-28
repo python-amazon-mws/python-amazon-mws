@@ -1,6 +1,9 @@
 MWSResponse
 ############
 
+.. versionadded:: 1.0.0dev15
+.. include:: /newFeaturesTopNote100dev15.rst
+
 ``MWSResponse`` acts as a wrapper for ``requests.Response`` objects returned from requests made to MWS.
 When initialized, the response content is :ref:`automatically parsed for XML content <page_parsed_xml_responses>`,
 making it available as a ``DotDict`` instance in :py:attr:`mws.response.MWSResponse.parsed`.
