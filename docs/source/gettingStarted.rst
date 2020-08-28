@@ -12,20 +12,20 @@ Entering credentials
 To begin, use your MWS Credentials to instantiate one of the API classes.
 We will use the ``Products`` API for this example.
 
-Where you store these credentials is up to you, but we recommend pulling them
-from environment variables:
+Where you store these credentials is up to you, but we recommend using environment variables, like so:
 
 .. code-block:: python
 
-    import mws
+    import os
+    from mws import Products
 
-    products_api = mws.Products(
+    products_api = Products(
         access_key=os.environ["MWS_ACCESS_KEY"],
         secret_key=os.environ["MWS_SECRET_KEY"],
         account_id=os.environ["MWS_ACCOUNT_ID"],
         auth_token=os.environ["MWS_AUTH_TOKEN"],
     )
-    # auth_token is optional, depending on how you have your MWS access set up.
+    # `auth_token` is optional, depending on how you your MWS access is set up.
 
 Making requests
 ===============
@@ -43,12 +43,16 @@ In python-amazon-mws, this is done using an instance of the ``Products`` API cla
 
 .. code-block:: python
 
+    from mws import Marketplaces
+
+    # Marketplaces is an enum we can use to fill in the `marketplace_id` value,
+    # instead of needing to manually enter, i.e., "ATVPDKIKX0DER"
+    my_marketplace = Marketplaces.US.marketplace_id
+
     response = products_api.list_matching_products(
-        marketplace_id=mws.Marketplaces.US.marketplace_id,
+        marketplace_id=my_marketplace,
         query="python",
     )
-    # mws.Marketplaces is an enum we can use to fill in the `marketplace_id` value,
-    # instead of needing to manually enter, i.e., "ATVPDKIKX0DER"
 
 The request is sent automatically when ``list_matching_products`` is called, and a
 ``response`` is returned. MWS typically returns an XML document encoded in ISO-8859-1
@@ -68,3 +72,33 @@ the Reports API) may return other content types, such as PDFs, tab-delimited fla
 and so on. Non-XML responses will be wrapped in a ``DataWrapper`` object with similar attributes
 as ``DictWrapper``, with the raw document stored in ``.original``, and ``.parsed`` simply returning
 ``.original`` for convenience.
+
+.. warning::
+   .. versionadded:: 1.0.0dev15
+
+   ``DictWrapper`` and ``DataWrapper`` are deprecated, and will be removed in v1.1. During development testing,
+   these objects will still be returned from requests by default, and parsed content will still use ``ObjectDict``
+   instances (also deprecated).
+
+   To use newer features, such as the :py:class:`MWSResponse <mws.response.MWSResponse>` wrapper and
+   parsed XML using :py:class:`DotDict <mws.utils.collections.DotDict>`, set flag ``_use_feature_mwsresponse`` to
+   ``True`` on an API class instance *before* making any requests:
+
+   .. code-block:: python
+
+      # instantiate your class
+      products_api = Products(...)
+
+      # set the new feature flag
+      products_api._use_feature_mwsresponse = True
+
+      # run your requests as normal
+      response = products_api.list_matching_products(...)
+
+   For details on using these newer features, please see:
+
+   - :ref:`page_parsed_xml_responses`
+   - :ref:`page_mwsresponse_reference`
+   - :ref:`page_dotdict_reference`
+
+   ``MWSResponse`` *and* ``DotDict`` *will become the default objects returned by requests in v1.0*.

@@ -2,6 +2,7 @@ Generic Requests
 ################
 
 .. versionadded:: 1.0.0dev15
+   Generic request support added.
 
 While most MWS operations are well-covered by python-amazon-mws with dedicated and purpose-built request methods,
 Amazon may occasionally update MWS to include new parameters that we do not yet provide access to. Either that, or

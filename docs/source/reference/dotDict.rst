@@ -4,6 +4,8 @@ DotDict
 #######
 
 .. versionadded:: 1.0.0dev15
+   ``DotDict`` added.
+
 .. include:: /newFeaturesTopNote100dev15.rst
 
 The :py:class:`DotDict <mws.utils.collections.DotDict>` class is a subclass of a standard Python dict that provides
@@ -310,5 +312,6 @@ These ``@`` and ``#text`` keys cannot be accessed directly as attributes due to 
 DotDict API
 ===========
 
+.. versionadded:: 1.0.0dev15
 .. autoclass:: mws.utils.collections.DotDict
    :members:

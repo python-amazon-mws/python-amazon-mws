@@ -1,7 +1,11 @@
+.. _page_mwsresponse_reference:
+
 MWSResponse
 ############
 
 .. versionadded:: 1.0.0dev15
+   ``MWSResponse`` added
+
 .. include:: /newFeaturesTopNote100dev15.rst
 
 ``MWSResponse`` acts as a wrapper for ``requests.Response`` objects returned from requests made to MWS.
@@ -66,6 +70,7 @@ from the ``MWSResponse`` instance using one of the following:
 MWSResponse API
 ===============
 
+.. versionadded:: 1.0.0dev15
 .. autoclass:: mws.response.MWSResponse
    :members:
    :inherited-members:

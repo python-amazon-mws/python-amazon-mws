@@ -4,6 +4,8 @@ Using Parsed XML Responses
 ##########################
 
 .. versionadded:: 1.0.0dev15
+   ``MWSResponse`` and ``DotDict`` added.
+
 .. include:: /newFeaturesTopNote100dev15.rst
 
 For most MWS operations, the returned response is an XML documents `encoded using ISO 8859-1
