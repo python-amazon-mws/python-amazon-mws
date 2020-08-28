@@ -188,7 +188,10 @@ def flat_param_dict(value, prefix=""):
     - Each key in a child dict will be concatenated to its parent key.
     - Elements of a non-string iterable will be enumerated using a 1-based index,
       with the index number concatenated to the parent key.
-    - In both cases, keys are joined with '.'.
+    - In both cases, keys and sub-keys are joined by ``.``.
+
+    If ``prefix`` is set, all keys in the resulting output will begin with
+    ``prefix + '.'``.
     """
     prefix = "" if not prefix else str(prefix)
     # Prefix is now either an empty string or a valid prefix string ending in '.'
@@ -198,6 +201,9 @@ def flat_param_dict(value, prefix=""):
         # Value is not one of the types we want to expand.
         if prefix:
             # Can return a single dict of the prefix and value as a base case
+            if prefix.endswith("."):
+                # Remove an extraneous '.' at the end of this base case.
+                prefix = prefix[:-1]
             return {prefix: value}
         raise ValueError(
             (
