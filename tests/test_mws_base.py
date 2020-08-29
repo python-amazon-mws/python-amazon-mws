@@ -125,3 +125,30 @@ def test_mws_action_not_in_nexttokenops_raises_exception(mws_credentials):
     token = "token"
     with pytest.raises(MWSError):
         mws.action_by_next_token(action, token)
+
+
+### DEPRECATED - CHANGE IN 1.0 ###
+def test_mws_get_service_status(mws_credentials):
+    """Send a real ``get_service_status`` call to MWS.
+    No real credentials are required for this type of call, in fact.
+    """
+    # TODO Tests the pathway that uses `MWSResponse`. Change test in 1.0 to default
+    mws = MWS(**mws_credentials)
+    mws._use_feature_mwsresponse = True
+    resp = mws.get_service_status()
+    assert resp.parsed.Status in ("GREEN", "GREEN_I", "YELLOW", "RED")
+    utc_now_date_str = datetime.datetime.utcnow().date().isoformat()
+    assert resp.parsed.Timestamp[:10] == utc_now_date_str
+
+
+### DEPRECATED - REMOVE IN 1.0 ###
+def test_mws_get_service_status_deprecated(mws_credentials):
+    """Send a real ``get_service_status`` call to MWS.
+    No real credentials are required for this type of call, in fact.
+    """
+    # TODO Tests the pathway that uses `DictWrapper`. Remove test in 1.0
+    mws = MWS(**mws_credentials)
+    resp = mws.get_service_status()
+    assert resp.parsed.Status in ("GREEN", "GREEN_I", "YELLOW", "RED")
+    utc_now_date_str = datetime.datetime.utcnow().date().isoformat()
+    assert resp.parsed.Timestamp[:10] == utc_now_date_str
