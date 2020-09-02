@@ -11,12 +11,13 @@ import hashlib
 import hmac
 import re
 import warnings
-from zipfile import ZipFile
+from enum import Enum
 from io import BytesIO
+from xml.etree.ElementTree import ParseError as XMLError
+from zipfile import ZipFile
 
 from requests import request
 from requests.exceptions import HTTPError
-from enum import Enum
 
 from . import utils
 
@@ -24,7 +25,6 @@ try:
     from urllib.parse import quote
 except ImportError:
     from urllib import quote
-from xml.etree.ElementTree import ParseError as XMLError
 
 
 __version__ = '1.0.2'
@@ -136,12 +136,15 @@ class DictWrapper(object):
     def __init__(self, xml, rootkey=None):
         if isinstance(xml, bytes):
             try:
-                xml = xml.decode(encoding="iso-8859-1")
-            except UnicodeDecodeError as exc:
-                # In the very rare occurence of a decode error, attach the original xml to the .response of the MWSError
-                error = MWSError(str(exc.response.text))
-                error.response = xml
-                raise error
+                xml = xml.decode(encoding="utf8")
+            except:
+                try:
+                    xml = xml.decode(encoding="iso-8859-1")
+                except UnicodeDecodeError as exc:
+                    # In the very rare occurence of a decode error, attach the original xml to the .response of the MWSError
+                    error = MWSError(str(exc.response.text))
+                    error.response = xml
+                    raise error
 
         self.response = None
         self._rootkey = rootkey
