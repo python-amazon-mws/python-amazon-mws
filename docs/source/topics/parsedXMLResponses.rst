@@ -70,6 +70,11 @@ Parsing of this document goes through the following steps in python-amazon-mws:
       :py:attr:`MWSResponse.encoding <mws.response.MWSResponse.encoding>` before accessing
       ``MWSResponse.text``, or work with the raw :py:attr:`MWSResponse.content <mws.response.MWSResponse.content>`.
 
+      You can also initialize an API class instance with a ``force_response_encoding='my-encoding'`` argument.
+      This will override the encoding used to decode all responses from that API's requests. This is useful when you
+      are confident that responses are being encoded differently, such as when responses are actually encoded in UTF-8
+      (despite Amazon's documentation to the contrary).
+
 3. :py:meth:`MWSResponse.parse_response() <mws.response.MWSResponse.parse_response>` is called, which:
 
    1. Produces a "clean" copy of the XML document to use for parsing (see :ref:`xml_cleaning_before_parsing`).
