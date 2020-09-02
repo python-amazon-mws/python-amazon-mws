@@ -110,7 +110,7 @@ class MWSResponse(ResponseWrapperBase):
         "request_id",
     ]
 
-    def __init__(self, response, result_key=None, force_cdata=False):
+    def __init__(self, response, result_key=None, encoding=None, force_cdata=False):
         super().__init__(response)
         self.timestamp = None
         self._result_key = result_key
@@ -120,7 +120,7 @@ class MWSResponse(ResponseWrapperBase):
             # we will assume Amazon's choice of encoding stands.
             # Otherwise, the chardet detection may end up as Windows-1252
             # or something else that is close, yet incorrect.
-            self.encoding = MWS_ENCODING
+            self.encoding = encoding or MWS_ENCODING
 
         self._dict = None
         self._dotdict = None

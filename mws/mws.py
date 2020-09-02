@@ -154,6 +154,7 @@ class MWS(object):
         proxy=None,
         user_agent_str="",
         headers=None,
+        force_response_encoding=None,
     ):
         self.access_key = access_key
         self.secret_key = secret_key
@@ -164,6 +165,7 @@ class MWS(object):
         self.proxy = proxy
         self.user_agent_str = user_agent_str or PAM_USER_AGENT
         self.extra_headers = headers or {}
+        self.force_response_encoding = force_response_encoding
 
         # * TESTING FLAGS * #
         self._test_request_params = False
@@ -175,8 +177,7 @@ class MWS(object):
             error_msg = (
                 "Incorrect region supplied: {region}. "
                 "Must be one of the following: {regions}".format(
-                    region=region,
-                    regions=", ".join(Marketplaces.__members__.keys()),
+                    region=region, regions=", ".join(Marketplaces.__members__.keys()),
                 )
             )
             raise MWSError(error_msg)
@@ -274,7 +275,11 @@ class MWS(object):
                         "MD5 hash validation failed: wrong content length for response"
                     )
 
-                parsed_response = MWSResponse(response, result_key=result_key)
+                parsed_response = MWSResponse(
+                    response,
+                    result_key=result_key,
+                    encoding=self.force_response_encoding,
+                )
                 parsed_response.timestamp = request_timestamp
             else:
                 ### DEPRECATED ###
