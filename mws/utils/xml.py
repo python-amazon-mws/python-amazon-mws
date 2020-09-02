@@ -16,10 +16,12 @@ If it doesn't work, :shrug:, we'll have to wing it.
 
 
 def remove_xml_namespaces(data):
-    """Return namespaces found in the XML data."""
-    # pattern = re.compile(r'xmlns[:ns2]*="\S+"')
-    pattern = re.compile(r'xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
-    return pattern.sub("", data)
+    """Return namespaces found in the XML `data`, in either str or bytes format."""
+    if isinstance(data, str):
+        pattern = re.compile(r'xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
+        return pattern.sub("", data)
+    pattern = re.compile(br'xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
+    return pattern.sub(b"", data)
 
 
 def mws_xml_to_dict(data, encoding=MWS_ENCODING, force_cdata=False, **kwargs):
