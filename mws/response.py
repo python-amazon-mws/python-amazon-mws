@@ -146,7 +146,9 @@ class MWSResponse(ResponseWrapperBase):
         """
         try:
             # Attempt to convert text content to an
-            self._dict = mws_xml_to_dict(self.original.text, force_cdata=force_cdata)
+            self._dict = mws_xml_to_dict(
+                self.original.text, encoding=self.encoding, force_cdata=force_cdata
+            )
         except ExpatError:
             # Probably not XML content: just ignore it.
             pass

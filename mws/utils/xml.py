@@ -44,12 +44,12 @@ def mws_xml_to_dict(data, encoding=MWS_ENCODING, force_cdata=False, **kwargs):
     return finaldict
 
 
-def mws_xml_to_dotdict(data, result_key=None, force_cdata=False):
+def mws_xml_to_dotdict(data, encoding=MWS_ENCODING, result_key=None, force_cdata=False):
     """Convert XML expected from MWS to a DotDict object.
     first using `mws_xml_to_dict` for our default args to `xmltodict.parse`
     and then sending the res
     """
-    xmldict = mws_xml_to_dict(data, force_cdata=force_cdata)
+    xmldict = mws_xml_to_dict(data, encoding=encoding, force_cdata=force_cdata)
     if result_key:
         xmldict = xmldict.get(result_key, xmldict)
     return DotDict(xmldict)
