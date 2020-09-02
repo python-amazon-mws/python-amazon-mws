@@ -330,8 +330,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             params["ShipFromAddress.City"], clean_string(self.addr["city"])
         )
         self.assertEqual(
-            params["ShipFromAddress.CountryCode"],
-            clean_string(self.addr["country"]),
+            params["ShipFromAddress.CountryCode"], clean_string(self.addr["country"]),
         )
         # item data
         self.assertEqual(
@@ -426,8 +425,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assert_common_params(params, action="CreateInboundShipment")
         self.assertEqual(params["ShipmentId"], shipment_id)
         self.assertEqual(
-            params["InboundShipmentHeader.ShipmentName"],
-            clean_string(shipment_name),
+            params["InboundShipmentHeader.ShipmentName"], clean_string(shipment_name),
         )
         self.assertEqual(
             params["InboundShipmentHeader.DestinationFulfillmentCenterId"], destination
@@ -436,8 +434,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             params["InboundShipmentHeader.LabelPrepPreference"], label_preference
         )
         self.assertEqual(
-            params["InboundShipmentHeader.AreCasesRequired"],
-            clean_bool(case_required),
+            params["InboundShipmentHeader.AreCasesRequired"], clean_bool(case_required),
         )
         self.assertEqual(
             params["InboundShipmentHeader.ShipmentStatus"], shipment_status
@@ -538,8 +535,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assertEqual(params_1["Action"], "UpdateInboundShipment")
         self.assertEqual(params_1["ShipmentId"], shipment_id)
         self.assertEqual(
-            params_1["InboundShipmentHeader.ShipmentName"],
-            clean_string(shipment_name),
+            params_1["InboundShipmentHeader.ShipmentName"], clean_string(shipment_name),
         )
         self.assertEqual(
             params_1["InboundShipmentHeader.DestinationFulfillmentCenterId"],
@@ -605,8 +601,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assertEqual(params_2["Action"], "UpdateInboundShipment")
         self.assertEqual(params_2["ShipmentId"], shipment_id)
         self.assertEqual(
-            params_2["InboundShipmentHeader.ShipmentName"],
-            clean_string(shipment_name),
+            params_2["InboundShipmentHeader.ShipmentName"], clean_string(shipment_name),
         )
         self.assertEqual(
             params_2["InboundShipmentHeader.DestinationFulfillmentCenterId"],
@@ -667,8 +662,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
             "CtwNnGX08l",
         ]
         params_1 = self.api.get_inbound_guidance_for_sku(
-            skus=sku_list_1,
-            marketplace_id=marketplace_id,
+            skus=sku_list_1, marketplace_id=marketplace_id,
         )
         self.assert_common_params(params_1)
         self.assertEqual(params_1["Action"], "GetInboundGuidanceForSKU")
@@ -678,8 +672,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         # Case 2: single SKU
         sku_list_2 = "9QWsksBUMI"
         params_2 = self.api.get_inbound_guidance_for_sku(
-            skus=sku_list_2,
-            marketplace_id=marketplace_id,
+            skus=sku_list_2, marketplace_id=marketplace_id,
         )
         self.assert_common_params(params_2)
         self.assertEqual(params_2["Action"], "GetInboundGuidanceForSKU")
@@ -695,8 +688,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
             "EBDjm91glL",
         ]
         params_1 = self.api.get_inbound_guidance_for_asin(
-            asins=asin_list_1,
-            marketplace_id=marketplace_id,
+            asins=asin_list_1, marketplace_id=marketplace_id,
         )
         self.assert_common_params(params_1)
         self.assertEqual(params_1["Action"], "GetInboundGuidanceForASIN")
@@ -706,8 +698,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         # Case 2: single SKU
         asin_list_2 = "FW2e9soodD"
         params_2 = self.api.get_inbound_guidance_for_asin(
-            asins=asin_list_2,
-            marketplace_id=marketplace_id,
+            asins=asin_list_2, marketplace_id=marketplace_id,
         )
         self.assert_common_params(params_2)
         self.assertEqual(params_2["Action"], "GetInboundGuidanceForASIN")
@@ -726,8 +717,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         shipment_id = "H4UiUjY7Fr"
         need_by_date = datetime.datetime.utcnow()
         params = self.api.confirm_preorder(
-            shipment_id=shipment_id,
-            need_by_date=need_by_date,
+            shipment_id=shipment_id, need_by_date=need_by_date,
         )
         self.assert_common_params(params, action="ConfirmPreorder")
         self.assertEqual(params["ShipmentId"], shipment_id)
@@ -742,8 +732,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         ]
         country_code = "Wakanda"
         params_1 = self.api.get_prep_instructions_for_sku(
-            skus=skus_1,
-            country_code=country_code,
+            skus=skus_1, country_code=country_code,
         )
         self.assert_common_params(params_1)
         self.assertEqual(params_1["Action"], "GetPrepInstructionsForSKU")
@@ -760,8 +749,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
             "FBN4E7FK3S",
         ]
         params_2 = self.api.get_prep_instructions_for_sku(
-            skus=skus_2,
-            country_code=country_code,
+            skus=skus_2, country_code=country_code,
         )
         self.assert_common_params(params_2)
         self.assertEqual(params_2["Action"], "GetPrepInstructionsForSKU")
@@ -781,8 +769,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         ]
         country_code = "Wakanda"
         params_1 = self.api.get_prep_instructions_for_asin(
-            asins=asins_1,
-            country_code=country_code,
+            asins=asins_1, country_code=country_code,
         )
         self.assert_common_params(params_1)
         self.assertEqual(params_1["Action"], "GetPrepInstructionsForASIN")
@@ -799,8 +786,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
             "JPA8CyPAOF",
         ]
         params_2 = self.api.get_prep_instructions_for_asin(
-            asins=asins_2,
-            country_code=country_code,
+            asins=asins_2, country_code=country_code,
         )
         self.assert_common_params(params_2)
         self.assertEqual(params_2["Action"], "GetPrepInstructionsForASIN")
@@ -852,9 +838,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         num_labels = 53
         page_type = "PackageLabel_Letter_6"
         params = self.api.get_package_labels(
-            shipment_id=shipment_id,
-            num_labels=num_labels,
-            page_type=page_type,
+            shipment_id=shipment_id, num_labels=num_labels, page_type=page_type,
         )
         self.assert_common_params(params, action="GetPackageLabels")
         self.assertEqual(params["ShipmentId"], shipment_id)
@@ -871,9 +855,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
             "wU4NmZWEls",
         ]
         params_1 = self.api.get_unique_package_labels(
-            shipment_id=shipment_id,
-            page_type=page_type,
-            package_ids=package_ids_1,
+            shipment_id=shipment_id, page_type=page_type, package_ids=package_ids_1,
         )
         self.assert_common_params(params_1)
         self.assertEqual(params_1["Action"], "GetUniquePackageLabels")
@@ -884,9 +866,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         # Case 2: single string package_id (should still work)
         package_ids_2 = "exGsKDTbyb"
         params_2 = self.api.get_unique_package_labels(
-            shipment_id=shipment_id,
-            page_type=page_type,
-            package_ids=package_ids_2,
+            shipment_id=shipment_id, page_type=page_type, package_ids=package_ids_2,
         )
         self.assert_common_params(params_1)
         self.assertEqual(params_2["Action"], "GetUniquePackageLabels")
@@ -900,9 +880,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         page_type = "PackageLabel_A4_4"
         num_labels = 69
         params = self.api.get_pallet_labels(
-            shipment_id=shipment_id,
-            page_type=page_type,
-            num_labels=num_labels,
+            shipment_id=shipment_id, page_type=page_type, num_labels=num_labels,
         )
         self.assert_common_params(params, action="GetPalletLabels")
         self.assertEqual(params["ShipmentId"], shipment_id)
@@ -912,9 +890,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
     def test_get_bill_of_lading(self):
         """GetBillOfLading operation."""
         shipment_id = "nScOqC6Nh6"
-        params = self.api.get_bill_of_lading(
-            shipment_id=shipment_id,
-        )
+        params = self.api.get_bill_of_lading(shipment_id=shipment_id,)
         self.assert_common_params(params, action="GetBillOfLading")
         self.assertEqual(params["ShipmentId"], shipment_id)
 

@@ -148,11 +148,7 @@ class Subscriptions(MWS):
         return self.make_request("CreateSubscription", data, method="POST")
 
     def get_subscription(
-        self,
-        marketplace_id,
-        attributes,
-        notification_type,
-        delivery_channel="SQS",
+        self, marketplace_id, attributes, notification_type, delivery_channel="SQS",
     ):
         """Gets the subscription for the specified notification type and destination.
 
@@ -175,11 +171,7 @@ class Subscriptions(MWS):
         return self.make_request("GetSubscription", data, method="POST")
 
     def delete_subscription(
-        self,
-        marketplace_id,
-        attributes,
-        notification_type,
-        delivery_channel="SQS",
+        self, marketplace_id, attributes, notification_type, delivery_channel="SQS",
     ):
         """Deletes the subscription for the specified notification type and destination.
 

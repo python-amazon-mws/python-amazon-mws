@@ -137,11 +137,7 @@ class Feeds(MWS):
         # Add headers to this request.
         extra_headers = {"Content-MD5": calc_md5(feed), "Content-Type": content_type}
         return self.make_request(
-            "SubmitFeed",
-            data,
-            method="POST",
-            body=feed,
-            extra_headers=extra_headers,
+            "SubmitFeed", data, method="POST", body=feed, extra_headers=extra_headers,
         )
 
     @next_token_action("GetFeedSubmissionList")

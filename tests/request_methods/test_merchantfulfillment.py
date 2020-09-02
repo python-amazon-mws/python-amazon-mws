@@ -163,17 +163,13 @@ class MerchantFulfillmentTestCase(CommonAPIRequestTools, unittest.TestCase):
     def test_get_shipment(self):
         """GetShipment operation."""
         shipment_id = "UCXN7ZubAj"
-        params = self.api.get_shipment(
-            shipment_id=shipment_id,
-        )
+        params = self.api.get_shipment(shipment_id=shipment_id,)
         self.assert_common_params(params, action="GetShipment")
         self.assertEqual(params["ShipmentId"], shipment_id)
 
     def test_cancel_shipment(self):
         """CancelShipment operation."""
         shipment_id = "C6Pvk0b2yZ"
-        params = self.api.cancel_shipment(
-            shipment_id=shipment_id,
-        )
+        params = self.api.cancel_shipment(shipment_id=shipment_id,)
         self.assert_common_params(params, action="CancelShipment")
         self.assertEqual(params["ShipmentId"], shipment_id)
