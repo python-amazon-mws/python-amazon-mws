@@ -123,7 +123,10 @@ enum_key_expected2 = {
 @pytest.mark.parametrize("param", ("AthingToKeyUp.member", "AthingToKeyUp.member."))
 @pytest.mark.parametrize(
     "items, expected",
-    ((enum_key_items1, enum_key_expected1), (enum_key_items2, enum_key_expected2),),
+    (
+        (enum_key_items1, enum_key_expected1),
+        (enum_key_items2, enum_key_expected2),
+    ),
 )
 def test_enumerate_keyed_param(param, items, expected):
     """Asserting the result through enumerate_keyed_param is as expected."""

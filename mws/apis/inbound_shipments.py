@@ -224,7 +224,10 @@ class InboundShipments(MWS):
         }
         data.update(self.from_address)
         data.update(
-            enumerate_keyed_param("InboundShipmentPlanRequestItems.member", items,)
+            enumerate_keyed_param(
+                "InboundShipmentPlanRequestItems.member",
+                items,
+            )
         )
         return self.make_request("CreateInboundShipmentPlan", data, method="POST")
 
@@ -283,7 +286,12 @@ class InboundShipments(MWS):
             "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
         }
         data.update(from_address)
-        data.update(enumerate_keyed_param("InboundShipmentItems.member", items,))
+        data.update(
+            enumerate_keyed_param(
+                "InboundShipmentItems.member",
+                items,
+            )
+        )
         return self.make_request("CreateInboundShipment", data, method="POST")
 
     def update_inbound_shipment(
@@ -342,7 +350,12 @@ class InboundShipments(MWS):
         data.update(from_address)
         if items:
             # Update with an items paramater only if they exist.
-            data.update(enumerate_keyed_param("InboundShipmentItems.member", items,))
+            data.update(
+                enumerate_keyed_param(
+                    "InboundShipmentItems.member",
+                    items,
+                )
+            )
         return self.make_request("UpdateInboundShipment", data, method="POST")
 
     def get_preorder_info(self, shipment_id):

@@ -177,7 +177,8 @@ class MWS(object):
             error_msg = (
                 "Incorrect region supplied: {region}. "
                 "Must be one of the following: {regions}".format(
-                    region=region, regions=", ".join(Marketplaces.__members__.keys()),
+                    region=region,
+                    regions=", ".join(Marketplaces.__members__.keys()),
                 )
             )
             raise MWSError(error_msg)
