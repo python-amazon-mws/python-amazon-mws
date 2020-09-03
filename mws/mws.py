@@ -244,6 +244,7 @@ class MWS(object):
         )
         headers = {"User-Agent": self.user_agent_str}
         headers.update(self.extra_headers)
+        headers.update(kwargs.get("extra_headers", {}))
 
         result_key = kwargs.get("result_key", "{}Result".format(action))
 
