@@ -290,7 +290,6 @@ class MWS(object):
                 from mws.utils.parsers import DictWrapper, DataWrapper
 
                 data = response.content
-                result_key = kwargs.get("result_key", "{}Result".format(action))
                 try:
                     try:
                         parsed_response = DictWrapper(data, result_key)
