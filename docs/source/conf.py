@@ -23,6 +23,7 @@ sys.path.insert(0, thing)
 project = "Python-Amazon-MWS"
 copyright = "2020, Galen Rice, Alex Hellier, James Hiew"
 author = "Galen Rice, Alex Hellier, James Hiew"
+master_doc = "index"
 
 # The full version, including alpha/beta/rc tags
 release = "1.0.0dev14"
