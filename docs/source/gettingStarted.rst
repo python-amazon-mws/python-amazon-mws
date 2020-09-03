@@ -74,7 +74,7 @@ as ``DictWrapper``, with the raw document stored in ``.original``, and ``.parsed
 ``.original`` for convenience.
 
 .. warning::
-   .. versionadded:: 1.0.0dev15
+   .. versionadded:: 1.0dev15
 
    ``DictWrapper`` and ``DataWrapper`` are deprecated, and will be removed in v1.1. During development testing,
    these objects will still be returned from requests by default, and parsed content will still use ``ObjectDict``

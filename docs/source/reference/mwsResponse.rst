@@ -3,7 +3,7 @@
 MWSResponse
 ############
 
-.. versionadded:: 1.0.0dev15
+.. versionadded:: 1.0dev15
    ``MWSResponse`` added
 
 .. include:: /newFeaturesTopNote100dev15.rst
@@ -70,7 +70,7 @@ from the ``MWSResponse`` instance using one of the following:
 MWSResponse API
 ===============
 
-.. versionadded:: 1.0.0dev15
+.. versionadded:: 1.0dev15
 .. autoclass:: mws.response.MWSResponse
    :members:
    :inherited-members:

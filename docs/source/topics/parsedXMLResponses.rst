@@ -3,7 +3,7 @@
 Using Parsed XML Responses
 ##########################
 
-.. versionadded:: 1.0.0dev15
+.. versionadded:: 1.0dev15
    ``MWSResponse`` and ``DotDict`` added.
 
 .. include:: /newFeaturesTopNote100dev15.rst

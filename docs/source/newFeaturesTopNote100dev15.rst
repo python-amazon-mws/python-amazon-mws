@@ -1,4 +1,4 @@
-.. warning:: The following pertains to features added in **v1.0.0dev15** related to MWS requests.
+.. warning:: The following pertains to features added in **v1.0dev15** related to MWS requests.
    These features are disabled by default. To use these features, set flag ``_use_feature_mwsresponse`` to ``True``
    on an API class instance *before* making any requests:
 

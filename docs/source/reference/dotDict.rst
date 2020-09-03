@@ -3,7 +3,7 @@
 DotDict
 #######
 
-.. versionadded:: 1.0.0dev15
+.. versionadded:: 1.0dev15
    ``DotDict`` added.
 
 .. include:: /newFeaturesTopNote100dev15.rst
@@ -312,6 +312,6 @@ These ``@`` and ``#text`` keys cannot be accessed directly as attributes due to 
 DotDict API
 ===========
 
-.. versionadded:: 1.0.0dev15
+.. versionadded:: 1.0dev15
 .. autoclass:: mws.utils.collections.DotDict
    :members:
