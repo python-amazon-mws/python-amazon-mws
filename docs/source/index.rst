@@ -19,6 +19,11 @@ create and manage FBA Inbound Shipments... do it all with python-amazon-mws!
 .. note:: This is a third-party connector with no direct affiliation to Amazon.
 
 .. toctree::
+   :maxdepth: 1
+
+   changelog
+
+.. toctree::
    :maxdepth: 2
    :caption: Introduction
 
