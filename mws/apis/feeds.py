@@ -1,6 +1,7 @@
 """Amazon MWS Feeds API."""
 
 import string
+import datetime
 
 from mws import MWS
 from mws.decorators import next_token_action
@@ -15,6 +16,13 @@ def clean_feed_option_val(val):
     """Cleans ``val`` for use in the FeedOptions parameter when submitting a feed
     for "_UPLOAD_VAT_INVOICE_" feed type.
 
+    - Values of `None` are returned as `None`. The calling method is expected to
+      exclude the key-value pair for this value from its output.
+    - Booleans (True/False) will be converted to string in lowercase ('true'/'false')
+    - datetime.datetime or datetime.date instances will be formatted as ISO-8601 strings
+
+    For any other value
+
     Amazon states the only safe characters are:
 
         ``,`` (commas), ``/`` and ``\\`` (slashes), ``-`` (dash), ``_`` (underscore),
@@ -22,8 +30,28 @@ def clean_feed_option_val(val):
 
     Any character not matching the above set is stripped.
     """
+    if val is None:
+        return None
+
+    if val is True or val is False:
+        # Stringify and lowercase the boolean
+        val = str(val).lower()
+    elif isinstance(val, (datetime.datetime, datetime.date)):
+        # Convert that date to ISO-8601 format string.
+        # We explicitly set microseconds to 0, however, because the ``.`` character
+        # (used to denote microseconds, if present) is NOT permitted in final output.
+        val = val.replace(microsecond=0).isoformat()
+        # NOTE granted, users are likely not going to send datetime objects through
+        # this method. But it's best to be safe!
+
+    # Convert val from any other type into string before further processing.
+    val = str(val)
+
+    # Only the following characters are permitted in Amazon output
+    # (Note the intentional space character added at the end for clarity!)
     permitted = string.ascii_letters + string.digits + ",\\/-_;:#" + " "
-    # Note the intentional space character added at the end for clarity!
+
+    # Join permitted characters and return the result.
     return "".join(c for c in val if c in permitted)
 
 
@@ -51,7 +79,8 @@ def feed_options_str(feed_options):
     output = []
     for key, val in feed_options.items():
         clean_val = clean_feed_option_val(val)
-        output.append("metadata:{}={}".format(key, clean_val))
+        if clean_val is not None:
+            output.append("metadata:{}={}".format(key, clean_val))
     return ";".join(output)
 
 
