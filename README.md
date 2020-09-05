@@ -8,7 +8,7 @@ allowing access to all that MWS can do from your Python application.
 
 ---
 
-## ⚡ Development update - v1.0.0dev15 ⚡
+## ⚡ Development update - v1.0dev15 ⚡
 
 We're working on new features in the run-up to releasing v1.0. If you are using the latest `develop` branch version of the package, you can help us test these new features in your own environment.
 
@@ -25,9 +25,9 @@ We're working on new features in the run-up to releasing v1.0. If you are using 
 
 ### Testing new features.
 
-**All features related to deprecations in v1.0.0dev15 are locked behind a feature flag**. Unless you explicitly set the feature flag as follows, your application *should* operate the same as before this update.
+**All features related to deprecations in v1.0dev15 are locked behind a feature flag**. Unless you explicitly set the feature flag as follows, your application *should* operate the same as before this update.
 
-**If your application worked on a prior `develop` version and breaks when upgrading to v1.0.0dev15, please raise an issue so we may investigate.**
+**If your application worked on a prior `develop` version and breaks when upgrading to v1.0dev15, please raise an issue so we may investigate.**
 
 To enable and test the new features, first instantiate your API class as normal, then set `_use_feature_mwsresponse` to `True` on the API instance:
 
@@ -65,7 +65,7 @@ With this flag set, any request made through `api` will be wrapped in the new `M
 | Branch    | Coverage                                                                                                                                                                         | Testing                                                                                                | Version                                                                           |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
 | `master`  | [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master)   | N/A                                                                                                    | [![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws) |
-| `develop` | [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop) | ![CI Testing](https://github.com/python-amazon-mws/python-amazon-mws/workflows/CI%20Testing/badge.svg) | 1.0.0-dev (GitHub install required)                                               |
+| `develop` | [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop) | ![CI Testing](https://github.com/python-amazon-mws/python-amazon-mws/workflows/CI%20Testing/badge.svg) | 1.0devXY (GitHub install required)                                               |
 
 ## Installation
 
@@ -74,7 +74,7 @@ Two versions are currently available:
 - Installing `mws` from PyPI, you will have version **0.8.x**, which is built from our `master` branch.
   - This is a close match to the original package by czpython, with some small tweaks to add critical functionality.
   - Supports Python 2.7 and 3.4+.
-- The updated **1.0.0-dev** version must be installed from this repo's `develop` branch.
+- The updated **1.0devXY** version must be installed from this repo's `develop` branch.
   - This includes additional API coverage that may be missing in 0.8.x, as well as other new features.
   - Some methods have new or updated arguments compared to 0.8.x, and much of the original monolithic `mws` module has been broken down into separate components (such as the `mws.apis` collection of modules).
   - Supports Python 3.5+.
