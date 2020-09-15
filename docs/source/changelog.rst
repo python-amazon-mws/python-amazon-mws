@@ -79,12 +79,14 @@ Minor changes
   - Argument and class attr ``force_response_encoding`` allows specifying the encoding used to decode a response's
     bytes content, when parsed by ``MWSResponse`` into a ``DotDict``.
 
-    - Amazon documentation states they use ISO-8859-1 (aka Latin-1) encoding, which is set as python-amazon-mws's
-      default. However, some responses may still be encoded differently, such as in UTF-8, even if this behaviour
-      is not well-documented. Setting ``force_response_encoding='utf-8'`` will force responses to be decoded as UTF-8
+    - Amazon documentation states they use ISO-8859-1 (aka Latin-1) encoding. However, some responses may still be
+      encoded differently, such as in UTF-8, even if this behaviour is not well-documented. By default,
+      python-amazon-mws relies on ``requests.Response.apparent_encoding`` to guess the character set to decode,
+      which should be sufficient for most uses.
+    - Setting ``force_response_encoding='utf-8'``, for example, will force responses to be decoded as UTF-8
       automatically for any request made with that API class instance.
     - Encoding can also be adjusted on the ``MWSResponse`` object, by assigning ``response.encoding = 'utf-8'``
-      and then calling ``response.parse_response()`` to re-create the ``DotDict`` used in ``response.parsed``.
+      and then calling ``response.parse_response()`` to re-parse content.
 
 - All request methods are now required to pass the ``Action`` name of an MWS operation as the first argument to
   ``MWS.make_request`` or ``MWS.generic_request``. Previously, this was expected as a parameter in the data sent with

@@ -62,9 +62,10 @@ Parsing of this document goes through the following steps in python-amazon-mws:
    .. |requests_response_instance_link| replace:: a ``requests.Response`` instance
    .. _requests_response_instance_link: https://2.python-requests.org/en/master/api/#requests.Response
 
-2. If the response did not specify an encoding in its headers, ``MWSResponse`` sets it explicitly to
-   **ISO-8859-1**, the encoding specified by Amazon's documentation. This allows the
-   :py:attr:`MWSResponse.text <mws.response.MWSResponse.text>` property to decode the response content properly.
+2. If the response did not specify an encoding in its headers, ``MWSResponse`` will call on
+   ``requests.Response.apparent_encoding`` explicitly to force character set detection.
+   For most use cases, this will allow the :py:attr:`MWSResponse.text <mws.response.MWSResponse.text>` property
+   to decode the response content properly.
 
    .. note:: if a different encoding is required, you can alter
       :py:attr:`MWSResponse.encoding <mws.response.MWSResponse.encoding>` before accessing

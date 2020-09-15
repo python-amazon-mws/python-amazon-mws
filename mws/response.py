@@ -2,7 +2,7 @@
 
 from xml.parsers.expat import ExpatError
 
-from mws.utils.xml import mws_xml_to_dict, MWS_ENCODING
+from mws.utils.xml import mws_xml_to_dict
 from mws.errors import MWSError
 from mws.utils.collections import DotDict
 from mws.utils.crypto import calc_md5
@@ -117,10 +117,12 @@ class MWSResponse(ResponseWrapperBase):
 
         if not self.encoding:
             # If the response did not specify its encoding,
-            # we will assume Amazon's choice of encoding stands.
-            # Otherwise, the chardet detection may end up as Windows-1252
-            # or something else that is close, yet incorrect.
-            self.encoding = encoding or MWS_ENCODING
+            # we use either A) an encoding specified by the user,
+            # or B) the ``apparent_encoding`` of the ``requests.Response`` object,
+            # which uses ``chardet`` to guess the encoding of the response content.
+            # Either way, we need an encoding saved in order to parse the content
+            # from XML into DotDicts.
+            self.encoding = encoding or response.apparent_encoding
 
         self._dict = None
         self._dotdict = None
