@@ -8,22 +8,6 @@ import json
 from mws.errors import MWSError
 
 
-def dot_appended_param(param_key, reverse=False):
-    """Returns ``param_key`` string, ensuring that it ends with ``'.'``.
-
-    Set ``reverse`` to ``True`` (default ``False``) to reverse this behavior,
-    ensuring that ``param_key`` *does not* end with ``'.'``.
-    """
-    if not param_key.endswith("."):
-        # Ensure this enumerated param ends in '.'
-        param_key += "."
-    if reverse:
-        # Since param_key is guaranteed to end with '.' by this point,
-        # if `reverse` flag was set, now we just get rid of it.
-        param_key = param_key[:-1]
-    return param_key
-
-
 def enumerate_param(param, values):
     """Builds a dictionary of an enumerated parameter, using the param string and some values.
     If values is not a list, tuple, or set, it will be coerced to a list
@@ -138,6 +122,72 @@ def dict_keyed_param(param, dict_from):
     return params
 
 
+def flat_param_dict(value, prefix=""):
+    """Returns a flattened params dictionary by collapsing nested dicts and
+    non-string iterables.
+
+    Any arbitrarily-nested dict or iterable will be expanded and flattened.
+
+    - Each key in a child dict will be concatenated to its parent key.
+    - Elements of a non-string iterable will be enumerated using a 1-based index,
+      with the index number concatenated to the parent key.
+    - In both cases, keys and sub-keys are joined by ``.``.
+
+    If ``prefix`` is set, all keys in the resulting output will begin with
+    ``prefix + '.'``.
+    """
+    prefix = "" if not prefix else str(prefix)
+    # Prefix is now either an empty string or a valid prefix string ending in '.'
+    # NOTE should ensure that a `None` value is changed to empty string, as well.
+
+    if isinstance(value, str) or not isinstance(value, (Mapping, Iterable)):
+        # Value is not one of the types we want to expand.
+        if prefix:
+            # Can return a single dict of the prefix and value as a base case
+            prefix = dot_appended_param(prefix, reverse=True)
+            return {prefix: value}
+        raise ValueError(
+            (
+                "Non-dict, non-iterable value requires a prefix "
+                "(would return a mapping of `prefix: value`)"
+            )
+        )
+
+    # Past here, the value is something that must be expanded.
+    # We'll build that output with recursive calls to `flat_param_dict`.
+
+    if prefix:
+        prefix = dot_appended_param(prefix)
+
+    output = {}
+    if isinstance(value, Mapping):
+        for key, val in value.items():
+            new_key = "{}{}".format(prefix, key)
+            output.update(flat_param_dict(val, prefix=new_key))
+    else:
+        # value must be an Iterable
+        for idx, val in enumerate(value, start=1):
+            new_key = "{}{}".format(prefix, idx)
+            output.update(flat_param_dict(val, prefix=new_key))
+    return output
+
+
+def dot_appended_param(param_key, reverse=False):
+    """Returns ``param_key`` string, ensuring that it ends with ``'.'``.
+
+    Set ``reverse`` to ``True`` (default ``False``) to reverse this behavior,
+    ensuring that ``param_key`` *does not* end with ``'.'``.
+    """
+    if not param_key.endswith("."):
+        # Ensure this enumerated param ends in '.'
+        param_key += "."
+    if reverse:
+        # Since param_key is guaranteed to end with '.' by this point,
+        # if `reverse` flag was set, now we just get rid of it.
+        param_key = param_key[:-1]
+    return param_key
+
+
 def remove_empty_param_keys(params):
     """Returns a copy of ``params`` dict where any key with a value of ``None``
     or ``""`` (empty string) are removed.
@@ -192,53 +242,3 @@ def clean_date(val):
     Further passes that string through `urllib.parse.quote`.
     """
     return clean_string(val.isoformat())
-
-
-def flat_param_dict(value, prefix=""):
-    """Returns a flattened params dictionary by collapsing nested dicts and
-    non-string iterables.
-
-    Any arbitrarily-nested dict or iterable will be expanded and flattened.
-
-    - Each key in a child dict will be concatenated to its parent key.
-    - Elements of a non-string iterable will be enumerated using a 1-based index,
-      with the index number concatenated to the parent key.
-    - In both cases, keys and sub-keys are joined by ``.``.
-
-    If ``prefix`` is set, all keys in the resulting output will begin with
-    ``prefix + '.'``.
-    """
-    prefix = "" if not prefix else str(prefix)
-    # Prefix is now either an empty string or a valid prefix string ending in '.'
-    # NOTE should ensure that a `None` value is changed to empty string, as well.
-
-    if isinstance(value, str) or not isinstance(value, (Mapping, Iterable)):
-        # Value is not one of the types we want to expand.
-        if prefix:
-            # Can return a single dict of the prefix and value as a base case
-            prefix = dot_appended_param(prefix, reverse=True)
-            return {prefix: value}
-        raise ValueError(
-            (
-                "Non-dict, non-iterable value requires a prefix "
-                "(would return a mapping of `prefix: value`)"
-            )
-        )
-
-    # Past here, the value is something that must be expanded.
-    # We'll build that output with recursive calls to `flat_param_dict`.
-
-    if prefix:
-        prefix = dot_appended_param(prefix)
-
-    output = {}
-    if isinstance(value, Mapping):
-        for key, val in value.items():
-            new_key = "{}{}".format(prefix, key)
-            output.update(flat_param_dict(val, prefix=new_key))
-    else:
-        # value must be an Iterable
-        for idx, val in enumerate(value, start=1):
-            new_key = "{}{}".format(prefix, idx)
-            output.update(flat_param_dict(val, prefix=new_key))
-    return output
