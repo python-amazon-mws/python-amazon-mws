@@ -8,6 +8,22 @@ import json
 from mws.errors import MWSError
 
 
+def dot_appended_param(param_key, reverse=False):
+    """Returns ``param_key`` string, ensuring that it ends with ``'.'``.
+
+    Set ``reverse`` to ``True`` (default ``False``) to reverse this behavior,
+    ensuring that ``param_key`` *does not* end with ``'.'``.
+    """
+    if not param_key.endswith("."):
+        # Ensure this enumerated param ends in '.'
+        param_key += "."
+    if reverse:
+        # Since param_key is guaranteed to end with '.' by this point,
+        # if `reverse` flag was set, now we just get rid of it.
+        param_key = param_key[:-1]
+    return param_key
+
+
 def enumerate_param(param, values):
     """Builds a dictionary of an enumerated parameter, using the param string and some values.
     If values is not a list, tuple, or set, it will be coerced to a list
@@ -28,9 +44,7 @@ def enumerate_param(param, values):
     if not any(values):
         # if not values -> returns ValueError
         return {}
-    if not param.endswith("."):
-        # Ensure this enumerated param ends in '.'
-        param += "."
+    param = dot_appended_param(param)
     # Return final output: dict comprehension of the enumerated param and values.
     return {"{}{}".format(param, idx): val for idx, val in enumerate(values, start=1)}
 
@@ -76,9 +90,8 @@ def enumerate_keyed_param(param, values):
     if not any(values):
         # Shortcut for empty values
         return {}
-    if not param.endswith("."):
-        # Ensure the enumerated param ends in '.'
-        param += "."
+
+    param = dot_appended_param(param)
     for val in values:
         # Every value in the list must be a dict.
         if not isinstance(val, dict):
@@ -119,9 +132,7 @@ def dict_keyed_param(param, dict_from):
     """
     params = {}
 
-    if not param.endswith("."):
-        # Ensure the enumerated param ends in '.'
-        param += "."
+    param = dot_appended_param(param)
     for k, v in dict_from.items():
         params.update({"{param}{key}".format(param=param, key=k): v})
     return params
@@ -205,9 +216,7 @@ def flat_param_dict(value, prefix=""):
         # Value is not one of the types we want to expand.
         if prefix:
             # Can return a single dict of the prefix and value as a base case
-            if prefix.endswith("."):
-                # Remove an extraneous '.' at the end of this base case.
-                prefix = prefix[:-1]
+            prefix = dot_appended_param(prefix, reverse=True)
             return {prefix: value}
         raise ValueError(
             (
@@ -219,8 +228,8 @@ def flat_param_dict(value, prefix=""):
     # Past here, the value is something that must be expanded.
     # We'll build that output with recursive calls to `flat_param_dict`.
 
-    if prefix and not prefix.endswith("."):
-        prefix += "."
+    if prefix:
+        prefix = dot_appended_param(prefix)
 
     output = {}
     if isinstance(value, Mapping):
