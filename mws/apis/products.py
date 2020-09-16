@@ -1,6 +1,7 @@
 """Amazon MWS Products API."""
 
 from mws import MWS
+from mws.utils.params import coerce_to_bool
 from mws.utils.params import enumerate_param
 
 
@@ -76,7 +77,7 @@ class Products(MWS):
         return self.make_request("GetCompetitivePricingForASIN", data)
 
     def get_lowest_offer_listings_for_sku(
-        self, marketplace_id, skus, condition="Any", exclude_me="false"
+        self, marketplace_id, skus, condition="Any", exclude_me=False
     ):
         """Returns pricing information for the lowest-price active offer listings for up to 20 products,
         based on SellerSKU.
@@ -84,6 +85,8 @@ class Products(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForSKU.html
         """
+        if exclude_me is not None:
+            exclude_me = coerce_to_bool(exclude_me)
         data = {
             "MarketplaceId": marketplace_id,
             "ItemCondition": condition,
@@ -93,13 +96,15 @@ class Products(MWS):
         return self.make_request("GetLowestOfferListingsForSKU", data)
 
     def get_lowest_offer_listings_for_asin(
-        self, marketplace_id, asins, condition="Any", exclude_me="false"
+        self, marketplace_id, asins, condition="Any", exclude_me=False
     ):
         """Returns pricing information for the lowest-price active offer listings for up to 20 products, based on ASIN.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForASIN.html
         """
+        if exclude_me is not None:
+            exclude_me = coerce_to_bool(exclude_me)
         data = {
             "MarketplaceId": marketplace_id,
             "ItemCondition": condition,
@@ -109,13 +114,15 @@ class Products(MWS):
         return self.make_request("GetLowestOfferListingsForASIN", data)
 
     def get_lowest_priced_offers_for_sku(
-        self, marketplace_id, sku, condition="New", exclude_me="false"
+        self, marketplace_id, sku, condition="New", exclude_me=False
     ):
         """Returns lowest priced offers for a single product, based on SellerSKU.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForSKU.html
         """
+        if exclude_me is not None:
+            exclude_me = coerce_to_bool(exclude_me)
         return self.make_request(
             "GetLowestPricedOffersForSKU",
             {
@@ -127,13 +134,15 @@ class Products(MWS):
         )
 
     def get_lowest_priced_offers_for_asin(
-        self, marketplace_id, asin, condition="New", exclude_me="false"
+        self, marketplace_id, asin, condition="New", exclude_me=False
     ):
         """Returns lowest priced offers for a single product, based on ASIN.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForASIN.html
         """
+        if exclude_me is not None:
+            exclude_me = coerce_to_bool(exclude_me)
         return self.make_request(
             "GetLowestPricedOffersForASIN",
             {

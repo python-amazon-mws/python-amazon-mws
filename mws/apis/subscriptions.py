@@ -1,6 +1,7 @@
 """Amazon MWS Subscriptions API."""
 
 from mws import MWS
+from mws.utils.params import coerce_to_bool
 from mws.utils.params import enumerate_keyed_param
 
 # TODO include NotificationType enumeration
@@ -133,10 +134,12 @@ class Subscriptions(MWS):
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
         """
+        if is_enabled is not None:
+            is_enabled = coerce_to_bool(is_enabled)
         data = {
             "MarketplaceId": marketplace_id,
             "Subscription.Destination.DeliveryChannel": delivery_channel,
-            "Subscription.IsEnabled": str(is_enabled).lower(),
+            "Subscription.IsEnabled": is_enabled,
             "Subscription.NotificationType": notification_type,
         }
         data.update(
@@ -227,10 +230,12 @@ class Subscriptions(MWS):
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
         """
+        if is_enabled is not None:
+            is_enabled = coerce_to_bool(is_enabled)
         data = {
             "MarketplaceId": marketplace_id,
             "Subscription.Destination.DeliveryChannel": delivery_channel,
-            "Subscription.IsEnabled": str(is_enabled).lower(),
+            "Subscription.IsEnabled": is_enabled,
             "Subscription.NotificationType": notification_type,
         }
         data.update(

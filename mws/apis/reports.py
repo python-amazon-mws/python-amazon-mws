@@ -5,6 +5,7 @@ from enum import Enum
 from mws import MWS
 from mws.utils.params import enumerate_param
 from mws.utils.params import enumerate_params
+from mws.utils.params import coerce_to_bool
 from mws.decorators import next_token_action
 
 # TODO Add Schedule enumerations as constants
@@ -176,6 +177,8 @@ class Reports(MWS):
         """
         request_ids = request_ids or []
         report_types = report_types or []
+        if acknowledged is not None:
+            acknowledged = coerce_to_bool(acknowledged)
         data = {
             "Acknowledged": acknowledged,
             "AvailableFromDate": from_date,
@@ -210,6 +213,8 @@ class Reports(MWS):
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportCount.html
         """
         report_types = report_types or []
+        if acknowledged is not None:
+            acknowledged = coerce_to_bool(acknowledged)
         data = {
             "Acknowledged": acknowledged,
             "AvailableFromDate": from_date,
@@ -270,7 +275,7 @@ class Reports(MWS):
         """
         report_ids = report_ids or []
         if acknowledged is not None:
-            acknowledged = bool(acknowledged)
+            acknowledged = coerce_to_bool(acknowledged)
         data = {"Acknowledged": acknowledged}
         data.update(enumerate_param("ReportIdList.Id.", report_ids))
         return self.make_request("UpdateReportAcknowledgements", data)

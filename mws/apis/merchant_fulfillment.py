@@ -3,6 +3,7 @@
 from mws import MWS
 from mws.utils.params import enumerate_keyed_param
 from mws.utils.params import dict_keyed_param
+from mws.utils.params import coerce_to_bool
 
 
 class MerchantFulfillment(MWS):
@@ -61,7 +62,7 @@ class MerchantFulfillment(MWS):
         if label_customization is None:
             label_customization = {}
         if include_complex_options is not None:
-            include_complex_options = bool(include_complex_options)
+            include_complex_options = coerce_to_bool(include_complex_options)
 
         data = {
             "ShipmentRequestDetails.AmazonOrderId": amazon_order_id,

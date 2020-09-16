@@ -188,6 +188,29 @@ def dot_appended_param(param_key, reverse=False):
     return param_key
 
 
+BOOL_FALSE_STRINGS = ("no", "n", "none", "off", "false", "0")
+
+
+def coerce_to_bool(val):
+    """Coerces ``val`` to a boolean for use in MWS requests.
+
+    If ``val`` is a string, converts certain (case-insensitive) string values
+    to "False", such as:
+
+    - "no"
+    - "n"
+    - "none"
+    - "off"
+    - "false"
+    - "0"
+
+    Otherwise, ``val`` is simply cast using built-in ``bool()`` function.
+    """
+    if isinstance(val, str) and val.lower() in BOOL_FALSE_STRINGS:
+        return False
+    return bool(val)
+
+
 def remove_empty_param_keys(params):
     """Returns a copy of ``params`` dict where any key with a value of ``None``
     or ``""`` (empty string) are removed.

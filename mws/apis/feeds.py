@@ -6,6 +6,7 @@ import datetime
 from mws import MWS
 from mws.decorators import next_token_action
 from mws.utils.crypto import calc_md5
+from mws.utils.params import coerce_to_bool
 from mws.utils.params import enumerate_param
 
 # TODO Add FeedProcessingStatus enumeration
@@ -148,6 +149,8 @@ class Feeds(MWS):
         if isinstance(feed_options, dict):
             # Convert dict of options to str value
             feed_options = feed_options_str(feed_options)
+        if purge is not None:
+            purge = coerce_to_bool(purge)
         data = {
             "FeedType": feed_type,
             "FeedOptions": feed_options,
