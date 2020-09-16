@@ -14,7 +14,12 @@ from requests.exceptions import HTTPError
 from mws.errors import MWSError
 from mws.response import MWSResponse
 from mws.utils.crypto import response_md5_is_valid
-from mws.utils.params import clean_params_dict, enumerate_param, flat_param_dict
+from mws.utils.params import (
+    clean_params_dict,
+    enumerate_param,
+    flat_param_dict,
+    remove_empty_param_keys,
+)
 from mws.utils.timezone import mws_utc_now
 
 
@@ -227,6 +232,9 @@ class MWS(object):
         request_params = self.get_default_params(action, request_timestamp)
         proxies = self.get_proxies()
         request_params.update(params)
+
+        # Remove empty keys and clean values before transmitting
+        request_params = remove_empty_param_keys(request_params)
         request_params = clean_params_dict(request_params)
 
         if self._test_request_params:

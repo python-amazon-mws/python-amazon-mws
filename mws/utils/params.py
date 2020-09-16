@@ -127,13 +127,17 @@ def dict_keyed_param(param, dict_from):
     return params
 
 
+def remove_empty_param_keys(params):
+    """Returns a copy of ``params`` dict where any key with a value of ``None``
+    or ``""`` (empty string) are removed.
+    """
+    return {k: v for k, v in params.items() if v is not None and v != ""}
+
+
 def clean_params_dict(params):
     """Clean multiple param values in a dict, returning a new dict
     containing the original keys and cleaned values.
     """
-    # silently remove parameter where values are empty
-    params = {k: v for k, v in params.items() if v is not None and v != ""}
-
     cleaned_params = dict()
     for key, val in params.items():
         try:
