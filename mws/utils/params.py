@@ -32,7 +32,7 @@ def enumerate_param(param, values):
         # Ensure this enumerated param ends in '.'
         param += "."
     # Return final output: dict comprehension of the enumerated param and values.
-    return {"{}{}".format(param, idx + 1): val for idx, val in enumerate(values)}
+    return {"{}{}".format(param, idx): val for idx, val in enumerate(values, start=1)}
 
 
 def enumerate_params(params=None):
@@ -90,11 +90,11 @@ def enumerate_keyed_param(param, values):
                 )
             )
     params = {}
-    for idx, val_dict in enumerate(values):
+    for idx, val_dict in enumerate(values, start=1):
         # Build the final output.
         params.update(
             {
-                "{param}{idx}.{key}".format(param=param, idx=idx + 1, key=k): v
+                "{param}{idx}.{key}".format(param=param, idx=idx, key=k): v
                 for k, v in val_dict.items()
             }
         )
@@ -225,7 +225,7 @@ def flat_param_dict(value, prefix=""):
             output.update(flat_param_dict(val, prefix=new_key))
     else:
         # value must be an Iterable
-        for idx, val in enumerate(value):
-            new_key = "{}{}".format(prefix, idx + 1)
+        for idx, val in enumerate(value, start=1):
+            new_key = "{}{}".format(prefix, idx)
             output.update(flat_param_dict(val, prefix=new_key))
     return output

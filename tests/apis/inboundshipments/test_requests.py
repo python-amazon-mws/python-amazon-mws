@@ -1034,8 +1034,8 @@ def test_list_inbound_shipments_status_and_id(
         assert params["ShipmentStatusList.member.1"] == statuses
         assert "ShipmentStatusList.member.2" not in params
     if isinstance(statuses, (list, tuple, set)):
-        for idx, status in enumerate(statuses):
-            key = "ShipmentStatusList.member.{}".format(idx + 1)
+        for idx, status in enumerate(statuses, start=1):
+            key = "ShipmentStatusList.member.{}".format(idx)
             assert params[key] == status
 
     # Check IDs:
@@ -1050,6 +1050,6 @@ def test_list_inbound_shipments_status_and_id(
         assert params["ShipmentIdList.member.1"] == ids
         assert "ShipmentIdList.member.2" not in params
     if isinstance(ids, (list, tuple, set)):
-        for idx, id_ in enumerate(ids):
-            key = "ShipmentIdList.member.{}".format(idx + 1)
+        for idx, id_ in enumerate(ids, start=1):
+            key = "ShipmentIdList.member.{}".format(idx)
             assert params[key] == id_
