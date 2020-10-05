@@ -1,6 +1,8 @@
 """Amazon MWS Products API."""
+from typing import List
 
 from mws import MWS, utils
+from mws.utils import enumerate_keyed_param
 
 
 class Products(MWS):
@@ -163,9 +165,15 @@ class Products(MWS):
         }
         return self.make_request(data)
 
-    # # # TODO add this
-    # def get_my_fees_estimate(self):
-    #     pass
+    def get_my_fees_estimate(
+            self, fees_estimates: List[utils.FeesEstimateRequestItem]):
+        data = {
+            'Action': 'GetMyFeesEstimate',
+        }
+        attrs = [fe.serialize() for fe in fees_estimates]
+        data.update(enumerate_keyed_param(
+            'FeesEstimateRequestList.FeesEstimateRequest.', attrs))
+        return self.make_request(data, method='POST')
 
     def get_my_price_for_sku(self, marketplace_id, skus, condition=None):
         """

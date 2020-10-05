@@ -10,6 +10,64 @@ import base64
 import datetime
 import hashlib
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
+from typing import Optional
+
+
+@dataclass
+class ListingPrice:
+    currency_code: str
+    amount: float
+
+
+@dataclass
+class ShippingPrice:
+    currency_code: str
+    amount: float
+
+
+@dataclass
+class Points:
+    points_number: int
+
+
+@dataclass
+class PriceToEstimateFees:
+    listing_price: ListingPrice
+    shipping_price: ShippingPrice
+    points: Optional[Points] = None
+
+
+@dataclass
+class FeesEstimateRequestItem:
+    marketplace_id: str
+    id_type: str
+    id_value: str
+    is_amazon_fulfilled: bool
+    identifier: str
+    price_to_estimate_fees: PriceToEstimateFees
+
+    def serialize(self):
+        data = {
+            'MarketplaceId': self.marketplace_id,
+            'IdType': self.id_type,
+            'IdValue': self.id_value,
+            'IsAmazonFulfilled': self.is_amazon_fulfilled,
+            'Identifier': self.identifier,
+            'PriceToEstimateFees.ListingPrice.CurrencyCode':
+                self.price_to_estimate_fees.listing_price.currency_code,
+            'PriceToEstimateFees.ListingPrice.Amount':
+                self.price_to_estimate_fees.listing_price.amount,
+            'PriceToEstimateFees.Shipping.CurrencyCode':
+                self.price_to_estimate_fees.shipping_price.currency_code,
+            'PriceToEstimateFees.Shipping.Amount':
+                self.price_to_estimate_fees.shipping_price.amount,
+
+        }
+        if self.price_to_estimate_fees.points is not None:
+            data['PriceToEstimateFees.Points.PointsNumber'] = \
+                self.price_to_estimate_fees.points.points_number
+        return data
 
 
 class ObjectDict(dict):
