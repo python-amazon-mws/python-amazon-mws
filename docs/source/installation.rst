@@ -1,40 +1,18 @@
+.. _page_installation:
+
 Installation
-=============
-This process assumes you have already created an Amazon Marketplace Webservices (MWS) account.
+############
 
-Setup API Access
----------------------
+Currently, two versions of the package are available: an older **v0.8.x**,
+available `on PyPI <https://pypi.org/project/mws/>`_; and the in-development **v1.0devXY**,
+available `on GitHub <https://github.com/python-amazon-mws/python-amazon-mws>`_.
 
-* Go to https://developer.amazonservices.com (or .ca/.de/.jp/.fr/.co.uk)
-* Click on the *Sign up for MWS* button and follow the instructions.
-* At the end you must have a screen (print it and save it !)
-	This screen will contain the following credentials:
-		* Merchant Id (or Seller Id) - This is your unique merchant/seller ID
-		* Marketplace Id - This is the id for the marketplace you are selling on.
-						    It allows you to target specific markerplaces (US, Japan, Europe, etc..) in which you are authorized to sell.
-		* Access key - Used to identify the user of this API.
-		* Secret key - This is used to authenticate every request sent to Amazon
-	Make sure to keep this confidential as these credentials can potentially compromise your account.
+For new projects, we recommend using **v1.0devXY**, as it contains a more complete set
+of API sections and operations. Note that this version is still pre-alpha, so some parts
+of the package are subject to change as we slowly update from the original 0.8.x code.
 
-
-Test API Access
------------------
-
-* Go to https://mws.amazonservices.com/scratchpad/index.html (you can change the domain .com like before)
-* In API selection, choose **Products** and *ListMatchingProducts*
-* In Authentication put your credentials.
-* Input the desired MarketplaceId and put "python" in Query
-* Click on the submit button
-
-If everything is good, you can see a response 200 and a list of item matching python
-
-
-Install MWS Python API :)
--------------------------
-
-From PyPi
+Use ``pip`` to install 1.0devXY from GitHub off the ``develop`` branch:
 
 .. code-block:: bash
 
-    $ pip install mws
-
+    pip install git+https://github.com/python-amazon-mws/python-amazon-mws.git@develp#egg=mws

@@ -2,7 +2,10 @@
 import urllib.parse
 from enum import Enum
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.params import enumerate_param
+from mws.utils.params import enumerate_params
+from mws.utils.params import coerce_to_bool
 from mws.decorators import next_token_action
 
 # TODO Add Schedule enumerations as constants
@@ -46,6 +49,7 @@ class Reports(MWS):
     http://docs.developer.amazonservices.com/en_US/reports/Reports_Overview.html
     """
 
+    URI = "/Reports/2009-01-01"
     ACCOUNT_TYPE = "Merchant"
     NEXT_TOKEN_OPERATIONS = [
         "GetReportRequestList",
@@ -69,14 +73,13 @@ class Reports(MWS):
         marketplace_ids = marketplace_ids or []
         report_options = report_options or {}
         data = {
-            "Action": "RequestReport",
             "ReportType": report_type,
             "StartDate": start_date,
             "EndDate": end_date,
             "ReportOptions": report_options_str(report_options),
         }
-        data.update(utils.enumerate_param("MarketplaceIdList.Id.", marketplace_ids))
-        return self.make_request(data)
+        data.update(enumerate_param("MarketplaceIdList.Id.", marketplace_ids))
+        return self.make_request("RequestReport", data)
 
     @next_token_action("GetReportRequestList")
     def get_report_request_list(
@@ -101,13 +104,12 @@ class Reports(MWS):
         report_types = report_types or []
         processing_statuses = processing_statuses or []
         data = {
-            "Action": "GetReportRequestList",
             "MaxCount": max_count,
             "RequestedFromDate": from_date,
             "RequestedToDate": to_date,
         }
         data.update(
-            utils.enumerate_params(
+            enumerate_params(
                 {
                     "ReportRequestIdList.Id.": request_ids,
                     "ReportTypeList.Type.": report_types,
@@ -115,7 +117,7 @@ class Reports(MWS):
                 }
             )
         )
-        return self.make_request(data)
+        return self.make_request("GetReportRequestList", data)
 
     def get_report_request_list_by_next_token(self, token):
         """Alias for `get_report_request_list(next_token=token)`.
@@ -137,19 +139,18 @@ class Reports(MWS):
         report_types = report_types or []
         processing_statuses = processing_statuses or []
         data = {
-            "Action": "GetReportRequestCount",
             "RequestedFromDate": from_date,
             "RequestedToDate": to_date,
         }
         data.update(
-            utils.enumerate_params(
+            enumerate_params(
                 {
                     "ReportTypeList.Type.": report_types,
                     "ReportProcessingStatusList.Status.": processing_statuses,
                 }
             )
         )
-        return self.make_request(data)
+        return self.make_request("GetReportRequestCount", data)
 
     # # TODO Add:
     # def cancel_report_requests(self):
@@ -176,22 +177,23 @@ class Reports(MWS):
         """
         request_ids = request_ids or []
         report_types = report_types or []
+        if acknowledged is not None:
+            acknowledged = coerce_to_bool(acknowledged)
         data = {
-            "Action": "GetReportList",
             "Acknowledged": acknowledged,
             "AvailableFromDate": from_date,
             "AvailableToDate": to_date,
             "MaxCount": max_count,
         }
         data.update(
-            utils.enumerate_params(
+            enumerate_params(
                 {
                     "ReportRequestIdList.Id.": request_ids,
                     "ReportTypeList.Type.": report_types,
                 }
             )
         )
-        return self.make_request(data)
+        return self.make_request("GetReportList", data)
 
     def get_report_list_by_next_token(self, token):
         """Alias for `get_report_list(next_token=token)`.
@@ -211,27 +213,23 @@ class Reports(MWS):
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportCount.html
         """
         report_types = report_types or []
+        if acknowledged is not None:
+            acknowledged = coerce_to_bool(acknowledged)
         data = {
-            "Action": "GetReportCount",
             "Acknowledged": acknowledged,
             "AvailableFromDate": from_date,
             "AvailableToDate": to_date,
         }
-        data.update(utils.enumerate_param("ReportTypeList.Type.", report_types))
-        return self.make_request(data)
+        data.update(enumerate_param("ReportTypeList.Type.", report_types))
+        return self.make_request("GetReportCount", data)
 
     def get_report(self, report_id):
-        """
-        Returns the contents of a report and the Content-MD5 header for the returned report body.
+        """Returns the contents of a report and the Content-MD5 header for the returned report body.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReport.html
         """
-        data = {
-            "Action": "GetReport",
-            "ReportId": report_id,
-        }
-        return self.make_request(data)
+        return self.make_request("GetReport", {"ReportId": report_id})
 
     # # TODO Add:
     # def manage_report_schedule(self):
@@ -248,11 +246,8 @@ class Reports(MWS):
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleList.html
         """
         report_types = report_types or []
-        data = {
-            "Action": "GetReportScheduleList",
-        }
-        data.update(utils.enumerate_param("ReportTypeList.Type.", report_types))
-        return self.make_request(data)
+        data = enumerate_param("ReportTypeList.Type.", report_types)
+        return self.make_request("GetReportScheduleList", data)
 
     def get_report_schedule_list_by_next_token(self, token):
         """Alias for `get_report_schedule_list(next_token=token)`.
@@ -263,18 +258,14 @@ class Reports(MWS):
         return self.get_report_schedule_list(next_token=token)
 
     def get_report_schedule_count(self, report_types=None):
-        """
-        Returns a count of order report requests that are scheduled to be submitted to Amazon MWS.
+        """Returns a count of order report requests that are scheduled to be submitted to Amazon MWS.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleCount.html
         """
         report_types = report_types or []
-        data = {
-            "Action": "GetReportScheduleCount",
-        }
-        data.update(utils.enumerate_param("ReportTypeList.Type.", report_types))
-        return self.make_request(data)
+        data = enumerate_param("ReportTypeList.Type.", report_types)
+        return self.make_request("GetReportScheduleCount", data)
 
     def update_report_acknowledgements(self, report_ids=None, acknowledged=None):
         """Updates the acknowledged status of one or more reports.
@@ -284,13 +275,10 @@ class Reports(MWS):
         """
         report_ids = report_ids or []
         if acknowledged is not None:
-            acknowledged = str(bool(acknowledged)).lower()
-        data = {
-            "Action": "UpdateReportAcknowledgements",
-            "Acknowledged": acknowledged,
-        }
-        data.update(utils.enumerate_param("ReportIdList.Id.", report_ids))
-        return self.make_request(data)
+            acknowledged = coerce_to_bool(acknowledged)
+        data = {"Acknowledged": acknowledged}
+        data.update(enumerate_param("ReportIdList.Id.", report_ids))
+        return self.make_request("UpdateReportAcknowledgements", data)
 
 
 class ReportType(Enum):

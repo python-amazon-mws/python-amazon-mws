@@ -1,44 +1,29 @@
-"""
-Tests for the Feeds API class.
-"""
+"""Tests for the Feeds API class."""
+
 import unittest
 import datetime
 import mws
-from .utils import CommonRequestTestTools
-from .utils import transform_date
+from mws.utils import clean_date
+
+from .utils import CommonAPIRequestTools
 
 
-class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
-    """
-    Test cases for Feeds.
-    """
+class FeedsTestCase(CommonAPIRequestTools, unittest.TestCase):
+    """Test cases for Feeds."""
 
-    # TODO: Add remaining methods for Feeds
+    api_class = mws.Feeds
 
-    def setUp(self):
-        self.api = mws.Feeds(
-            self.CREDENTIAL_ACCESS,
-            self.CREDENTIAL_SECRET,
-            self.CREDENTIAL_ACCOUNT,
-            auth_token=self.CREDENTIAL_TOKEN,
-        )
-        self.api._test_request_params = True
-
-    # # TODO feed submission requires some file content. Building a test object will take time.
+    # TODO feed submission requires some file content.
     # def test_submit_feed(self):
-    #     """
-    #     SubmitFeed operation
-    #     """
+    #     """SubmitFeed operation"""
     #     pass
 
     def test_get_feed_submission_list(self):
-        """
-        GetFeedSubmissionList operation
-        """
+        """GetFeedSubmissionList operation"""
         from_date = datetime.datetime.utcnow()
-        from_date_stamp = transform_date(from_date)
+        from_date_stamp = clean_date(from_date)
         to_date = datetime.datetime.utcnow()
-        to_date_stamp = transform_date(to_date)
+        to_date_stamp = clean_date(to_date)
         feed_ids = [
             "1058369303",
             "1228369302",
@@ -60,8 +45,7 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
             from_date=from_date,
             to_date=to_date,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetFeedSubmissionList")
+        self.assert_common_params(params, action="GetFeedSubmissionList")
         self.assertEqual(params["SubmittedFromDate"], from_date_stamp)
         self.assertEqual(params["SubmittedToDate"], to_date_stamp)
         self.assertEqual(params["MaxCount"], str(max_count))
@@ -77,33 +61,25 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
 
     def test_get_feed_submission_list_by_next_token(self):
-        """
-        GetFeedSubmissionListByNextToken operation, via method decorator
-        """
+        """GetFeedSubmissionListByNextToken operation, via method decorator"""
         next_token = "0Ys0j83sOL"
         params = self.api.get_feed_submission_list(next_token=next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetFeedSubmissionListByNextToken")
+        self.assert_common_params(params, action="GetFeedSubmissionListByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_get_feed_submission_list_by_next_token_alias(self):
-        """
-        GetFeedSubmissionListByNextToken operation, via alias method
-        """
+        """GetFeedSubmissionListByNextToken operation, via alias method"""
         next_token = "pcq5ZXlm1e"
         params = self.api.get_feed_submission_list_by_next_token(next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetFeedSubmissionListByNextToken")
+        self.assert_common_params(params, action="GetFeedSubmissionListByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_get_feed_submission_count(self):
-        """
-        GetFeedSubmissionCount operation
-        """
+        """GetFeedSubmissionCount operation"""
         from_date = datetime.datetime.utcnow()
-        from_date_stamp = transform_date(from_date)
+        from_date_stamp = clean_date(from_date)
         to_date = datetime.datetime.utcnow()
-        to_date_stamp = transform_date(to_date)
+        to_date_stamp = clean_date(to_date)
         feed_types = [
             "_POST_PRODUCT_OVERRIDES_DATA_",
             "_POST_FLAT_FILE_FULFILLMENT_ORDER_CANCELLATION_REQUEST_DATA_",
@@ -118,8 +94,7 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
             from_date=from_date,
             to_date=to_date,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetFeedSubmissionCount")
+        self.assert_common_params(params, action="GetFeedSubmissionCount")
         self.assertEqual(params["SubmittedFromDate"], from_date_stamp)
         self.assertEqual(params["SubmittedToDate"], to_date_stamp)
         self.assertEqual(params["FeedTypeList.Type.1"], feed_types[0])
@@ -132,13 +107,11 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
 
     def test_cancel_feed_submissions(self):
-        """
-        CancelFeedSubmissions operation
-        """
+        """CancelFeedSubmissions operation"""
         from_date = datetime.datetime.utcnow()
-        from_date_stamp = transform_date(from_date)
+        from_date_stamp = clean_date(from_date)
         to_date = datetime.datetime.utcnow()
-        to_date_stamp = transform_date(to_date)
+        to_date_stamp = clean_date(to_date)
         feed_ids = [
             "SUB63kvutS",
             "l8dM04jxGD",
@@ -153,8 +126,7 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
             from_date=from_date,
             to_date=to_date,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "CancelFeedSubmissions")
+        self.assert_common_params(params, action="CancelFeedSubmissions")
         self.assertEqual(params["SubmittedFromDate"], from_date_stamp)
         self.assertEqual(params["SubmittedToDate"], to_date_stamp)
         self.assertEqual(params["FeedSubmissionIdList.Id.1"], feed_ids[0])
@@ -163,11 +135,8 @@ class FeedsTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assertEqual(params["FeedTypeList.Type.2"], feed_types[1])
 
     def test_get_feed_submission_result(self):
-        """
-        GetFeedSubmissionResult operation
-        """
+        """GetFeedSubmissionResult operation"""
         feed_id = "SJT63jt6M3"
         params = self.api.get_feed_submission_result(feed_id)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetFeedSubmissionResult")
+        self.assert_common_params(params, action="GetFeedSubmissionResult")
         self.assertEqual(params["FeedSubmissionId"], feed_id)

@@ -2,7 +2,7 @@
 import setuptools
 import sys
 
-version = "1.0.0dev14"
+version = "1.0dev15"
 homepage = "https://github.com/python-amazon-mws/python-amazon-mws"
 short_description = "Python library for interacting with the Amazon MWS API"
 with open("README.md") as readme:
@@ -10,17 +10,8 @@ with open("README.md") as readme:
 
 requires = [
     "requests",
+    "xmltodict>=0.12.0,<0.13",
 ]
-extras_require = {
-    ":python_version<'3.4'": ["enum34"],
-}
-
-# Fix for old setuptools versions.
-# (Copied from source of the flake8 package)
-if int(setuptools.__version__.split(".")[0]) < 18:
-    extras_require = {}
-    if sys.version_info < (3, 4):
-        requires.append("enum34")
 
 setuptools.setup(
     name="mws",
@@ -32,9 +23,8 @@ setuptools.setup(
     description=short_description,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=["mws", "mws.apis"],
+    packages=setuptools.find_packages(),
     install_requires=requires,
-    extras_require=extras_require,
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Environment :: Web Environment",

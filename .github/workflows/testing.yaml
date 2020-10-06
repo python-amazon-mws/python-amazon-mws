@@ -3,14 +3,17 @@ name: Testing
 on: [push, pull_request]
 
 jobs:
-  build:
+  test_suite:
     runs-on: ${{ matrix.os }}
 
     # Strategy sets up a matrix of python versions to run the tests against
     strategy:
+      # Specify no fail-fast strategy, so that all testing is executed independently
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        # Periodically check for versions here: https://github.com/actions/python-versions
+        python-version: [3.6, 3.7, 3.8, 3.9.0-rc.2]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -26,7 +29,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -e .
-    
+
     - name: Run pytest
       run: |
         pip install pytest

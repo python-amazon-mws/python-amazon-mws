@@ -1,12 +1,18 @@
-"""Amazon Easyship API."""
+"""Amazon EasyShip API.
 
-from mws import MWS, utils
+As EasyShip is particular to India region, docs links in this module
+should point to the "en_IN" version.
+"""
+
+from mws import MWS
+from mws.utils.params import enumerate_keyed_param
 
 
 def validate_package_update_details(package_update_details):
-    """
-    raises error if the package_update_details is not valid
-    used in the easyship api function update_scheduled_packages
+    """Raises error if the `package_update_details` is not valid.
+    Otherwise, returns None implicitly.
+
+    Used mainly in `EasyShip.update_scheduled_packages`.
     """
     error_msg = (
         "package_update_details must be a list of dicts, each with "
@@ -23,9 +29,10 @@ def validate_package_update_details(package_update_details):
 
 
 class EasyShip(MWS):
-    """
-        Amazon EasyShip API
-        docs: http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_Overview.html
+    """Amazon EasyShip API.
+
+    Docs:
+    http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_Overview.html
     """
 
     URI = "/EasyShip/2018-09-01"
@@ -43,18 +50,25 @@ class EasyShip(MWS):
         package_weight=0,
         package_weight_uom="g",
     ):
-        data = {
-            "Action": "ListPickupSlots",
-            "MarketplaceId": marketplace_id,
-            "AmazonOrderId": amazon_order_id,
-            "PackageDimensions.Width": str(package_width),
-            "PackageDimensions.Length": str(package_length),
-            "PackageDimensions.Height": str(package_height),
-            "PackageDimensions.Unit": package_dimensions_uom,
-            "PackageWeight.Unit": package_weight_uom,
-            "PackageWeight.Value": str(package_weight),
-        }
-        return self.make_request(data)
+        """Returns time slots for Amazon Easy Ship package pickup,
+        based on the package dimensions and package weight that the seller specifies.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_ListPickupSlots.html
+        """
+        return self.make_request(
+            "ListPickupSlots",
+            {
+                "MarketplaceId": marketplace_id,
+                "AmazonOrderId": amazon_order_id,
+                "PackageDimensions.Width": str(package_width),
+                "PackageDimensions.Length": str(package_length),
+                "PackageDimensions.Height": str(package_height),
+                "PackageDimensions.Unit": package_dimensions_uom,
+                "PackageWeight.Unit": package_weight_uom,
+                "PackageWeight.Value": str(package_weight),
+            },
+        )
 
     def create_scheduled_package(
         self,
@@ -71,27 +85,42 @@ class EasyShip(MWS):
         slot_end_time=None,
         package_identifier=None,
     ):
-        data = {
-            "Action": "CreateScheduledPackage",
-            "MarketplaceId": marketplace_id,
-            "AmazonOrderId": amazon_order_id,
-            "PackageRequestDetails.PackageDimensions.Length": str(package_length),
-            "PackageRequestDetails.PackageDimensions.Width": str(package_width),
-            "PackageRequestDetails.PackageDimensions.Height": str(package_height),
-            "PackageRequestDetails.PackageDimensions.Unit": package_dimensions_uom,
-            "PackageRequestDetails.PackageWeight.Unit": package_weight_uom,
-            "PackageRequestDetails.PackageWeight.Value": str(package_weight),
-            "PackageRequestDetails.PackagePickupSlot.SlotId": slot_id,
-            "PackageRequestDetails.PackagePickupSlot.PickupTimeStart": slot_start_time,
-            "PackageRequestDetails.PackagePickupSlot.PickupTimeEnd": slot_end_time,
-            "PackageRequestDetails.PackageIdentifier": package_identifier,
-        }
-        return self.make_request(data)
+        """Does several tasks:
+
+        - Schedules an Amazon Easy Ship package pickup slot.
+        - Marks the Amazon Easy Ship order status as "WaitingForPickup".
+        - Generates a shipping label and an invoice.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_CreateScheduledPackage.html
+        """
+        return self.make_request(
+            "CreateScheduledPackage",
+            {
+                "MarketplaceId": marketplace_id,
+                "AmazonOrderId": amazon_order_id,
+                "PackageRequestDetails.PackageDimensions.Length": str(package_length),
+                "PackageRequestDetails.PackageDimensions.Width": str(package_width),
+                "PackageRequestDetails.PackageDimensions.Height": str(package_height),
+                "PackageRequestDetails.PackageDimensions.Unit": package_dimensions_uom,
+                "PackageRequestDetails.PackageWeight.Unit": package_weight_uom,
+                "PackageRequestDetails.PackageWeight.Value": str(package_weight),
+                "PackageRequestDetails.PackagePickupSlot.SlotId": slot_id,
+                "PackageRequestDetails.PackagePickupSlot.PickupTimeStart": slot_start_time,
+                "PackageRequestDetails.PackagePickupSlot.PickupTimeEnd": slot_end_time,
+                "PackageRequestDetails.PackageIdentifier": package_identifier,
+            },
+        )
 
     def update_scheduled_packages(
         self, marketplace_id=None, package_update_details=None
     ):
-        data = {"Action": "UpdateScheduledPackages", "MarketplaceId": marketplace_id}
+        """Updates the pickup slot of an existing scheduled package.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_UpdateScheduledPackages.html
+        """
+        data = {"MarketplaceId": marketplace_id}
         package_update_data_list = []
         package_update_details = package_update_details or []
         if package_update_details:
@@ -114,20 +143,27 @@ class EasyShip(MWS):
             package_update_data_list.append(package_update_data)
 
         data.update(
-            utils.enumerate_keyed_param(
+            enumerate_keyed_param(
                 "ScheduledPackageUpdateDetailsList.PackageUpdateDetails",
                 package_update_data_list,
             )
         )
-        return self.make_request(data)
+        return self.make_request("UpdateScheduledPackages", data)
 
     def get_scheduled_package(
         self, marketplace_id=None, amazon_order_id=None, package_id=None
     ):
-        data = {
-            "Action": "GetScheduledPackage",
-            "MarketplaceId": marketplace_id,
-            "ScheduledPackageId.AmazonOrderId": amazon_order_id,
-            "ScheduledPackageId.PackageId": package_id,
-        }
-        return self.make_request(data)
+        """Returns information about a scheduled package, including dimensions, weight,
+        pickup slot information, invoice and item information, and status.
+
+        Docs:
+        http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_GetScheduledPackage.html
+        """
+        return self.make_request(
+            "GetScheduledPackage",
+            {
+                "MarketplaceId": marketplace_id,
+                "ScheduledPackageId.AmazonOrderId": amazon_order_id,
+                "ScheduledPackageId.PackageId": package_id,
+            },
+        )

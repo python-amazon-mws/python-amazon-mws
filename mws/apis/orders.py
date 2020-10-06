@@ -1,12 +1,13 @@
 """Amazon Orders API."""
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.params import enumerate_param
+from mws.utils.params import enumerate_params
 from mws.decorators import next_token_action
 
 
 class Orders(MWS):
-    """
-    Amazon Orders API
+    """Amazon Orders API
 
     Docs:
     http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_Overview.html
@@ -38,8 +39,7 @@ class Orders(MWS):
         easyship_statuses=None,
         next_token=None,
     ):
-        """
-        Returns orders created or updated during a time frame that you specify.
+        """Returns orders created or updated during a time frame that you specify.
 
         Pass `next_token` to call "ListOrdersByNextToken" instead.
 
@@ -54,7 +54,6 @@ class Orders(MWS):
         # for easyship orders, available only for India marketplace
         easyship_statuses = easyship_statuses or []
         data = {
-            "Action": "ListOrders",
             "CreatedAfter": created_after,
             "CreatedBefore": created_before,
             "LastUpdatedAfter": last_updated_after,
@@ -64,7 +63,7 @@ class Orders(MWS):
             "MaxResultsPerPage": max_results,
         }
         data.update(
-            utils.enumerate_params(
+            enumerate_params(
                 {
                     "OrderStatus.Status.": order_statuses,
                     "MarketplaceId.Id.": marketplace_ids,
@@ -75,11 +74,10 @@ class Orders(MWS):
                 }
             )
         )
-        return self.make_request(data)
+        return self.make_request("ListOrders", data)
 
     def list_orders_by_next_token(self, token):
-        """
-        Alias for `list_orders(next_token=token)`
+        """Alias for `list_orders(next_token=token)`
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrdersByNextToken.html
@@ -87,37 +85,27 @@ class Orders(MWS):
         return self.list_orders(next_token=token)
 
     def get_order(self, amazon_order_ids):
-        """
-        Returns orders based on the AmazonOrderId values that you specify.
+        """Returns orders based on the AmazonOrderId values that you specify.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_GetOrder.html
         """
-        data = {
-            "Action": "GetOrder",
-        }
-        data.update(utils.enumerate_param("AmazonOrderId.Id.", amazon_order_ids))
-        return self.make_request(data)
+        data = enumerate_param("AmazonOrderId.Id.", amazon_order_ids)
+        return self.make_request("GetOrder", data)
 
     @next_token_action("ListOrderItems")
     def list_order_items(self, amazon_order_id=None, next_token=None):
-        """
-        Returns order items based on the AmazonOrderId that you specify.
+        """Returns order items based on the AmazonOrderId that you specify.
 
         Pass `next_token` to call "ListOrderItemsByNextToken" instead.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrderItems.html
         """
-        data = {
-            "Action": "ListOrderItems",
-            "AmazonOrderId": amazon_order_id,
-        }
-        return self.make_request(data)
+        return self.make_request("ListOrderItems", {"AmazonOrderId": amazon_order_id})
 
     def list_order_items_by_next_token(self, token):
-        """
-        Alias for `list_order_items(next_token=token)`
+        """Alias for `list_order_items(next_token=token)`
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrderItemsByNextToken.html
