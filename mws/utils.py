@@ -10,42 +10,46 @@ import base64
 import datetime
 import hashlib
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass
 from typing import Optional
 
 
-@dataclass
 class ListingPrice:
-    currency_code: str
-    amount: float
+    def __init__(self, currency_code: str, amount: float):
+        self.currency_code = currency_code
+        self.amount = amount
 
 
-@dataclass
 class ShippingPrice:
-    currency_code: str
-    amount: float
+    def __init__(self, currency_code: str, amount: float):
+        self.currency_code = currency_code
+        self.amount = amount
 
 
-@dataclass
 class Points:
-    points_number: int
+    def __init__(self, points_number: int):
+        self.points_number = points_number
 
 
-@dataclass
 class PriceToEstimateFees:
-    listing_price: ListingPrice
-    shipping_price: ShippingPrice
-    points: Optional[Points] = None
+    def __init__(
+            self, listing_price: ListingPrice, shipping_price: ShippingPrice,
+            points: Optional[Points] = None):
+        self.listing_price = listing_price
+        self.shipping_price = shipping_price
+        self.points = points
 
 
-@dataclass
 class FeesEstimateRequestItem:
-    marketplace_id: str
-    id_type: str
-    id_value: str
-    is_amazon_fulfilled: bool
-    identifier: str
-    price_to_estimate_fees: PriceToEstimateFees
+    def __init__(
+            self, marketplace_id: str, id_type: str, id_value: str,
+            is_amazon_fulfilled: bool, identifier: str,
+            price_to_estimate_fees: PriceToEstimateFees):
+        self.marketplace_id = marketplace_id
+        self.id_type = id_type
+        self.id_value = id_value
+        self.is_amazon_fulfilled = is_amazon_fulfilled
+        self.identifier = identifier
+        self.price_to_estimate_fees = price_to_estimate_fees
 
     def serialize(self):
         data = {
