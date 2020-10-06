@@ -3,8 +3,8 @@ Tests for the Products API class.
 """
 import unittest
 import mws
-from mws.utils import ShippingPrice, ListingPrice, PriceToEstimateFees, \
-    FeesEstimateRequestItem
+from mws.models.products import ListingPrice, ShippingPrice, \
+    PriceToEstimateFees, FeesEstimateRequestItem
 from .utils import CommonRequestTestTools
 from .utils import transform_bool
 from .utils import transform_string

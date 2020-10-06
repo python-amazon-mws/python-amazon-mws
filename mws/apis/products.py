@@ -1,6 +1,7 @@
 """Amazon MWS Products API."""
 from typing import List
 
+import mws.models.products
 from mws import MWS, utils
 from mws.utils import enumerate_keyed_param
 
@@ -166,7 +167,8 @@ class Products(MWS):
         return self.make_request(data)
 
     def get_my_fees_estimate(
-            self, fees_estimates: List[utils.FeesEstimateRequestItem]):
+            self, fees_estimates: List[
+                mws.models.products.FeesEstimateRequestItem]):
         data = {
             'Action': 'GetMyFeesEstimate',
         }

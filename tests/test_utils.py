@@ -1,5 +1,6 @@
 from mws.mws import calc_request_description
-from mws.utils import calc_md5, ShippingPrice, ListingPrice, \
+from mws.utils import calc_md5
+from mws.models.products import ListingPrice, ShippingPrice, \
     PriceToEstimateFees, FeesEstimateRequestItem
 
 
