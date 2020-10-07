@@ -5,8 +5,12 @@ import mws
 from mws.utils import clean_bool, clean_string
 
 from .utils import CommonAPIRequestTools
-from mws.models.products import ListingPrice, ShippingPrice, \
-    PriceToEstimateFees, FeesEstimateRequestItem
+from mws.models.products import (
+    ListingPrice,
+    ShippingPrice,
+    PriceToEstimateFees,
+    FeesEstimateRequestItem,
+)
 
 
 class ProductsTestCase(CommonAPIRequestTools, unittest.TestCase):
@@ -258,129 +262,139 @@ class ProductsTestCase(CommonAPIRequestTools, unittest.TestCase):
         """
         GetMyFeesEstimate operation.
         """
-        marketplace_id = 'ATVPDKIKX0DER'
-        sku = 'cool-product'
-        sp = ShippingPrice(currency_code='USD', amount=0)
+        marketplace_id = "ATVPDKIKX0DER"
+        sku = "cool-product"
+        sp = ShippingPrice(currency_code="USD", amount=0)
 
-        lp = ListingPrice(currency_code='USD', amount=15.14)
+        lp = ListingPrice(currency_code="USD", amount=15.14)
 
         pte = PriceToEstimateFees(lp, sp)
 
         feri = FeesEstimateRequestItem(
-            marketplace_id, 'SellerSKU', sku, is_amazon_fulfilled=True,
-            identifier=sku, price_to_estimate_fees=pte)
+            marketplace_id,
+            "SellerSKU",
+            sku,
+            is_amazon_fulfilled=True,
+            identifier=sku,
+            price_to_estimate_fees=pte,
+        )
 
-        sku2 = 'cool-product-2'
-        sp2 = ShippingPrice(currency_code='USD', amount=2)
+        sku2 = "cool-product-2"
+        sp2 = ShippingPrice(currency_code="USD", amount=2)
 
-        lp2 = ListingPrice(currency_code='USD', amount=2.2)
+        lp2 = ListingPrice(currency_code="USD", amount=2.2)
 
         pte2 = PriceToEstimateFees(lp2, sp2)
 
         feri2 = FeesEstimateRequestItem(
-            marketplace_id, 'SellerSKU', sku2, is_amazon_fulfilled=False,
-            identifier=sku2, price_to_estimate_fees=pte2)
+            marketplace_id,
+            "SellerSKU",
+            sku2,
+            is_amazon_fulfilled=False,
+            identifier=sku2,
+            price_to_estimate_fees=pte2,
+        )
         params = self.api.get_my_fees_estimate([feri, feri2])
         self.assert_common_params(params, action="GetMyFeesEstimate")
 
         self.assertEqual(
-            params[
-                'FeesEstimateRequestList.FeesEstimateRequest.1.MarketplaceId'],
+            params["FeesEstimateRequestList.FeesEstimateRequest.1.MarketplaceId"],
             marketplace_id,
         )
         self.assertEqual(
-            params[
-                'FeesEstimateRequestList.FeesEstimateRequest.1.IdType'],
-            'SellerSKU',
+            params["FeesEstimateRequestList.FeesEstimateRequest.1.IdType"],
+            "SellerSKU",
         )
         self.assertEqual(
-            params[
-                'FeesEstimateRequestList.FeesEstimateRequest.1.IdValue'],
+            params["FeesEstimateRequestList.FeesEstimateRequest.1.IdValue"],
             sku,
         )
         self.assertEqual(
             params[
-                'FeesEstimateRequestList.FeesEstimateRequest.1.'
-                'IsAmazonFulfilled'],
-            'true',
+                "FeesEstimateRequestList.FeesEstimateRequest.1." "IsAmazonFulfilled"
+            ],
+            "true",
         )
         self.assertEqual(
-            params[
-                'FeesEstimateRequestList.FeesEstimateRequest.1.Identifier'],
+            params["FeesEstimateRequestList.FeesEstimateRequest.1.Identifier"],
             sku,
         )
         self.assertEqual(
             params[
-                'FeesEstimateRequestList.FeesEstimateRequest.1.'
-                'PriceToEstimateFees.ListingPrice.CurrencyCode'],
-            'USD',
+                "FeesEstimateRequestList.FeesEstimateRequest.1."
+                "PriceToEstimateFees.ListingPrice.CurrencyCode"
+            ],
+            "USD",
         )
         self.assertEqual(
             params[
-                'FeesEstimateRequestList.FeesEstimateRequest.1.'
-                'PriceToEstimateFees.ListingPrice.Amount'],
-            '15.14',
+                "FeesEstimateRequestList.FeesEstimateRequest.1."
+                "PriceToEstimateFees.ListingPrice.Amount"
+            ],
+            "15.14",
         )
         self.assertEqual(
             params[
-                'FeesEstimateRequestList.FeesEstimateRequest.1.'
-                'PriceToEstimateFees.Shipping.CurrencyCode'],
-            'USD',
+                "FeesEstimateRequestList.FeesEstimateRequest.1."
+                "PriceToEstimateFees.Shipping.CurrencyCode"
+            ],
+            "USD",
         )
         self.assertEqual(
             params[
-                'FeesEstimateRequestList.FeesEstimateRequest.1.'
-                'PriceToEstimateFees.Shipping.Amount'],
-            '0',
+                "FeesEstimateRequestList.FeesEstimateRequest.1."
+                "PriceToEstimateFees.Shipping.Amount"
+            ],
+            "0",
         )
 
         self.assertEqual(
-            params[
-                'FeesEstimateRequestList.FeesEstimateRequest.2.MarketplaceId'],
+            params["FeesEstimateRequestList.FeesEstimateRequest.2.MarketplaceId"],
             marketplace_id,
         )
         self.assertEqual(
-            params[
-                'FeesEstimateRequestList.FeesEstimateRequest.2.IdType'],
-            'SellerSKU',
+            params["FeesEstimateRequestList.FeesEstimateRequest.2.IdType"],
+            "SellerSKU",
         )
         self.assertEqual(
-            params[
-                'FeesEstimateRequestList.FeesEstimateRequest.2.IdValue'],
+            params["FeesEstimateRequestList.FeesEstimateRequest.2.IdValue"],
             sku2,
         )
         self.assertEqual(
             params[
-                'FeesEstimateRequestList.FeesEstimateRequest.2.'
-                'IsAmazonFulfilled'],
-            'false',
+                "FeesEstimateRequestList.FeesEstimateRequest.2." "IsAmazonFulfilled"
+            ],
+            "false",
         )
         self.assertEqual(
-            params[
-                'FeesEstimateRequestList.FeesEstimateRequest.2.Identifier'],
+            params["FeesEstimateRequestList.FeesEstimateRequest.2.Identifier"],
             sku2,
         )
         self.assertEqual(
             params[
-                'FeesEstimateRequestList.FeesEstimateRequest.2.'
-                'PriceToEstimateFees.ListingPrice.CurrencyCode'],
-            'USD',
+                "FeesEstimateRequestList.FeesEstimateRequest.2."
+                "PriceToEstimateFees.ListingPrice.CurrencyCode"
+            ],
+            "USD",
         )
         self.assertEqual(
             params[
-                'FeesEstimateRequestList.FeesEstimateRequest.2.'
-                'PriceToEstimateFees.ListingPrice.Amount'],
-            '2.2',
+                "FeesEstimateRequestList.FeesEstimateRequest.2."
+                "PriceToEstimateFees.ListingPrice.Amount"
+            ],
+            "2.2",
         )
         self.assertEqual(
             params[
-                'FeesEstimateRequestList.FeesEstimateRequest.2.'
-                'PriceToEstimateFees.Shipping.CurrencyCode'],
-            'USD',
+                "FeesEstimateRequestList.FeesEstimateRequest.2."
+                "PriceToEstimateFees.Shipping.CurrencyCode"
+            ],
+            "USD",
         )
         self.assertEqual(
             params[
-                'FeesEstimateRequestList.FeesEstimateRequest.2.'
-                'PriceToEstimateFees.Shipping.Amount'],
-            '2',
+                "FeesEstimateRequestList.FeesEstimateRequest.2."
+                "PriceToEstimateFees.Shipping.Amount"
+            ],
+            "2",
         )

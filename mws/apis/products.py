@@ -156,13 +156,13 @@ class Products(MWS):
             },
         )
 
-    def get_my_fees_estimate(
-            self, fees_estimates: List[FeesEstimateRequestItem]):
+    def get_my_fees_estimate(self, fees_estimates: List[FeesEstimateRequestItem]):
 
         attrs = [fe.serialize() for fe in fees_estimates]
         data = enumerate_keyed_param(
-            'FeesEstimateRequestList.FeesEstimateRequest.', attrs)
-        return self.make_request('GetMyFeesEstimate', data, method='POST')
+            "FeesEstimateRequestList.FeesEstimateRequest.", attrs
+        )
+        return self.make_request("GetMyFeesEstimate", data, method="POST")
 
     def get_my_price_for_sku(self, marketplace_id, skus, condition=None):
         """Returns pricing information for your own offer listings, based on SellerSKU.
