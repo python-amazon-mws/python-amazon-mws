@@ -2,6 +2,8 @@
 from typing import List
 
 from mws import MWS
+from mws.models.products import FeesEstimateRequestItem
+from mws.utils import enumerate_keyed_param
 from mws.utils.params import coerce_to_bool
 from mws.utils.params import enumerate_param
 
@@ -155,15 +157,12 @@ class Products(MWS):
         )
 
     def get_my_fees_estimate(
-            self, fees_estimates: List[
-                mws.models.products.FeesEstimateRequestItem]):
-        data = {
-            'Action': 'GetMyFeesEstimate',
-        }
+            self, fees_estimates: List[FeesEstimateRequestItem]):
+
         attrs = [fe.serialize() for fe in fees_estimates]
-        data.update(enumerate_keyed_param(
-            'FeesEstimateRequestList.FeesEstimateRequest.', attrs))
-        return self.make_request(data, method='POST')
+        data = enumerate_keyed_param(
+            'FeesEstimateRequestList.FeesEstimateRequest.', attrs)
+        return self.make_request('GetMyFeesEstimate', data, method='POST')
 
     def get_my_price_for_sku(self, marketplace_id, skus, condition=None):
         """Returns pricing information for your own offer listings, based on SellerSKU.

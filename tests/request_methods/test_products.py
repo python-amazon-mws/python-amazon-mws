@@ -7,9 +7,6 @@ from mws.utils import clean_bool, clean_string
 from .utils import CommonAPIRequestTools
 from mws.models.products import ListingPrice, ShippingPrice, \
     PriceToEstimateFees, FeesEstimateRequestItem
-from .utils import CommonRequestTestTools
-from .utils import transform_bool
-from .utils import transform_string
 
 
 class ProductsTestCase(CommonAPIRequestTools, unittest.TestCase):
