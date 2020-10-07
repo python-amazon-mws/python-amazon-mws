@@ -43,3 +43,14 @@ def test_xml2dict_removed_in_v11():
         # which itself was only called in `DictWrapper` class.
         # Just... odd, really. Better to replace the entire mess with a pure function.
         XML2Dict()
+
+
+# TODO tests that check methods decorated with `kwargs_renamed_for_v11`.
+# Individual methods? Parametrize them with the old, the new, check for deprecation,
+# and expect a certain key to be in params output.
+# Might be difficult for certain tests, though.
+# @pytest.mark.parametrize("api_class, method, old, new, expected_param", [
+#     ()
+# ])
+# def test_kwargs_renamed_working(method, old, new, expected_param):
+#     pass

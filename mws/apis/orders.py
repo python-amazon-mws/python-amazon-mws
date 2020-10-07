@@ -5,6 +5,9 @@ from mws.utils.params import enumerate_param
 from mws.utils.params import enumerate_params
 from mws.decorators import next_token_action
 
+# DEPRECATIONS
+from mws.utils.deprecation import kwargs_renamed_for_v11
+
 
 class Orders(MWS):
     """Amazon Orders API
@@ -21,6 +24,13 @@ class Orders(MWS):
         "ListOrderItems",
     ]
 
+    @kwargs_renamed_for_v11([
+        ("marketplaceids", "marketplace_ids"),
+        ("lastupdatedafter", "last_updated_after"),
+        ("lastupdatedbefore", "last_updated_before"),
+        ("orderstatus", "order_statuses"),
+        ("seller_orderid", "seller_order_id"),
+    ])
     @next_token_action("ListOrders")
     def list_orders(
         self,

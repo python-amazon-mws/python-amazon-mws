@@ -1,5 +1,6 @@
 """Amazon MWS FulfillmentInboundShipment API."""
 
+from mws.utils.deprecation import kwargs_renamed_for_v11
 from mws import MWS, MWSError, utils
 from mws.utils.params import enumerate_param
 from mws.utils.params import enumerate_keyed_param
@@ -473,6 +474,7 @@ class InboundShipments(MWS):
             "VoidTransportRequest", {"ShipmentId": shipment_id}, method="POST"
         )
 
+    @kwargs_renamed_for_v11([("num_packages", "num_labels")])
     def get_package_labels(self, shipment_id, num_labels, page_type=None):
         """Returns PDF document data for printing package labels for an inbound shipment.
 
