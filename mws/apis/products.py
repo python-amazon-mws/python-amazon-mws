@@ -2,7 +2,7 @@
 from typing import List
 
 from mws import MWS
-from mws.models.products import FeesEstimateRequestItem
+from mws.models.products import FeesEstimateRequest
 from mws.utils import enumerate_keyed_param
 from mws.utils.params import coerce_to_bool
 from mws.utils.params import enumerate_param
@@ -156,11 +156,15 @@ class Products(MWS):
             },
         )
 
-    def get_my_fees_estimate(self, fees_estimates: List[FeesEstimateRequestItem]):
+    def get_my_fees_estimate(self, *fees_estimates: FeesEstimateRequest):
+        """Returns the estimated fees for a list of products.
 
-        attrs = [fe.serialize() for fe in fees_estimates]
+        Docs:
+        https://docs.developer.amazonservices.com/en_US/products/Products_GetMyFeesEstimate.html
+        """
+        estimates = [fe.to_dict() for fe in fees_estimates]
         data = enumerate_keyed_param(
-            "FeesEstimateRequestList.FeesEstimateRequest.", attrs
+            "FeesEstimateRequestList.FeesEstimateRequest.", estimates
         )
         return self.make_request("GetMyFeesEstimate", data, method="POST")
 
