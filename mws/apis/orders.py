@@ -24,13 +24,15 @@ class Orders(MWS):
         "ListOrderItems",
     ]
 
-    @kwargs_renamed_for_v11([
-        ("marketplaceids", "marketplace_ids"),
-        ("lastupdatedafter", "last_updated_after"),
-        ("lastupdatedbefore", "last_updated_before"),
-        ("orderstatus", "order_statuses"),
-        ("seller_orderid", "seller_order_id"),
-    ])
+    @kwargs_renamed_for_v11(
+        [
+            ("marketplaceids", "marketplace_ids"),
+            ("lastupdatedafter", "last_updated_after"),
+            ("lastupdatedbefore", "last_updated_before"),
+            ("orderstatus", "order_statuses"),
+            ("seller_orderid", "seller_order_id"),
+        ]
+    )
     @next_token_action("ListOrders")
     def list_orders(
         self,
