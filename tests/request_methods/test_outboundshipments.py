@@ -1,31 +1,20 @@
-"""
-Tests for the MWS.OutboundShipments API class.
-"""
+"""Tests for the MWS.OutboundShipments API class."""
+
 import unittest
 import mws
-from .utils import CommonRequestTestTools
+from .utils import CommonAPIRequestTools
 
 
-class OutboundShipmentsTestCase(unittest.TestCase, CommonRequestTestTools):
-    """
-    Test cases for OutboundShipments.
-    """
+class OutboundShipmentsTestCase(CommonAPIRequestTools, unittest.TestCase):
+    """Test cases for OutboundShipments."""
+
+    api_class = mws.OutboundShipments
 
     # TODO: Add remaining methods for OutboundShipments
 
-    def setUp(self):
-        self.api = mws.OutboundShipments(
-            self.CREDENTIAL_ACCESS,
-            self.CREDENTIAL_SECRET,
-            self.CREDENTIAL_ACCOUNT,
-            auth_token=self.CREDENTIAL_TOKEN,
-        )
-        self.api._test_request_params = True
-
     # def test_create_shipment(self):
     #     """
-    #     XYZ operation.
+    #     CreateFulfillmentOrder operation.
     #     """
     #     params = self.api.create_shipment()
-    #     self.assert_common_params(params)
-    #     self.assertEqual(params['Action'], 'CreateFulfillmentOrder')
+    #     self.assert_common_params(params, action="CreateFulfillmentOrder")

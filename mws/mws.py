@@ -1,34 +1,49 @@
 # -*- coding: utf-8 -*-
 """Main module for python-amazon-mws package."""
 
+from enum import Enum
+from urllib.parse import quote
 import base64
-import datetime
 import hashlib
 import hmac
-import re
 import warnings
-from zipfile import ZipFile
-from io import BytesIO
 
 from requests import request
 from requests.exceptions import HTTPError
-from enum import Enum
 
-from mws import utils
+from mws.errors import MWSError
+from mws.response import MWSResponse
+from mws.utils.crypto import response_md5_is_valid
+from mws.utils.params import (
+    clean_params_dict,
+    enumerate_param,
+    flat_param_dict,
+    remove_empty_param_keys,
+)
+from mws.utils.timezone import mws_utc_now
 
-try:
-    from urllib.parse import quote
-except ImportError:
-    from urllib import quote
-from xml.etree.ElementTree import ParseError as XMLError
 
+__version__ = "1.0dev15"
+PAM_USER_AGENT = "python-amazon-mws/{} (Language=Python)".format(__version__)
+"""See recommended user agent string format:
+https://docs.developer.amazonservices.com/en_US/dev_guide/DG_UserAgentHeader.html
+"""
 
-__version__ = "1.0.0dev14"
+PAM_DEFAULT_TIMEOUT = 300
+
+__all__ = [
+    "calc_request_description",
+    "Marketplaces",
+    "MWS",
+]
 
 
 class Marketplaces(Enum):
-    """
-    Format: Country code: endpoint, marketplace_id.
+    """Enumeration for MWS marketplaces, containing endpoints and marketplace IDs.
+
+    Example, endpoint and ID for UK marketplace:
+        endpoint = Marketplaces.UK.endpoint
+        marketplace_id = Marketplaces.UK.marketplace_id
     """
 
     AE = ("https://mws.amazonservices.ae", "A2VIGQ35RCS4UG")
@@ -58,23 +73,9 @@ class Marketplaces(Enum):
         self.marketplace_id = marketplace_id
 
 
-class MWSError(Exception):
-    """
-    Main MWS Exception class
-    """
-
-    # Allows quick access to the response object.
-    # Do not rely on this attribute, always check if its not None.
-    response = None
-
-
+## TODO DEPRECATE THIS ##
 def calc_request_description(params):
-    """
-    Returns a flatted string with the request description, built from the params dict.
-    Entries are escaped with urllib quote method, formatted as "key=value", and joined with "&".
-    """
-    """
-    Builds the request description as a single string from the set of params.
+    """Builds the request description as a single string from the set of params.
 
     Each key-value pair takes the form "key=value"
     Sets of "key=value" pairs are joined by "&".
@@ -92,123 +93,24 @@ def calc_request_description(params):
     return "&".join(description_items)
 
 
-def clean_params(params):
-    """Input cleanup and prevent a lot of common input mistakes."""
-    # silently remove parameter where values are empty
-    params = {k: v for k, v in params.items() if v is not None and v != ""}
-
-    params_enc = dict()
-    for key, value in params.items():
-        if isinstance(value, (dict, list, set, tuple)):
-            message = (
-                "expected string or datetime datatype, got {},"
-                "for key {} and value {}".format(type(value), key, str(value))
-            )
-            raise MWSError(message)
-        if isinstance(value, (datetime.datetime, datetime.date)):
-            value = value.isoformat()
-        if isinstance(value, bool):
-            value = str(value).lower()
-        value = str(value)
-
-        params_enc[key] = quote(value, safe="-_.~")
-    return params_enc
-
-
-def remove_namespace(xml):
-    """
-    Strips the namespace from XML document contained in a string.
-    Returns the stripped string.
-    """
-    regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
-    return regex.sub("", xml)
-
-
-class DictWrapper(object):
-    """
-    Main class that converts XML data to a parsed response object as a tree of ObjectDicts,
-    stored in the .parsed property.
-    """
-
-    # TODO create a base class for DictWrapper and DataWrapper with all the keys we expect in responses.
-    # This will make it easier to use either class in place of each other.
-    # Either this, or pile everything into DataWrapper and make it able to handle all cases.
-
-    def __init__(self, xml, rootkey=None):
-        if isinstance(xml, bytes):
-            try:
-                xml = xml.decode(encoding="iso-8859-1")
-            except UnicodeDecodeError as exc:
-                # In the very rare occurence of a decode error, attach the original xml to the .response of the MWSError
-                error = MWSError(str(exc.response.text))
-                error.response = xml
-                raise error
-
-        self.response = None
-        self._rootkey = rootkey
-        self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
-        self._response_dict = self._mydict.get(
-            list(self._mydict.keys())[0], self._mydict
-        )
-
-    @property
-    def parsed(self):
-        """
-        Provides access to the parsed contents of an XML response as a tree of ObjectDicts.
-        """
-        if self._rootkey:
-            return self._response_dict.get(self._rootkey, self._response_dict)
-        return self._response_dict
-
-
-class DataWrapper(object):
-    """
-    Text wrapper in charge of validating the hash sent by Amazon.
-    """
-
-    def __init__(self, data, headers):
-        self.original = data
-        self.response = None
-        self.headers = headers
-        if "content-md5" in self.headers:
-            hash_ = utils.calc_md5(self.original)
-            if self.headers["content-md5"].encode() != hash_:
-                raise MWSError("Wrong Content length, maybe amazon error...")
-
-    @property
-    def parsed(self):
-        """
-        Similar to the `parsed` property of DictWrapper, this provides a similar interface for a data response
-        that could not be parsed as XML.
-        """
-        return self.original
-
-    """
-    To return an unzipped file object based on the content type"
-    """
-
-    @property
-    def unzipped(self):
-        """
-        If the response is comprised of a zip file, returns a ZipFile object of those file contents.
-
-        Otherwise, returns None.
-        """
-        if self.headers["content-type"] == "application/zip":
-            try:
-                with ZipFile(BytesIO(self.original)) as unzipped_fileobj:
-                    # unzipped the zip file contents
-                    unzipped_fileobj.extractall()
-                    # return original zip file object to the user
-                    return unzipped_fileobj
-            except Exception as exc:
-                raise MWSError(str(exc))
-        return None  # 'The response is not a zipped file.'
-
-
 class MWS(object):
-    """
-    Base Amazon API class
+    """Base Amazon API class.
+
+    NOTICE FOR 1.0 RELEASE TESTING
+    ------------------------------
+
+    A new parser, ``mws.utils.parsers.MWSResponse``, can be used to process requests
+    made to MWS. To test the new parser:
+
+    .. code-block:: python
+
+        # instantiate your API class as usual
+        api = Products(access_key, secret_key, account_id, ...)
+        # Then set the `_use_feature_mwsresponse` flag on the instance.
+        api._use_feature_mwsresponse = True
+
+    Now all requests you make with this instance of the API class
+    will run through ``MWSResponse``.
     """
 
     # This is used to post/get to the different uris used by amazon per api
@@ -255,6 +157,9 @@ class MWS(object):
         version="",
         auth_token="",
         proxy=None,
+        user_agent_str="",
+        headers=None,
+        force_response_encoding=None,
     ):
         self.access_key = access_key
         self.secret_key = secret_key
@@ -263,9 +168,13 @@ class MWS(object):
         self.version = version or self.VERSION
         self.uri = uri or self.URI
         self.proxy = proxy
+        self.user_agent_str = user_agent_str or PAM_USER_AGENT
+        self.extra_headers = headers or {}
+        self.force_response_encoding = force_response_encoding
 
         # * TESTING FLAGS * #
         self._test_request_params = False
+        self._use_feature_mwsresponse = False
 
         if region in Marketplaces.__members__:
             self.domain = Marketplaces[region].endpoint
@@ -273,20 +182,20 @@ class MWS(object):
             error_msg = (
                 "Incorrect region supplied: {region}. "
                 "Must be one of the following: {regions}".format(
-                    region=region, regions=", ".join(Marketplaces.__members__.keys()),
+                    region=region,
+                    regions=", ".join(Marketplaces.__members__.keys()),
                 )
             )
             raise MWSError(error_msg)
 
-    def get_default_params(self):
-        """
-        Get the parameters required in all MWS requests
-        """
+    def get_default_params(self, action, timestamp):
+        """Get the params required in all MWS requests."""
         params = {
+            "Action": action,
             "AWSAccessKeyId": self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
             "SignatureVersion": "2",
-            "Timestamp": utils.get_utc_timestamp(),
+            "Timestamp": timestamp,
             "Version": self.version,
             "SignatureMethod": "HmacSHA256",
         }
@@ -296,21 +205,44 @@ class MWS(object):
         # need a branch test to check for auth_token being skipped (no key present)
         return params
 
-    def make_request(self, extra_data, method="GET", **kwargs):
+    def make_request(
+        self, action, params=None, method="GET", timeout=PAM_DEFAULT_TIMEOUT, **kwargs
+    ):
+        """Make request to Amazon MWS API with these params.
+
+        `action` is a string matching the name of the request action
+        (i.e. "ListOrders").
+
+        `params` is a flat dict containing params to pass to the operation.
+
+        `method` is a string, matching an HTTP verb ("GET", "POST", etc.),
+        which sets the method for a `requests.request` call.
+
+        `timeout` passes to `requests.request`, setting the timeout for this request.
+
+        `kwargs` may include:
+
+        - `result_key`, providing a custom key to use as the root for results
+          returned by `response.parsed`.
+        - `body`, primarily used in Feeds requests to send a data file in the request.
         """
-        Make request to Amazon MWS API with these parameters
-        """
-        params = self.get_default_params()
+        params = params or {}
+
+        request_timestamp = mws_utc_now()
+        request_params = self.get_default_params(action, request_timestamp)
         proxies = self.get_proxies()
-        params.update(extra_data)
-        params = clean_params(params)
+        request_params.update(params)
+
+        # Remove empty keys and clean values before transmitting
+        request_params = remove_empty_param_keys(request_params)
+        request_params = clean_params_dict(request_params)
 
         if self._test_request_params:
             # Testing method: return the params from this request before the request is made.
-            return params
+            return request_params
         # TODO: All current testing stops here. More branches needed.
 
-        request_description = calc_request_description(params)
+        request_description = calc_request_description(request_params)
         signature = self.calc_signature(method, request_description)
         url = "{domain}{uri}?{description}&Signature={signature}".format(
             domain=self.domain,
@@ -318,42 +250,64 @@ class MWS(object):
             description=request_description,
             signature=quote(signature),
         )
-        headers = {
-            "User-Agent": "python-amazon-mws/{} (Language=Python)".format(__version__)
-        }
+        headers = {"User-Agent": self.user_agent_str}
+        headers.update(self.extra_headers)
         headers.update(kwargs.get("extra_headers", {}))
+
+        result_key = kwargs.get("result_key", "{}Result".format(action))
 
         try:
             # Some might wonder as to why i don't pass the params dict as the params argument to request.
             # My answer is, here i have to get the url parsed string of params in order to sign it, so
             # if i pass the params dict as params to request, request will repeat that step because it will need
             # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
+
+            # TODO ^^ Because that's not how a POST request works, man!
+            # We're gonna fix this!
             response = request(
                 method,
                 url,
                 data=kwargs.get("body", ""),
                 headers=headers,
                 proxies=proxies,
-                timeout=kwargs.get("timeout", 300),
+                timeout=timeout,
             )
             response.raise_for_status()
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
             # response.content and converts it to unicode.
 
-            data = response.content
-            # I do not check the headers to decide which content structure to server simply because sometimes
-            # Amazon's MWS API returns XML error responses with "text/plain" as the Content-Type.
-            rootkey = kwargs.get("rootkey", extra_data.get("Action") + "Result")
-            try:
-                try:
-                    parsed_response = DictWrapper(data, rootkey)
-                except TypeError:  # raised when using Python 3 and trying to remove_namespace()
-                    # When we got CSV as result, we will got error on this
-                    parsed_response = DictWrapper(response.text, rootkey)
+            if self._use_feature_mwsresponse:
+                # Turn on the new response parser and DotDict parsed output
+                # (will be made standard in v1.0)
+                if not response_md5_is_valid(response):
+                    raise MWSError(
+                        "MD5 hash validation failed: wrong content length for response"
+                    )
 
-            except XMLError:
-                parsed_response = DataWrapper(data, response.headers)
+                parsed_response = MWSResponse(
+                    response,
+                    result_key=result_key,
+                    encoding=self.force_response_encoding,
+                )
+                parsed_response.timestamp = request_timestamp
+            else:
+                ### DEPRECATED ###
+                # Remove in v1.0
+                from xml.etree.ElementTree import ParseError as XMLError
+                from mws.utils.parsers import DictWrapper, DataWrapper
+
+                data = response.content
+                try:
+                    try:
+                        parsed_response = DictWrapper(data, result_key)
+                    except TypeError:
+                        # When we got CSV as result, we will got error on this
+                        parsed_response = DictWrapper(response.text, result_key)
+
+                except XMLError:
+                    parsed_response = DataWrapper(data, response.headers)
+                parsed_response.response = response
 
         except HTTPError as exc:
             error = MWSError(str(exc.response.text))
@@ -361,10 +315,10 @@ class MWS(object):
             raise error
 
         # Store the response object in the parsed_response for quick access
-        parsed_response.response = response
         return parsed_response
 
     def get_proxies(self):
+        """Return a dict of http and https proxies, as defined by `self.proxy`."""
         proxies = {"http": None, "https": None}
         if self.proxy:
             # TODO need test to enter here
@@ -375,15 +329,27 @@ class MWS(object):
         return proxies
 
     def get_service_status(self):
+        """Returns MWS service status.
+
+        Typical return values (embedded within `response.parsed`) are:
+
+        - GREEN
+        - GREEN_I
+        - YELLOW
+        - RED
+
+        The same request can be used for any MWS API subclass, and MWS may respond
+        differently for each endpoint. Best to use this method from the same API
+        subclass you intend to use for other requests!
+
+        Docs (from Orders API example):
+        http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/MWS_GetServiceStatus.html
         """
-        Returns a GREEN, GREEN_I, YELLOW or RED status.
-        Depending on the status/availability of the API its being called from.
-        """
-        return self.make_request(extra_data=dict(Action="GetServiceStatus"))
+        return self.make_request("GetServiceStatus")
 
     def action_by_next_token(self, action, next_token):
-        """
-        Run a '...ByNextToken' action for the given action.
+        """Run a '...ByNextToken' action for the given action.
+
         If the action is not listed in self.NEXT_TOKEN_OPERATIONS, MWSError is raised.
         Action is expected NOT to include 'ByNextToken'
         at the end of its name for this call: function will add that by itself.
@@ -400,15 +366,10 @@ class MWS(object):
 
         action = "{}ByNextToken".format(action)
 
-        data = {
-            "Action": action,
-            "NextToken": next_token,
-        }
-        return self.make_request(data, method="POST")
+        return self.make_request(action, {"NextToken": next_token}, method="POST")
 
     def calc_signature(self, method, request_description):
-        """
-        Calculate MWS signature to interface with Amazon
+        """Calculate MWS signature to interface with Amazon
 
         Args:
             method (str)
@@ -429,18 +390,59 @@ class MWS(object):
         )
 
     def enumerate_param(self, param, values):
-        """
-        DEPRECATED.
-        Please use `utils.enumerate_param` for one param, or
-        `utils.enumerate_params` for multiple params.
-        """
-        # TODO remove in 1.0 release.
-        # No tests needed.
+        """DEPRECATED, alias for `utils.params.enumerate_param`."""
+        from mws.utils.deprecation import RemovedInPAM10Warning
+
         warnings.warn(
             (
-                "Please use `utils.enumerate_param` for one param, or "
-                "`utils.enumerate_params` for multiple params."
+                "MWS.enumerate_param is deprecated. "
+                "Please use methods in 'mws.utils.params', instead."
             ),
-            DeprecationWarning,
+            RemovedInPAM10Warning,
         )
-        return utils.enumerate_param(param, values)
+        return enumerate_param(param, values)
+
+    def generic_request(
+        self, action, params=None, method="GET", timeout=PAM_DEFAULT_TIMEOUT, **kwargs
+    ):
+        """Builds a generic request with arbitrary parameter arguments.
+        This method should be called from an API subclass (``Orders``, ``Feeds``, etc.),
+        else the ``uri`` attribute of the class instance must be set manually.
+
+        This method's signature matches that of ``.make_request``, as the two methods
+        are similar. However, ``params`` is expected to be either the default ``None``
+        or a nested dictionary, that is then passed to
+        :py:func:`flat_param_dict() <mws.utils.params.flat_param_dict>`.
+        """
+        # NOTE you may be asking why this method exists. Why not simply put the logic
+        # of `flat_param_dict` into `make_request`, and let every request method
+        # pass nested objects freely?
+        # Well, I tried that. Turns out giving up that kind of control has some
+        # unintended consequences.
+        # For instance, say you know that a given parameter for your request only takes
+        # one value, such as `ReportType=_SOME_REPORT_TYPE_`.
+        # If the user passes a list wrapping that string, `flat_param_dict` will
+        # happily enumerate that value: `ReportType.1=_SOME_REPORT_TYPE_`.
+        # For that particular request, we would know this to be an error: MWS will
+        # not accept that entry. Surfacing that error to the end user would be quite
+        # difficult, and trying to prevent it would introduce the hassle of verifying
+        # argument types in every request method.
+        # It is better to allow that list object to pass through the params to
+        # `make_request`, where it can raise an error in our code, rather than have
+        # the request get sent to MWS.
+        if not self.uri or self.uri == "/":
+            raise ValueError(
+                (
+                    "Cannot send generic request to URI '%s'. "
+                    "Please use one of the API classes "
+                    "(`mws.apis.Reports`, `mws.apis.Feeds`, etc.) "
+                    "to initiate this request."
+                )
+                % self.uri
+            )
+        if not isinstance(params, dict):
+            raise ValueError("`params` must be a dict.")
+        data = flat_param_dict(params)
+        return self.make_request(
+            action=action, params=data, method=method, timeout=timeout, **kwargs
+        )

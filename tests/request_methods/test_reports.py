@@ -1,34 +1,22 @@
-"""
-Tests for the Reports API class.
-"""
+"""Tests for the Reports API class."""
+
 import datetime
 import unittest
 import mws
-from .utils import CommonRequestTestTools
-from .utils import transform_date
-from .utils import transform_bool
+from mws.utils import clean_bool, clean_date
+
+from .utils import CommonAPIRequestTools
 
 
-class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
-    """
-    Test cases for Reports.
-    """
+class ReportsTestCase(CommonAPIRequestTools, unittest.TestCase):
+    """Test cases for Reports."""
+
+    api_class = mws.Reports
 
     # TODO: Add remaining methods for Reports
 
-    def setUp(self):
-        self.api = mws.Reports(
-            self.CREDENTIAL_ACCESS,
-            self.CREDENTIAL_SECRET,
-            self.CREDENTIAL_ACCOUNT,
-            auth_token=self.CREDENTIAL_TOKEN,
-        )
-        self.api._test_request_params = True
-
     def test_request_report(self):
-        """
-        RequestReport operation.
-        """
+        """RequestReport operation."""
         report_type = "_GET_FLAT_FILE_OPEN_LISTINGS_DATA_"
         start_date = datetime.datetime(2018, 4, 30, 22, 59, 59)
         end_date = datetime.datetime(2018, 4, 30, 23, 59, 59)
@@ -43,8 +31,7 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
             marketplace_ids=marketplace_ids,
         )
 
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "RequestReport")
+        self.assert_common_params(params, action="RequestReport")
         self.assertEqual(params["ReportType"], report_type)
         self.assertEqual(params["StartDate"], "2018-04-30T22%3A59%3A59")
         self.assertEqual(params["EndDate"], "2018-04-30T23%3A59%3A59")
@@ -52,9 +39,7 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assertEqual(params["MarketplaceIdList.Id.2"], marketplace_ids[1])
 
     def test_parameter_error(self):
-        """
-        RequestReport wrong parameter
-        """
+        """RequestReport wrong parameter"""
         # list will throw error
         report_type = ["_GET_FLAT_FILE_OPEN_LISTINGS_DATA_"]
         start_date = datetime.datetime(2018, 4, 30, 22, 59, 59)
@@ -72,9 +57,7 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
             )
 
     def test_get_report_request_list(self):
-        """
-        GetReportRequestList operation.
-        """
+        """GetReportRequestList operation."""
         request_ids = [
             "rPlSxpfnR7",
             "qRrkqv03qh",
@@ -98,11 +81,10 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
             from_date=from_date,
             to_date=to_date,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportRequestList")
+        self.assert_common_params(params, action="GetReportRequestList")
         self.assertEqual(params["MaxCount"], str(max_count))
-        self.assertEqual(params["RequestedFromDate"], transform_date(from_date))
-        self.assertEqual(params["RequestedToDate"], transform_date(to_date))
+        self.assertEqual(params["RequestedFromDate"], clean_date(from_date))
+        self.assertEqual(params["RequestedToDate"], clean_date(to_date))
         self.assertEqual(params["ReportRequestIdList.Id.1"], request_ids[0])
         self.assertEqual(params["ReportRequestIdList.Id.2"], request_ids[1])
         self.assertEqual(params["ReportTypeList.Type.1"], report_types[0])
@@ -115,29 +97,21 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
 
     def test_get_report_request_list_by_next_token(self):
-        """
-        GetReportRequestListByNextToken operation, via method decorator.
-        """
+        """GetReportRequestListByNextToken operation, via method decorator."""
         next_token = "RXmLZ2bEgE"
         params = self.api.get_report_request_list(next_token=next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportRequestListByNextToken")
+        self.assert_common_params(params, action="GetReportRequestListByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_get_report_request_list_by_next_token_alias(self):
-        """
-        GetReportRequestListByNextToken operation, via alias method.
-        """
+        """GetReportRequestListByNextToken operation, via alias method."""
         next_token = "0hytxbkaOb"
         params = self.api.get_report_request_list_by_next_token(next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportRequestListByNextToken")
+        self.assert_common_params(params, action="GetReportRequestListByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_get_report_request_count(self):
-        """
-        GetReportRequestCount operation.
-        """
+        """GetReportRequestCount operation."""
         report_types = [
             "_GET_XML_ALL_ORDERS_DATA_BY_LAST_UPDATE_",
             "_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_",
@@ -154,10 +128,9 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
             from_date=from_date,
             to_date=to_date,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportRequestCount")
-        self.assertEqual(params["RequestedFromDate"], transform_date(from_date))
-        self.assertEqual(params["RequestedToDate"], transform_date(to_date))
+        self.assert_common_params(params, action="GetReportRequestCount")
+        self.assertEqual(params["RequestedFromDate"], clean_date(from_date))
+        self.assertEqual(params["RequestedToDate"], clean_date(to_date))
         self.assertEqual(params["ReportTypeList.Type.1"], report_types[0])
         self.assertEqual(params["ReportTypeList.Type.2"], report_types[1])
         self.assertEqual(
@@ -168,9 +141,7 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         )
 
     def test_get_report_list(self):
-        """
-        GetReportList operation.
-        """
+        """GetReportList operation."""
         request_ids = [
             "c4eik8sxXC",
             "NIVgnbHXe0",
@@ -191,11 +162,10 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
             from_date=from_date,
             to_date=to_date,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportList")
-        self.assertEqual(params["Acknowledged"], transform_bool(acknowledged))
-        self.assertEqual(params["AvailableFromDate"], transform_date(from_date))
-        self.assertEqual(params["AvailableToDate"], transform_date(to_date))
+        self.assert_common_params(params, action="GetReportList")
+        self.assertEqual(params["Acknowledged"], clean_bool(acknowledged))
+        self.assertEqual(params["AvailableFromDate"], clean_date(from_date))
+        self.assertEqual(params["AvailableToDate"], clean_date(to_date))
         self.assertEqual(params["MaxCount"], str(max_count))
         self.assertEqual(params["ReportRequestIdList.Id.1"], request_ids[0])
         self.assertEqual(params["ReportRequestIdList.Id.2"], request_ids[1])
@@ -203,29 +173,21 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
         self.assertEqual(params["ReportTypeList.Type.2"], report_types[1])
 
     def test_get_report_list_by_next_token(self):
-        """
-        GetReportListByNextToken operation, via method decorator.
-        """
+        """GetReportListByNextToken operation, via method decorator."""
         next_token = "5u6Of2fS8B"
         params = self.api.get_report_list(next_token=next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportListByNextToken")
+        self.assert_common_params(params, action="GetReportListByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_get_report_list_by_next_token_alias(self):
-        """
-        GetReportListByNextToken operation, via alias method.
-        """
+        """GetReportListByNextToken operation, via alias method."""
         next_token = "3TczcliCkb"
         params = self.api.get_report_list_by_next_token(next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportListByNextToken")
+        self.assert_common_params(params, action="GetReportListByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_get_report_count(self):
-        """
-        GetReportCount operation.
-        """
+        """GetReportCount operation."""
         report_types = [
             "_GET_AMAZON_FULFILLED_SHIPMENTS_DATA_",
             "_GET_AFN_INVENTORY_DATA_BY_COUNTRY_",
@@ -239,75 +201,57 @@ class ReportsTestCase(unittest.TestCase, CommonRequestTestTools):
             from_date=from_date,
             to_date=to_date,
         )
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportCount")
-        self.assertEqual(params["Acknowledged"], transform_bool(acknowledged))
-        self.assertEqual(params["AvailableFromDate"], transform_date(from_date))
-        self.assertEqual(params["AvailableToDate"], transform_date(to_date))
+        self.assert_common_params(params, action="GetReportCount")
+        self.assertEqual(params["Acknowledged"], clean_bool(acknowledged))
+        self.assertEqual(params["AvailableFromDate"], clean_date(from_date))
+        self.assertEqual(params["AvailableToDate"], clean_date(to_date))
         self.assertEqual(params["ReportTypeList.Type.1"], report_types[0])
         self.assertEqual(params["ReportTypeList.Type.2"], report_types[1])
 
     def test_get_report(self):
-        """
-        GetReport operation.
-        """
+        """GetReport operation."""
         report_id = "wwqrl4bHvD"
         params = self.api.get_report(report_id=report_id)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReport")
+        self.assert_common_params(params, action="GetReport")
         self.assertEqual(params["ReportId"], report_id)
 
     def test_get_report_schedule_list(self):
-        """
-        GetReportScheduleList operation.
-        """
+        """GetReportScheduleList operation."""
         report_types = [
             "_GET_FBA_FULFILLMENT_INBOUND_NONCOMPLIANCE_DATA_",
             "_GET_RESTOCK_INVENTORY_RECOMMENDATIONS_REPORT_",
         ]
         params = self.api.get_report_schedule_list(report_types=report_types)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportScheduleList")
+        self.assert_common_params(params, action="GetReportScheduleList")
         self.assertEqual(params["ReportTypeList.Type.1"], report_types[0])
         self.assertEqual(params["ReportTypeList.Type.2"], report_types[1])
 
     def test_get_report_schedule_list_by_next_token(self):
-        """
-        GetReportScheduleListByNextToken operation, via method decorator.
-        """
+        """GetReportScheduleListByNextToken operation, via method decorator."""
         next_token = "Yj3hOfPcIE"
         params = self.api.get_report_schedule_list(next_token=next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportScheduleListByNextToken")
+        self.assert_common_params(params, action="GetReportScheduleListByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_get_report_schedule_list_by_next_token_alias(self):
-        """
-        GetReportScheduleListByNextToken operation, via alias method.
-        """
+        """GetReportScheduleListByNextToken operation, via alias method."""
         next_token = "SAlt4JwJGv"
         params = self.api.get_report_schedule_list_by_next_token(next_token)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportScheduleListByNextToken")
+        self.assert_common_params(params, action="GetReportScheduleListByNextToken")
         self.assertEqual(params["NextToken"], next_token)
 
     def test_get_report_schedule_count(self):
-        """
-        GetReportScheduleCount operation.
-        """
+        """GetReportScheduleCount operation."""
         report_types = [
             "_GET_STRANDED_INVENTORY_UI_DATA_",
             "_GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA_",
         ]
         params = self.api.get_report_schedule_count(report_types=report_types)
-        self.assert_common_params(params)
-        self.assertEqual(params["Action"], "GetReportScheduleCount")
+        self.assert_common_params(params, action="GetReportScheduleCount")
         self.assertEqual(params["ReportTypeList.Type.1"], report_types[0])
         self.assertEqual(params["ReportTypeList.Type.2"], report_types[1])
 
     # # TODO Complete when method is available in Reports
     # def test_update_report_acknowledgements(self):
-    #     """
-    #     UpdateReportAcknowledgements operation.
-    #     """
+    #     """UpdateReportAcknowledgements operation."""
     #     pass

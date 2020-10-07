@@ -1,12 +1,12 @@
 """Amazon MWS Inventory Fulfillment API."""
 
-from mws import MWS, utils
+from mws import MWS
+from mws.utils.params import enumerate_param
 from mws.decorators import next_token_action
 
 
 class Inventory(MWS):
-    """
-    Amazon MWS Inventory Fulfillment API
+    """Amazon MWS Inventory Fulfillment API
 
     Docs:
     http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_Overview.html
@@ -28,8 +28,7 @@ class Inventory(MWS):
         next_token=None,
         marketplace_id=None,
     ):
-        """
-        Returns information on available inventory
+        """Returns information on available inventory
 
         Pass `next_token` to call "ListInventorySupplyByNextToken" instead.
 
@@ -37,17 +36,15 @@ class Inventory(MWS):
         http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupply.html
         """
         data = {
-            "Action": "ListInventorySupply",
             "QueryStartDateTime": datetime_,
             "ResponseGroup": response_group,
             "MarketplaceId": marketplace_id,
         }
-        data.update(utils.enumerate_param("SellerSkus.member.", skus))
-        return self.make_request(data, "POST")
+        data.update(enumerate_param("SellerSkus.member.", skus))
+        return self.make_request("ListInventorySupply", data, method="POST")
 
     def list_inventory_supply_by_next_token(self, token):
-        """
-        Alias for `list_inventory_supply(next_token=token)`
+        """Alias for `list_inventory_supply(next_token=token)`
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupplyByNextToken.html

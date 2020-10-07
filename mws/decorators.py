@@ -3,8 +3,7 @@ from functools import wraps
 
 
 def next_token_action(action_name):
-    """
-    Decorator that designates an action as having a "...ByNextToken" associated request.
+    """Decorator that designates an action as having a "...ByNextToken" associated request.
     Checks for a `next_token` kwargs in the request and, if present, redirects the call
     to `action_by_next_token` using the given `action_name`.
 
