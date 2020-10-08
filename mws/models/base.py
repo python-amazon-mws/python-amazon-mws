@@ -4,6 +4,8 @@ from abc import ABCMeta, abstractmethod
 
 
 class MWSDataType:
+    """Abstract base class for data type models used for MWS requests."""
+
     __metaclass__ = ABCMeta
 
     @abstractmethod
