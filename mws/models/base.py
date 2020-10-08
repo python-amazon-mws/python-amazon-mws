@@ -1,12 +1,10 @@
 """Base models for datatypes used in MWS."""
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 
-class MWSDataType:
-    """Abstract base class for data type models used for MWS requests."""
-
-    __metaclass__ = ABCMeta
+class MWSDataType(ABC):
+    """Base class for data type models used for MWS requests."""
 
     @abstractmethod
     def to_dict(self) -> dict:
