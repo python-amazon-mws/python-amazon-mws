@@ -506,11 +506,6 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             self.api.update_inbound_shipment(shipment_id, shipment_name, destination)
         destination = "is_a_string"  # reset
 
-        # 4: wipe out the `from_address` for the API class before calling: raises MWSError
-        self.api.from_address = None
-        with self.assertRaises(MWSError):
-            self.api.update_inbound_shipment(shipment_id, shipment_name, destination)
-
     def test_update_inbound_shipment(self):
         """Covers successful data entry for `update_inbound_shipment`."""
         shipment_id = "7DzXpBVxRR"

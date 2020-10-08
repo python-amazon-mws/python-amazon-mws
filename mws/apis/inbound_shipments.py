@@ -119,24 +119,27 @@ class InboundShipments(MWS):
         then calls set_ship_from_address.
         If empty or left out, empty dict is set by default.
         """
-        self.from_address = {}
+        self._from_address = {}
         addr = kwargs.pop("from_address", None)
         if addr is not None:
-            self.set_ship_from_address(addr)
+            self.from_address = addr
         super(InboundShipments, self).__init__(*args, **kwargs)
 
-    def set_ship_from_address(self, address):
+    @property
+    def from_address(self):
+        return self._from_address
+
+    @from_address.setter
+    def from_address(self, val: dict):
         """Verifies the structure of an address dictionary.
         Once verified against the KEY_CONFIG, saves a parsed version
         of that dictionary, ready to send to requests.
         """
-        # Clear existing
-        self.from_address = None
-
-        if not address:
-            raise MWSError("Missing required `address` dict.")
-        if not isinstance(address, dict):
-            raise MWSError("`address` must be a dict")
+        if val is None:
+            self._from_address = None
+            return
+        if not isinstance(val, dict):
+            raise MWSError("value must be a dict")
 
         key_config = [
             # Tuples composed of:
@@ -152,11 +155,11 @@ class InboundShipments(MWS):
         ]
 
         # Check if all REQUIRED keys in address exist:
-        if not all(k in address for k in [c[0] for c in key_config if c[2]]):
+        if not all(k in val for k in [c[0] for c in key_config if c[2]]):
             # Required parts of address missing
             raise MWSError(
                 (
-                    "`address` dict missing required keys: {required}."
+                    "missing required keys: {required}."
                     "\n- Optional keys: {optional}."
                 ).format(
                     required=", ".join([c[0] for c in key_config if c[2]]),
@@ -166,10 +169,13 @@ class InboundShipments(MWS):
 
         # Passed tests. Assign values
         addr = {
-            "ShipFromAddress.{}".format(c[1]): address.get(c[0], c[3])
+            "ShipFromAddress.{}".format(c[1]): val.get(c[0], c[3])
             for c in key_config
         }
-        self.from_address = addr
+        self._from_address = addr
+
+    def set_ship_from_address(self, address):
+        self.from_address = address
 
     ### REQUEST METHODS ###
     def get_inbound_guidance_for_sku(self, skus, marketplace_id):
