@@ -156,13 +156,13 @@ class Products(MWS):
             },
         )
 
-    def get_my_fees_estimate(self, *fees_estimates: FeesEstimateRequest):
+    def get_my_fees_estimate(self, fees_estimate: FeesEstimateRequest, *fees_estimates: FeesEstimateRequest):
         """Returns the estimated fees for a list of products.
 
         Docs:
         https://docs.developer.amazonservices.com/en_US/products/Products_GetMyFeesEstimate.html
         """
-        estimates = [fe.to_dict() for fe in fees_estimates]
+        estimates = [fees_estimate] + [fe.to_dict() for fe in fees_estimates]
         data = enumerate_keyed_param(
             "FeesEstimateRequestList.FeesEstimateRequest.", estimates
         )
