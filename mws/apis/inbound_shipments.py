@@ -1,5 +1,7 @@
 """Amazon MWS FulfillmentInboundShipment API."""
 
+from typing import Dict, List
+
 from mws import MWS, MWSError, utils
 from mws.utils.params import enumerate_param
 from mws.utils.params import enumerate_keyed_param
@@ -11,23 +13,33 @@ from mws.decorators import next_token_action
 
 
 # TODO replace with datatype class pattern
-def parse_item_args(item_args, operation):
-    """Parses item arguments sent to `create_inbound_shipment_plan`,
-    `create_inbound_shipment`, and `update_inbound_shipment` methods.
+def parse_item_args(item_args: List[Dict], operation: str) -> List[dict]:
+    """Parses item arguments sent to ``create_inbound_shipment_plan``,
+    ``create_inbound_shipment``, and ``update_inbound_shipment`` methods.
 
-    `item_args` is expected as an iterable containing dicts.
-    Each dict should have the following keys:
-        For `create_inbound_shipment_plan`:
-        REQUIRED: 'sku', 'quantity'
-        OPTIONAL: 'quantity_in_case', 'asin', 'condition'
-        Other operations:
-        REQUIRED: 'sku', 'quantity'
-        OPTIONAL: 'quantity_in_case'
-    If a required key is missing, throws MWSError.
-    All extra keys are ignored.
+    :param item_args: A list of dicts containing data for items to be parsed.
+        Each dict must contain the keys ``'sku'`` and ``'quantity'``.
+        Optionally, ``'quantity_in_case'`` can be included for case-packed items.
 
-    Keys (above) are converted to the appropriate MWS key according to `key_config` (below)
-    based on the particular operation required.
+        For operations besides ``create_inbound_shipment``,
+        ``'asin'`` and ``'condition'`` are also supported as optional keys.
+
+        If any required key is missing, ``MWSError`` is thrown.
+        Any keys besides the required or optional keys for a given operation
+        will be discarded.
+
+        These input keys are mapped to the appropriate parameter name for the chosen
+        operation. For instance, ``'quantity'`` is converted to ``'Quantity'``
+        for the ``CreateInboundShipmentPlan`` operation, and to ``'QuantityShipped'``
+        for all other operations.
+    :type item_args: List[Dict]
+    :param operation: The name of the MWS operation being performed, changing how
+        ``item_args`` are converted to MWS parameters.
+
+        Specifically checks to see if the operation is ``"CreateInboundShipmentPlan"``,
+        which is a special case: different logic applies for all other
+        relevant operations.
+    :type operation: str
     """
     if not item_args:
         raise MWSError("One or more `item` dict arguments required.")
