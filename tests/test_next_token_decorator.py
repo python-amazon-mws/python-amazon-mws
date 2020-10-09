@@ -2,6 +2,7 @@
 Testing the `next_token_action` decorator on a toy class.
 """
 import mws
+
 # pylint: disable=invalid-name
 
 ACTION = "SomeAction"
@@ -12,6 +13,7 @@ class ToyClass(object):
     Example class using a method designed to be run with a `next_token`,
     calling the corresponding `action_by_next_token` method
     """
+
     def __init__(self):
         self.method_run = None
 
@@ -21,7 +23,7 @@ class ToyClass(object):
         The decorator should call THIS method automatically if a next_token kwarg
         is present in the target call.
         """
-        self.method_run = 'action_by_next_token'
+        self.method_run = "action_by_next_token"
         # Modify the action similar to how live code does it,
         # for the sake of our sanity here.
         modified_action = "{}ByNextToken".format(action)
@@ -32,7 +34,7 @@ class ToyClass(object):
         """
         Toy request method, used as the target for our test.
         """
-        self.method_run = 'target_function'
+        self.method_run = "target_function"
         return ACTION, next_token
 
 
@@ -45,7 +47,7 @@ def test_request_run_normal():
     action, token = instance.target_request_method()
     assert action == ACTION
     assert token is None
-    assert instance.method_run == 'target_function'
+    assert instance.method_run == "target_function"
 
 
 def test_request_run_with_next_token():
@@ -59,4 +61,4 @@ def test_request_run_with_next_token():
     what_action_should_be = "{}ByNextToken".format(ACTION)
     assert action == what_action_should_be
     assert token == next_token
-    assert instance.method_run == 'action_by_next_token'
+    assert instance.method_run == "action_by_next_token"
