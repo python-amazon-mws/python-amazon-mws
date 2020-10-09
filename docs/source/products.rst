@@ -17,4 +17,3 @@ Here is a very simple example of how to retrieve a products from Amazon
 
     products_api = mws.Products(access_key, secret_key, seller_id, region='US')
     products = products_api.list_matching_products(marketplaceid=marketplace_usa, query='*')
-

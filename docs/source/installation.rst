@@ -37,4 +37,3 @@ From PyPi
 .. code-block:: bash
 
     $ pip install mws
-
