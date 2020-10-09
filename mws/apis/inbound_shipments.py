@@ -548,7 +548,7 @@ class InboundShipments(MWS):
         - "PackageLabel_Letter_6"
         - "PackageLabel_A4_2"
         - "PackageLabel_A4_4"
-        - "PackageLabel_Plain_Pape"
+        - "PackageLabel_Plain_Paper"
 
         `package_ids` a single package identifier, or a list/tuple/set of identifiers,
         specifying for which package(s) you want package labels printed.
@@ -577,7 +577,7 @@ class InboundShipments(MWS):
         - "PackageLabel_Letter_6"
         - "PackageLabel_A4_2"
         - "PackageLabel_A4_4"
-        - "PackageLabel_Plain_Pape"
+        - "PackageLabel_Plain_Paper"
 
         `num_labels` is integer, number of labels to create.
 
