@@ -98,13 +98,6 @@ def calc_request_description(params):
     return request_description[1:]  # don't include leading ampersand
 
 
-def remove_empty(dict_):
-    """
-    Returns dict_ with all empty values removed.
-    """
-    return {k: v for k, v in dict_.items() if v}
-
-
 def remove_namespace(xml):
     """
     Strips the namespace from XML document contained in a string.
