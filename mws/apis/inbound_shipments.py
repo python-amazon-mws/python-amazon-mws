@@ -248,10 +248,6 @@ class InboundShipments(MWS):
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipment.html
         """
-        assert isinstance(shipment_id, str), "`shipment_id` must be a string."
-        assert isinstance(shipment_name, str), "`shipment_name` must be a string."
-        assert isinstance(destination, str), "`destination` must be a string."
-
         if not items:
             raise MWSError("One or more `item` dict arguments required.")
 
@@ -294,10 +290,6 @@ class InboundShipments(MWS):
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_UpdateInboundShipment.html
         """
         # Assert these are strings, error out if not.
-        assert isinstance(shipment_id, str), "`shipment_id` must be a string."
-        assert isinstance(shipment_name, str), "`shipment_name` must be a string."
-        assert isinstance(destination, str), "`destination` must be a string."
-
         data = {
             "ShipmentId": shipment_id,
             "InboundShipmentHeader.ShipmentName": shipment_name,
