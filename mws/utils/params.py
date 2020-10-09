@@ -46,7 +46,7 @@ def enumerate_params(params=None):
 
 
 def enumerate_keyed_param(param, values):
-    """Given a param string and a dict of values, returns a flat dict of keyed, enumerated params.
+    """Given a param string and a list of values dicts, returns a flat dict of keyed, enumerated params.
     Each dict in the values list must pertain to a single item and its data points.
 
     Example:
