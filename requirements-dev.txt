@@ -1,5 +1,8 @@
 -r requirements.txt
 
+# pre-commit hooks to ensure code quality before committing.
+pre-commit
+
 # linting
 flake8
 

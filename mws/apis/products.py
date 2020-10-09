@@ -1,6 +1,9 @@
 """Amazon MWS Products API."""
+from typing import List
 
 from mws import MWS
+from mws.models.products import FeesEstimateRequest
+from mws.utils import enumerate_keyed_param
 from mws.utils.params import coerce_to_bool
 from mws.utils.params import enumerate_param
 
@@ -175,9 +178,19 @@ class Products(MWS):
             },
         )
 
-    # # # TODO add this
-    # def get_my_fees_estimate(self):
-    #     pass
+    def get_my_fees_estimate(
+        self, fees_estimate: FeesEstimateRequest, *fees_estimates: FeesEstimateRequest
+    ):
+        """Returns the estimated fees for a list of products.
+
+        Docs:
+        https://docs.developer.amazonservices.com/en_US/products/Products_GetMyFeesEstimate.html
+        """
+        estimates = [fees_estimate.to_dict()] + [fe.to_dict() for fe in fees_estimates]
+        data = enumerate_keyed_param(
+            "FeesEstimateRequestList.FeesEstimateRequest.", estimates
+        )
+        return self.make_request("GetMyFeesEstimate", data, method="POST")
 
     @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
     def get_my_price_for_sku(self, marketplace_id, skus, condition=None):
