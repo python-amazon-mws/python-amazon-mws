@@ -1,6 +1,13 @@
 """Amazon MWS FulfillmentInboundShipment API."""
 
+# collections.abc.Iterable clashes with typing.Iterable,
+# so we rename both to avoid confusion in code
+from collections.abc import Iterable as IterableAbc
+from typing import Iterable as IterableType
+
+from collections.abc import Mapping
 from typing import Dict, List, Optional, Union
+import datetime
 
 from mws import MWS, MWSError, utils
 from mws.models.inbound_shipments import Address
@@ -68,7 +75,7 @@ def parse_item_args(item_args: List[Dict], operation: str) -> List[dict]:
 
     items = []
     for item in item_args:
-        if not isinstance(item, dict):
+        if not isinstance(item, Mapping):
             raise MWSError("`item` argument must be a dict.")
         if not all(k in item for k in [c[0] for c in key_config if c[2]]):
             # Required keys of an item line missing
@@ -133,7 +140,7 @@ class InboundShipments(MWS):
         return self._from_address
 
     @from_address.setter
-    def from_address(self, value: dict):
+    def from_address(self, value: Union[Address, dict]):
         """Verifies the structure of an address dictionary.
         Once verified against the KEY_CONFIG, saves a parsed version
         of that dictionary, ready to send to requests.
@@ -145,12 +152,12 @@ class InboundShipments(MWS):
             # Shortcut by using the Address model's to_dict method.
             self._from_address = value
             return
-        if not isinstance(value, dict):
-            raise MWSError("value must be a dict")
+        if not isinstance(value, Mapping):
+            raise MWSError("value must be a dict or other Mapping type")
 
         self._from_address = Address.from_legacy_dict(value)
 
-    def set_ship_from_address(self, address):
+    def set_ship_from_address(self, address: Union[Address, dict]):
         self.from_address = address
 
     def from_address_dict(self, prefix: str = "") -> dict:
@@ -164,26 +171,26 @@ class InboundShipments(MWS):
         return utils.flat_param_dict(self.from_address.to_dict(), prefix=prefix)
 
     ### REQUEST METHODS ###
-    def get_inbound_guidance_for_sku(self, skus, marketplace_id):
+    def get_inbound_guidance_for_sku(self, skus: IterableType, marketplace_id: str):
         """Returns inbound guidance for a list of items by Seller SKU.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForSKU.html
         """
-        if not isinstance(skus, (list, tuple, set)):
+        if not isinstance(skus, IterableAbc):
             skus = [skus]
 
         data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("SellerSKUList.Id", skus))
         return self.make_request("GetInboundGuidanceForSKU", data)
 
-    def get_inbound_guidance_for_asin(self, asins, marketplace_id):
+    def get_inbound_guidance_for_asin(self, asins: IterableType, marketplace_id: str):
         """Returns inbound guidance for a list of items by ASIN.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForASIN.html
         """
-        if not isinstance(asins, (list, tuple, set)):
+        if not isinstance(asins, IterableAbc):
             asins = [asins]
 
         data = {"MarketplaceId": marketplace_id}
@@ -191,7 +198,12 @@ class InboundShipments(MWS):
         return self.make_request("GetInboundGuidanceForASIN", data)
 
     def create_inbound_shipment_plan(
-        self, items, country_code="US", subdivision_code="", label_preference=""
+        self,
+        items: IterableType[dict],
+        country_code: str = "US",
+        subdivision_code: str = "",
+        label_preference: str = "",
+        from_address: Optional[Address] = None,
     ):
         """Returns one or more inbound shipment plans, which provide the
         information you need to create inbound shipments.
@@ -227,14 +239,15 @@ class InboundShipments(MWS):
 
     def create_inbound_shipment(
         self,
-        shipment_id,
-        shipment_name,
-        destination,
-        items,
-        shipment_status="",
-        label_preference="",
-        case_required=False,
-        box_contents_source=None,
+        shipment_id: str,
+        shipment_name: str,
+        destination: str,
+        items: IterableType[dict],
+        shipment_status: str = "",
+        label_preference: str = "",
+        case_required: bool = False,
+        box_contents_source: Optional[str] = None,
+        from_address: Optional[Address] = None,
     ):
         """Creates an inbound shipment to Amazon's fulfillment network.
 
@@ -273,14 +286,15 @@ class InboundShipments(MWS):
 
     def update_inbound_shipment(
         self,
-        shipment_id,
-        shipment_name,
-        destination,
-        items=None,
-        shipment_status="",
-        label_preference="",
-        case_required=False,
-        box_contents_source=None,
+        shipment_id: str,
+        shipment_name: str,
+        destination: str,
+        items: Optional[IterableType[dict]] = None,
+        shipment_status: str = "",
+        label_preference: str = "",
+        case_required: Optional[bool] = False,
+        box_contents_source: Optional[str] = None,
+        from_address: Optional[Address] = None,
     ):
         """Updates an existing inbound shipment in Amazon FBA.
 
@@ -312,7 +326,7 @@ class InboundShipments(MWS):
             )
         return self.make_request("UpdateInboundShipment", data, method="POST")
 
-    def get_preorder_info(self, shipment_id):
+    def get_preorder_info(self, shipment_id: str):
         """Returns pre-order information, including dates, that a seller needs
         before confirming a shipment for pre-order. Also indicates if a shipment has
         already been confirmed for pre-order.
@@ -322,7 +336,7 @@ class InboundShipments(MWS):
         """
         return self.make_request("GetPreorderInfo", {"ShipmentId": shipment_id})
 
-    def confirm_preorder(self, shipment_id, need_by_date):
+    def confirm_preorder(self, shipment_id: str, need_by_date: datetime.datetime):
         """Confirms a shipment for pre-order.
 
         Docs:
@@ -332,7 +346,9 @@ class InboundShipments(MWS):
             "ConfirmPreorder", {"ShipmentId": shipment_id, "NeedByDate": need_by_date}
         )
 
-    def get_prep_instructions_for_sku(self, skus=None, country_code=None):
+    def get_prep_instructions_for_sku(
+        self, skus: IterableType = None, country_code: str = None
+    ):
         """Returns labeling requirements and item preparation instructions
         to help you prepare items for an inbound shipment.
 
@@ -349,7 +365,9 @@ class InboundShipments(MWS):
         data.update(enumerate_param("SellerSKUList.ID.", skus))
         return self.make_request("GetPrepInstructionsForSKU", data, method="POST")
 
-    def get_prep_instructions_for_asin(self, asins=None, country_code=None):
+    def get_prep_instructions_for_asin(
+        self, asins: IterableType = None, country_code: str = None
+    ):
         """Returns item preparation instructions to help with item sourcing decisions.
 
         Docs:
@@ -379,7 +397,7 @@ class InboundShipments(MWS):
     #         'ShipmentType': shipment_type,
     #     }
     #     data['TransportDetails.NonPartneredSmallParcelData.CarrierName'] = carrier_name
-    #     if isinstance(tracking_id, tuple):
+    #     if isinstance(tracking_id, IterableAbc):
     #         count = 0
     #         for track in tracking_id:
     #             data[
@@ -387,7 +405,7 @@ class InboundShipments(MWS):
     #             ] = track
     #     return self.make_request("PutTransportContent", data)
 
-    def estimate_transport_request(self, shipment_id):
+    def estimate_transport_request(self, shipment_id: str):
         """Requests an estimate of the shipping cost for an inbound shipment.
 
         Docs:
@@ -397,7 +415,7 @@ class InboundShipments(MWS):
             "EstimateTransportRequest", {"ShipmentId": shipment_id}, method="POST"
         )
 
-    def get_transport_content(self, shipment_id):
+    def get_transport_content(self, shipment_id: str):
         """Returns current transportation information about an inbound shipment.
 
         Docs:
@@ -407,7 +425,7 @@ class InboundShipments(MWS):
             "GetTransportContent", {"ShipmentId": shipment_id}, method="POST"
         )
 
-    def confirm_transport_request(self, shipment_id):
+    def confirm_transport_request(self, shipment_id: str):
         """Confirms that you accept the Amazon-partnered shipping estimate and
         you request that the Amazon-partnered carrier ship your inbound shipment.
 
@@ -416,7 +434,7 @@ class InboundShipments(MWS):
         """
         return self.make_request("ConfirmTransportRequest", {"ShipmentId": shipment_id})
 
-    def void_transport_request(self, shipment_id):
+    def void_transport_request(self, shipment_id: str):
         """Voids a previously-confirmed request to ship your inbound shipment
         using an Amazon-partnered carrier.
 
@@ -427,7 +445,9 @@ class InboundShipments(MWS):
             "VoidTransportRequest", {"ShipmentId": shipment_id}, method="POST"
         )
 
-    def get_package_labels(self, shipment_id, num_labels, page_type=None):
+    def get_package_labels(
+        self, shipment_id: str, num_labels: int, page_type: Optional[str] = None
+    ):
         """Returns PDF document data for printing package labels for an inbound shipment.
 
         Docs:
@@ -443,7 +463,9 @@ class InboundShipments(MWS):
             method="POST",
         )
 
-    def get_unique_package_labels(self, shipment_id, page_type, package_ids):
+    def get_unique_package_labels(
+        self, shipment_id: str, page_type: str, package_ids: IterableType
+    ):
         """Returns unique package labels for faster and more accurate shipment
         processing at the Amazon fulfillment center.
 
@@ -468,12 +490,12 @@ class InboundShipments(MWS):
             "ShipmentId": shipment_id,
             "PageType": page_type,
         }
-        if not isinstance(package_ids, (list, tuple, set)):
+        if not isinstance(package_ids, IterableAbc):
             package_ids = [package_ids]
         data.update(enumerate_param("PackageLabelsToPrint.member.", package_ids))
         return self.make_request("GetUniquePackageLabels", data)
 
-    def get_pallet_labels(self, shipment_id, page_type, num_labels):
+    def get_pallet_labels(self, shipment_id: str, page_type: str, num_labels: int):
         """Returns pallet labels.
 
         `shipment_id` must match a valid, current shipment.
@@ -499,7 +521,7 @@ class InboundShipments(MWS):
         }
         return self.make_request("GetPalletLabels", data)
 
-    def get_bill_of_lading(self, shipment_id):
+    def get_bill_of_lading(self, shipment_id: str):
         """Returns PDF document data for printing a bill of lading for an
         inbound shipment.
 
@@ -513,11 +535,11 @@ class InboundShipments(MWS):
     @next_token_action("ListInboundShipments")
     def list_inbound_shipments(
         self,
-        shipment_ids=None,
-        shipment_statuses=None,
-        last_updated_after=None,
-        last_updated_before=None,
-        next_token=None,
+        shipment_ids: Optional[IterableType[str]] = None,
+        shipment_statuses: Optional[IterableType[str]] = None,
+        last_updated_after: Optional[datetime.datetime] = None,
+        last_updated_before: Optional[datetime.datetime] = None,
+        next_token: str = None,
     ):
         """Returns list of shipments based on statuses, IDs, and/or before/after datetimes.
 
@@ -534,7 +556,7 @@ class InboundShipments(MWS):
         data.update(enumerate_param("ShipmentIdList.member.", shipment_ids))
         return self.make_request("ListInboundShipments", data, method="POST")
 
-    def list_inbound_shipments_by_next_token(self, token):
+    def list_inbound_shipments_by_next_token(self, token: str):
         """Alias for `list_inbound_shipments(next_token=token)`
 
         Docs:
@@ -545,10 +567,10 @@ class InboundShipments(MWS):
     @next_token_action("ListInboundShipmentItems")
     def list_inbound_shipment_items(
         self,
-        shipment_id=None,
-        last_updated_after=None,
-        last_updated_before=None,
-        next_token=None,
+        shipment_id: Optional[str] = None,
+        last_updated_after: Optional[datetime.datetime] = None,
+        last_updated_before: Optional[datetime.datetime] = None,
+        next_token: Optional[str] = None,
     ):
         """Returns list of items within inbound shipments and/or before/after datetimes.
 
@@ -567,7 +589,7 @@ class InboundShipments(MWS):
             method="POST",
         )
 
-    def list_inbound_shipment_items_by_next_token(self, token):
+    def list_inbound_shipment_items_by_next_token(self, token: str):
         """Alias for `list_inbound_shipment_items(next_token=token)`
 
         Docs:
