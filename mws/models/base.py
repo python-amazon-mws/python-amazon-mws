@@ -1,6 +1,7 @@
 """Base models for datatypes used in MWS."""
 
 from abc import ABC, abstractmethod
+from typing import Iterable, Mapping, Union
 
 from mws.utils import flat_param_dict
 
@@ -14,9 +15,5 @@ class MWSDataType(ABC):
         pass
 
     @staticmethod
-    def _flatten(value, prefix=""):
-        """Returns a flattened params dictionary by collapsing nested dicts and non-string iterables.
-
-        Refer to ``mws.utils.flat_param_dict`` for details.
-        """
+    def _flatten(value: Union[str, Mapping, Iterable], prefix: str = "") -> dict:
         return flat_param_dict(value, prefix=prefix)
