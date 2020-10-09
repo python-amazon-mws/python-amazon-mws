@@ -156,33 +156,8 @@ class TestInboundShipmentsParseItemArgsMethod:
 class TestSetShipFromAddressCases:
     """Test case covering `msw.InboundShipments.set_ship_from_address`."""
 
-    # TODO reformat manually after Black release update.
-    # Can't turn off fmt for decorators on current Black release, waiting for an update!
-    @pytest.mark.parametrize("address", [{}, "this is not a dict"])
-    def test_address_raises_exceptions(self, address, inboundshipments_api):
-        """Empty address dict should raise MWSError."""
-        with pytest.raises(MWSError):
-            inboundshipments_api.set_ship_from_address(address)
-
-    # TODO reformat manually after Black release update.
-    @pytest.mark.parametrize(
-        "address",
-        [
-            # name missing
-            {"address_1": "500 Summat Cully Lane", "city": "Gilead"},
-            # address_1 missing
-            {"name": "Roland Deschain", "city": "Gilead"},
-            # city missing
-            {"name": "Roland Deschain", "address_1": "500 Summat Cully Lane"},
-        ],
-    )
-    def test_required_address_keys_missing(self, address, inboundshipments_api):
-        """Any missing required key should raise MWSError"""
-        with pytest.raises(MWSError):
-            inboundshipments_api.set_ship_from_address(address)
-
-    def test_full_address_built_properly(self, inboundshipments_api):
-        """An address with all fields covered should be contructed properly."""
+    def test_legacy_address_built_properly(self, inboundshipments_api):
+        """An address with all fields covered should be constructed properly."""
         address = {
             "name": "Roland Deschain",
             "address_1": "500 Summat Cully Lane",
@@ -193,40 +168,40 @@ class TestSetShipFromAddressCases:
             "postal_code": "13019",
             "country": "Mid-World",
         }
-        inboundshipments_api.set_ship_from_address(address)
-        output = inboundshipments_api.from_address
+        inboundshipments_api.from_address = address
+        output = inboundshipments_api.from_address.to_dict()
         expected = {
-            "ShipFromAddress.Name": "Roland Deschain",
-            "ShipFromAddress.AddressLine1": "500 Summat Cully Lane",
-            "ShipFromAddress.AddressLine2": "Apartment 19",
-            "ShipFromAddress.City": "Gilead",
-            "ShipFromAddress.DistrictOrCounty": "West-Town",
-            "ShipFromAddress.StateOrProvinceCode": "New Canaan",
-            "ShipFromAddress.PostalCode": "13019",
-            "ShipFromAddress.CountryCode": "Mid-World",
+            "Name": "Roland Deschain",
+            "AddressLine1": "500 Summat Cully Lane",
+            "AddressLine2": "Apartment 19",
+            "City": "Gilead",
+            "DistrictOrCounty": "West-Town",
+            "StateOrProvinceCode": "New Canaan",
+            "PostalCode": "13019",
+            "CountryCode": "Mid-World",
         }
         assert output == expected
 
-    def test_partial_address_built_properly(self, inboundshipments_api):
-        """An address with only required fields covered should be contructed properly,
-        with ommitted keys filled in with defaults.
+    def test_legacy_partial_address_built_properly(self, inboundshipments_api):
+        """An address with only required fields covered should be constructed properly,
+        with omitted keys filled in with defaults.
         """
         address = {
             "name": "Roland Deschain",
             "address_1": "500 Summat Cully Lane",
             "city": "Gilead",
         }
-        inboundshipments_api.set_ship_from_address(address)
-        output = inboundshipments_api.from_address
+        inboundshipments_api.from_address = address
+        output = inboundshipments_api.from_address.to_dict()
         expected = {
-            "ShipFromAddress.Name": "Roland Deschain",
-            "ShipFromAddress.AddressLine1": "500 Summat Cully Lane",
-            "ShipFromAddress.AddressLine2": None,
-            "ShipFromAddress.City": "Gilead",
-            "ShipFromAddress.DistrictOrCounty": None,
-            "ShipFromAddress.StateOrProvinceCode": None,
-            "ShipFromAddress.PostalCode": None,
-            "ShipFromAddress.CountryCode": "US",
+            "Name": "Roland Deschain",
+            "AddressLine1": "500 Summat Cully Lane",
+            "AddressLine2": None,
+            "City": "Gilead",
+            "DistrictOrCounty": None,
+            "StateOrProvinceCode": None,
+            "PostalCode": None,
+            "CountryCode": "US",
         }
         assert output == expected
 
@@ -242,16 +217,16 @@ class TestSetShipFromAddressCases:
         }
         inbound_constructed = InboundShipments(**mws_credentials, from_address=address)
         expected = {
-            "ShipFromAddress.Name": "Roland Deschain",
-            "ShipFromAddress.AddressLine1": "500 Summat Cully Lane",
-            "ShipFromAddress.AddressLine2": None,
-            "ShipFromAddress.City": "Gilead",
-            "ShipFromAddress.DistrictOrCounty": None,
-            "ShipFromAddress.StateOrProvinceCode": None,
-            "ShipFromAddress.PostalCode": None,
-            "ShipFromAddress.CountryCode": "US",
+            "Name": "Roland Deschain",
+            "AddressLine1": "500 Summat Cully Lane",
+            "AddressLine2": None,
+            "City": "Gilead",
+            "DistrictOrCounty": None,
+            "StateOrProvinceCode": None,
+            "PostalCode": None,
+            "CountryCode": "US",
         }
-        assert inbound_constructed.from_address == expected
+        assert inbound_constructed.from_address.to_dict() == expected
 
 
 # TODO I don't know yet how to handle the generic testing here other than rewriting

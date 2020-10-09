@@ -1,6 +1,6 @@
 """Amazon MWS FulfillmentInboundShipment API."""
 
-from typing import Dict, List
+from typing import Dict, List, Optional, Union
 
 from mws import MWS, MWSError, utils
 from mws.utils.params import enumerate_param
@@ -98,6 +98,91 @@ def parse_item_args(item_args: List[Dict], operation: str) -> List[dict]:
     return items
 
 
+class Address:
+    """Temporary model for an InboundShipments Address datatype."""
+
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        address_line_1: Optional[str] = None,
+        address_line_2: Optional[str] = None,
+        city: Optional[str] = None,
+        district_or_county: Optional[str] = None,
+        state_or_province_code: Optional[str] = None,
+        country_code: str = "US",
+        postal_code: Optional[Union[str, int]] = None,
+    ):
+        self.name = name
+        self.address_line_1 = address_line_1
+        self.address_line_2 = address_line_2
+        self.city = city
+        self.district_or_county = district_or_county
+        self.state_or_province_code = state_or_province_code
+        self.country_code = country_code
+        self.postal_code = postal_code
+
+    def __repr__(self):
+        output = f"{self.__class__.__name__}"
+        order = [
+            "name",
+            "address_line_1",
+            "city",
+            "address_line_2",
+            "district_or_county",
+            "state_or_province_code",
+            "country_code",
+            "postal_code",
+        ]
+        attrs = []
+        for attr in order:
+            val = getattr(self, attr)
+            if val is not None:
+                attrs.append(f"{attr}={repr(val)}")
+        attr_str = ", ".join(attrs)
+        output += f"({attr_str})"
+        return output
+
+    def to_dict(self) -> dict:
+        return {
+            "Name": self.name,
+            "AddressLine1": self.address_line_1,
+            "AddressLine2": self.address_line_2,
+            "City": self.city,
+            "DistrictOrCounty": self.district_or_county,
+            "StateOrProvinceCode": self.state_or_province_code,
+            "CountryCode": self.country_code,
+            "PostalCode": self.postal_code,
+        }
+
+    @classmethod
+    def from_legacy_dict(cls, value: dict) -> "Address":
+        """Create an Address from a legacy structured dict."""
+        legacy_keys = [
+            "name",
+            "address_1",
+            "address_2",
+            "city",
+            "district_or_county",
+            "state_or_province",
+            "postal_code",
+            "country",
+        ]
+        conversions = {
+            "address_1": "address_line_1",
+            "address_2": "address_line_2",
+            "state_or_province": "state_or_province_code",
+            "country": "country_code",
+        }
+        addr = {}
+        for key, val in value.items():
+            if key in legacy_keys:
+                # Convert a key to a new version if present,
+                # or use the old one
+                outkey = conversions.get(key, key)
+                addr[outkey] = val
+        return cls(**addr)
+
+
 class InboundShipments(MWS):
     """Amazon MWS FulfillmentInboundShipment API
 
@@ -127,52 +212,27 @@ class InboundShipments(MWS):
 
     @property
     def from_address(self):
+        if self._from_address is None:
+            return None
         return self._from_address
 
     @from_address.setter
-    def from_address(self, val: dict):
+    def from_address(self, value: dict):
         """Verifies the structure of an address dictionary.
         Once verified against the KEY_CONFIG, saves a parsed version
         of that dictionary, ready to send to requests.
         """
-        if val is None:
+        if value is None:
             self._from_address = None
             return
-        if not isinstance(val, dict):
+        if isinstance(value, Address):
+            # Shortcut by using the Address model's to_dict method.
+            self._from_address = value
+            return
+        if not isinstance(value, dict):
             raise MWSError("value must be a dict")
 
-        key_config = [
-            # Tuples composed of:
-            # (input_key, output_key, is_required, default_value)
-            ("name", "Name", True, None),
-            ("address_1", "AddressLine1", True, None),
-            ("address_2", "AddressLine2", False, None),
-            ("city", "City", True, None),
-            ("district_or_county", "DistrictOrCounty", False, None),
-            ("state_or_province", "StateOrProvinceCode", False, None),
-            ("postal_code", "PostalCode", False, None),
-            ("country", "CountryCode", False, "US"),
-        ]
-
-        # Check if all REQUIRED keys in address exist:
-        if not all(k in val for k in [c[0] for c in key_config if c[2]]):
-            # Required parts of address missing
-            raise MWSError(
-                (
-                    "missing required keys: {required}."
-                    "\n- Optional keys: {optional}."
-                ).format(
-                    required=", ".join([c[0] for c in key_config if c[2]]),
-                    optional=", ".join([c[0] for c in key_config if not c[2]]),
-                )
-            )
-
-        # Passed tests. Assign values
-        addr = {
-            "ShipFromAddress.{}".format(c[1]): val.get(c[0], c[3])
-            for c in key_config
-        }
-        self._from_address = addr
+        self._from_address = Address.from_legacy_dict(value)
 
     def set_ship_from_address(self, address):
         self.from_address = address
@@ -190,6 +250,16 @@ class InboundShipments(MWS):
         data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("SellerSKUList.Id", skus))
         return self.make_request("GetInboundGuidanceForSKU", data)
+
+    def from_address_dict(self, prefix="") -> dict:
+        """Flattens the from_address object to a dict with prefix before each key.
+
+        Additionally, checks that ``from_address`` was set properly,
+        raising MWSError if it is not.
+        """
+        if not self.from_address:
+            raise MWSError("'from_address' must be set before calling this operation.")
+        return utils.flat_param_dict(self.from_address.to_dict(), prefix=prefix)
 
     def get_inbound_guidance_for_asin(self, asins, marketplace_id):
         """Returns inbound guidance for a list of items by ASIN.
@@ -215,8 +285,7 @@ class InboundShipments(MWS):
           REQUIRED: 'sku', 'quantity'
           OPTIONAL: 'asin', 'condition', 'quantity_in_case'
 
-        'from_address' is required. Call 'set_ship_from_address' first before
-        using this operation.
+        ``InboundShipments.from_address`` must be set before using this operation.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipmentPlan.html
@@ -226,25 +295,16 @@ class InboundShipments(MWS):
         subdivision_code = subdivision_code or None
         label_preference = label_preference or None
 
-        items = parse_item_args(items, "CreateInboundShipmentPlan")
-        if not self.from_address:
-            raise MWSError(
-                (
-                    "ShipFromAddress has not been set. "
-                    "Please use `.set_ship_from_address()` first."
-                )
-            )
-
         data = {
             "ShipToCountryCode": country_code,
             "ShipToCountrySubdivisionCode": subdivision_code,
             "LabelPrepPreference": label_preference,
         }
-        data.update(self.from_address)
+        data.update(self.from_address_dict(prefix="ShipFromAddress"))
         data.update(
             enumerate_keyed_param(
                 "InboundShipmentPlanRequestItems.member",
-                items,
+                parse_item_args(items, "CreateInboundShipmentPlan"),
             )
         )
         return self.make_request("CreateInboundShipmentPlan", data, method="POST")
@@ -267,8 +327,7 @@ class InboundShipments(MWS):
           REQUIRED: 'sku', 'quantity'
           OPTIONAL: 'quantity_in_case'
 
-        'from_address' is required. Call 'set_ship_from_address' first before
-        using this operation.
+        ``InboundShipments.from_address`` must be set before using this operation.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipment.html
@@ -280,20 +339,6 @@ class InboundShipments(MWS):
         if not items:
             raise MWSError("One or more `item` dict arguments required.")
 
-        items = parse_item_args(items, "CreateInboundShipment")
-
-        if not self.from_address:
-            raise MWSError(
-                (
-                    "ShipFromAddress has not been set. "
-                    "Please use `.set_ship_from_address()` first."
-                )
-            )
-        from_address = self.from_address
-        from_address = {
-            "InboundShipmentHeader.{}".format(k): v for k, v in from_address.items()
-        }
-
         data = {
             "ShipmentId": shipment_id,
             "InboundShipmentHeader.ShipmentName": shipment_name,
@@ -303,11 +348,13 @@ class InboundShipments(MWS):
             "InboundShipmentHeader.ShipmentStatus": shipment_status,
             "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
         }
-        data.update(from_address)
+        data.update(
+            self.from_address_dict(prefix="InboundShipmentHeader.ShipFromAddress")
+        )
         data.update(
             enumerate_keyed_param(
                 "InboundShipmentItems.member",
-                items,
+                parse_item_args(items, "CreateInboundShipment"),
             )
         )
         return self.make_request("CreateInboundShipment", data, method="POST")
@@ -325,8 +372,7 @@ class InboundShipments(MWS):
     ):
         """Updates an existing inbound shipment in Amazon FBA.
 
-        'from_address' is required: call 'set_ship_from_address'
-        before using this operation.
+        ``InboundShipments.from_address`` must be set before using this operation.
 
         Docs:
         http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_UpdateInboundShipment.html
@@ -335,26 +381,6 @@ class InboundShipments(MWS):
         assert isinstance(shipment_id, str), "`shipment_id` must be a string."
         assert isinstance(shipment_name, str), "`shipment_name` must be a string."
         assert isinstance(destination, str), "`destination` must be a string."
-
-        # Parse item args
-        if items:
-            items = parse_item_args(items, "UpdateInboundShipment")
-        else:
-            items = None
-
-        # Raise exception if no from_address has been set prior to calling
-        if not self.from_address:
-            raise MWSError(
-                (
-                    "ShipFromAddress has not been set. "
-                    "Please use `.set_ship_from_address()` first."
-                )
-            )
-        # Assemble the from_address using operation-specific header
-        from_address = self.from_address
-        from_address = {
-            "InboundShipmentHeader.{}".format(k): v for k, v in from_address.items()
-        }
 
         data = {
             "ShipmentId": shipment_id,
@@ -365,13 +391,15 @@ class InboundShipments(MWS):
             "InboundShipmentHeader.ShipmentStatus": shipment_status,
             "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
         }
-        data.update(from_address)
+        data.update(
+            self.from_address_dict(prefix="InboundShipmentHeader.ShipFromAddress")
+        )
         if items:
             # Update with an items paramater only if they exist.
             data.update(
                 enumerate_keyed_param(
                     "InboundShipmentItems.member",
-                    items,
+                    parse_item_args(items, "UpdateInboundShipment"),
                 )
             )
         return self.make_request("UpdateInboundShipment", data, method="POST")
