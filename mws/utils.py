@@ -134,7 +134,7 @@ def enumerate_param(param, values):
         param += '.'
     # Return final output: dict comprehension of the enumerated param and values.
     return {
-        '{}{}'.format(param, idx+1): val
+        '{}{}'.format(param, idx + 1): val
         for idx, val in enumerate(values)
     }
 
@@ -197,7 +197,7 @@ def enumerate_keyed_param(param, values):
     for idx, val_dict in enumerate(values):
         # Build the final output.
         params.update({
-            '{param}{idx}.{key}'.format(param=param, idx=idx+1, key=k): v
+            '{param}{idx}.{key}'.format(param=param, idx=idx + 1, key=k): v
             for k, v in val_dict.items()
         })
     return params
