@@ -191,10 +191,6 @@ class ProductsTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assertEqual(params["ExcludeMe"], "true")
         self.assertEqual(params["ASIN"], asin)
 
-    # def test_get_my_fees_estimate(self):
-    #     """GetMyFeesEstimate operation."""
-    #     pass
-
     def test_get_my_price_for_sku(self):
         """GetMyPriceForSKU operation."""
         marketplace_id = "ISOBE"
