@@ -207,7 +207,7 @@ def unique_list_order_preserved(seq):
     """
     Returns a unique list of items from the sequence
     while preserving original ordering.
-    The first occurence of an item is returned in the new sequence:
+    The first occurrence of an item is returned in the new sequence:
     any subsequent occurrences of the same item are ignored.
     """
     seen = set()
