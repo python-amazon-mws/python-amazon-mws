@@ -18,15 +18,26 @@ develop-eggs
 pip-log.txt
 
 # Unit test / coverage reports
+.pytest_cache/
 .coverage
 .tox
-.pytest_cache/
+htmlcov/
 
 # Translations
 *.mo
 
 # Mr Developer
 .mr.developer.cfg
+# VS Code Settings
+.vscode/
+.venv/
 
 # VS Code Settings
 .vscode/settings.json
+
+.editorconfig
+.DS_Store
+
+# Virtual Env ignore
+venv
+pythonenv*
