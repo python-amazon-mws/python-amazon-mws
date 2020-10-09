@@ -106,7 +106,7 @@
                     <AddressLine1>1-2-10 Akasaka</AddressLine1>
                     <City>Tokyo</City>
                     <PostalCode>107-0053</PostalCode>
-                    <CountryCode>JP</CountryCode>                  
+                    <CountryCode>JP</CountryCode>
                 </ShippingAddress>
                 <OrderTotal>
                     <CurrencyCode>JPY</CurrencyCode>

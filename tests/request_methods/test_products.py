@@ -5,6 +5,11 @@ import mws
 from mws.utils import clean_bool, clean_string
 
 from .utils import CommonAPIRequestTools
+from mws.models.products import (
+    MoneyType,
+    PriceToEstimateFees,
+    FeesEstimateRequest,
+)
 
 
 class ProductsTestCase(CommonAPIRequestTools, unittest.TestCase):
@@ -186,10 +191,6 @@ class ProductsTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assertEqual(params["ExcludeMe"], "true")
         self.assertEqual(params["ASIN"], asin)
 
-    # def test_get_my_fees_estimate(self):
-    #     """GetMyFeesEstimate operation."""
-    #     pass
-
     def test_get_my_price_for_sku(self):
         """GetMyPriceForSKU operation."""
         marketplace_id = "ISOBE"
@@ -251,3 +252,67 @@ class ProductsTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assert_common_params(params, action="GetProductCategoriesForASIN")
         self.assertEqual(params["MarketplaceId"], clean_string(marketplace_id))
         self.assertEqual(params["ASIN"], asin)
+
+    def test_get_my_fees_estimate(self):
+        """GetMyFeesEstimate operation."""
+        marketplace_id = "ATVPDKIKX0DER"
+
+        sku1 = "cool-product"
+        fees1 = PriceToEstimateFees(
+            listing_price=MoneyType(amount=15.14, currency_code="USD"),
+            shipping=MoneyType(amount=0, currency_code="USD"),
+        )
+        estimate1 = FeesEstimateRequest(
+            marketplace_id=marketplace_id,
+            id_type="SellerSKU",
+            id_value=sku1,
+            is_amazon_fulfilled=True,
+            identifier=sku1,
+            price_to_estimate_fees=fees1,
+        )
+
+        sku2 = "cool-product-2"
+        fees2 = PriceToEstimateFees(
+            listing_price=MoneyType(amount=2.2, currency_code="USD"),
+            shipping=MoneyType(currency_code="USD", amount=2),
+        )
+        estimate2 = FeesEstimateRequest(
+            marketplace_id=marketplace_id,
+            id_type="SellerSKU",
+            id_value=sku2,
+            is_amazon_fulfilled=False,
+            identifier=sku2,
+            price_to_estimate_fees=fees2,
+        )
+
+        params = self.api.get_my_fees_estimate(estimate1, estimate2)
+        self.assert_common_params(params, action="GetMyFeesEstimate")
+
+        # These keys are long and unreadable, so split them up.
+        # All of them start like so, so break that part off.
+        partial = "FeesEstimateRequestList.FeesEstimateRequest."
+        expected = {
+            "1.MarketplaceId": marketplace_id,
+            "1.IdType": "SellerSKU",
+            "1.IdValue": sku1,
+            "1.IsAmazonFulfilled": "true",
+            "1.Identifier": sku1,
+            "1.PriceToEstimateFees.ListingPrice.CurrencyCode": "USD",
+            "1.PriceToEstimateFees.ListingPrice.Amount": "15.14",
+            "1.PriceToEstimateFees.Shipping.CurrencyCode": "USD",
+            "1.PriceToEstimateFees.Shipping.Amount": "0",
+            "2.MarketplaceId": marketplace_id,
+            "2.IdType": "SellerSKU",
+            "2.IdValue": sku2,
+            "2.IsAmazonFulfilled": "false",
+            "2.Identifier": sku2,
+            "2.PriceToEstimateFees.ListingPrice.CurrencyCode": "USD",
+            "2.PriceToEstimateFees.ListingPrice.Amount": "2.2",
+            "2.PriceToEstimateFees.Shipping.CurrencyCode": "USD",
+            "2.PriceToEstimateFees.Shipping.Amount": "2",
+        }
+
+        for key, val in expected.items():
+            # join the partial with the "key" of expected to get the full key.
+            full_key = partial + key
+            assert params[full_key] == val
