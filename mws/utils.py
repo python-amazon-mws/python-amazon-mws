@@ -66,7 +66,7 @@ class XML2Dict(object):
             key, val = self._namespace_split(key, ObjectDict({"value": val}))
             node_tree[key] = val
         # Save children
-        for child in iter(node):
+        for child in node:
             tag, tree = self._namespace_split(child.tag, self._parse_node(child))
             if tag not in node_tree:  # the first time, so store it in dict
                 node_tree[tag] = tree
