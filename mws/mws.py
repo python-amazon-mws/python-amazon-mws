@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from time import gmtime, strftime
 import base64
-import datetime
 import hashlib
 import hmac
 import re
@@ -22,6 +20,12 @@ try:
     from xml.etree.ElementTree import ParseError as XMLError
 except ImportError:
     from xml.parsers.expat import ExpatError as XMLError
+
+
+# Future utilities, coming to the rescue through time and space!
+from mws.future_utils.params import clean_params_dict
+from mws.future_utils.params import remove_empty_param_keys
+from mws.future_utils.timezone import mws_utc_now
 
 
 __all__ = [
@@ -219,7 +223,7 @@ class MWS(object):
             "AWSAccessKeyId": self.access_key,
             self.ACCOUNT_TYPE: self.account_id,
             "SignatureVersion": "2",
-            "Timestamp": self.get_timestamp(),
+            "Timestamp": mws_utc_now(),
             "Version": self.version,
             "SignatureMethod": "HmacSHA256",
         }
@@ -231,18 +235,13 @@ class MWS(object):
         """
         Make request to Amazon MWS API with these parameters
         """
-
-        # Remove all keys with an empty value because
-        # Amazon's MWS does not allow such a thing.
-        extra_data = remove_empty(extra_data)
-
-        # convert all Python date/time objects to isoformat
-        for key, value in extra_data.items():
-            if isinstance(value, (datetime.datetime, datetime.date)):
-                extra_data[key] = value.isoformat()
-
         params = self.get_params()
         params.update(extra_data)
+
+        # Clean parameters using backported utilities
+        params = remove_empty_param_keys(params)
+        params = clean_params_dict(params)
+
         request_description = calc_request_description(params)
         signature = self.calc_signature(method, request_description)
         url = "{domain}{uri}?{description}&Signature={signature}".format(
@@ -347,7 +346,15 @@ class MWS(object):
         """
         Returns the current timestamp in proper format.
         """
-        return strftime("%Y-%m-%dT%H:%M:%SZ", gmtime())
+        warnings.warn(
+            (
+                "`get_timestamp` is deprecated. Please use "
+                "backported utility `mws.future_utils.timezone.mws_utc_now` "
+                "(in 1.0+ versions, `mws.utils.timezone.mws_utc_now` instead)."
+            ),
+            DeprecationWarning,
+        )
+        return mws_utc_now().isoformat()
 
     def enumerate_param(self, param, values):
         """
@@ -379,12 +386,12 @@ def feed_options_str(feed_options):
         "totalvatamount": 1.23,
         "invoicenumber": "INT-3431-XJE3",
         "documenttype": "CreditNote",
-        "transactionid": "amzn:crow:429491192ksjfhe39s",
+        "transactionid": "amzn:crow:42949119239s",
       }
       print(feed_options_str(feed_options))
       >>> "metadata:shippingid=283845474;metadata:totalAmount=3.25;metadata:totalvatamount=1.23;
       metadata:invoicenumber=INT-3431-XJE3;metadata:documenttype=CreditNote;
-      metadata:transactionid=amzn:crow:429491192ksjfhe39s"
+      metadata:transactionid=amzn:crow:42949119239s"
     """
     if not feed_options:
         return None
@@ -1269,7 +1276,7 @@ class InboundShipments(MWS):
             # Label preference not required. Set to None
             label_preference = None
 
-        # Explict True/False for case_required,
+        # Explicit True/False for case_required,
         # written as the strings MWS expects.
         case_required = "true" if case_required else "false"
 
