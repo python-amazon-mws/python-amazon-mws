@@ -153,6 +153,16 @@ class InboundShipments(MWS):
     def set_ship_from_address(self, address):
         self.from_address = address
 
+    def from_address_dict(self, prefix: str = "") -> dict:
+        """Flattens the from_address object to a dict with prefix before each key.
+
+        Additionally, checks that ``from_address`` was set properly,
+        raising MWSError if it is not.
+        """
+        if not self.from_address:
+            raise MWSError("'from_address' must be set before calling this operation.")
+        return utils.flat_param_dict(self.from_address.to_dict(), prefix=prefix)
+
     ### REQUEST METHODS ###
     def get_inbound_guidance_for_sku(self, skus, marketplace_id):
         """Returns inbound guidance for a list of items by Seller SKU.
@@ -166,16 +176,6 @@ class InboundShipments(MWS):
         data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("SellerSKUList.Id", skus))
         return self.make_request("GetInboundGuidanceForSKU", data)
-
-    def from_address_dict(self, prefix="") -> dict:
-        """Flattens the from_address object to a dict with prefix before each key.
-
-        Additionally, checks that ``from_address`` was set properly,
-        raising MWSError if it is not.
-        """
-        if not self.from_address:
-            raise MWSError("'from_address' must be set before calling this operation.")
-        return utils.flat_param_dict(self.from_address.to_dict(), prefix=prefix)
 
     def get_inbound_guidance_for_asin(self, asins, marketplace_id):
         """Returns inbound guidance for a list of items by ASIN.
