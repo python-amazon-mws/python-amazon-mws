@@ -336,33 +336,8 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         destination = "is_a_string"
         items = [{"sku": "something", "quantity": 6}]
 
-        # 1: `shipment_id` not a string: raises AssertionError
-        shipment_id = {"not": "a string"}
-        with self.assertRaises(AssertionError):
-            self.api.create_inbound_shipment(
-                shipment_id, shipment_name, destination, items
-            )
-        shipment_id = "is_a_string"  # reset
-
-        # 2: `shipment_name` not a string: raises AssertionError
-        shipment_name = {"not": "a string"}
-        with self.assertRaises(AssertionError):
-            self.api.create_inbound_shipment(
-                shipment_id, shipment_name, destination, items
-            )
-        shipment_name = "is_a_string"  # reset
-
-        # 3: `destination` not a string: raises AssertionError
-        destination = {"not": "a string"}
-        with self.assertRaises(AssertionError):
-            self.api.create_inbound_shipment(
-                shipment_id, shipment_name, destination, items
-            )
-        destination = "is_a_string"  # reset
-
-        # 4: `items` empty: raises MWSError
         items = []
-        with self.assertRaises(MWSError):
+        with pytest.raises(MWSError):
             self.api.create_inbound_shipment(
                 shipment_id, shipment_name, destination, items
             )
@@ -370,7 +345,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
 
         # 5: wipe out the `from_address` for the API class before calling: raises MWSError
         self.api.from_address = None
-        with self.assertRaises(MWSError):
+        with pytest.raises(MWSError):
             self.api.create_inbound_shipment(
                 shipment_id, shipment_name, destination, items
             )
@@ -399,87 +374,29 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             box_contents_source=box_contents_source,
         )
         self.assert_common_params(params, action="CreateInboundShipment")
-        self.assertEqual(params["ShipmentId"], shipment_id)
-        self.assertEqual(
-            params["InboundShipmentHeader.ShipmentName"],
-            clean_string(shipment_name),
-        )
-        self.assertEqual(
-            params["InboundShipmentHeader.DestinationFulfillmentCenterId"], destination
-        )
-        self.assertEqual(
-            params["InboundShipmentHeader.LabelPrepPreference"], label_preference
-        )
-        self.assertEqual(
-            params["InboundShipmentHeader.AreCasesRequired"],
-            clean_bool(case_required),
-        )
-        self.assertEqual(
-            params["InboundShipmentHeader.ShipmentStatus"], shipment_status
-        )
-        self.assertEqual(
-            params["InboundShipmentHeader.IntendedBoxContentsSource"],
-            box_contents_source,
-        )
-        # from_address
-        self.assertEqual(
-            params["InboundShipmentHeader.ShipFromAddress.Name"],
-            clean_string(self.addr["name"]),
-        )
-        self.assertEqual(
-            params["InboundShipmentHeader.ShipFromAddress.AddressLine1"],
-            clean_string(self.addr["address_1"]),
-        )
-        self.assertEqual(
-            params["InboundShipmentHeader.ShipFromAddress.City"],
-            clean_string(self.addr["city"]),
-        )
-        self.assertEqual(
-            params["InboundShipmentHeader.ShipFromAddress.CountryCode"],
-            clean_string(self.addr["country"]),
-        )
-        # item data
-        self.assertEqual(
-            params["InboundShipmentItems.member.1.SellerSKU"], items[0]["sku"]
-        )
-        self.assertEqual(
-            params["InboundShipmentItems.member.1.QuantityShipped"],
-            str(items[0]["quantity"]),
-        )
-        self.assertEqual(
-            params["InboundShipmentItems.member.2.SellerSKU"], items[1]["sku"]
-        )
-        self.assertEqual(
-            params["InboundShipmentItems.member.2.QuantityShipped"],
-            str(items[1]["quantity"]),
-        )
-
-    def test_update_inbound_shipment_exceptions(self):
-        """Covers cases that should raise exceptions for the
-        `update_inbound_shipment` method.
-        """
-        # Proper inputs (initial setup)
-        shipment_id = "is_a_string"
-        shipment_name = "is_a_string"
-        destination = "is_a_string"
-
-        # 1: `shipment_id` not a string: raises AssertionError
-        shipment_id = {"not": "a string"}
-        with self.assertRaises(AssertionError):
-            self.api.update_inbound_shipment(shipment_id, shipment_name, destination)
-        shipment_id = "is_a_string"  # reset
-
-        # 2: `shipment_name` not a string: raises AssertionError
-        shipment_name = {"not": "a string"}
-        with self.assertRaises(AssertionError):
-            self.api.update_inbound_shipment(shipment_id, shipment_name, destination)
-        shipment_name = "is_a_string"  # reset
-
-        # 3: `destination` not a string: raises AssertionError
-        destination = {"not": "a string"}
-        with self.assertRaises(AssertionError):
-            self.api.update_inbound_shipment(shipment_id, shipment_name, destination)
-        destination = "is_a_string"  # reset
+        # fmt: off
+        expected = {
+            "ShipmentId": shipment_id,
+            "InboundShipmentHeader.ShipmentName": clean_string(shipment_name),
+            "InboundShipmentHeader.DestinationFulfillmentCenterId": destination,
+            "InboundShipmentHeader.LabelPrepPreference": label_preference,
+            "InboundShipmentHeader.AreCasesRequired": clean_bool(case_required),
+            "InboundShipmentHeader.ShipmentStatus": shipment_status,
+            "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
+            # Ship-from address
+            "InboundShipmentHeader.ShipFromAddress.Name": clean_string(self.addr["name"]),
+            "InboundShipmentHeader.ShipFromAddress.AddressLine1": clean_string(self.addr["address_1"]),
+            "InboundShipmentHeader.ShipFromAddress.City": clean_string(self.addr["city"]),
+            "InboundShipmentHeader.ShipFromAddress.CountryCode": clean_string(self.addr["country"]),
+            # item data
+            "InboundShipmentItems.member.1.SellerSKU": items[0]["sku"],
+            "InboundShipmentItems.member.1.QuantityShipped": str(items[0]["quantity"]),
+            "InboundShipmentItems.member.2.SellerSKU": items[1]["sku"],
+            "InboundShipmentItems.member.2.QuantityShipped": str(items[1]["quantity"]),
+        }
+        # fmt: on
+        for key, val in expected.items():
+            assert params[key] == val
 
     def test_update_inbound_shipment(self):
         """Covers successful data entry for `update_inbound_shipment`."""
@@ -494,6 +411,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         label_preference = "SELLER_LABEL"
         case_required = True
         box_contents_source = "Boxes"
+
         params_1 = self.api.update_inbound_shipment(
             shipment_id=shipment_id,
             shipment_name=shipment_name,
@@ -505,62 +423,30 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             box_contents_source=box_contents_source,
         )
         self.assert_common_params(params_1)
-        self.assertEqual(params_1["Action"], "UpdateInboundShipment")
-        self.assertEqual(params_1["ShipmentId"], shipment_id)
-        self.assertEqual(
-            params_1["InboundShipmentHeader.ShipmentName"],
-            clean_string(shipment_name),
-        )
-        self.assertEqual(
-            params_1["InboundShipmentHeader.DestinationFulfillmentCenterId"],
-            destination,
-        )
-        self.assertEqual(
-            params_1["InboundShipmentHeader.LabelPrepPreference"], label_preference
-        )
-        self.assertEqual(
-            params_1["InboundShipmentHeader.AreCasesRequired"],
-            clean_bool(case_required),
-        )
-        self.assertEqual(
-            params_1["InboundShipmentHeader.ShipmentStatus"], shipment_status
-        )
-        self.assertEqual(
-            params_1["InboundShipmentHeader.IntendedBoxContentsSource"],
-            box_contents_source,
-        )
-        # from_address
-        self.assertEqual(
-            params_1["InboundShipmentHeader.ShipFromAddress.Name"],
-            clean_string(self.addr["name"]),
-        )
-        self.assertEqual(
-            params_1["InboundShipmentHeader.ShipFromAddress.AddressLine1"],
-            clean_string(self.addr["address_1"]),
-        )
-        self.assertEqual(
-            params_1["InboundShipmentHeader.ShipFromAddress.City"],
-            clean_string(self.addr["city"]),
-        )
-        self.assertEqual(
-            params_1["InboundShipmentHeader.ShipFromAddress.CountryCode"],
-            self.addr["country"],
-        )
-        # item data
-        self.assertEqual(
-            params_1["InboundShipmentItems.member.1.SellerSKU"], items[0]["sku"]
-        )
-        self.assertEqual(
-            params_1["InboundShipmentItems.member.1.QuantityShipped"],
-            str(items[0]["quantity"]),
-        )
-        self.assertEqual(
-            params_1["InboundShipmentItems.member.2.SellerSKU"], items[1]["sku"]
-        )
-        self.assertEqual(
-            params_1["InboundShipmentItems.member.2.QuantityShipped"],
-            str(items[1]["quantity"]),
-        )
+
+        # fmt: off
+        expected_1 = {
+            "Action": "UpdateInboundShipment",
+            "ShipmentId": shipment_id,
+            "InboundShipmentHeader.ShipmentName": clean_string(shipment_name),
+            "InboundShipmentHeader.DestinationFulfillmentCenterId": destination,
+            "InboundShipmentHeader.LabelPrepPreference": label_preference,
+            "InboundShipmentHeader.AreCasesRequired": clean_bool(case_required),
+            "InboundShipmentHeader.ShipmentStatus": shipment_status,
+            "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
+            "InboundShipmentHeader.ShipFromAddress.Name": clean_string(self.addr["name"]),
+            "InboundShipmentHeader.ShipFromAddress.AddressLine1": clean_string(self.addr["address_1"]),
+            "InboundShipmentHeader.ShipFromAddress.City": clean_string(self.addr["city"]),
+            "InboundShipmentHeader.ShipFromAddress.CountryCode": self.addr["country"],
+            "InboundShipmentItems.member.1.SellerSKU": items[0]["sku"],
+            "InboundShipmentItems.member.1.QuantityShipped": str(items[0]["quantity"]),
+            "InboundShipmentItems.member.2.SellerSKU": items[1]["sku"],
+            "InboundShipmentItems.member.2.QuantityShipped": str(items[1]["quantity"]),
+        }
+        # fmt: on
+        for key, val in expected_1.items():
+            assert params_1[key] == val
+
         # Additional case: no items required. Params should have no Items keys if not provided
         params_2 = self.api.update_inbound_shipment(
             shipment_id=shipment_id,
@@ -571,54 +457,33 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             case_required=case_required,
             box_contents_source=box_contents_source,
         )
-        self.assert_common_params(params_1)
-        self.assertEqual(params_2["Action"], "UpdateInboundShipment")
-        self.assertEqual(params_2["ShipmentId"], shipment_id)
-        self.assertEqual(
-            params_2["InboundShipmentHeader.ShipmentName"],
-            clean_string(shipment_name),
-        )
-        self.assertEqual(
-            params_2["InboundShipmentHeader.DestinationFulfillmentCenterId"],
-            destination,
-        )
-        self.assertEqual(
-            params_2["InboundShipmentHeader.LabelPrepPreference"], label_preference
-        )
-        self.assertEqual(
-            params_2["InboundShipmentHeader.AreCasesRequired"],
-            clean_bool(case_required),
-        )
-        self.assertEqual(
-            params_2["InboundShipmentHeader.ShipmentStatus"], shipment_status
-        )
-        self.assertEqual(
-            params_2["InboundShipmentHeader.IntendedBoxContentsSource"],
-            box_contents_source,
-        )
-        # from_address
-        self.assertEqual(
-            params_2["InboundShipmentHeader.ShipFromAddress.Name"],
-            clean_string(self.addr["name"]),
-        )
-        self.assertEqual(
-            params_2["InboundShipmentHeader.ShipFromAddress.AddressLine1"],
-            clean_string(self.addr["address_1"]),
-        )
-        self.assertEqual(
-            params_2["InboundShipmentHeader.ShipFromAddress.City"],
-            clean_string(self.addr["city"]),
-        )
-        self.assertEqual(
-            params_2["InboundShipmentHeader.ShipFromAddress.CountryCode"],
-            self.addr["country"],
-        )
+        self.assert_common_params(params_2)
+
+        # fmt: off
+        expected_2 = {
+            "Action": "UpdateInboundShipment",
+            "ShipmentId": shipment_id,
+            "InboundShipmentHeader.ShipmentName": clean_string(shipment_name),
+            "InboundShipmentHeader.DestinationFulfillmentCenterId": destination,
+            "InboundShipmentHeader.LabelPrepPreference": label_preference,
+            "InboundShipmentHeader.AreCasesRequired": clean_bool(case_required),
+            "InboundShipmentHeader.ShipmentStatus": shipment_status,
+            "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
+            "InboundShipmentHeader.ShipFromAddress.Name": clean_string(self.addr["name"]),
+            "InboundShipmentHeader.ShipFromAddress.AddressLine1": clean_string(self.addr["address_1"]),
+            "InboundShipmentHeader.ShipFromAddress.City": clean_string(self.addr["city"]),
+            "InboundShipmentHeader.ShipFromAddress.CountryCode": self.addr["country"],
+        }
+        # fmt: on
+        for key, val in expected_2.items():
+            assert params_2[key] == val
+
         # items keys should not be present
         param_item_keys = [
             x for x in params_2.keys() if x.startswith("InboundShipmentItems")
         ]
         # list should be empty, because no keys should be present
-        self.assertFalse(param_item_keys)
+        assert not param_item_keys
 
 
 class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase):

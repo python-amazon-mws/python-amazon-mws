@@ -9,9 +9,10 @@ from collections.abc import Mapping
 from typing import Dict, List, Optional, Union
 import datetime
 
-from mws import MWS, MWSError, utils
+from mws import MWS, MWSError
 from mws.models.inbound_shipments import Address
 from mws.utils.params import enumerate_param
+from mws.utils.params import flat_param_dict
 from mws.utils.params import enumerate_keyed_param
 from mws.utils.collections import unique_list_order_preserved
 from mws.decorators import next_token_action
@@ -168,7 +169,7 @@ class InboundShipments(MWS):
         """
         if not self.from_address:
             raise MWSError("'from_address' must be set before calling this operation.")
-        return utils.flat_param_dict(self.from_address.to_dict(), prefix=prefix)
+        return flat_param_dict(self.from_address.to_dict(), prefix=prefix)
 
     ### REQUEST METHODS ###
     def get_inbound_guidance_for_sku(self, skus: IterableType, marketplace_id: str):
@@ -228,7 +229,21 @@ class InboundShipments(MWS):
             "ShipToCountrySubdivisionCode": subdivision_code,
             "LabelPrepPreference": label_preference,
         }
-        data.update(self.from_address_dict(prefix="ShipFromAddress"))
+
+        # Ship-from address handling
+        from_addr_prefix = "ShipFromAddress"
+        if from_address:
+            if not isinstance(from_address, Address):
+                raise MWSError(
+                    "from_address argument must be an instance of Address datatype model."
+                )
+            from_address = flat_param_dict(
+                from_address.to_dict(), prefix=from_addr_prefix
+            )
+        else:
+            from_address = self.from_address_dict(prefix=from_addr_prefix)
+
+        data.update(from_address)
         data.update(
             enumerate_keyed_param(
                 "InboundShipmentPlanRequestItems.member",
@@ -273,9 +288,21 @@ class InboundShipments(MWS):
             "InboundShipmentHeader.ShipmentStatus": shipment_status,
             "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
         }
-        data.update(
-            self.from_address_dict(prefix="InboundShipmentHeader.ShipFromAddress")
-        )
+
+        # Ship-from address handling
+        from_addr_prefix = "InboundShipmentHeader.ShipFromAddress"
+        if from_address:
+            if not isinstance(from_address, Address):
+                raise MWSError(
+                    "from_address argument must be an instance of Address datatype model."
+                )
+            from_address = flat_param_dict(
+                from_address.to_dict(), prefix=from_addr_prefix
+            )
+        else:
+            from_address = self.from_address_dict(prefix=from_addr_prefix)
+        data.update(from_address)
+
         data.update(
             enumerate_keyed_param(
                 "InboundShipmentItems.member",
@@ -313,9 +340,21 @@ class InboundShipments(MWS):
             "InboundShipmentHeader.ShipmentStatus": shipment_status,
             "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
         }
-        data.update(
-            self.from_address_dict(prefix="InboundShipmentHeader.ShipFromAddress")
-        )
+
+        # Ship-from address handling
+        from_addr_prefix = "InboundShipmentHeader.ShipFromAddress"
+        if from_address:
+            if not isinstance(from_address, Address):
+                raise MWSError(
+                    "from_address argument must be an instance of Address datatype model."
+                )
+            from_address = flat_param_dict(
+                from_address.to_dict(), prefix=from_addr_prefix
+            )
+        else:
+            from_address = self.from_address_dict(prefix=from_addr_prefix)
+        data.update(from_address)
+
         if items:
             # Update with an items paramater only if they exist.
             data.update(
