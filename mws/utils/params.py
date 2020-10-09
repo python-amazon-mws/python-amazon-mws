@@ -1,6 +1,7 @@
 """Parameter manipulation utilities."""
 
 from collections.abc import Iterable, Mapping
+from typing import Union
 from urllib.parse import quote
 import datetime
 import json
@@ -122,7 +123,7 @@ def dict_keyed_param(param, dict_from):
     return params
 
 
-def flat_param_dict(value, prefix=""):
+def flat_param_dict(value: Union[str, Mapping, Iterable], prefix: str = "") -> dict:
     """Returns a flattened params dictionary by collapsing nested dicts and
     non-string iterables.
 
