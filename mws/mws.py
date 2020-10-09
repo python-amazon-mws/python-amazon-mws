@@ -403,7 +403,7 @@ def feed_options_str(feed_options):
         if outval is True or outval is False:
             # Convert literal `True` or `False` to strings `"true"` and `"false"`
             outval = str(outval).lower()
-        output.append(f"metadata:{key}={outval}")
+        output.append("metadata:{}={}".format(key, outval))
     return ";".join(output)
 
 
