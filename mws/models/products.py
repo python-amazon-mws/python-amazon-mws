@@ -2,8 +2,6 @@
 
 from typing import Optional
 
-from mws.utils import flat_param_dict
-
 from .base import MWSDataType
 
 
@@ -30,7 +28,7 @@ class Points(MWSDataType):
     def to_dict(self) -> dict:
         data = {"PointsNumber": self.points_number}
         data.update(
-            flat_param_dict(self.monetary_value.to_dict(), prefix="PointsMonetaryValue")
+            self._flatten(self.monetary_value.to_dict(), prefix="PointsMonetaryValue")
         )
         return data
 
@@ -56,12 +54,10 @@ class PriceToEstimateFees(MWSDataType):
 
     def to_dict(self) -> dict:
         data = {}
-        data.update(
-            flat_param_dict(self.listing_price.to_dict(), prefix="ListingPrice")
-        )
-        data.update(flat_param_dict(self.shipping.to_dict(), prefix="Shipping"))
+        data.update(self._flatten(self.listing_price.to_dict(), prefix="ListingPrice"))
+        data.update(self._flatten(self.shipping.to_dict(), prefix="Shipping"))
         if self.points is not None:
-            data.update(flat_param_dict(self.points.to_dict(), prefix="Points"))
+            data.update(self._flatten(self.points.to_dict(), prefix="Points"))
         return data
 
 
@@ -94,7 +90,7 @@ class FeesEstimateRequest(MWSDataType):
             "IsAmazonFulfilled": self.is_amazon_fulfilled,
         }
         data.update(
-            flat_param_dict(
+            self._flatten(
                 self.price_to_estimate_fees.to_dict(), prefix="PriceToEstimateFees"
             )
         )
