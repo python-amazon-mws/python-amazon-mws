@@ -5,7 +5,9 @@ from urllib.parse import quote
 import datetime
 import json
 
-from mws.mws import MWSError
+# Removed top-level import to correct circular imports
+# (we're in backport territory, these things happen)
+# from mws.mws import MWSError
 
 
 def enumerate_param(param, values):
@@ -215,6 +217,8 @@ def clean_params_dict(params):
         try:
             cleaned_params[key] = clean_value(val)
         except ValueError as exc:
+            from mws.mws import MWSError
+
             raise MWSError(str(exc)) from exc
     return cleaned_params
 

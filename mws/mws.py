@@ -41,8 +41,6 @@ __all__ = [
     "Finances",
 ]
 
-from mws import __version__
-
 # See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
 # page 8
 # for a list of the end points and marketplace IDs
@@ -235,6 +233,8 @@ class MWS(object):
         """
         Make request to Amazon MWS API with these parameters
         """
+        from mws import __version__
+
         params = self.get_params()
         params.update(extra_data)
 

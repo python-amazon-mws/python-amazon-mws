@@ -8,7 +8,10 @@ import re
 import warnings
 import xml.etree.ElementTree as ET
 
-from mws.mws import MWSError
+# Removed top-level import to correct circular imports
+# (we're in backport territory, these things happen)
+# from mws.mws import MWSError
+
 from mws.future_utils.crypto import calc_md5
 from mws.future_utils.deprecation import RemovedInPAM11Warning
 from mws.future_utils.xml import remove_xml_namespaces
@@ -176,6 +179,8 @@ class DictWrapper(object):
                 xml = xml.decode(encoding="iso-8859-1")
             except UnicodeDecodeError as exc:
                 # In the very rare occurrence of a decode error, attach the original xml to the .response of the MWSError
+                from mws.mws import MWSError
+
                 error = MWSError(str(exc.response.text))
                 error.response = xml
                 raise error
@@ -221,6 +226,8 @@ class DataWrapper(object):
         if "content-md5" in self.headers:
             hash_ = calc_md5(self.original)
             if self.headers["content-md5"].encode() != hash_:
+                from mws.mws import MWSError
+
                 raise MWSError("Wrong Content length, maybe amazon error...")
 
     @property
@@ -244,5 +251,7 @@ class DataWrapper(object):
                     # return original zip file object to the user
                     return unzipped_fileobj
             except Exception as exc:
+                from mws.mws import MWSError
+
                 raise MWSError(str(exc))
         return None  # 'The response is not a zipped file.'
