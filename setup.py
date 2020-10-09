@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import setuptools
-import sys
 
 version = "1.0dev15"
 homepage = "https://github.com/python-amazon-mws/python-amazon-mws"
