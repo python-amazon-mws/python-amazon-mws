@@ -145,6 +145,22 @@ All dependencies for developing on `python-amazon-mws`, including testing and do
 pip install -r requirements-dev.txt
 ```
 
+### Using pre-commit framework
+
+This project uses the [pre-commit framework][4]. This framework installs a Git pre-commit hook that runs scripts as detailed in `.pre-commit-config.yaml` on commits in your local clone of the repo. These hooks are used to ensure code quality when contributing to the project.
+
+The `pre-commit` package should already be installed along with installing development requirements (above), but is "opt-in" by design. We highly encourage using it in your local environment. To do so, install the hooks with:
+
+```shell
+pre-commit install
+```
+
+Pre-commit hook scripts will only run against the files that you change within a commit for speed purposes. To run the hooks against all files in the project, use:
+
+```shell
+pre-commit run --all-files
+```
+
 ### Tests
 
 Tests are run with `pytest`. To run tests, simply install our dev requirements and then run:
@@ -219,3 +235,4 @@ For support using MWS itself, we advise using the [MWS documentation][2]
 [1]: https://join.slack.com/t/pythonamazonmws/shared_invite/enQtOTcwNTAzNjI4OTc2LTQyMzk1YzIxNTU0MmE1MWE0ZDUzZjBhMjI2ODZhNTQ5Mjk3ZTUyOGFkODk1N2Q2NjczZjY2M2U3NzAzNDU4ZTc
 [2]: http://docs.developer.amazonservices.com/en_US/dev_guide/index.html
 [3]: https://github.com/czpython/python-amazon-mws
+[4]: https://pre-commit.com/
