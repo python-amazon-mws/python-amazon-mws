@@ -43,6 +43,7 @@ from mws import __version__
 # page 8
 # for a list of the end points and marketplace IDs
 
+# spell-checker: disable
 MARKETPLACES = {
     "AE": "https://mws.amazonservices.ae",  # A2VIGQ35RCS4UG
     "AU": "https://mws.amazonservices.com.au",  # A39IBJ37TRP1C6
@@ -65,6 +66,7 @@ MARKETPLACES = {
     "UK": "https://mws-eu.amazonservices.com",  # A1F83G8C2ARO7P - GB alias
     "US": "https://mws.amazonservices.com",  # ATVPDKIKX0DER
 }
+# spell-checker: enable
 
 
 class MWSError(Exception):
