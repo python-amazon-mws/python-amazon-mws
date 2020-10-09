@@ -37,6 +37,8 @@ __all__ = [
     "Finances",
 ]
 
+from mws import __version__
+
 # See https://images-na.ssl-images-amazon.com/images/G/01/mwsportal/doc/en_US/bde/MWSDeveloperGuide._V357736853_.pdf
 # page 8
 # for a list of the end points and marketplace IDs
@@ -247,7 +249,9 @@ class MWS(object):
             description=request_description,
             signature=quote(signature),
         )
-        headers = {"User-Agent": "python-amazon-mws/0.8.7 (Language=Python)"}
+        headers = {
+            "User-Agent": "python-amazon-mws/{} (Language=Python)".format(__version__)
+        }
         headers.update(kwargs.get("extra_headers", {}))
 
         try:
