@@ -6,6 +6,11 @@ from .base import MWSDataType
 
 
 class MoneyType(MWSDataType):
+    """An amount of money in a specified currency.
+
+    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#MoneyType
+    """
+
     def __init__(self, amount: float, currency_code: str):
         self.amount = amount
         self.currency_code = currency_code
@@ -18,6 +23,12 @@ class MoneyType(MWSDataType):
 
 
 class Points(MWSDataType):
+    """The number of Amazon Points offered with the purchase of an item.
+    The Amazon Points program is only available in Japan.
+
+    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#Points
+    """
+
     def __init__(self, points_number: int, monetary_value: MoneyType):
         self.points_number = points_number
         assert isinstance(
@@ -34,6 +45,11 @@ class Points(MWSDataType):
 
 
 class PriceToEstimateFees(MWSDataType):
+    """Price information for a product, used to estimate fees.
+
+    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#PriceToEstimateFees
+    """
+
     def __init__(
         self,
         listing_price: MoneyType,
@@ -62,6 +78,11 @@ class PriceToEstimateFees(MWSDataType):
 
 
 class FeesEstimateRequest(MWSDataType):
+    """A product, marketplace, and proposed price used to request estimated fees.
+
+    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#FeesEstimateRequest
+    """
+
     def __init__(
         self,
         marketplace_id: str,
