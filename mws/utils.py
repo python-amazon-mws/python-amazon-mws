@@ -65,7 +65,7 @@ class XML2Dict(object):
         for key, val in node.attrib.items():
             key, val = self._namespace_split(key, ObjectDict({'value': val}))
             node_tree[key] = val
-        # Save childrens
+        # Save children
         for child in node.getchildren():
             tag, tree = self._namespace_split(child.tag,
                                               self._parse_node(child))
