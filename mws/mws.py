@@ -26,6 +26,7 @@ except ImportError:
 from mws.future_utils.params import clean_params_dict
 from mws.future_utils.params import remove_empty_param_keys
 from mws.future_utils.timezone import mws_utc_now
+from mws.future_utils.xml import remove_xml_namespaces
 
 
 __all__ = [
@@ -98,21 +99,12 @@ def calc_request_description(params):
     return request_description[1:]  # don't include leading ampersand
 
 
-def remove_namespace(xml):
-    """
-    Strips the namespace from XML document contained in a string.
-    Returns the stripped string.
-    """
-    regex = re.compile(' xmlns(:ns2)?="[^"]+"|(ns2:)|(xml:)')
-    return regex.sub("", xml)
-
-
 class DictWrapper(object):
     def __init__(self, xml, rootkey=None):
         self.original = xml
         self.response = None
         self._rootkey = rootkey
-        self._mydict = utils.XML2Dict().fromstring(remove_namespace(xml))
+        self._mydict = utils.XML2Dict().fromstring(remove_xml_namespaces(xml))
         self._response_dict = self._mydict.get(
             list(self._mydict.keys())[0], self._mydict
         )
@@ -269,7 +261,7 @@ class MWS(object):
                 try:
                     parsed_response = DictWrapper(data, rootkey)
                 except TypeError:
-                    # raised when using Python 3 and trying to remove_namespace()
+                    # raised when using Python 3 and trying to remove XML namespaces
                     # When we got CSV as result, we will got error on this
                     parsed_response = DictWrapper(response.text, rootkey)
 
