@@ -164,7 +164,9 @@ class Products(MWS):
         Docs:
         https://docs.developer.amazonservices.com/en_US/products/Products_GetMyFeesEstimate.html
         """
-        estimates = [fees_estimate.to_dict()] + [fe.to_dict() for fe in fees_estimates]
+        estimates = [fees_estimate.to_params()] + [
+            fe.to_params() for fe in fees_estimates
+        ]
         data = enumerate_keyed_param(
             "FeesEstimateRequestList.FeesEstimateRequest.", estimates
         )

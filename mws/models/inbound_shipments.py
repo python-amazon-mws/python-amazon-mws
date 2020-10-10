@@ -51,7 +51,7 @@ class Address(MWSDataType):
         output += f"({attr_str})"
         return output
 
-    def to_dict(self) -> dict:
+    def params_dict(self) -> dict:
         return {
             "Name": self.name,
             "AddressLine1": self.address_line_1,

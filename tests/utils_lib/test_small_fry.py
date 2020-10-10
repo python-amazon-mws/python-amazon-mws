@@ -54,7 +54,7 @@ def test_fees_estimates_data_classes():
         identifier=sku,
         price_to_estimate_fees=fees,
     )
-    assert estimate_req.to_dict() == {
+    assert estimate_req.to_params() == {
         "MarketplaceId": "ATVPDKIKX0DER",
         "IdType": "SellerSKU",
         "IdValue": "cool-product",

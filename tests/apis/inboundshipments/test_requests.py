@@ -169,7 +169,7 @@ class TestSetShipFromAddressCases:
             "country": "Mid-World",
         }
         inboundshipments_api.from_address = address
-        output = inboundshipments_api.from_address.to_dict()
+        output = inboundshipments_api.from_address.to_params()
         expected = {
             "Name": "Roland Deschain",
             "AddressLine1": "500 Summat Cully Lane",
@@ -192,7 +192,7 @@ class TestSetShipFromAddressCases:
             "city": "Gilead",
         }
         inboundshipments_api.from_address = address
-        output = inboundshipments_api.from_address.to_dict()
+        output = inboundshipments_api.from_address.to_params()
         expected = {
             "Name": "Roland Deschain",
             "AddressLine1": "500 Summat Cully Lane",
@@ -226,7 +226,7 @@ class TestSetShipFromAddressCases:
             "PostalCode": None,
             "CountryCode": "US",
         }
-        assert inbound_constructed.from_address.to_dict() == expected
+        assert inbound_constructed.from_address.to_params() == expected
 
 
 # TODO I don't know yet how to handle the generic testing here other than rewriting

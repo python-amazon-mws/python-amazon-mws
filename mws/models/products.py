@@ -23,7 +23,7 @@ class MoneyType(MWSDataType):
             ")"
         )
 
-    def to_dict(self) -> dict:
+    def params_dict(self) -> dict:
         return {
             "Amount": self.amount,
             "CurrencyCode": self.currency_code,
@@ -52,11 +52,9 @@ class Points(MWSDataType):
             ")"
         )
 
-    def to_dict(self) -> dict:
+    def params_dict(self) -> dict:
         data = {"PointsNumber": self.points_number}
-        data.update(
-            self._flatten(self.monetary_value.to_dict(), prefix="PointsMonetaryValue")
-        )
+        data.update(self.monetary_value.to_params(prefix="PointsMonetaryValue"))
         return data
 
 
@@ -93,12 +91,12 @@ class PriceToEstimateFees(MWSDataType):
             ")"
         )
 
-    def to_dict(self) -> dict:
+    def params_dict(self) -> dict:
         data = {}
-        data.update(self._flatten(self.listing_price.to_dict(), prefix="ListingPrice"))
-        data.update(self._flatten(self.shipping.to_dict(), prefix="Shipping"))
+        data.update(self.listing_price.to_params(prefix="ListingPrice"))
+        data.update(self.shipping.to_params(prefix="Shipping"))
         if self.points is not None:
-            data.update(self._flatten(self.points.to_dict(), prefix="Points"))
+            data.update(self.points.to_params(prefix="Points"))
         return data
 
 
@@ -139,7 +137,7 @@ class FeesEstimateRequest(MWSDataType):
             ")"
         )
 
-    def to_dict(self) -> dict:
+    def params_dict(self) -> dict:
         data = {
             "MarketplaceId": self.marketplace_id,
             "IdType": self.id_type,
@@ -147,9 +145,5 @@ class FeesEstimateRequest(MWSDataType):
             "Identifier": self.identifier,
             "IsAmazonFulfilled": self.is_amazon_fulfilled,
         }
-        data.update(
-            self._flatten(
-                self.price_to_estimate_fees.to_dict(), prefix="PriceToEstimateFees"
-            )
-        )
+        data.update(self.price_to_estimate_fees.to_params(prefix="PriceToEstimateFees"))
         return data
