@@ -50,6 +50,9 @@ def parse_item_args(item_args: List[Dict], operation: str) -> List[dict]:
         relevant operations.
     :type operation: str
     """
+    # TODO allow a model to take over this concern
+    # TODO model should be able to accept PrepDetails, as well
+    # https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem
     if not item_args:
         raise MWSError("One or more `item` dict arguments required.")
 
