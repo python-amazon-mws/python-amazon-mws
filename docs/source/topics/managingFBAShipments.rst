@@ -9,10 +9,19 @@ Users should familiarize themselves with this section of the API in MWS document
 In python-amazon-mws, this API is covered by
 :py:class:`mws.InboundShipments <mws.apis.inbound_shipments.InboundShipments>`.
 
-Setting up your API instance
-============================
+Basic workflow - planning to creation
+=====================================
 
-To begin, create an instance of ``InboundShipments`` as you would any other API class in python-amazon-mws:
+Let's step through a basic workflow for creating a new FBA shipment. You will need:
+
+- A valid ship-from address, presumably the location of your facility where shipments will originate.
+- A list of Seller SKUs for items in your catalog to be added to the shipment(s).
+
+Create the API instance
+-----------------------
+
+To begin, create an instance of ``InboundShipments`` as you would any other API class in python-amazon-mws.
+You will then use this API class instance to initiate requests to MWS.
 
 .. code-block:: python
 
@@ -25,10 +34,13 @@ To begin, create an instance of ``InboundShipments`` as you would any other API 
         account_id=os.environ("MWS_ACCOUNT_ID"),
     )
 
-Next, set up your **ship-from address**, which is required for all of the calls related to shipment planning,
-creation, or updating.
+Store your ship-from address
+----------------------------
 
-The simplest way to get started with a ship-from address is to create one using the
+Next, set up your ship-from address, which is required for the three core operations related to FBA shipments:
+planning, creation, and updating.
+
+The simplest way to store your ship-from address is to create an instance of the
 :py:class:`Address <mws.models.inbound_shipments.Address>` model:
 
 .. code-block:: python
@@ -48,10 +60,36 @@ The simplest way to get started with a ship-from address is to create one using 
 
 This model closely follows the structure of MWS's `Datatype of the same name
 <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#Address>`_.
-python-amazon-mws can use these models as arguments to certain request methods, and will
-correctly convert them to parameterized keys and values:
+You should refer to MWS documentation for this Datatype to ensure all necessary elements of your address are included.
+
+Create your list of items
+-------------------------
+
+Gather items together to add to a request as a list of dicts.
+Each item dict must contain keys ``sku`` and ``quantity``,
+and can optionally include keys ``quantity_in_case`` (for case-packed items),
+``asin``, and/or ``condition``.
 
 .. code-block:: python
 
-    my_address.to_params()
-    # {'Name': 'My Warehouse', 'AddressLine1': '555 Selling Stuff Lane', ...}
+    my_items = [
+        {
+            'sku': 'MY-SKU-1',
+            'quantity': 36,
+            # Optional:
+            'quantity_in_case': 12,
+            'asin': 'B01234567',
+            'condition': 'NewItem',
+        },
+        {
+            'sku': 'MY-SKU-1',
+            'quantity': 12,
+        }
+    ]
+
+.. note:: This needs to be replaced by a model. More to come later.
+
+Send your request
+-----------------
+
+*TODO*.
