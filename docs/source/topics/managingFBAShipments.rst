@@ -53,5 +53,5 @@ correctly convert them to parameterized keys and values:
 
 .. code-block:: python
 
-    my_address.to_dict()
+    my_address.to_params()
     # {'Name': 'My Warehouse', 'AddressLine1': '555 Selling Stuff Lane', ...}
