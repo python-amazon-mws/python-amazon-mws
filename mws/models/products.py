@@ -1,8 +1,31 @@
 """Datatype models for Products API."""
 
-from typing import Optional
+from enum import Enum
+from typing import Optional, Union
 
 from .base import MWSDataType
+
+
+class CurrencyCode(Enum):
+    """Constants for currency codes supported by Amazon."""
+
+    USD = ("USD", "United States dollar")
+    EUR = ("EUR", "European euro")
+    GBP = ("GBP", "Great Britain pounds")
+    RMB = ("RMB", "Chinese yuan")
+    INR = ("INR", "Indian rupee")
+    JPY = ("JPY", "Japanese yen")
+    CAD = ("CAD", "Canadian dollar")
+    MXN = ("MXN", "Mexican peso")
+
+    def __init__(self, code, description):
+        """Easy dot access like: Marketplaces.endpoint ."""
+        self.code = code
+        self.description = description
+
+    @property
+    def value(self):
+        return self.code
 
 
 class MoneyType(MWSDataType):
@@ -11,7 +34,7 @@ class MoneyType(MWSDataType):
     https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#MoneyType
     """
 
-    def __init__(self, amount: float, currency_code: str):
+    def __init__(self, amount: float, currency_code: Union[CurrencyCode, str]):
         self.amount = amount
         self.currency_code = currency_code
 
@@ -26,7 +49,7 @@ class MoneyType(MWSDataType):
     def params_dict(self) -> dict:
         return {
             "Amount": self.amount,
-            "CurrencyCode": self.currency_code,
+            "CurrencyCode": self.clean_enum_val(self.currency_code),
         }
 
 
