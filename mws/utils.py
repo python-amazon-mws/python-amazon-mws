@@ -14,8 +14,7 @@ import xml.etree.ElementTree as ET
 
 
 class ObjectDict(dict):
-    """
-    Extension of dict to allow accessing keys as attributes.
+    """Extension of dict to allow accessing keys as attributes.
 
     Example:
     >>> a = ObjectDict()
@@ -33,24 +32,52 @@ class ObjectDict(dict):
         dict.__init__(self, initd)
 
     def __getattr__(self, item):
-        node = self.__getitem__(item)
+        """Allow access to dict keys as though they were attributes."""
+        return self.__getitem__(item)
 
-        if isinstance(node, dict) and "value" in node and len(node) == 1:
+    def __setattr__(self, item, value):
+        """Allows setting dict keys like attributes, opposite of `__getattr__`."""
+        self.__setitem__(item, value)
+
+    def _value_or_node(self, node):
+        """If `node` contains only a single 'value' key, returns the raw value.
+        Otherwise, returns the node unchanged.
+        """
+        if isinstance(node, self.__class__) and "value" in node and len(node) == 1:
             return node["value"]
         return node
 
-    # if value is the only key in object, you can omit it
+    def __getitem__(self, key):
+        """Returns single-value nodes as the raw value, and all else unchanged."""
+        node = super().__getitem__(key)
+        return self._value_or_node(node)
+
     def __setstate__(self, item):
         return False
 
-    def __setattr__(self, item, value):
-        self.__setitem__(item, value)
+    def __iter__(self):
+        """Nodes are iterable be default, even with just one child node.
 
-    def getvalue(self, item, value=None):
+        Returns non-list nodes wrapped in an iterator, so they can be iterated
+        and return the child node.
         """
-        Old Python 2-compatible getter method for default value.
-        """
-        return self.get(item, {}).get("value", value)
+        # If the parser finds multiple sibling nodes by the same name
+        # (under the same parent node), that node will return a list of DotDicts.
+        # However, if the same node is returned with only one child in other responses,
+        # downstream code may expect the list, but iterating the single node will
+        # throw an error.
+        # So, when iteration is required, we return single nodes as an iterator
+        # wrapping that single instance.
+        if not isinstance(self, list):
+            return iter([self])
+        return self
+
+    def get(self, key, default=None):
+        """Access a node like `dict.get`, including default values."""
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            return default
 
 
 class XML2Dict(object):
