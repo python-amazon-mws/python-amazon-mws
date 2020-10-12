@@ -8,7 +8,6 @@ import pytest
 
 # MWS objects
 from mws import MWSError, InboundShipments
-from mws.apis.inbound_shipments import parse_item_args
 from mws.utils import clean_bool, clean_date, clean_string
 
 # Testing tools
@@ -58,99 +57,6 @@ def inboundshipments_api_for_request_testing_with_address(
     api = inboundshipments_api_for_request_testing
     api.set_ship_from_address(inbound_from_address)
     return api
-
-
-class TestInboundShipmentsParseItemArgsMethod:
-    """Test cases that ensure `parse_item_args` raises exceptions where appropriate."""
-
-    def test_empty_args_list(self):
-        """Should raise `MWSError` for an empty set of arguments."""
-        item_args = []
-        operation = "dummy"
-        with pytest.raises(MWSError):
-            parse_item_args(item_args, operation)
-
-    def test_item_not_a_dict(self):
-        """Should raise `MWSError` if item arguments are not all dict objects."""
-        item_args = ["this is not a dict"]
-        operation = "dummy"
-        with pytest.raises(MWSError):
-            parse_item_args(item_args, operation)
-
-    @pytest.mark.parametrize(
-        "operation", ["CreateInboundShipmentPlan", "any other operation"]
-    )
-    @pytest.mark.parametrize(
-        "item_arg",
-        [
-            [{"quantity": 34}],  # SKU missing
-            [{"sku": "something"}],  # quantity missing
-        ],
-    )
-    def test_parse_items_required_keys_missing(self, operation, item_arg):
-        """Should raise `MWSError` if a required key is missing from at least
-        one item dict for the CreateInboundShipmentPlan operation.
-        """
-        with pytest.raises(MWSError):
-            parse_item_args(item_arg, operation)
-
-    def test_args_built_CreateInboundShipmentPlan(self):
-        """Item args should build successfully for the
-        CreateInboundShipmentPlan operation.
-        """
-        operation = "CreateInboundShipmentPlan"
-        # SKU missing
-        item_args = [
-            {
-                "sku": "somethingelse",
-                "quantity": 56,
-                "quantity_in_case": 12,
-                "asin": "ANYTHING",
-                "condition": "Used",
-            },
-            {"sku": "something", "quantity": 34},
-        ]
-        parsed_items = parse_item_args(item_args, operation)
-        expected = [
-            {
-                "SellerSKU": "somethingelse",
-                "Quantity": 56,
-                "QuantityInCase": 12,
-                "ASIN": "ANYTHING",
-                "Condition": "Used",
-            },
-            {
-                "SellerSKU": "something",
-                "Quantity": 34,
-                "QuantityInCase": None,
-                "ASIN": None,
-                "Condition": None,
-            },
-        ]
-        assert parsed_items[0] == expected[0]
-        assert parsed_items[1] == expected[1]
-
-    def test_args_built_other_operation(self):
-        """Item args should build successfully for operations other than
-        CreateInboundShipmentPlan.
-        """
-        operation = "other_operation"
-        # SKU missing
-        item_args = [
-            {"sku": "one_thing", "quantity": 34, "quantity_in_case": 5},
-            {"sku": "the_other_thing", "quantity": 7},
-        ]
-        parsed_items = parse_item_args(item_args, operation)
-        expected = [
-            {"SellerSKU": "one_thing", "QuantityShipped": 34, "QuantityInCase": 5},
-            {
-                "SellerSKU": "the_other_thing",
-                "QuantityShipped": 7,
-                "QuantityInCase": None,
-            },
-        ]
-        assert parsed_items[0] == expected[0]
-        assert parsed_items[1] == expected[1]
 
 
 class TestSetShipFromAddressCases:
@@ -254,22 +160,20 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             "city": "Gilead",
             "country": "Mid-World",
         }
-        self.api.set_ship_from_address(self.addr)
+        self.api.from_address = self.addr
 
-    def test_create_inbound_shipment_plan_exceptions(self):
-        """Covers cases that should raise exceptions for the
-        `create_inbound_shipment_plan` method.
-        """
+    def test_create_inbound_shipment_plan_no_items(self):
+        """`create_inbound_shipment_plan` should raise exception for no items."""
         # 1: `items` empty: raises MWSError
         items = []
-        with self.assertRaises(MWSError):
+        with pytest.raises(MWSError):
             self.api.create_inbound_shipment_plan(items)
-        # Set items to proper input
-        items = [{"sku": "something", "quantity": 6}]
 
-        # 2: wipe out the `from_address` for the API class before calling: raises MWSError
+    def test_create_inbound_shipment_plan_no_address(self):
+        """`create_inbound_shipment_plan` should raise exception for no from_address."""
+        items = [{"sku": "something", "quantity": 6}]
         self.api.from_address = None
-        with self.assertRaises(MWSError):
+        with pytest.raises(MWSError):
             self.api.create_inbound_shipment_plan(items)
 
     def test_create_inbound_shipment_plan(self):
@@ -288,43 +192,19 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             label_preference=label_preference,
         )
         self.assert_common_params(params, action="CreateInboundShipmentPlan")
-        self.assertEqual(params["ShipToCountryCode"], country_code)
-        self.assertEqual(
-            params["ShipToCountrySubdivisionCode"], clean_string(subdivision_code)
-        )
-        self.assertEqual(params["LabelPrepPreference"], label_preference)
-        # from_address expanded
-        self.assertEqual(
-            params["ShipFromAddress.Name"], clean_string(self.addr["name"])
-        )
-        self.assertEqual(
-            params["ShipFromAddress.AddressLine1"],
-            clean_string(self.addr["address_1"]),
-        )
-        self.assertEqual(
-            params["ShipFromAddress.City"], clean_string(self.addr["city"])
-        )
-        self.assertEqual(
-            params["ShipFromAddress.CountryCode"],
-            clean_string(self.addr["country"]),
-        )
-        # item data
-        self.assertEqual(
-            params["InboundShipmentPlanRequestItems.member.1.SellerSKU"],
-            items[0]["sku"],
-        )
-        self.assertEqual(
-            params["InboundShipmentPlanRequestItems.member.1.Quantity"],
-            str(items[0]["quantity"]),
-        )
-        self.assertEqual(
-            params["InboundShipmentPlanRequestItems.member.2.SellerSKU"],
-            items[1]["sku"],
-        )
-        self.assertEqual(
-            params["InboundShipmentPlanRequestItems.member.2.Quantity"],
-            str(items[1]["quantity"]),
-        )
+
+        expected = {
+            "ShipToCountryCode": "Risa",
+            "ShipToCountrySubdivisionCode": "Hotel%20California",
+            "LabelPrepPreference": "SELLER",
+            "InboundShipmentPlanRequestItems.member.1.SellerSKU": "ievEKnILd3",
+            "InboundShipmentPlanRequestItems.member.1.Quantity": "6",
+            "InboundShipmentPlanRequestItems.member.2.SellerSKU": "9IfTM1aJVG",
+            "InboundShipmentPlanRequestItems.member.2.Quantity": "26",
+        }
+
+        for key, val in expected.items():
+            assert params[key] == val
 
     def test_create_inbound_shipment_exceptions(self):
         """Covers cases that should raise exceptions for the
@@ -376,23 +256,18 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assert_common_params(params, action="CreateInboundShipment")
         # fmt: off
         expected = {
-            "ShipmentId": shipment_id,
-            "InboundShipmentHeader.ShipmentName": clean_string(shipment_name),
-            "InboundShipmentHeader.DestinationFulfillmentCenterId": destination,
-            "InboundShipmentHeader.LabelPrepPreference": label_preference,
-            "InboundShipmentHeader.AreCasesRequired": clean_bool(case_required),
-            "InboundShipmentHeader.ShipmentStatus": shipment_status,
-            "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
-            # Ship-from address
-            "InboundShipmentHeader.ShipFromAddress.Name": clean_string(self.addr["name"]),
-            "InboundShipmentHeader.ShipFromAddress.AddressLine1": clean_string(self.addr["address_1"]),
-            "InboundShipmentHeader.ShipFromAddress.City": clean_string(self.addr["city"]),
-            "InboundShipmentHeader.ShipFromAddress.CountryCode": clean_string(self.addr["country"]),
+            "ShipmentId": "b46sEL7sYX",
+            "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
+            "InboundShipmentHeader.DestinationFulfillmentCenterId": "Nibiru",
+            "InboundShipmentHeader.LabelPrepPreference": "AMAZON",
+            "InboundShipmentHeader.AreCasesRequired": "true",
+            "InboundShipmentHeader.ShipmentStatus": "RECEIVED",
+            "InboundShipmentHeader.IntendedBoxContentsSource": "Boxes",
             # item data
-            "InboundShipmentItems.member.1.SellerSKU": items[0]["sku"],
-            "InboundShipmentItems.member.1.QuantityShipped": str(items[0]["quantity"]),
-            "InboundShipmentItems.member.2.SellerSKU": items[1]["sku"],
-            "InboundShipmentItems.member.2.QuantityShipped": str(items[1]["quantity"]),
+            "InboundShipmentItems.member.1.SellerSKU": "GtLIws1bRX",
+            "InboundShipmentItems.member.1.QuantityShipped": "12",
+            "InboundShipmentItems.member.2.SellerSKU": "vxXN61TIEI",
+            "InboundShipmentItems.member.2.QuantityShipped": "35",
         }
         # fmt: on
         for key, val in expected.items():
@@ -412,7 +287,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         case_required = True
         box_contents_source = "Boxes"
 
-        params_1 = self.api.update_inbound_shipment(
+        params = self.api.update_inbound_shipment(
             shipment_id=shipment_id,
             shipment_name=shipment_name,
             destination=destination,
@@ -422,33 +297,40 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             case_required=case_required,
             box_contents_source=box_contents_source,
         )
-        self.assert_common_params(params_1)
+        self.assert_common_params(params)
 
         # fmt: off
-        expected_1 = {
+        expected = {
             "Action": "UpdateInboundShipment",
-            "ShipmentId": shipment_id,
-            "InboundShipmentHeader.ShipmentName": clean_string(shipment_name),
-            "InboundShipmentHeader.DestinationFulfillmentCenterId": destination,
-            "InboundShipmentHeader.LabelPrepPreference": label_preference,
-            "InboundShipmentHeader.AreCasesRequired": clean_bool(case_required),
-            "InboundShipmentHeader.ShipmentStatus": shipment_status,
-            "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
-            "InboundShipmentHeader.ShipFromAddress.Name": clean_string(self.addr["name"]),
-            "InboundShipmentHeader.ShipFromAddress.AddressLine1": clean_string(self.addr["address_1"]),
-            "InboundShipmentHeader.ShipFromAddress.City": clean_string(self.addr["city"]),
-            "InboundShipmentHeader.ShipFromAddress.CountryCode": self.addr["country"],
-            "InboundShipmentItems.member.1.SellerSKU": items[0]["sku"],
-            "InboundShipmentItems.member.1.QuantityShipped": str(items[0]["quantity"]),
-            "InboundShipmentItems.member.2.SellerSKU": items[1]["sku"],
-            "InboundShipmentItems.member.2.QuantityShipped": str(items[1]["quantity"]),
+            "ShipmentId": "7DzXpBVxRR",
+            "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
+            "InboundShipmentHeader.DestinationFulfillmentCenterId": "Vulcan",
+            "InboundShipmentHeader.LabelPrepPreference": "SELLER_LABEL",
+            "InboundShipmentHeader.AreCasesRequired": 'true',
+            "InboundShipmentHeader.ShipmentStatus": "WORKING",
+            "InboundShipmentHeader.IntendedBoxContentsSource": "Boxes",
+            "InboundShipmentItems.member.1.SellerSKU": "PwJmnJj3SK",
+            "InboundShipmentItems.member.1.QuantityShipped": "98",
+            "InboundShipmentItems.member.2.SellerSKU": "ebzf3HhssN",
+            "InboundShipmentItems.member.2.QuantityShipped": "65",
         }
         # fmt: on
-        for key, val in expected_1.items():
-            assert params_1[key] == val
+        for key, val in expected.items():
+            assert params[key] == val
 
-        # Additional case: no items required. Params should have no Items keys if not provided
-        params_2 = self.api.update_inbound_shipment(
+    def test_update_inbound_shipment_no_items(self):
+        """Additional case: no items required.
+        Params should have no Items keys if not provided
+        """
+        shipment_id = "7DzXpBVxRR"
+        shipment_name = "Stuff Going Places"
+        destination = "Vulcan"
+        shipment_status = "WORKING"
+        label_preference = "SELLER_LABEL"
+        case_required = True
+        box_contents_source = "Boxes"
+
+        params = self.api.update_inbound_shipment(
             shipment_id=shipment_id,
             shipment_name=shipment_name,
             destination=destination,
@@ -457,30 +339,26 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             case_required=case_required,
             box_contents_source=box_contents_source,
         )
-        self.assert_common_params(params_2)
+        self.assert_common_params(params)
 
         # fmt: off
-        expected_2 = {
+        expected = {
             "Action": "UpdateInboundShipment",
-            "ShipmentId": shipment_id,
-            "InboundShipmentHeader.ShipmentName": clean_string(shipment_name),
-            "InboundShipmentHeader.DestinationFulfillmentCenterId": destination,
-            "InboundShipmentHeader.LabelPrepPreference": label_preference,
-            "InboundShipmentHeader.AreCasesRequired": clean_bool(case_required),
-            "InboundShipmentHeader.ShipmentStatus": shipment_status,
-            "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
-            "InboundShipmentHeader.ShipFromAddress.Name": clean_string(self.addr["name"]),
-            "InboundShipmentHeader.ShipFromAddress.AddressLine1": clean_string(self.addr["address_1"]),
-            "InboundShipmentHeader.ShipFromAddress.City": clean_string(self.addr["city"]),
-            "InboundShipmentHeader.ShipFromAddress.CountryCode": self.addr["country"],
+            "ShipmentId": "7DzXpBVxRR",
+            "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
+            "InboundShipmentHeader.DestinationFulfillmentCenterId": "Vulcan",
+            "InboundShipmentHeader.LabelPrepPreference": "SELLER_LABEL",
+            "InboundShipmentHeader.AreCasesRequired": "true",
+            "InboundShipmentHeader.ShipmentStatus": "WORKING",
+            "InboundShipmentHeader.IntendedBoxContentsSource": "Boxes",
         }
         # fmt: on
-        for key, val in expected_2.items():
-            assert params_2[key] == val
+        for key, val in expected.items():
+            assert params[key] == val
 
         # items keys should not be present
         param_item_keys = [
-            x for x in params_2.keys() if x.startswith("InboundShipmentItems")
+            x for x in params.keys() if x.startswith("InboundShipmentItems")
         ]
         # list should be empty, because no keys should be present
         assert not param_item_keys
