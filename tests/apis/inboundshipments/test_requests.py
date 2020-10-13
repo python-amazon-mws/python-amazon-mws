@@ -6,11 +6,9 @@ import unittest
 
 import pytest
 
-# MWS objects
-from mws import MWSError, InboundShipments
-from mws.utils import clean_bool, clean_date, clean_string
+from mws import InboundShipments
+from mws import MWSError
 
-# Testing tools
 from .utils import CommonAPIRequestTools
 
 
@@ -59,7 +57,7 @@ def inboundshipments_api_for_request_testing_with_address(
     return api
 
 
-class TestSetShipFromAddressCases:
+class TestLegacySetShipFromAddressCases:
     """Test case covering `msw.InboundShipments.set_ship_from_address`."""
 
     def test_legacy_address_built_properly(self, inboundshipments_api):
@@ -89,6 +87,82 @@ class TestSetShipFromAddressCases:
         assert output == expected
 
     def test_legacy_partial_address_built_properly(self, inboundshipments_api):
+        """An address with only required fields covered should be constructed properly,
+        with omitted keys filled in with defaults.
+        """
+        address = {
+            "name": "Roland Deschain",
+            "address_1": "500 Summat Cully Lane",
+            "city": "Gilead",
+        }
+        inboundshipments_api.from_address = address
+        output = inboundshipments_api.from_address.to_params()
+        expected = {
+            "Name": "Roland Deschain",
+            "AddressLine1": "500 Summat Cully Lane",
+            "AddressLine2": None,
+            "City": "Gilead",
+            "DistrictOrCounty": None,
+            "StateOrProvinceCode": None,
+            "PostalCode": None,
+            "CountryCode": "US",
+        }
+        assert output == expected
+
+    def test_set_legacy_address_with_constructor(self, mws_credentials):
+        """An address passed to the InboundShipments constructor as a
+        `from_address` kwarg should automatically set the `from_address` attribute
+        (ignoring the self.inbound attribute in this case).
+        """
+        address = {
+            "name": "Roland Deschain",
+            "address_1": "500 Summat Cully Lane",
+            "city": "Gilead",
+        }
+        inbound_constructed = InboundShipments(**mws_credentials, from_address=address)
+        expected = {
+            "Name": "Roland Deschain",
+            "AddressLine1": "500 Summat Cully Lane",
+            "AddressLine2": None,
+            "City": "Gilead",
+            "DistrictOrCounty": None,
+            "StateOrProvinceCode": None,
+            "PostalCode": None,
+            "CountryCode": "US",
+        }
+        assert inbound_constructed.from_address.to_params() == expected
+
+
+class TestSetShipFromAddressCases:
+    """Test case covering `msw.InboundShipments.set_ship_from_address`."""
+
+    def test_address_built_properly(self, inboundshipments_api):
+        """An address with all fields covered should be constructed properly."""
+        address = {
+            "name": "Roland Deschain",
+            "address_1": "500 Summat Cully Lane",
+            "address_2": "Apartment 19",
+            "city": "Gilead",
+            "district_or_county": "West-Town",
+            "state_or_province": "New Canaan",
+            "postal_code": "13019",
+            "country": "Mid-World",
+        }
+        inboundshipments_api.from_address = address
+        output = inboundshipments_api.from_address.to_params()
+        expected = {
+            "Name": "Roland Deschain",
+            "AddressLine1": "500 Summat Cully Lane",
+            "AddressLine2": "Apartment 19",
+            "City": "Gilead",
+            "DistrictOrCounty": "West-Town",
+            "StateOrProvinceCode": "New Canaan",
+            "PostalCode": "13019",
+            "CountryCode": "Mid-World",
+        }
+        assert output == expected
+
+    def test_partial_address_built_properly(self, inboundshipments_api):
         """An address with only required fields covered should be constructed properly,
         with omitted keys filled in with defaults.
         """
@@ -234,10 +308,10 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         """Covers successful data entry for `create_inbound_shipment`."""
         shipment_id = "b46sEL7sYX"
         shipment_name = "Stuff Going Places"
-        destination = "Nibiru"
+        destination = "MyDestination"
         items = [
-            {"sku": "GtLIws1bRX", "quantity": 12},
-            {"sku": "vxXN61TIEI", "quantity": 35},
+            {"sku": "mySku1", "quantity": 12},
+            {"sku": "mySku2", "quantity": 35},
         ]
         shipment_status = "RECEIVED"
         label_preference = "AMAZON"
@@ -258,15 +332,15 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         expected = {
             "ShipmentId": "b46sEL7sYX",
             "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
-            "InboundShipmentHeader.DestinationFulfillmentCenterId": "Nibiru",
+            "InboundShipmentHeader.DestinationFulfillmentCenterId": "MyDestination",
             "InboundShipmentHeader.LabelPrepPreference": "AMAZON",
             "InboundShipmentHeader.AreCasesRequired": "true",
             "InboundShipmentHeader.ShipmentStatus": "RECEIVED",
             "InboundShipmentHeader.IntendedBoxContentsSource": "Boxes",
             # item data
-            "InboundShipmentItems.member.1.SellerSKU": "GtLIws1bRX",
+            "InboundShipmentItems.member.1.SellerSKU": "mySku1",
             "InboundShipmentItems.member.1.QuantityShipped": "12",
-            "InboundShipmentItems.member.2.SellerSKU": "vxXN61TIEI",
+            "InboundShipmentItems.member.2.SellerSKU": "mySku2",
             "InboundShipmentItems.member.2.QuantityShipped": "35",
         }
         # fmt: on
@@ -279,8 +353,8 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         shipment_name = "Stuff Going Places"
         destination = "Vulcan"
         items = [
-            {"sku": "PwJmnJj3SK", "quantity": 98},
-            {"sku": "ebzf3HhssN", "quantity": 65},
+            {"sku": "mySku1", "quantity": 98},
+            {"sku": "mySku2", "quantity": 65},
         ]
         shipment_status = "WORKING"
         label_preference = "SELLER_LABEL"
@@ -309,9 +383,9 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             "InboundShipmentHeader.AreCasesRequired": 'true',
             "InboundShipmentHeader.ShipmentStatus": "WORKING",
             "InboundShipmentHeader.IntendedBoxContentsSource": "Boxes",
-            "InboundShipmentItems.member.1.SellerSKU": "PwJmnJj3SK",
+            "InboundShipmentItems.member.1.SellerSKU": "mySku1",
             "InboundShipmentItems.member.1.QuantityShipped": "98",
-            "InboundShipmentItems.member.2.SellerSKU": "ebzf3HhssN",
+            "InboundShipmentItems.member.2.SellerSKU": "mySku2",
             "InboundShipmentItems.member.2.QuantityShipped": "65",
         }
         # fmt: on
@@ -373,332 +447,256 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
 
     def test_get_inbound_guidance_for_sku(self):
         """GetInboundGuidanceForSKU operation."""
-        marketplace_id = "eyuMuohmyP"
         # Case 1: list of SKUs
         sku_list_1 = [
-            "5PWmAy4u1A",
-            "CtwNnGX08l",
+            "mySku1",
+            "mySku2",
         ]
         params_1 = self.api.get_inbound_guidance_for_sku(
             skus=sku_list_1,
-            marketplace_id=marketplace_id,
+            marketplace_id="myMarketplaceId",
         )
-        self.assert_common_params(params_1)
-        self.assertEqual(params_1["Action"], "GetInboundGuidanceForSKU")
-        self.assertEqual(params_1["MarketplaceId"], marketplace_id)
-        self.assertEqual(params_1["SellerSKUList.Id.1"], sku_list_1[0])
-        self.assertEqual(params_1["SellerSKUList.Id.2"], sku_list_1[1])
+        self.assert_common_params(params_1, action="GetInboundGuidanceForSKU")
+        assert params_1["MarketplaceId"] == "myMarketplaceId"
+        assert params_1["SellerSKUList.Id.1"] == "mySku1"
+        assert params_1["SellerSKUList.Id.2"] == "mySku2"
         # Case 2: single SKU
-        sku_list_2 = "9QWsksBUMI"
         params_2 = self.api.get_inbound_guidance_for_sku(
-            skus=sku_list_2,
-            marketplace_id=marketplace_id,
+            skus="mySku3",
+            marketplace_id="myMarketplaceId",
         )
         self.assert_common_params(params_2)
-        self.assertEqual(params_2["Action"], "GetInboundGuidanceForSKU")
-        self.assertEqual(params_2["MarketplaceId"], marketplace_id)
-        self.assertEqual(params_2["SellerSKUList.Id.1"], sku_list_2)
+        assert params_2["SellerSKUList.Id.1"] == "mySku3"
+        assert "SellerSKUList.Id.2" not in params_2
 
     def test_get_inbound_guidance_for_asin(self):
         """GetInboundGuidanceForASIN operation."""
-        marketplace_id = "osnufVjvfR"
-        # Case 1: list of SKUs
-        asin_list_1 = [
-            "I2HCJMQ1sB",
-            "EBDjm91glL",
-        ]
+        # Case 1: list of ASINs
         params_1 = self.api.get_inbound_guidance_for_asin(
-            asins=asin_list_1,
-            marketplace_id=marketplace_id,
+            asins=["myAsin1", "myAsin2"],
+            marketplace_id="myMarketplaceId",
         )
-        self.assert_common_params(params_1)
-        self.assertEqual(params_1["Action"], "GetInboundGuidanceForASIN")
-        self.assertEqual(params_1["MarketplaceId"], marketplace_id)
-        self.assertEqual(params_1["ASINList.Id.1"], asin_list_1[0])
-        self.assertEqual(params_1["ASINList.Id.2"], asin_list_1[1])
+        self.assert_common_params(params_1, action="GetInboundGuidanceForASIN")
+        assert params_1["MarketplaceId"] == "myMarketplaceId"
+        assert params_1["ASINList.Id.1"] == "myAsin1"
+        assert params_1["ASINList.Id.2"] == "myAsin2"
+
         # Case 2: single SKU
-        asin_list_2 = "FW2e9soodD"
         params_2 = self.api.get_inbound_guidance_for_asin(
-            asins=asin_list_2,
-            marketplace_id=marketplace_id,
+            asins="myAsin3",
+            marketplace_id="myMarketplaceId",
         )
         self.assert_common_params(params_2)
-        self.assertEqual(params_2["Action"], "GetInboundGuidanceForASIN")
-        self.assertEqual(params_2["MarketplaceId"], marketplace_id)
-        self.assertEqual(params_2["ASINList.Id.1"], asin_list_2)
+        assert params_2["ASINList.Id.1"] == "myAsin3"
+        assert "ASINList.Id.2" not in params_2
 
     def test_get_preorder_info(self):
         """GetPreorderInfo operation."""
-        shipment_id = "oYRjQbGLL6"
-        params = self.api.get_preorder_info(shipment_id)
+        params = self.api.get_preorder_info("oYRjQbGLL6")
         self.assert_common_params(params, action="GetPreorderInfo")
-        self.assertEqual(params["ShipmentId"], shipment_id)
+        assert params["ShipmentId"] == "oYRjQbGLL6"
 
     def test_confirm_preorder(self):
         """ConfirmPreorder operation."""
-        shipment_id = "H4UiUjY7Fr"
-        need_by_date = datetime.datetime.utcnow()
         params = self.api.confirm_preorder(
-            shipment_id=shipment_id,
-            need_by_date=need_by_date,
+            shipment_id="H4UiUjY7Fr",
+            need_by_date=datetime.datetime(2020, 10, 12),
         )
         self.assert_common_params(params, action="ConfirmPreorder")
-        self.assertEqual(params["ShipmentId"], shipment_id)
-        self.assertEqual(params["NeedByDate"], clean_date(need_by_date))
+        assert params["ShipmentId"] == "H4UiUjY7Fr"
+        assert params["NeedByDate"] == "2020-10-12T00%3A00%3A00"
 
     def test_get_prep_instructions_for_sku(self):
         """GetPrepInstructionsForSKU operation."""
         # Case 1: simple list
-        skus_1 = [
-            "ZITw0KqI3W",
-            "qLijuY05j7",
-        ]
-        country_code = "Wakanda"
         params_1 = self.api.get_prep_instructions_for_sku(
-            skus=skus_1,
-            country_code=country_code,
+            skus=["mySku1", "mySku2"],
+            country_code="MyCountryCode",
         )
-        self.assert_common_params(params_1)
-        self.assertEqual(params_1["Action"], "GetPrepInstructionsForSKU")
-        self.assertEqual(params_1["ShipToCountryCode"], country_code)
-        self.assertEqual(params_1["SellerSKUList.ID.1"], skus_1[0])
-        self.assertEqual(params_1["SellerSKUList.ID.2"], skus_1[1])
+        self.assert_common_params(params_1, action="GetPrepInstructionsForSKU")
+        assert params_1["ShipToCountryCode"] == "MyCountryCode"
+        assert params_1["SellerSKUList.ID.1"] == "mySku1"
+        assert params_1["SellerSKUList.ID.2"] == "mySku2"
+
         # Case 2: duplicates should be removed before creating params,
         # with their ordering preserved.
-        skus_2 = [
-            "pvHENgh9GG",
-            "yrFQfk66Ku",
-            "pvHENgh9GG",  # duplicate should be removed in param build
-            "3W2DgshBxW",
-            "FBN4E7FK3S",
-        ]
+        # mySkuDupe1 is the duplicate, in pos 0 and 2 (the second one should be ignored)
         params_2 = self.api.get_prep_instructions_for_sku(
-            skus=skus_2,
-            country_code=country_code,
+            skus=["mySkuDupe1", "mySkuDupe2", "mySkuDupe1", "mySkuDupe3", "mySkuDupe4"],
+            country_code="MyCountryCode",
         )
-        self.assert_common_params(params_2)
-        self.assertEqual(params_2["Action"], "GetPrepInstructionsForSKU")
-        self.assertEqual(params_2["ShipToCountryCode"], country_code)
-        self.assertEqual(params_2["SellerSKUList.ID.1"], skus_2[0])
-        self.assertEqual(params_2["SellerSKUList.ID.2"], skus_2[1])
-        # skus_2[2] is a duplicate and should not be expected. skus_2[3] is next unique.
-        self.assertEqual(params_2["SellerSKUList.ID.3"], skus_2[3])
-        self.assertEqual(params_2["SellerSKUList.ID.4"], skus_2[4])
+        assert params_2["SellerSKUList.ID.1"] == "mySkuDupe1"
+        assert params_2["SellerSKUList.ID.2"] == "mySkuDupe2"
+        assert params_2["SellerSKUList.ID.3"] == "mySkuDupe3"
+        assert params_2["SellerSKUList.ID.4"] == "mySkuDupe4"
+        # The second instance of `mySkuDupe` is ignored, and the ordering is preserved.
 
     def test_get_prep_instructions_for_asin(self):
         """GetPrepInstructionsForASIN operation."""
         # Case 1: simple list
-        asins_1 = [
-            "iTgHUxF1a7",
-            "56gwMz7j1N",
-        ]
-        country_code = "Wakanda"
         params_1 = self.api.get_prep_instructions_for_asin(
-            asins=asins_1,
-            country_code=country_code,
+            asins=["myAsin1", "myAsin2"],
+            country_code="MyCountryCode",
         )
-        self.assert_common_params(params_1)
-        self.assertEqual(params_1["Action"], "GetPrepInstructionsForASIN")
-        self.assertEqual(params_1["ShipToCountryCode"], country_code)
-        self.assertEqual(params_1["ASINList.ID.1"], asins_1[0])
-        self.assertEqual(params_1["ASINList.ID.2"], asins_1[1])
+        self.assert_common_params(params_1, action="GetPrepInstructionsForASIN")
+        assert params_1["ShipToCountryCode"] == "MyCountryCode"
+        assert params_1["ASINList.ID.1"] == "myAsin1"
+        assert params_1["ASINList.ID.2"] == "myAsin2"
         # Case 2: duplicates should be removed before creating params,
         # with their ordering preserved.
-        asins_2 = [
-            "FCYeaVUYqY",
-            "bma5ysgs8E",
-            "IwyBQG9TgX",
-            "IwyBQG9TgX",  # duplicate should be removed in param build
-            "JPA8CyPAOF",
-        ]
+        # "myDupeAsin3" should only appear once
         params_2 = self.api.get_prep_instructions_for_asin(
-            asins=asins_2,
-            country_code=country_code,
+            asins=[
+                "myDupeAsin1",
+                "myDupeAsin2",
+                "myDupeAsin3",
+                "myDupeAsin3",
+                "myDupeAsin4",
+            ],
+            country_code="MyCountryCode",
         )
         self.assert_common_params(params_2)
-        self.assertEqual(params_2["Action"], "GetPrepInstructionsForASIN")
-        self.assertEqual(params_2["ShipToCountryCode"], country_code)
-        self.assertEqual(params_2["ASINList.ID.1"], asins_2[0])
-        self.assertEqual(params_2["ASINList.ID.2"], asins_2[1])
-        self.assertEqual(params_2["ASINList.ID.3"], asins_2[2])
-        # asins_2[3] is a duplicate and should not be expected. asins_2[4] is next unique.
-        self.assertEqual(params_2["ASINList.ID.4"], asins_2[4])
+        assert params_2["ASINList.ID.1"] == "myDupeAsin1"
+        assert params_2["ASINList.ID.2"] == "myDupeAsin2"
+        assert params_2["ASINList.ID.3"] == "myDupeAsin3"
+        assert params_2["ASINList.ID.4"] == "myDupeAsin4"
 
-    # TODO PutTransportContent, requires some mocked-up file object.
-    # def test_put_transport_content(self):
-    #     """
-    #     PutTransportContent operation.
-    #     """
-    #     pass
-
-    def test_estimate_transport_request(self):
-        """EstimateTransportRequest operation."""
-        shipment_id = "w6ayzk2Aov"
-        params = self.api.estimate_transport_request(shipment_id)
-        self.assert_common_params(params, action="EstimateTransportRequest")
-        self.assertEqual(params["ShipmentId"], shipment_id)
-
-    def test_get_transport_content(self):
-        """GetTransportContent operation."""
-        shipment_id = "w6ayzk2Aov"
-        params = self.api.get_transport_content(shipment_id)
-        self.assert_common_params(params, action="GetTransportContent")
-        self.assertEqual(params["ShipmentId"], shipment_id)
-
-    def test_confirm_transport_request(self):
-        """ConfirmTransportRequest operation."""
-        shipment_id = "UTULruKM6v"
-        params = self.api.confirm_transport_request(shipment_id)
-        self.assert_common_params(params, action="ConfirmTransportRequest")
-        self.assertEqual(params["ShipmentId"], shipment_id)
-
-    def test_void_transport_request(self):
-        """VoidTransportRequest operation."""
-        shipment_id = "bJw9pyKcoB"
-        params = self.api.void_transport_request(shipment_id)
-        self.assert_common_params(params, action="VoidTransportRequest")
-        self.assertEqual(params["ShipmentId"], shipment_id)
+    # @pytest.mark.parametrize("method_name, action", (
+    #     ("estimate_transport_request", "EstimateTransportRequest"),
+    #     ("get_transport_content", "GetTransportContent"),
+    #     ("confirm_transport_request", "ConfirmTransportRequest"),
+    #     ("void_transport_request", "VoidTransportRequest"),
+    #     ("get_bill_of_lading", "GetBillOfLading"),
+    # ))
+    def test_shipment_id_only_requests(self):
+        """Test the output of methods that only require the shipment ID argument."""
+        # TODO pytest parametrization does not work with a unittest class
+        # Need to remove dependency on unittest to use the mark above
+        mapping = (
+            ("estimate_transport_request", "EstimateTransportRequest"),
+            ("get_transport_content", "GetTransportContent"),
+            ("confirm_transport_request", "ConfirmTransportRequest"),
+            ("void_transport_request", "VoidTransportRequest"),
+            ("get_bill_of_lading", "GetBillOfLading"),
+        )
+        for method_name, action in mapping:
+            method = getattr(self.api, method_name)
+            params = method("myShipmentId")
+            self.assert_common_params(params, action=action)
+            assert params["ShipmentId"] == "myShipmentId"
 
     def test_get_package_labels(self):
         """GetPackageLabels operation."""
-        shipment_id = "E7NBQ1O0Ca"
-        num_labels = 53
-        page_type = "PackageLabel_Letter_6"
         params = self.api.get_package_labels(
-            shipment_id=shipment_id,
-            num_labels=num_labels,
-            page_type=page_type,
+            shipment_id="myShipmentId",
+            num_labels=53,
+            page_type="PackageLabel_Letter_6",
         )
         self.assert_common_params(params, action="GetPackageLabels")
-        self.assertEqual(params["ShipmentId"], shipment_id)
-        self.assertEqual(params["PageType"], page_type)
-        self.assertEqual(params["NumberOfPackages"], str(num_labels))
+        assert params["ShipmentId"] == "myShipmentId"
+        assert params["PageType"] == "PackageLabel_Letter_6"
+        assert params["NumberOfPackages"] == "53"
 
     def test_get_unique_package_labels(self):
         """GetUniquePackageLabels operation."""
-        shipment_id = "fMSw3SRJkC"
-        page_type = "PackageLabel_Plain_Paper"
         # Case 1: list of package_ids
-        package_ids_1 = [
-            "BuqFIFFY6d",
-            "wU4NmZWEls",
-        ]
         params_1 = self.api.get_unique_package_labels(
-            shipment_id=shipment_id,
-            page_type=page_type,
-            package_ids=package_ids_1,
+            shipment_id="myShipmentId",
+            page_type="PackageLabel_Plain_Paper",
+            package_ids=["myPackage1", "myPackage2"],
         )
-        self.assert_common_params(params_1)
-        self.assertEqual(params_1["Action"], "GetUniquePackageLabels")
-        self.assertEqual(params_1["ShipmentId"], shipment_id)
-        self.assertEqual(params_1["PageType"], page_type)
-        self.assertEqual(params_1["PackageLabelsToPrint.member.1"], package_ids_1[0])
-        self.assertEqual(params_1["PackageLabelsToPrint.member.2"], package_ids_1[1])
+        self.assert_common_params(params_1, action="GetUniquePackageLabels")
+        assert params_1["ShipmentId"] == "myShipmentId"
+        assert params_1["PageType"] == "PackageLabel_Plain_Paper"
+        assert params_1["PackageLabelsToPrint.member.1"] == "myPackage1"
+        assert params_1["PackageLabelsToPrint.member.2"] == "myPackage2"
+
         # Case 2: single string package_id (should still work)
-        package_ids_2 = "exGsKDTbyb"
         params_2 = self.api.get_unique_package_labels(
-            shipment_id=shipment_id,
-            page_type=page_type,
-            package_ids=package_ids_2,
+            shipment_id="myShipmentId",
+            page_type="PackageLabel_Plain_Paper",
+            package_ids="myShipment3",
         )
-        self.assert_common_params(params_1)
-        self.assertEqual(params_2["Action"], "GetUniquePackageLabels")
-        self.assertEqual(params_2["ShipmentId"], shipment_id)
-        self.assertEqual(params_2["PageType"], page_type)
-        self.assertEqual(params_2["PackageLabelsToPrint.member.1"], package_ids_2)
+        assert params_2["PackageLabelsToPrint.member.1"] == "myShipment3"
+        assert "PackageLabelsToPrint.member.2" not in params_2
 
     def test_get_pallet_labels(self):
         """GetPalletLabels operation."""
-        shipment_id = "Y3sROqkPfY"
-        page_type = "PackageLabel_A4_4"
-        num_labels = 69
         params = self.api.get_pallet_labels(
-            shipment_id=shipment_id,
-            page_type=page_type,
-            num_labels=num_labels,
+            shipment_id="myShipmentId",
+            page_type="PackageLabel_A4_4",
+            num_labels=69,
         )
         self.assert_common_params(params, action="GetPalletLabels")
-        self.assertEqual(params["ShipmentId"], shipment_id)
-        self.assertEqual(params["PageType"], page_type)
-        self.assertEqual(params["NumberOfPallets"], str(num_labels))
-
-    def test_get_bill_of_lading(self):
-        """GetBillOfLading operation."""
-        shipment_id = "nScOqC6Nh6"
-        params = self.api.get_bill_of_lading(
-            shipment_id=shipment_id,
-        )
-        self.assert_common_params(params, action="GetBillOfLading")
-        self.assertEqual(params["ShipmentId"], shipment_id)
+        assert params["ShipmentId"] == "myShipmentId"
+        assert params["PageType"] == "PackageLabel_A4_4"
+        assert params["NumberOfPallets"] == "69"
 
     def test_list_inbound_shipments(self):
         """ListInboundShipments operation."""
-        shipment_ids = [
-            "Fp3kXnLQ72",
-            "hAIO0W7VvF",
-        ]
-        shipment_statuses = [
-            "CANCELLED",
-            "IN_TRANSIT",
-        ]
-        last_updated_before = datetime.datetime.utcnow()
-        last_updated_after = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
         params = self.api.list_inbound_shipments(
-            shipment_ids=shipment_ids,
-            shipment_statuses=shipment_statuses,
-            last_updated_before=last_updated_before,
-            last_updated_after=last_updated_after,
+            shipment_ids=["myShipment1", "myShipment2"],
+            shipment_statuses=["CANCELLED", "IN_TRANSIT"],
+            last_updated_before=datetime.datetime(2020, 10, 12),
+            last_updated_after=datetime.datetime(2020, 10, 12)
+            + datetime.timedelta(hours=1),
         )
         self.assert_common_params(params, action="ListInboundShipments")
-        self.assertEqual(params["LastUpdatedBefore"], clean_date(last_updated_before))
-        self.assertEqual(params["LastUpdatedAfter"], clean_date(last_updated_after))
-        self.assertEqual(params["ShipmentStatusList.member.1"], shipment_statuses[0])
-        self.assertEqual(params["ShipmentStatusList.member.2"], shipment_statuses[1])
-        self.assertEqual(params["ShipmentIdList.member.1"], shipment_ids[0])
-        self.assertEqual(params["ShipmentIdList.member.2"], shipment_ids[1])
-
-    def test_list_inbound_shipments_by_next_token(self):
-        """ListInboundShipmentsByNextToken operation, via method decorator."""
-        next_token = "rK10wZCE03"
-        params = self.api.list_inbound_shipments(next_token=next_token)
-        self.assert_common_params(params, action="ListInboundShipmentsByNextToken")
-        self.assertEqual(params["NextToken"], next_token)
-
-    def test_list_inbound_shipments_by_next_token_alias(self):
-        """ListInboundShipmentsByNextToken operation, via alias method."""
-        next_token = "AscnyUoyhj"
-        params = self.api.list_inbound_shipments_by_next_token(next_token)
-        self.assert_common_params(params, action="ListInboundShipmentsByNextToken")
-        self.assertEqual(params["NextToken"], next_token)
+        assert params["LastUpdatedBefore"] == "2020-10-12T00%3A00%3A00"
+        assert params["LastUpdatedAfter"] == "2020-10-12T01%3A00%3A00"
+        assert params["ShipmentStatusList.member.1"] == "CANCELLED"
+        assert params["ShipmentStatusList.member.2"] == "IN_TRANSIT"
+        assert params["ShipmentIdList.member.1"] == "myShipment1"
+        assert params["ShipmentIdList.member.2"] == "myShipment2"
 
     def test_list_inbound_shipment_items(self):
         """ListInboundShipmentItems operation."""
-        shipment_id = "P9NLpC2Afi"
-        last_updated_before = datetime.datetime.utcnow()
-        last_updated_after = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
         params = self.api.list_inbound_shipment_items(
-            shipment_id=shipment_id,
-            last_updated_before=last_updated_before,
-            last_updated_after=last_updated_after,
+            shipment_id="P9NLpC2Afi",
+            last_updated_before=datetime.datetime(2020, 10, 12),
+            last_updated_after=datetime.datetime(2020, 10, 12)
+            + datetime.timedelta(hours=1),
         )
         self.assert_common_params(params, action="ListInboundShipmentItems")
-        self.assertEqual(params["ShipmentId"], shipment_id)
-        self.assertEqual(params["LastUpdatedBefore"], clean_date(last_updated_before))
-        self.assertEqual(params["LastUpdatedAfter"], clean_date(last_updated_after))
+        assert params["ShipmentId"] == "P9NLpC2Afi"
+        assert params["LastUpdatedBefore"] == "2020-10-12T00%3A00%3A00"
+        assert params["LastUpdatedAfter"] == "2020-10-12T01%3A00%3A00"
 
-    def test_list_inbound_shipment_items_by_next_token(self):
-        """ListInboundShipmentItemsByNextToken operation, via method decorator."""
-        next_token = "kjoslU1R4y"
-        params = self.api.list_inbound_shipment_items(next_token=next_token)
-        self.assert_common_params(params, action="ListInboundShipmentItemsByNextToken")
-        self.assertEqual(params["NextToken"], next_token)
+    def test_next_token_methods(self):
+        """Check content of methods that can use next_tokens"""
+        mapping = (
+            (
+                "list_inbound_shipments",
+                "ListInboundShipmentsByNextToken",
+            ),
+            (
+                "list_inbound_shipment_items",
+                "ListInboundShipmentItemsByNextToken",
+            ),
+        )
+        for methodname, action in mapping:
+            method = getattr(self.api, methodname)
+            params = method(next_token="my_next_token")
+            self.assert_common_params(params, action=action)
+            assert params["NextToken"] == "my_next_token"
 
-    def test_list_inbound_shipment_items_by_next_token_alias(self):
-        """ListInboundShipmentItemsByNextToken operation, via alias method."""
-        next_token = "p31dr3ceKQ"
-        params = self.api.list_inbound_shipment_items_by_next_token(next_token)
-        self.assert_common_params(params, action="ListInboundShipmentItemsByNextToken")
-        self.assertEqual(params["NextToken"], next_token)
+    def test_next_token_alias_methods(self):
+        """Check content of alias method that can use next_tokens."""
+        mapping = (
+            (
+                "list_inbound_shipments_by_next_token",
+                "ListInboundShipmentsByNextToken",
+            ),
+            (
+                "list_inbound_shipment_items_by_next_token",
+                "ListInboundShipmentItemsByNextToken",
+            ),
+        )
+        for methodname, action in mapping:
+            method = getattr(self.api, methodname)
+            params = method("my_next_token")
+            self.assert_common_params(params, action=action)
+            assert params["NextToken"] == "my_next_token"
 
 
 ### Mix of statuses and IDs for list_inbound_shipments ###
