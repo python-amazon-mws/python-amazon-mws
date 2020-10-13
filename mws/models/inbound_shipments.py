@@ -230,3 +230,12 @@ class InboundShipmentPlanRequestItem(MWSDataType):
                 enumerate_keyed_param("PrepDetailsList.member", parameterized_details)
             )
         return data
+
+
+class InboundShipmentItem(MWSDataType):
+    """Item information for an inbound shipment.
+    Submitted with a call to the CreateInboundShipment or
+    UpdateInboundShipment operation.
+
+    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentItem
+    """
