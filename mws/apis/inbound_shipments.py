@@ -11,8 +11,10 @@ import datetime
 
 from mws import MWS, MWSError
 from mws.models.inbound_shipments import Address
+from mws.models.inbound_shipments import InboundShipmentPlanRequestItem
 from mws.utils.params import enumerate_param
-from mws.utils.params import flat_param_dict
+
+# from mws.utils.params import flat_param_dict
 from mws.utils.params import enumerate_keyed_param
 from mws.utils.collections import unique_list_order_preserved
 from mws.decorators import next_token_action
@@ -21,10 +23,95 @@ from mws.decorators import next_token_action
 # TODO Add helper method for extracting PDF file object from label requests
 
 
-# TODO replace with datatype class pattern
-def parse_item_args(item_args: List[Dict], operation: str) -> List[dict]:
-    """Parses item arguments sent to ``create_inbound_shipment_plan``,
+def parse_legacy_item(item: dict, operation: str) -> dict:
+    """Parses a legacy item argument sent to ``create_inbound_shipment_plan``,
     ``create_inbound_shipment``, and ``update_inbound_shipment`` methods.
+
+    :param item: An ``InboundShipmentPlanRequestItem`` instance or dict
+        (using legacy keys) containing data for items to be parsed.
+
+        If an instance of ``InboundShipmentPlanRequestItem``, simply runs its
+        ``to_params`` method.
+
+        When using a dict (legacy mode), must contain the keys
+        ``'sku'`` and ``'quantity'``. Optionally, ``'quantity_in_case'``
+        can be included for case-packed items.
+
+        For operations besides ``create_inbound_shipment``,
+        ``'asin'`` and ``'condition'`` are also supported as optional keys.
+
+        If any required key is missing, ``MWSError`` is thrown.
+        Any keys besides the required or optional keys for a given operation
+        will be discarded.
+
+        These input keys are mapped to the appropriate parameter name for the chosen
+        operation. For instance, ``'quantity'`` is converted to ``'Quantity'``
+        for the ``CreateInboundShipmentPlan`` operation, and to ``'QuantityShipped'``
+        for all other operations.
+    :type item_args: List[Dict]
+    :param operation: The name of the MWS operation being performed, changing how
+        ``item_args`` are converted to MWS parameters.
+
+        Specifically checks to see if the operation is ``"CreateInboundShipmentPlan"``,
+        which is a special case: different logic applies for all other
+        relevant operations.
+    :type operation: str
+    """
+    if operation == "CreateInboundShipmentPlan":
+        # `key_config` composed of list of tuples, each tuple compose of:
+        # (input_key, output_key, is_required, default_value)
+        key_config = [
+            ("sku", "SellerSKU", True, None),
+            ("quantity", "Quantity", True, None),
+            ("quantity_in_case", "QuantityInCase", False, None),
+            ("asin", "ASIN", False, None),
+            ("condition", "Condition", False, None),
+        ]
+        # The expected MWS key for quantity is different for this operation.
+        # This ensures we use the right key later on.
+        quantity_key = "Quantity"
+    else:
+        key_config = [
+            ("sku", "SellerSKU", True, None),
+            ("quantity", "QuantityShipped", True, None),
+            ("quantity_in_case", "QuantityInCase", False, None),
+        ]
+        quantity_key = "QuantityShipped"
+
+    if not isinstance(item, Mapping):
+        raise MWSError("`item` argument must be a dict.")
+    if not all(k in item for k in [c[0] for c in key_config if c[2]]):
+        # Required keys of an item line missing
+        raise MWSError(
+            (
+                "`item` dict missing required keys: {required}."
+                "\n- Optional keys: {optional}."
+            ).format(
+                required=", ".join([c[0] for c in key_config if c[2]]),
+                optional=", ".join([c[0] for c in key_config if not c[2]]),
+            )
+        )
+
+    item_dict = {
+        "SellerSKU": item.get("sku"),
+        quantity_key: item.get("quantity"),
+        "QuantityInCase": item.get("quantity_in_case"),
+    }
+    item_dict.update(
+        {
+            c[1]: item.get(c[0], c[3])
+            for c in key_config
+            if c[0] not in ["sku", "quantity", "quantity_in_case"]
+        }
+    )
+    return item_dict
+
+
+def parse_shipment_items(
+    items: List[Union[InboundShipmentPlanRequestItem, dict]],
+    operation: Optional[str] = None,
+) -> List[dict]:
+    """Parses item arguments sent to ``create_inbound_shipment_plan`` request.
 
     :param item_args: A list of dicts containing data for items to be parsed.
         Each dict must contain the keys ``'sku'`` and ``'quantity'``.
@@ -50,64 +137,16 @@ def parse_item_args(item_args: List[Dict], operation: str) -> List[dict]:
         relevant operations.
     :type operation: str
     """
-    # TODO allow a model to take over this concern
-    # TODO model should be able to accept PrepDetails, as well
-    # https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem
-    if not item_args:
-        raise MWSError("One or more `item` dict arguments required.")
+    if not items:
+        raise MWSError("One or more `item` arguments required.")
 
-    if operation == "CreateInboundShipmentPlan":
-        # `key_config` composed of list of tuples, each tuple compose of:
-        # (input_key, output_key, is_required, default_value)
-        key_config = [
-            ("sku", "SellerSKU", True, None),
-            ("quantity", "Quantity", True, None),
-            ("quantity_in_case", "QuantityInCase", False, None),
-            ("asin", "ASIN", False, None),
-            ("condition", "Condition", False, None),
-        ]
-        # The expected MWS key for quantity is different for this operation.
-        # This ensures we use the right key later on.
-        quantity_key = "Quantity"
-    else:
-        key_config = [
-            ("sku", "SellerSKU", True, None),
-            ("quantity", "QuantityShipped", True, None),
-            ("quantity_in_case", "QuantityInCase", False, None),
-        ]
-        quantity_key = "QuantityShipped"
-
-    items = []
-    for item in item_args:
-        if not isinstance(item, Mapping):
-            raise MWSError("`item` argument must be a dict.")
-        if not all(k in item for k in [c[0] for c in key_config if c[2]]):
-            # Required keys of an item line missing
-            raise MWSError(
-                (
-                    "`item` dict missing required keys: {required}."
-                    "\n- Optional keys: {optional}."
-                ).format(
-                    required=", ".join([c[0] for c in key_config if c[2]]),
-                    optional=", ".join([c[0] for c in key_config if not c[2]]),
-                )
-            )
-
-        item_dict = {
-            "SellerSKU": item.get("sku"),
-            quantity_key: item.get("quantity"),
-            "QuantityInCase": item.get("quantity_in_case"),
-        }
-        item_dict.update(
-            {
-                c[1]: item.get(c[0], c[3])
-                for c in key_config
-                if c[0] not in ["sku", "quantity", "quantity_in_case"]
-            }
-        )
-        items.append(item_dict)
-
-    return items
+    item_params = []
+    for item in items:
+        if isinstance(item, InboundShipmentPlanRequestItem):
+            item_params.append(item.to_params())
+        else:
+            item_params.append(parse_legacy_item(item, operation))
+    return item_params
 
 
 class InboundShipments(MWS):
@@ -203,7 +242,7 @@ class InboundShipments(MWS):
 
     def create_inbound_shipment_plan(
         self,
-        items: IterableType[dict],
+        items: IterableType[Union[InboundShipmentPlanRequestItem, dict]],
         country_code: str = "US",
         subdivision_code: str = "",
         label_preference: str = "",
@@ -250,7 +289,7 @@ class InboundShipments(MWS):
         data.update(
             enumerate_keyed_param(
                 "InboundShipmentPlanRequestItems.member",
-                parse_item_args(items, "CreateInboundShipmentPlan"),
+                parse_shipment_items(items, "CreateInboundShipmentPlan"),
             )
         )
         return self.make_request("CreateInboundShipmentPlan", data, method="POST")
@@ -307,7 +346,7 @@ class InboundShipments(MWS):
         data.update(
             enumerate_keyed_param(
                 "InboundShipmentItems.member",
-                parse_item_args(items, "CreateInboundShipment"),
+                parse_shipment_items(items, "CreateInboundShipment"),
             )
         )
         return self.make_request("CreateInboundShipment", data, method="POST")
@@ -359,7 +398,7 @@ class InboundShipments(MWS):
             data.update(
                 enumerate_keyed_param(
                     "InboundShipmentItems.member",
-                    parse_item_args(items, "UpdateInboundShipment"),
+                    parse_shipment_items(items, "UpdateInboundShipment"),
                 )
             )
         return self.make_request("UpdateInboundShipment", data, method="POST")

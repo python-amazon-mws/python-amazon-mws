@@ -183,7 +183,20 @@ class ItemCondition(Enum):
 
 
 class InboundShipmentPlanRequestItem(MWSDataType):
-    """An item to add to a Create Inbound Shipment Plan call [WIP]"""
+    """Item information for creating an inbound shipment plan.
+    Submitted with a call to the CreateInboundShipmentPlan operation.
+
+    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem
+
+    Only ``sku`` and ``quantity`` are required for each item.
+    Include ``quantity_in_case`` if your items are case-packed, and ``asin`` to include
+    ASIN as needed.
+
+    ``condition`` may be a string or an instance of ``ItemCondition
+    <mws.models.inbound_shipments.ItemCondition>``.
+
+    ``prep_details_list``
+    """
 
     def __init__(
         self,
@@ -209,10 +222,11 @@ class InboundShipmentPlanRequestItem(MWSDataType):
             "Quantity": self.quantity,
             "QuantityInCase": self.quantity_in_case,
         }
-        # Each PrepDetails instance will param itself,
+        # Each PrepDetails instance will parameterize itself,
         # but we need to enumerate it with "PrepDetailsList.member"
         if self.prep_details_list:
+            parameterized_details = [x.to_params() for x in self.prep_details_list]
             data.update(
-                enumerate_keyed_param("PrepDetailsList.member", self.prep_details_list)
+                enumerate_keyed_param("PrepDetailsList.member", parameterized_details)
             )
         return data
