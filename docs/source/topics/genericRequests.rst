@@ -39,7 +39,7 @@ then provide a dict of parameters for your request as ``params``:
     response = orders_api.generic_request(
         action="ListOrders",
         params={
-            "MarketplaceId": my_marketplace_ids,
+            "MarketplaceId.Id": my_marketplace_ids,
             "CreatedAfter": datetime.datetime(2020, 8, 28),
         }
     )
