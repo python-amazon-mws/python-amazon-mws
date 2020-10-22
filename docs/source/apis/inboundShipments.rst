@@ -10,4 +10,4 @@ InboundShipments API
 Other functions
 ===============
 
-.. autofunction:: mws.apis.inbound_shipments.parse_item_args
+.. autofunction:: mws.apis.inbound_shipments.parse_shipment_items
