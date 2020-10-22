@@ -33,27 +33,6 @@ class Address(MWSDataType):
         self.country_code = country_code
         self.postal_code = postal_code
 
-    def __repr__(self):
-        output = f"{self.__class__.__name__}"
-        order = [
-            "name",
-            "address_line_1",
-            "city",
-            "address_line_2",
-            "district_or_county",
-            "state_or_province_code",
-            "country_code",
-            "postal_code",
-        ]
-        attrs = []
-        for attr in order:
-            val = getattr(self, attr)
-            if val is not None:
-                attrs.append(f"{attr}={repr(val)}")
-        attr_str = ", ".join(attrs)
-        output += f"({attr_str})"
-        return output
-
     def params_dict(self) -> dict:
         return {
             "Name": self.name,

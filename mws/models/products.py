@@ -38,14 +38,6 @@ class MoneyType(MWSDataType):
         self.amount = amount
         self.currency_code = currency_code
 
-    def __repr__(self):
-        return (
-            f"{self.__class__.__name__}("
-            f"{repr(self.amount)}, "
-            f"{repr(self.currency_code)}"
-            ")"
-        )
-
     def params_dict(self) -> dict:
         return {
             "Amount": self.amount,
@@ -66,14 +58,6 @@ class Points(MWSDataType):
             monetary_value, MoneyType
         ), "monetary_value must be a MoneyType model instance."
         self.monetary_value = monetary_value
-
-    def __repr__(self):
-        return (
-            f"{self.__class__.__name__}("
-            f"{repr(self.points_number)}, "
-            f"{repr(self.monetary_value)}"
-            ")"
-        )
 
     def params_dict(self) -> dict:
         data = {"PointsNumber": self.points_number}
@@ -104,15 +88,6 @@ class PriceToEstimateFees(MWSDataType):
         if points is not None:
             assert isinstance(points, Points), "points must be a Points model instance."
         self.points = points
-
-    def __repr__(self):
-        return (
-            f"{self.__class__.__name__}("
-            f"{repr(self.listing_price)}, "
-            f"{repr(self.shipping)}, "
-            f"points={repr(self.points)}"
-            ")"
-        )
 
     def params_dict(self) -> dict:
         data = {}
@@ -147,18 +122,6 @@ class FeesEstimateRequest(MWSDataType):
             price_to_estimate_fees, PriceToEstimateFees
         ), "price_to_estimate_fees must be a PriceToEstimateFees model instance"
         self.price_to_estimate_fees = price_to_estimate_fees
-
-    def __repr__(self):
-        return (
-            f"{self.__class__.__name__}("
-            f"{repr(self.marketplace_id)}, "
-            f"{repr(self.id_type)}, "
-            f"{repr(self.id_value)}, "
-            f"{repr(self.price_to_estimate_fees)}, "
-            f"{repr(self.is_amazon_fulfilled)}, "
-            f"{repr(self.identifier)}"
-            ")"
-        )
 
     def params_dict(self) -> dict:
         data = {

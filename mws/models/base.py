@@ -11,6 +11,13 @@ from mws.utils import flat_param_dict
 class MWSDataType(ABC):
     """Base class for data type models used for MWS requests."""
 
+    def __repr__(self):
+        output = f"<{self.__class__.__name__}("
+        values = [f"{key}={repr(val)}" for key, val in self.__dict__.items()]
+        output += ", ".join(values)
+        output += ")>"
+        return output
+
     @abstractmethod
     def params_dict(self) -> dict:
         """Returns a dict of this model's parameters suitable for an MWS request."""
