@@ -253,8 +253,9 @@ class InboundShipments(MWS):
 
         At least one dictionary must be passed as `args`. Each dictionary
         should contain the following keys:
-          REQUIRED: 'sku', 'quantity'
-          OPTIONAL: 'asin', 'condition', 'quantity_in_case'
+
+            REQUIRED: 'sku', 'quantity'
+            OPTIONAL: 'asin', 'condition', 'quantity_in_case'
 
         ``InboundShipments.from_address`` must be set before using this operation.
 
@@ -310,8 +311,9 @@ class InboundShipments(MWS):
 
         At least one dictionary must be passed as `items`. Each dictionary
         should contain the following keys:
-          REQUIRED: 'sku', 'quantity'
-          OPTIONAL: 'quantity_in_case'
+
+            REQUIRED: 'sku', 'quantity'
+            OPTIONAL: 'quantity_in_case'
 
         ``InboundShipments.from_address`` must be set before using this operation.
 
