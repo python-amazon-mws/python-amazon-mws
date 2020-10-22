@@ -81,16 +81,12 @@ def test_region_domains(region, domain, mws_credentials):
 
 
 def test_no_authtoken_included_default_params(
-    cred_access_key, cred_account_id, cred_secret_key
+    cred_access_key, cred_account_id, cred_secret_key, api_instance
 ):
-    mws = MWS(
-        access_key=cred_access_key,
-        secret_key=cred_secret_key,
-        account_id=cred_account_id,
-    )
-    mws._test_request_params = True
     timestamp = datetime.datetime(2020, 8, 24, 16, 30)
-    default_params = mws.get_default_params(action="Something", timestamp=timestamp)
+    default_params = api_instance.get_default_params(
+        action="Something", timestamp=timestamp
+    )
     assert "MWSAuthToken" not in default_params
 
     # While we're here, check the other params
