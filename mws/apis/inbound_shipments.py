@@ -150,9 +150,10 @@ class InboundShipments(MWS):
 
     @from_address.setter
     def from_address(self, value: Union[Address, dict]):
-        """Verifies the structure of an address dictionary.
-        Once verified against the KEY_CONFIG, saves a parsed version
-        of that dictionary, ready to send to requests.
+        """Stores the ship-from address on this API instance.
+
+        Accepts instances of ``Address`` model natively, while dict values
+        are passed to ``Address.from_legacy_dict()`` for further processing.
         """
         if value is None:
             self._from_address = None
@@ -162,7 +163,7 @@ class InboundShipments(MWS):
             self._from_address = value
             return
         if not isinstance(value, Mapping):
-            raise MWSError("value must be a dict or other Mapping type")
+            raise MWSError("value must be an instance of Address model or a dict")
 
         self._from_address = Address.from_legacy_dict(value)
 
