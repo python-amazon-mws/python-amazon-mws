@@ -111,18 +111,23 @@ class PrepDetails(MWSDataType):
 
     https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#PrepDetails
 
-    :param prep_instructions: The instruction for this prep.
-        Can accept a ``PrepInstruction`` enumeration, which will be converted to its
-        string value when parameterized for a request.
+    ``prep_instruction`` accepts either a string or an instance of the :py:class:`PrepInstruction
+    <mws.models.inbound_shipments.PrepInstruction>` enum, detailing the type of prep
+    to perform. When using a string, the value should match one of the
+    ``PrepInstruction.<PREP>.code`` values.
+
+    ``prep_owner`` (optional) accepts a string, typically "AMAZON" or "SELLER", to
+    indicate who is responsible for the prep. You can use ``PrepDetails.AMAZON``
+    or ``PrepDetails.SELLER`` to fill in these values. Defaults to "SELLER".
     """
 
-    OWNER_AMAZON = "AMAZON"
-    OWNER_SELLER = "SELLER"
+    AMAZON = "AMAZON"
+    SELLER = "SELLER"
 
     def __init__(
         self,
         prep_instruction: Union[PrepInstruction, str],
-        prep_owner: str = OWNER_SELLER,
+        prep_owner: str = SELLER,
     ):
         self.prep_instruction = prep_instruction
         self.prep_owner = prep_owner

@@ -49,7 +49,7 @@ You will then use this API class instance to initiate requests to MWS.
     )
 
 Create your ship-from address
-----------------------------
+-----------------------------
 
 Next, set up your ship-from address, which is required for the three core operations related to FBA shipments:
 planning, creation, and updating.
@@ -154,7 +154,7 @@ shipments of new items when prep details do not need to be specified.
            prep_details_list=[
                PrepDetails(
                    prep_instruction=PrepInstruction.POLYBAGGING,  # or "Polybagging"
-                   prep_owner=PrepDetails.OWNER_AMAZON  # or "AMAZON"
+                   prep_owner=PrepDetails.AMAZON  # or "AMAZON"
                )
            ]
        )
