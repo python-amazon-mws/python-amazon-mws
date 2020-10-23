@@ -11,7 +11,8 @@ from mws.models.base import MWSDataType
 class Address(MWSDataType):
     """Postal address information.
 
-    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#Address
+    `MWS docs: Address Datatype
+    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#Address>`_
     """
 
     def __init__(
@@ -78,7 +79,8 @@ class Address(MWSDataType):
 class PrepInstruction(Enum):
     """Enumeration of preparation instruction types.
 
-    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#PrepInstruction
+    `MWS docs: PrepInstruction Datatype
+    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#PrepInstruction>`_
 
     Provides constants for each prep type:
 
@@ -109,7 +111,8 @@ class PrepInstruction(Enum):
 class PrepDetails(MWSDataType):
     """A preparation instruction, and who is responsible for that preparation.
 
-    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#PrepDetails
+    `MWS docs: PrepDetails Datatype
+    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#PrepDetails>`_
 
     ``prep_instruction`` accepts either a string or an instance of the :py:class:`PrepInstruction
     <mws.models.inbound_shipments.PrepInstruction>` enum, detailing the type of prep
@@ -142,9 +145,29 @@ class PrepDetails(MWSDataType):
 class ItemCondition(Enum):
     """Condition value for an item included with a CreateInboundShipmentPlan request.
 
-    Values can be found in MWS documentation for the ``Condition`` parameter of a
-    ``InboundShipmentPlanRequestItem`` Datatype:
-    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem
+    `MWS docs: InboundShipmentPlanRequestItem Datatype
+    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem>`_
+
+    Values provided:
+
+    - NEW_ITEM
+    - NEW_WITH_WARRANTY
+    - NEW_OEM
+    - NEW_OPEN_BOX
+    - USED_LIKE_NEW
+    - USED_VERY_GOOD
+    - USED_GOOD
+    - USED_ACCEPTABLE
+    - USED_POOR
+    - USED_REFURBISHED
+    - COLLECTIBLE_LIKE_NEW
+    - COLLECTIBLE_VERY_GOOD
+    - COLLECTIBLE_GOOD
+    - COLLECTIBLE_ACCEPTABLE
+    - COLLECTIBLE_POOR
+    - REFURBISHED_WITH_WARRANTY
+    - REFURBISHED
+    - CLUB
     """
 
     NEW_ITEM = "NewItem"
@@ -225,7 +248,8 @@ class InboundShipmentPlanRequestItem(BaseInboundShipmentItem):
     """Item information for creating an inbound shipment plan.
     Submitted with a call to the CreateInboundShipmentPlan operation.
 
-    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem
+    `MWS docs: InboundShipmentPlanRequestItem Datatype
+    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem>`_
 
     Adds the optional arguments ``asin`` (to include ASIN as needed) and ``condition``
     (to add item condition information).
@@ -260,7 +284,8 @@ class InboundShipmentItem(BaseInboundShipmentItem):
     Submitted with a call to the CreateInboundShipment or
     UpdateInboundShipment operation.
 
-    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentItem
+    `MWS docs: InboundShipmentItem Datatype
+    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentItem>`_
     """
 
     quantity_param = "QuantityShipped"
