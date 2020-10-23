@@ -153,7 +153,7 @@ class InboundShipments(MWS):
     """Amazon MWS FulfillmentInboundShipment API
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Overview.html
+    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Overview.html
     """
 
     URI = "/FulfillmentInboundShipment/2010-10-01"
@@ -218,7 +218,7 @@ class InboundShipments(MWS):
         """Returns inbound guidance for a list of items by Seller SKU.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForSKU.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForSKU.html
         """
         if not isinstance(skus, IterableAbc):
             skus = [skus]
@@ -231,7 +231,7 @@ class InboundShipments(MWS):
         """Returns inbound guidance for a list of items by ASIN.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForASIN.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForASIN.html
         """
         if not isinstance(asins, IterableAbc):
             asins = [asins]
@@ -260,7 +260,7 @@ class InboundShipments(MWS):
         ``InboundShipments.from_address`` must be set before using this operation.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipmentPlan.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipmentPlan.html
         """
         if not items:
             raise MWSError("One or more `item` dict arguments required.")
@@ -318,7 +318,7 @@ class InboundShipments(MWS):
         ``InboundShipments.from_address`` must be set before using this operation.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipment.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipment.html
         """
         if not items:
             raise MWSError("One or more `item` dict arguments required.")
@@ -370,7 +370,7 @@ class InboundShipments(MWS):
         ``InboundShipments.from_address`` must be set before using this operation.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_UpdateInboundShipment.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_UpdateInboundShipment.html
         """
         # Assert these are strings, error out if not.
         data = {
@@ -411,7 +411,7 @@ class InboundShipments(MWS):
         already been confirmed for pre-order.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPreorderInfo.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPreorderInfo.html
         """
         return self.make_request("GetPreorderInfo", {"ShipmentId": shipment_id})
 
@@ -419,7 +419,7 @@ class InboundShipments(MWS):
         """Confirms a shipment for pre-order.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmPreorder.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmPreorder.html
         """
         return self.make_request(
             "ConfirmPreorder", {"ShipmentId": shipment_id, "NeedByDate": need_by_date}
@@ -432,7 +432,7 @@ class InboundShipments(MWS):
         to help you prepare items for an inbound shipment.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForSKU.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForSKU.html
         """
         country_code = country_code or "US"
         skus = skus or []
@@ -450,7 +450,7 @@ class InboundShipments(MWS):
         """Returns item preparation instructions to help with item sourcing decisions.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForASIN.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForASIN.html
         """
         country_code = country_code or "US"
         asins = asins or []
@@ -468,7 +468,7 @@ class InboundShipments(MWS):
     #     Sends transportation information to Amazon about an inbound shipment.
 
     #     Docs:
-    #     http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#TransportDetailInput
+    #     https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#TransportDetailInput
     #     """
     #     data = {
     #         'ShipmentId': shipment_id,
@@ -488,7 +488,7 @@ class InboundShipments(MWS):
         """Requests an estimate of the shipping cost for an inbound shipment.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_EstimateTransportRequest.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_EstimateTransportRequest.html
         """
         return self.make_request(
             "EstimateTransportRequest", {"ShipmentId": shipment_id}, method="POST"
@@ -498,7 +498,7 @@ class InboundShipments(MWS):
         """Returns current transportation information about an inbound shipment.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetTransportContent.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetTransportContent.html
         """
         return self.make_request(
             "GetTransportContent", {"ShipmentId": shipment_id}, method="POST"
@@ -509,7 +509,7 @@ class InboundShipments(MWS):
         you request that the Amazon-partnered carrier ship your inbound shipment.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmTransportRequest.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmTransportRequest.html
         """
         return self.make_request("ConfirmTransportRequest", {"ShipmentId": shipment_id})
 
@@ -518,7 +518,7 @@ class InboundShipments(MWS):
         using an Amazon-partnered carrier.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_VoidTransportRequest.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_VoidTransportRequest.html
         """
         return self.make_request(
             "VoidTransportRequest", {"ShipmentId": shipment_id}, method="POST"
@@ -530,7 +530,7 @@ class InboundShipments(MWS):
         """Returns PDF document data for printing package labels for an inbound shipment.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPackageLabels.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPackageLabels.html
         """
         return self.make_request(
             "GetPackageLabels",
@@ -563,7 +563,7 @@ class InboundShipments(MWS):
         specifying for which package(s) you want package labels printed.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetUniquePackageLabels.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetUniquePackageLabels.html
         """
         data = {
             "ShipmentId": shipment_id,
@@ -591,7 +591,7 @@ class InboundShipments(MWS):
         `num_labels` is integer, number of labels to create.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPalletLabels.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPalletLabels.html
         """
         data = {
             "ShipmentId": shipment_id,
@@ -605,7 +605,7 @@ class InboundShipments(MWS):
         inbound shipment.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetBillOfLading.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetBillOfLading.html
         """
         return self.make_request(
             "GetBillOfLading", {"ShipmentId": shipment_id}, method="POST"
@@ -625,7 +625,7 @@ class InboundShipments(MWS):
         Pass `next_token` to call "ListInboundShipmentsByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipments.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipments.html
         """
         data = {
             "LastUpdatedAfter": last_updated_after,
@@ -639,7 +639,7 @@ class InboundShipments(MWS):
         """Alias for `list_inbound_shipments(next_token=token)`
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentsByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentsByNextToken.html
         """
         return self.list_inbound_shipments(next_token=token)
 
@@ -656,7 +656,7 @@ class InboundShipments(MWS):
         Pass `next_token` to call "ListInboundShipmentItemsByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItems.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItems.html
         """
         return self.make_request(
             "ListInboundShipmentItems",
@@ -672,6 +672,6 @@ class InboundShipments(MWS):
         """Alias for `list_inbound_shipment_items(next_token=token)`
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItemsByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItemsByNextToken.html
         """
         return self.list_inbound_shipment_items(next_token=token)

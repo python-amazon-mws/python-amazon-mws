@@ -9,7 +9,7 @@ class Inventory(MWS):
     """Amazon MWS Inventory Fulfillment API
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_Overview.html
+    https://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_Overview.html
     """
 
     URI = "/FulfillmentInventory/2010-10-01"
@@ -33,7 +33,7 @@ class Inventory(MWS):
         Pass `next_token` to call "ListInventorySupplyByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupply.html
+        https://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupply.html
         """
         data = {
             "QueryStartDateTime": datetime_,
@@ -47,6 +47,6 @@ class Inventory(MWS):
         """Alias for `list_inventory_supply(next_token=token)`
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupplyByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupplyByNextToken.html
         """
         return self.list_inventory_supply(next_token=token)
