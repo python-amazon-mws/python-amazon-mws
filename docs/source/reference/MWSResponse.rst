@@ -17,7 +17,7 @@ All XML response content is automatically parsed using the ``xmltodict`` package
 :py:class:`DotDict <mws.utils.collections.DotDict>` accessible from
 :py:meth:`MWSResponse.parsed <mws.response.MWSResponse.parsed>`.
 
-For more details on working with the parsed content, please see :doc:`dotDict`.
+For more details on working with the parsed content, please see :doc:`DotDict`.
 
 Original response access
 ========================

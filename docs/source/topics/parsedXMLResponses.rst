@@ -95,7 +95,7 @@ instance, we can access the :py:class:`DotDict <mws.utils.collections.DotDict>` 
 :py:attr:`.parsed <mws.response.MWSResponse.parsed>` property to comb through the returned data.
 
 For more details on how to make the best use of this parsed data, please see
-:doc:`../reference/dotDict`.
+:doc:`../reference/DotDict`.
 
 Result keys and metadata
 ========================

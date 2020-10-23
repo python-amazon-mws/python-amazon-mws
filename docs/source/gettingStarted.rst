@@ -96,7 +96,7 @@ as ``DictWrapper``, with the raw document stored in ``.original``, and ``.parsed
    For details on using these newer features, please see:
 
    - :doc:`topics/parsedXMLResponses`
-   - :doc:`reference/mwsResponse`
-   - :doc:`reference/dotDict`
+   - :doc:`reference/MWSResponse`
+   - :doc:`reference/DotDict`
 
    ``MWSResponse`` *and* ``DotDict`` *will become the default objects returned by requests in v1.0*.
