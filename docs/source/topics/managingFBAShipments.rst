@@ -1,6 +1,9 @@
 Managing Fulfillment Inbound (FBA) Shipments
 ############################################
 
+.. note:: Examples in this document use :doc:`MWSResponse preview features
+   <../reference/MWSResponse>`.
+
 MWS handles **Fulfillment Inbound Shipments**, also known as **FBA** (for "Fulfillment By Amazon")
 through the `Fulfillment Inbound Shipment API section
 <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Overview.html>`_.
@@ -9,13 +12,28 @@ Users should familiarize themselves with this section of the API in MWS document
 In python-amazon-mws, this API is covered by
 :py:class:`mws.InboundShipments <mws.apis.inbound_shipments.InboundShipments>`.
 
-Basic workflow
-==============
+Basic steps to create a shipment in MWS
+=======================================
 
-Let's step through a basic workflow for creating a new FBA shipment. You will need:
+For a quick overview, MWS requires the following pattern to creating FBA shipments:
 
-- A valid **ship-from address**, presumably the location of your facility where shipments will originate.
-- A list of Seller SKUs for items in your catalog to be add to new shipment(s).
+1. Send a request to
+   :py:meth:`create_inbound_shipment_plan <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment_plan>`
+   with all items you wish to ship, along with their quantities, conditions, prep details, and so on.
+2. MWS will respond with one or more **shipment plans**, indicating where to send each of your items. Multiple shipments
+   may be requested, and the same item may have its quantities split between these shipments. Each plan also returns
+   the FBA Shipment ID needed to create a shipment, as well as the ID and address of the Fulfillment Center that will
+   expect that shipment.
+3. For each shipment plan, send a
+   :py:meth:`create_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment>`
+   request with the items, quantities, and other details identified in the plan.
+
+   - Optionally, it is possible to use
+     :py:meth:`update_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.update_inbound_shipment>`
+     to add planned items for a new shipment to an existing shipment under certain conditions.
+     **Using this option improperly may violate the terms of your seller account, so use with caution!**
+
+We'll look at each of these steps in detail below.
 
 .. warning:: MWS does not provide a sandbox for testing functionality. If you use examples from this
    guide for testing purposes, you will need to use **live data** to do it, and will be creating
@@ -30,6 +48,17 @@ Let's step through a basic workflow for creating a new FBA shipment. You will ne
      or other MWS-related tooling to check on shipment statuses.
    - Leaving test shipments in WORKING or SHIPPED statuses may have an impact on your product inventory.
      We advise changing these to CANCELLED when you complete your testing.
+
+Requesting a shipment plan
+==========================
+
+We start by informing Amazon we have items we wish to ship, requesting a **shipment plan** through MWS.
+
+You will need:
+
+- MWS credentials to authenticate with MWS (not in scope for these docs).
+- A valid **ship-from address**, presumably the address of the facility where you will be shipping items from.
+- A list of Seller SKUs for items in your product catalog to add to new shipments.
 
 Create the API instance
 -----------------------
@@ -93,6 +122,20 @@ You should refer to MWS documentation for this Datatype to ensure all necessary 
 
    Using ``.to_params()`` in your own code is usually not necessary, as most request methods will convert the
    model instance to parameters automatically.
+
+*Optional*: Store your ship-from address on the API instance
+************************************************************
+
+If you plan to make several requests in a row related to the same ship-from address, you can store the address on
+an instance of ``InboundShipments`` API as ``.from_address``:
+
+.. code-block:: python
+
+    inbound_api.from_address = my_address
+
+When using this option, you can omit passing ``from_address=my_address`` as an argument in the request examples below.
+All relevant request methods (``create_inbound_shipment_plan``, ``create_inbound_shipment``, and
+``update_inbound_shipment``) will pass the stored ``from_address`` to these requests automatically.
 
 Request a shipment plan
 ------------------------
@@ -169,6 +212,103 @@ shipments of new items when prep details do not need to be specified.
 Sending the request
 *******************
 
-Now that we have our items handy, it's time to make our request:
+Now that we have our items handy, it's time to make our request for a shipment plan:
 
-.. Write sample of a CreateInboundShipment request and expected response.
+.. code-block:: python
+
+    # using `inbound_api`, `my_address` and `my_items` from previous examples
+    resp = inbound_api.create_inbound_shipment_plan(my_items, from_address=my_address)
+
+Processing shipment plans
+=========================
+
+If our request to create shipment plans was successful, MWS will respond with an XML document containing plan details.
+python-amazon-mws will :doc:`automatically parse this response <parsedXMLResponses>`, giving us access to the
+Python representation of the response in ``resp.parsed``.
+
+For reference, let's look at an example of an XML response from ``create_inbound_shipment_plan``. You can access
+this document in your own response by checking ``resp.original.text``:
+
+.. code-block:: xml
+
+    <?xml version="1.0"?>
+    <CreateInboundShipmentPlanResponse
+      xmlns="http://mws.amazonaws.com/FulfillmentInboundShipment/2010-10-01/">
+      <CreateInboundShipmentPlanResult>
+        <InboundShipmentPlans>
+          <member>
+            <DestinationFulfillmentCenterId>ABE2</DestinationFulfillmentCenterId>
+            <LabelPrepType>SELLER_LABEL</LabelPrepType>
+            <ShipToAddress>
+              <City>Breinigsville</City>
+              <CountryCode>US</CountryCode>
+              <PostalCode>18031</PostalCode>
+              <Name>Amazon.com</Name>
+              <AddressLine1>705 Boulder Drive</AddressLine1>
+              <StateOrProvinceCode>PA</StateOrProvinceCode>
+            </ShipToAddress>
+            <EstimatedBoxContentsFee>
+              <TotalUnits>10</TotalUnits>
+              <FeePerUnit>
+                <CurrencyCode>USD</CurrencyCode>
+                <Value>0.10</Value>
+              </FeePerUnit>
+              <TotalFee>
+                <CurrencyCode>USD</CurrencyCode>
+                <Value>10.0</Value>
+              </TotalFee>
+            </EstimatedBoxContentsFee>
+            <Items>
+              <member>
+                <FulfillmentNetworkSKU>FNSKU00001</FulfillmentNetworkSKU>
+                <Quantity>1</Quantity>
+                <SellerSKU>SKU00001</SellerSKU>
+                <PrepDetailsList>
+                  <PrepDetails>
+                    <PrepInstruction>Taping</PrepInstruction>
+                    <PrepOwner>AMAZON</PrepOwner>
+                  </PrepDetails>
+                </PrepDetailsList>
+              </member>
+              <member>
+                ...
+              </member>
+            </Items>
+            <ShipmentId>FBA0000001</ShipmentId>
+          </member>
+          <member>
+            ...
+          </member>
+        </InboundShipmentPlans>
+      </CreateInboundShipmentPlanResult>
+      <ResponseMetadata>
+        <RequestId>babd156d-8b2f-40b1-a770-d117f9ccafef</RequestId>
+      </ResponseMetadata>
+    </CreateInboundShipmentPlanResponse>
+
+Based on this example, we can see that each plan is represented by a ``InboundShipmentPlans.member`` node.
+Multiple copies of the ``<member>`` XML element may be present, indicating more than one shipment is planned.
+We'll take advantage of ``DotDict``'s :ref:`native iteration <dotdict_native_iteration>` to safely access these
+multiple plan members, like so:
+
+.. code-block:: python
+
+    for plan in resp.parsed.InboundShipmentPlans.member:
+        print(plan.DestinationFulfillmentCenterId)
+        print(plan.LabelPrepType)
+        print(plan.ShipToAddress.AddressLine1)
+        # ...etc.
+
+Each ``plan`` will also contain one or more Items, which (per the XML example) take the form ``plan.Items.member``.
+We can again iterate on these item members to gather information on each of them:
+
+.. code-block:: python
+
+    for plan in resp.parsed.InboundShipmentPlans.member:
+        ...
+        for item in plan.Items.member:
+            print(item.FulfillmentNetworkSKU)
+            print(item.Quantity)
+            # ...etc.
+
+As mentioned, Amazon may
