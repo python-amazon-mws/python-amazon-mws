@@ -1,5 +1,3 @@
-.. _page_getting_started:
-
 Getting started
 ###############
 
@@ -64,7 +62,7 @@ For most responses (including our example ``list_matching_products``), the ``res
 
 - ``response.original``, the original XML document;
 - ``response.response``, the HTTP response code of the request (200, 400, etc.); and
-- ``response.parsed``, a parsed version of the XML tree. (See :ref:`page_parsed_xml_responses`).
+- ``response.parsed``, a parsed version of the XML tree. (See :doc:`topics/parsedXMLResponses`).
 
 Certain responses (such as the `GetReport
 <http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReport.html>`_ operation, under
@@ -97,8 +95,8 @@ as ``DictWrapper``, with the raw document stored in ``.original``, and ``.parsed
 
    For details on using these newer features, please see:
 
-   - :ref:`page_parsed_xml_responses`
-   - :ref:`page_mwsresponse_reference`
-   - :ref:`page_dotdict_reference`
+   - :doc:`topics/parsedXMLResponses`
+   - :doc:`reference/mwsResponse`
+   - :doc:`reference/dotDict`
 
    ``MWSResponse`` *and* ``DotDict`` *will become the default objects returned by requests in v1.0*.

@@ -1,5 +1,3 @@
-.. _page_dotdict_reference:
-
 DotDict
 #######
 

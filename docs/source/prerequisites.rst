@@ -1,5 +1,3 @@
-.. _page_prerequisites:
-
 Prerequisites for MWS connectivity
 ##################################
 

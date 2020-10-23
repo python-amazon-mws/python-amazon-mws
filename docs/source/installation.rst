@@ -1,5 +1,3 @@
-.. _page_installation:
-
 Installation
 ############
 
