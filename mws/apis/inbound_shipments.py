@@ -170,15 +170,25 @@ class InboundShipments(MWS):
     def set_ship_from_address(self, address: Union[Address, dict]):
         self.from_address = address
 
-    def from_address_dict(self, prefix: str = "") -> dict:
-        """Flattens the from_address object to a dict with prefix before each key.
+    def from_address_params(
+        self, from_address: Address = None, prefix: str = ""
+    ) -> dict:
+        """Converts a from address, either stored or passed as an argument, to params.
 
-        Additionally, checks that ``from_address`` was set properly,
-        raising MWSError if it is not.
+        If provided as an argument, checks first that the arg is the correct type,
+        raising MWSError if it's not an instance of the Address model.
+
+        Providing a from_address as an argument will override any address stored
+        on this API instance.
         """
-        if not self.from_address:
-            raise MWSError("'from_address' must be set before calling this operation.")
-        return self.from_address.to_params(prefix=prefix)
+        if from_address and not isinstance(from_address, Address):
+            raise MWSError(
+                "from_address must be an instance of Address datatype model."
+            )
+        from_address = from_address or self.from_address
+        if not from_address:
+            raise MWSError("from_address must be set before calling this operation.")
+        return from_address.to_params(prefix=prefix)
 
     ### REQUEST METHODS ###
     def get_inbound_guidance_for_sku(self, skus: IterableType, marketplace_id: str):
@@ -239,21 +249,7 @@ class InboundShipments(MWS):
             "ShipToCountrySubdivisionCode": subdivision_code,
             "LabelPrepPreference": label_preference,
         }
-
-        # Ship-from address handling
-        from_addr_prefix = "ShipFromAddress"
-        # The method `from_address_dict` matches signature with that of
-        # `Address.to_params`, so we'll conditionally assign the function.
-        func = self.from_address_dict
-        if from_address:
-            if not isinstance(from_address, Address):
-                raise MWSError(
-                    "from_address argument must be an instance of Address datatype model."
-                )
-            func = from_address.to_params
-        from_address = func(prefix=from_addr_prefix)
-
-        data.update(from_address)
+        data.update(self.from_address_params(from_address, "ShipFromAddress"))
         data.update(
             enumerate_keyed_param(
                 "InboundShipmentPlanRequestItems.member",
@@ -299,19 +295,12 @@ class InboundShipments(MWS):
             "InboundShipmentHeader.ShipmentStatus": shipment_status,
             "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
         }
-
-        # Ship-from address handling
-        from_addr_prefix = "InboundShipmentHeader.ShipFromAddress"
-        func = self.from_address_dict
-        if from_address:
-            if not isinstance(from_address, Address):
-                raise MWSError(
-                    "from_address argument must be an instance of Address datatype model."
-                )
-            func = from_address.to_params
-        from_address = func(prefix=from_addr_prefix)
-        data.update(from_address)
-
+        data.update(
+            self.from_address_params(
+                from_address=from_address,
+                prefix="InboundShipmentHeader.ShipFromAddress",
+            )
+        )
         data.update(
             enumerate_keyed_param(
                 "InboundShipmentItems.member",
@@ -349,19 +338,11 @@ class InboundShipments(MWS):
             "InboundShipmentHeader.ShipmentStatus": shipment_status,
             "InboundShipmentHeader.IntendedBoxContentsSource": box_contents_source,
         }
-
-        # Ship-from address handling
-        from_addr_prefix = "InboundShipmentHeader.ShipFromAddress"
-        func = self.from_address_dict
-        if from_address:
-            if not isinstance(from_address, Address):
-                raise MWSError(
-                    "from_address argument must be an instance of Address datatype model."
-                )
-            func = from_address.to_params
-        from_address = func(prefix=from_addr_prefix)
-        data.update(from_address)
-
+        data.update(
+            self.from_address_params(
+                from_address, "InboundShipmentHeader.ShipFromAddress"
+            )
+        )
         if items:
             # Update with an items paramater only if they exist.
             data.update(
