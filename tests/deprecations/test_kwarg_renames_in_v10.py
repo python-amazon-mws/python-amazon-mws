@@ -69,6 +69,22 @@ class MethodRenamedBase:
         assert len(record) == 0
 
         # Check that request params in both the old and new names are identical
+        # NOTE: The Timestamp and Signature keys may be different, due to race condition
+        # between two different requests. We remove those,
+        # as they're not necessary for our testing here.
+        common_params = [
+            "AWSAccessKeyId",
+            "MWSAuthToken",
+            "Signature",
+            "SignatureMethod",
+            "SignatureVersion",
+            "Timestamp",
+        ]
+        for key in common_params:
+            if key in old_params:
+                del old_params[key]
+            if key in new_params:
+                del new_params[key]
         assert old_params == new_params
 
 
