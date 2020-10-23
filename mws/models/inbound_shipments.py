@@ -1,10 +1,11 @@
 """DataType models for InboundShipments API."""
 
-from mws.utils.params import enumerate_keyed_param, enumerate_param
 from typing import List, Optional, Union
 from enum import Enum
+import datetime
 
-from .base import MWSDataType
+from mws.utils.params import enumerate_keyed_param, enumerate_param
+from mws.models.base import MWSDataType
 
 
 class Address(MWSDataType):
@@ -161,20 +162,25 @@ class ItemCondition(Enum):
     CLUB = "Club"
 
 
-class InboundShipmentPlanRequestItem(MWSDataType):
-    """Item information for creating an inbound shipment plan.
-    Submitted with a call to the CreateInboundShipmentPlan operation.
+class BaseInboundShipmentItem(MWSDataType):
+    """Base class for Item information for creating an shipments and shipment plans.
 
-    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem
+    Subclasses of this class may be submitted with a call to the either
+    ``create_inbound_shipment_plan`` or ``create_inbound_shipment``,
+    depending on the nature of that particular subclass.
 
     Only ``sku`` and ``quantity`` are required for each item.
-    Include ``quantity_in_case`` if your items are case-packed, and ``asin`` to include
-    ASIN as needed.
+    Include ``quantity_in_case`` if your items are case-packed.
 
-    ``condition`` may be a string or an instance of ``ItemCondition
-    <mws.models.inbound_shipments.ItemCondition>``.
+    ``prep_details_list`` (optional) expects an iterable of :py:class:`PrepDetails
+    <mws.models.inbound_shipments.PrepDetails>` instances.
+    """
 
-    ``prep_details_list``
+    quantity_param = ""
+    """The key to use for the ``quantity`` arg, when generating parameters.
+
+    The different calls use different names for ``quantity`` parameter,
+    so this must be defined in subclasses.
     """
 
     def __init__(
@@ -182,39 +188,85 @@ class InboundShipmentPlanRequestItem(MWSDataType):
         sku: str,
         quantity: int,
         quantity_in_case: Optional[int] = None,
-        asin: Optional[str] = None,
-        condition: Optional[Union[ItemCondition, str]] = None,
         prep_details_list: Optional[List[PrepDetails]] = None,
     ):
         self.sku = sku
         self.quantity = quantity
         self.quantity_in_case = quantity_in_case
-        self.asin = asin
-        self.condition = condition
         self.prep_details_list = prep_details_list
 
-    def params_dict(self) -> dict:
+    def _base_params_dict(self) -> dict:
+        assert (
+            self.quantity_param != ""
+        ), f"{self.__class__.__name__}.quantity_param must be defined."
         data = {
             "SellerSKU": self.sku,
-            "ASIN": self.asin,
-            "Condition": self.clean_enum_val(self.condition),
-            "Quantity": self.quantity,
+            self.quantity_param: self.quantity,
             "QuantityInCase": self.quantity_in_case,
         }
         # Each PrepDetails instance will parameterize itself,
         # but we need to enumerate it with "PrepDetailsList.member"
         if self.prep_details_list:
-            parameterized_details = [x.to_params() for x in self.prep_details_list]
+            parameterized_prep_details = [x.to_params() for x in self.prep_details_list]
             data.update(
-                enumerate_keyed_param("PrepDetailsList.member", parameterized_details)
+                enumerate_keyed_param(
+                    "PrepDetailsList.member", parameterized_prep_details
+                )
             )
         return data
 
 
-class InboundShipmentItem(MWSDataType):
+class InboundShipmentPlanRequestItem(BaseInboundShipmentItem):
+    """Item information for creating an inbound shipment plan.
+    Submitted with a call to the CreateInboundShipmentPlan operation.
+
+    https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem
+
+    Adds the optional arguments ``asin`` (to include ASIN as needed) and ``condition``
+    (to add item condition information).
+
+    ``condition`` may be a string or an instance of :py:class:`ItemCondition
+    <mws.models.inbound_shipments.ItemCondition>`.
+    """
+
+    quantity_param = "Quantity"
+
+    def __init__(
+        self,
+        *args,
+        asin: Optional[str] = None,
+        condition: Optional[Union[ItemCondition, str]] = None,
+        **kwargs,
+    ):
+        super().__init__(self, *args, **kwargs)
+        self.asin = asin
+        self.condition = condition
+
+    def params_dict(self) -> dict:
+        data = self._base_params_dict()
+        data.update(
+            {"ASIN": self.asin, "Condition": self.clean_enum_val(self.condition)}
+        )
+        return data
+
+
+class InboundShipmentItem(BaseInboundShipmentItem):
     """Item information for an inbound shipment.
     Submitted with a call to the CreateInboundShipment or
     UpdateInboundShipment operation.
 
     https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentItem
     """
+
+    quantity_param = "QuantityShipped"
+
+    def __init__(
+        self, *args, release_date: Optional[datetime.datetime] = None, **kwargs
+    ):
+        super().__init__(self, *args, **kwargs)
+        self.release_date = release_date
+
+    def params_dict(self) -> dict:
+        data = self._base_params_dict()
+        data.update({"ReleaseDate": self.release_date})
+        return data
