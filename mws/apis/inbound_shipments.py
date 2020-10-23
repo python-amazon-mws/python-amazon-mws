@@ -12,6 +12,7 @@ import datetime
 from mws import MWS, MWSError
 from mws.models.inbound_shipments import Address
 from mws.models.inbound_shipments import InboundShipmentPlanRequestItem
+from mws.models.inbound_shipments import InboundShipmentItem
 from mws.utils.params import enumerate_param
 
 # from mws.utils.params import flat_param_dict
@@ -24,38 +25,19 @@ from mws.decorators import next_token_action
 
 
 def parse_legacy_item(item: dict, operation: str) -> dict:
-    """Parses a legacy item argument sent to ``create_inbound_shipment_plan``,
+    """Parses a legacy item dict sent to ``create_inbound_shipment_plan``,
     ``create_inbound_shipment``, and ``update_inbound_shipment`` methods.
 
-    :param item: An ``InboundShipmentPlanRequestItem`` instance or dict
-        (using legacy keys) containing data for items to be parsed.
+    ``item`` must contain keys ``"sku"`` and ``"quantity"``; if either is missing,
+    ``MWSError`` is raised. Optionally, ``"quantity_in_case"`` is accepted for
+    case-packed items. For ``create_inbound_shipment_plan`` requests, also accepts
+    optional keys for ``"asin"`` and ``"condition"``.
 
-        If an instance of ``InboundShipmentPlanRequestItem``, simply runs its
-        ``to_params`` method.
+    Any keys besides the required or optional keys for the given operation
+    will be ignored.
 
-        When using a dict (legacy mode), must contain the keys
-        ``'sku'`` and ``'quantity'``. Optionally, ``'quantity_in_case'``
-        can be included for case-packed items.
-
-        For operations besides ``create_inbound_shipment``,
-        ``'asin'`` and ``'condition'`` are also supported as optional keys.
-
-        If any required key is missing, ``MWSError`` is thrown.
-        Any keys besides the required or optional keys for a given operation
-        will be discarded.
-
-        These input keys are mapped to the appropriate parameter name for the chosen
-        operation. For instance, ``'quantity'`` is converted to ``'Quantity'``
-        for the ``CreateInboundShipmentPlan`` operation, and to ``'QuantityShipped'``
-        for all other operations.
-    :type item_args: List[Dict]
-    :param operation: The name of the MWS operation being performed, changing how
-        ``item_args`` are converted to MWS parameters.
-
-        Specifically checks to see if the operation is ``"CreateInboundShipmentPlan"``,
-        which is a special case: different logic applies for all other
-        relevant operations.
-    :type operation: str
+    ``operation`` expects the "Action" name of the operation being performed,
+    i.e. "CreateInboundShipmentPlan".
     """
     if operation == "CreateInboundShipmentPlan":
         # `key_config` composed of list of tuples, each tuple compose of:
@@ -108,41 +90,25 @@ def parse_legacy_item(item: dict, operation: str) -> dict:
 
 
 def parse_shipment_items(
-    items: List[Union[InboundShipmentPlanRequestItem, dict]],
+    items: List[Union[InboundShipmentPlanRequestItem, InboundShipmentItem, dict]],
     operation: Optional[str] = None,
 ) -> List[dict]:
     """Parses item arguments sent to ``create_inbound_shipment_plan`` request.
 
-    :param item_args: A list of dicts containing data for items to be parsed.
-        Each dict must contain the keys ``'sku'`` and ``'quantity'``.
-        Optionally, ``'quantity_in_case'`` can be included for case-packed items.
+    Accepts instances of ``InboundShipmentPlanRequestItem`` and ``InboundShipmentItem``
+    models, as well as dicts using "legacy" mode, which are then passed to
+    ``parse_legacy_item``
 
-        For operations besides ``create_inbound_shipment``,
-        ``'asin'`` and ``'condition'`` are also supported as optional keys.
-
-        If any required key is missing, ``MWSError`` is thrown.
-        Any keys besides the required or optional keys for a given operation
-        will be discarded.
-
-        These input keys are mapped to the appropriate parameter name for the chosen
-        operation. For instance, ``'quantity'`` is converted to ``'Quantity'``
-        for the ``CreateInboundShipmentPlan`` operation, and to ``'QuantityShipped'``
-        for all other operations.
-    :type item_args: List[Dict]
-    :param operation: The name of the MWS operation being performed, changing how
-        ``item_args`` are converted to MWS parameters.
-
-        Specifically checks to see if the operation is ``"CreateInboundShipmentPlan"``,
-        which is a special case: different logic applies for all other
-        relevant operations.
-    :type operation: str
+    ``operation`` (required only when legacy item dicts are present in ``items``)
+    expects the "Action" name of the operation being performed,
+    i.e. "CreateInboundShipmentPlan".
     """
     if not items:
         raise MWSError("One or more `item` arguments required.")
 
     item_params = []
     for item in items:
-        if isinstance(item, InboundShipmentPlanRequestItem):
+        if isinstance(item, (InboundShipmentPlanRequestItem, InboundShipmentItem)):
             item_params.append(item.to_params())
         else:
             item_params.append(parse_legacy_item(item, operation))
