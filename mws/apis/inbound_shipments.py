@@ -166,6 +166,9 @@ class InboundShipments(MWS):
         self._from_address = Address.from_legacy_dict(value)
 
     def set_ship_from_address(self, address: Union[Address, dict]):
+        """DEPRECATED, remove later.
+        Now an alias to assigning ``from_address`` property directly.
+        """
         self.from_address = address
 
     def from_address_params(
