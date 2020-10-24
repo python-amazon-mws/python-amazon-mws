@@ -1,66 +1,44 @@
-"""
-Tests for the InboundShipments API class.
-"""
+"""Tests for the InboundShipments API class."""
 import datetime
-import unittest
 
 import pytest
 
 from mws import InboundShipments
 from mws import MWSError
+from mws.models.inbound_shipments import Address
 
-from .utils import CommonAPIRequestTools
+from .common import APITestCase
 
 
-@pytest.fixture
-def inboundshipments_api(mws_credentials):
-    """A base InboundShipments API class instance.
-
-    WARNING: NOT for request testing!
-    Use ``inboundshipments_api_for_request_testing`` fixture instead!
-    """
-    api = InboundShipments(**mws_credentials)
-    return api
+class InboundShipmentsAPITestCase(APITestCase):
+    api_class = InboundShipments
 
 
 @pytest.fixture
 def inbound_from_address():
-    """A dummy address known to pass testing.
-    We already check address format in other tests, without using this fixture,
-    so if this one breaks something, then something is actually broken.
-    """
-    return {
-        "name": "Roland Deschain",
-        "address_1": "500 Summat Cully Lane",
-        "city": "Gilead",
-        "country": "Mid-World",
-    }
+    """A dummy address known to pass testing."""
+    return Address(
+        name="Roland Deschain",
+        address_line_1="500 Summat Cully Lane",
+        city="Gilead",
+        country_code="US",
+    )
 
 
 @pytest.fixture
-def inboundshipments_api_for_request_testing(inboundshipments_api):
-    """An instance of InboundShipments API class for testing request params."""
-    api = inboundshipments_api
-    api._test_request_params = True
-    return api
-
-
-@pytest.fixture
-def inboundshipments_api_for_request_testing_with_address(
-    inboundshipments_api_for_request_testing, inbound_from_address
-):
+def api_instance_stored_from_address(api_instance, inbound_from_address):
     """Instance of InboundShipments ready for request testing
     that includes a ``from_address``.
     """
-    api = inboundshipments_api_for_request_testing
-    api.set_ship_from_address(inbound_from_address)
+    api = api_instance
+    api.from_address = inbound_from_address
     return api
 
 
-class TestLegacySetShipFromAddressCases:
-    """Test case covering `msw.InboundShipments.set_ship_from_address`."""
+class TestLegacySetShipFromAddressCases(InboundShipmentsAPITestCase):
+    """Test case covering ``from_address`` storage using the legacy dict."""
 
-    def test_legacy_address_built_properly(self, inboundshipments_api):
+    def test_legacy_address_built_properly(self, api_instance):
         """An address with all fields covered should be constructed properly."""
         address = {
             "name": "Roland Deschain",
@@ -72,8 +50,8 @@ class TestLegacySetShipFromAddressCases:
             "postal_code": "13019",
             "country": "Mid-World",
         }
-        inboundshipments_api.from_address = address
-        output = inboundshipments_api.from_address.to_params()
+        api_instance.from_address = address
+        output = api_instance.from_address.to_params()
         expected = {
             "Name": "Roland Deschain",
             "AddressLine1": "500 Summat Cully Lane",
@@ -86,7 +64,7 @@ class TestLegacySetShipFromAddressCases:
         }
         assert output == expected
 
-    def test_legacy_partial_address_built_properly(self, inboundshipments_api):
+    def test_legacy_partial_address_built_properly(self, api_instance):
         """An address with only required fields covered should be constructed properly,
         with omitted keys filled in with defaults.
         """
@@ -95,8 +73,8 @@ class TestLegacySetShipFromAddressCases:
             "address_1": "500 Summat Cully Lane",
             "city": "Gilead",
         }
-        inboundshipments_api.from_address = address
-        output = inboundshipments_api.from_address.to_params()
+        api_instance.from_address = address
+        output = api_instance.from_address.to_params()
         expected = {
             "Name": "Roland Deschain",
             "AddressLine1": "500 Summat Cully Lane",
@@ -132,24 +110,47 @@ class TestLegacySetShipFromAddressCases:
         }
         assert inbound_constructed.from_address.to_params() == expected
 
-
-class TestSetShipFromAddressCases:
-    """Test case covering `msw.InboundShipments.set_ship_from_address`."""
-
-    def test_address_built_properly(self, inboundshipments_api):
-        """An address with all fields covered should be constructed properly."""
+    def test_set_legacy_address_with_legacy_setter(self, api_instance):
+        """Using the (deprecated) ``set_ship_from_address`` should work similar to
+        ``from_address`` property assignment.
+        """
         address = {
             "name": "Roland Deschain",
             "address_1": "500 Summat Cully Lane",
-            "address_2": "Apartment 19",
             "city": "Gilead",
-            "district_or_county": "West-Town",
-            "state_or_province": "New Canaan",
-            "postal_code": "13019",
-            "country": "Mid-World",
         }
-        inboundshipments_api.from_address = address
-        output = inboundshipments_api.from_address.to_params()
+        api_instance.set_ship_from_address(address)
+        output = api_instance.from_address.to_params()
+        expected = {
+            "Name": "Roland Deschain",
+            "AddressLine1": "500 Summat Cully Lane",
+            "AddressLine2": None,
+            "City": "Gilead",
+            "DistrictOrCounty": None,
+            "StateOrProvinceCode": None,
+            "PostalCode": None,
+            "CountryCode": "US",
+        }
+        assert output == expected
+
+
+class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
+    """Test case covering ``from_address`` storage using the ``Address`` model."""
+
+    def test_address_built_properly(self, api_instance):
+        """An address with all fields covered should be constructed properly."""
+        address = Address(
+            name="Roland Deschain",
+            address_line_1="500 Summat Cully Lane",
+            address_line_2="Apartment 19",
+            city="Gilead",
+            district_or_county="West-Town",
+            state_or_province_code="New Canaan",
+            postal_code="13019",
+            country_code="Mid-World",
+        )
+        api_instance.from_address = address
+        output = api_instance.from_address.to_params()
         expected = {
             "Name": "Roland Deschain",
             "AddressLine1": "500 Summat Cully Lane",
@@ -162,17 +163,17 @@ class TestSetShipFromAddressCases:
         }
         assert output == expected
 
-    def test_partial_address_built_properly(self, inboundshipments_api):
+    def test_partial_address_built_properly(self, api_instance):
         """An address with only required fields covered should be constructed properly,
         with omitted keys filled in with defaults.
         """
-        address = {
-            "name": "Roland Deschain",
-            "address_1": "500 Summat Cully Lane",
-            "city": "Gilead",
-        }
-        inboundshipments_api.from_address = address
-        output = inboundshipments_api.from_address.to_params()
+        address = Address(
+            name="Roland Deschain",
+            address_line_1="500 Summat Cully Lane",
+            city="Gilead",
+        )
+        api_instance.from_address = address
+        output = api_instance.from_address.to_params()
         expected = {
             "Name": "Roland Deschain",
             "AddressLine1": "500 Summat Cully Lane",
@@ -190,11 +191,11 @@ class TestSetShipFromAddressCases:
         `from_address` kwarg should automatically set the `from_address` attribute
         (ignoring the self.inbound attribute in this case).
         """
-        address = {
-            "name": "Roland Deschain",
-            "address_1": "500 Summat Cully Lane",
-            "city": "Gilead",
-        }
+        address = Address(
+            name="Roland Deschain",
+            address_line_1="500 Summat Cully Lane",
+            city="Gilead",
+        )
         inbound_constructed = InboundShipments(**mws_credentials, from_address=address)
         expected = {
             "Name": "Roland Deschain",
@@ -208,49 +209,52 @@ class TestSetShipFromAddressCases:
         }
         assert inbound_constructed.from_address.to_params() == expected
 
+    def test_set_address_with_legacy_setter(self, api_instance):
+        """Using the (deprecated) ``set_ship_from_address`` should work similar to
+        ``from_address`` property assignment.
+        """
+        address = Address(
+            name="Roland Deschain",
+            address_line_1="500 Summat Cully Lane",
+            city="Gilead",
+        )
+        api_instance.set_ship_from_address(address)
+        output = api_instance.from_address.to_params()
+        expected = {
+            "Name": "Roland Deschain",
+            "AddressLine1": "500 Summat Cully Lane",
+            "AddressLine2": None,
+            "City": "Gilead",
+            "DistrictOrCounty": None,
+            "StateOrProvinceCode": None,
+            "PostalCode": None,
+            "CountryCode": "US",
+        }
+        assert output == expected
 
-# TODO I don't know yet how to handle the generic testing here other than rewriting
-# CommonAPIRequestTools to work with pytest classes.
-class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
+
+class TestFBAShipmentHandling(InboundShipmentsAPITestCase):
     """Test cases for InboundShipments involving FBA shipment handling.
     These cases require `from_address` to be set, while others do not.
     """
 
     api_class = InboundShipments
 
-    def setUp(self):
-        """Override adds the `from_address` to the API instance
-        after the initial setUp step.
-        """
-        # Setting and validating `from_address` is already covered by
-        # `SetShipFromAddressTestCase`. We don't need to re-test that logic:
-        # we just need to set the address on the instance, which can be done
-        # after the class is instantiated, by calling `set_ship_from_address`.
-        super().setUp()
-
-        self.addr = {
-            "name": "Roland Deschain",
-            "address_1": "500 Summat Cully Lane",
-            "city": "Gilead",
-            "country": "Mid-World",
-        }
-        self.api.from_address = self.addr
-
-    def test_create_inbound_shipment_plan_no_items(self):
+    def test_create_inbound_shipment_plan_no_items(self, api_instance):
         """`create_inbound_shipment_plan` should raise exception for no items."""
         # 1: `items` empty: raises MWSError
         items = []
         with pytest.raises(MWSError):
-            self.api.create_inbound_shipment_plan(items)
+            api_instance.create_inbound_shipment_plan(items)
 
-    def test_create_inbound_shipment_plan_no_address(self):
+    def test_create_inbound_shipment_plan_no_address(self, api_instance):
         """`create_inbound_shipment_plan` should raise exception for no from_address."""
         items = [{"sku": "something", "quantity": 6}]
-        self.api.from_address = None
+        api_instance.from_address = None
         with pytest.raises(MWSError):
-            self.api.create_inbound_shipment_plan(items)
+            api_instance.create_inbound_shipment_plan(items)
 
-    def test_create_inbound_shipment_plan(self):
+    def test_create_inbound_shipment_plan(self, api_instance_stored_from_address):
         """Covers successful data entry for `create_inbound_shipment_plan`."""
         items = [
             {"sku": "ievEKnILd3", "quantity": 6},
@@ -259,7 +263,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         country_code = "Risa"
         subdivision_code = "Hotel California"
         label_preference = "SELLER"
-        params = self.api.create_inbound_shipment_plan(
+        params = api_instance_stored_from_address.create_inbound_shipment_plan(
             items=items,
             country_code=country_code,
             subdivision_code=subdivision_code,
@@ -280,7 +284,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         for key, val in expected.items():
             assert params[key] == val
 
-    def test_create_inbound_shipment_exceptions(self):
+    def test_create_inbound_shipment_exceptions(self, api_instance):
         """Covers cases that should raise exceptions for the
         `create_inbound_shipment` method.
         """
@@ -292,19 +296,19 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
 
         items = []
         with pytest.raises(MWSError):
-            self.api.create_inbound_shipment(
+            api_instance.create_inbound_shipment(
                 shipment_id, shipment_name, destination, items
             )
         items = [{"sku": "something", "quantity": 6}]  # reset
 
         # 5: wipe out the `from_address` for the API class before calling: raises MWSError
-        self.api.from_address = None
+        api_instance.from_address = None
         with pytest.raises(MWSError):
-            self.api.create_inbound_shipment(
+            api_instance.create_inbound_shipment(
                 shipment_id, shipment_name, destination, items
             )
 
-    def test_create_inbound_shipment(self):
+    def test_create_inbound_shipment(self, api_instance_stored_from_address):
         """Covers successful data entry for `create_inbound_shipment`."""
         shipment_id = "b46sEL7sYX"
         shipment_name = "Stuff Going Places"
@@ -317,7 +321,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         label_preference = "AMAZON"
         case_required = True
         box_contents_source = "Boxes"
-        params = self.api.create_inbound_shipment(
+        params = api_instance_stored_from_address.create_inbound_shipment(
             shipment_id=shipment_id,
             shipment_name=shipment_name,
             destination=destination,
@@ -328,7 +332,6 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             box_contents_source=box_contents_source,
         )
         self.assert_common_params(params, action="CreateInboundShipment")
-        # fmt: off
         expected = {
             "ShipmentId": "b46sEL7sYX",
             "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
@@ -343,11 +346,10 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             "InboundShipmentItems.member.2.SellerSKU": "mySku2",
             "InboundShipmentItems.member.2.QuantityShipped": "35",
         }
-        # fmt: on
         for key, val in expected.items():
             assert params[key] == val
 
-    def test_update_inbound_shipment(self):
+    def test_update_inbound_shipment(self, api_instance_stored_from_address):
         """Covers successful data entry for `update_inbound_shipment`."""
         shipment_id = "7DzXpBVxRR"
         shipment_name = "Stuff Going Places"
@@ -361,7 +363,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         case_required = True
         box_contents_source = "Boxes"
 
-        params = self.api.update_inbound_shipment(
+        params = api_instance_stored_from_address.update_inbound_shipment(
             shipment_id=shipment_id,
             shipment_name=shipment_name,
             destination=destination,
@@ -373,14 +375,13 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         )
         self.assert_common_params(params)
 
-        # fmt: off
         expected = {
             "Action": "UpdateInboundShipment",
             "ShipmentId": "7DzXpBVxRR",
             "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
             "InboundShipmentHeader.DestinationFulfillmentCenterId": "Vulcan",
             "InboundShipmentHeader.LabelPrepPreference": "SELLER_LABEL",
-            "InboundShipmentHeader.AreCasesRequired": 'true',
+            "InboundShipmentHeader.AreCasesRequired": "true",
             "InboundShipmentHeader.ShipmentStatus": "WORKING",
             "InboundShipmentHeader.IntendedBoxContentsSource": "Boxes",
             "InboundShipmentItems.member.1.SellerSKU": "mySku1",
@@ -388,11 +389,10 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             "InboundShipmentItems.member.2.SellerSKU": "mySku2",
             "InboundShipmentItems.member.2.QuantityShipped": "65",
         }
-        # fmt: on
         for key, val in expected.items():
             assert params[key] == val
 
-    def test_update_inbound_shipment_no_items(self):
+    def test_update_inbound_shipment_no_items(self, api_instance_stored_from_address):
         """Additional case: no items required.
         Params should have no Items keys if not provided
         """
@@ -404,7 +404,7 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         case_required = True
         box_contents_source = "Boxes"
 
-        params = self.api.update_inbound_shipment(
+        params = api_instance_stored_from_address.update_inbound_shipment(
             shipment_id=shipment_id,
             shipment_name=shipment_name,
             destination=destination,
@@ -415,7 +415,6 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         )
         self.assert_common_params(params)
 
-        # fmt: off
         expected = {
             "Action": "UpdateInboundShipment",
             "ShipmentId": "7DzXpBVxRR",
@@ -426,7 +425,6 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
             "InboundShipmentHeader.ShipmentStatus": "WORKING",
             "InboundShipmentHeader.IntendedBoxContentsSource": "Boxes",
         }
-        # fmt: on
         for key, val in expected.items():
             assert params[key] == val
 
@@ -438,21 +436,21 @@ class FBAShipmentHandlingTestCase(CommonAPIRequestTools, unittest.TestCase):
         assert not param_item_keys
 
 
-class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase):
+class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
     """Test cases for InboundShipments requests that do not involve
     FBA shipment handling and do not require `from_address` to be set.
     """
 
     api_class = InboundShipments
 
-    def test_get_inbound_guidance_for_sku(self):
+    def test_get_inbound_guidance_for_sku(self, api_instance):
         """GetInboundGuidanceForSKU operation."""
         # Case 1: list of SKUs
         sku_list_1 = [
             "mySku1",
             "mySku2",
         ]
-        params_1 = self.api.get_inbound_guidance_for_sku(
+        params_1 = api_instance.get_inbound_guidance_for_sku(
             skus=sku_list_1,
             marketplace_id="myMarketplaceId",
         )
@@ -461,7 +459,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params_1["SellerSKUList.Id.1"] == "mySku1"
         assert params_1["SellerSKUList.Id.2"] == "mySku2"
         # Case 2: single SKU
-        params_2 = self.api.get_inbound_guidance_for_sku(
+        params_2 = api_instance.get_inbound_guidance_for_sku(
             skus="mySku3",
             marketplace_id="myMarketplaceId",
         )
@@ -469,10 +467,10 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params_2["SellerSKUList.Id.1"] == "mySku3"
         assert "SellerSKUList.Id.2" not in params_2
 
-    def test_get_inbound_guidance_for_asin(self):
+    def test_get_inbound_guidance_for_asin(self, api_instance):
         """GetInboundGuidanceForASIN operation."""
         # Case 1: list of ASINs
-        params_1 = self.api.get_inbound_guidance_for_asin(
+        params_1 = api_instance.get_inbound_guidance_for_asin(
             asins=["myAsin1", "myAsin2"],
             marketplace_id="myMarketplaceId",
         )
@@ -482,7 +480,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params_1["ASINList.Id.2"] == "myAsin2"
 
         # Case 2: single SKU
-        params_2 = self.api.get_inbound_guidance_for_asin(
+        params_2 = api_instance.get_inbound_guidance_for_asin(
             asins="myAsin3",
             marketplace_id="myMarketplaceId",
         )
@@ -490,15 +488,15 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params_2["ASINList.Id.1"] == "myAsin3"
         assert "ASINList.Id.2" not in params_2
 
-    def test_get_preorder_info(self):
+    def test_get_preorder_info(self, api_instance):
         """GetPreorderInfo operation."""
-        params = self.api.get_preorder_info("oYRjQbGLL6")
+        params = api_instance.get_preorder_info("oYRjQbGLL6")
         self.assert_common_params(params, action="GetPreorderInfo")
         assert params["ShipmentId"] == "oYRjQbGLL6"
 
-    def test_confirm_preorder(self):
+    def test_confirm_preorder(self, api_instance):
         """ConfirmPreorder operation."""
-        params = self.api.confirm_preorder(
+        params = api_instance.confirm_preorder(
             shipment_id="H4UiUjY7Fr",
             need_by_date=datetime.datetime(2020, 10, 12),
         )
@@ -506,10 +504,10 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params["ShipmentId"] == "H4UiUjY7Fr"
         assert params["NeedByDate"] == "2020-10-12T00%3A00%3A00"
 
-    def test_get_prep_instructions_for_sku(self):
+    def test_get_prep_instructions_for_sku(self, api_instance):
         """GetPrepInstructionsForSKU operation."""
         # Case 1: simple list
-        params_1 = self.api.get_prep_instructions_for_sku(
+        params_1 = api_instance.get_prep_instructions_for_sku(
             skus=["mySku1", "mySku2"],
             country_code="MyCountryCode",
         )
@@ -521,7 +519,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         # Case 2: duplicates should be removed before creating params,
         # with their ordering preserved.
         # mySkuDupe1 is the duplicate, in pos 0 and 2 (the second one should be ignored)
-        params_2 = self.api.get_prep_instructions_for_sku(
+        params_2 = api_instance.get_prep_instructions_for_sku(
             skus=["mySkuDupe1", "mySkuDupe2", "mySkuDupe1", "mySkuDupe3", "mySkuDupe4"],
             country_code="MyCountryCode",
         )
@@ -531,10 +529,10 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params_2["SellerSKUList.ID.4"] == "mySkuDupe4"
         # The second instance of `mySkuDupe` is ignored, and the ordering is preserved.
 
-    def test_get_prep_instructions_for_asin(self):
+    def test_get_prep_instructions_for_asin(self, api_instance):
         """GetPrepInstructionsForASIN operation."""
         # Case 1: simple list
-        params_1 = self.api.get_prep_instructions_for_asin(
+        params_1 = api_instance.get_prep_instructions_for_asin(
             asins=["myAsin1", "myAsin2"],
             country_code="MyCountryCode",
         )
@@ -545,7 +543,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         # Case 2: duplicates should be removed before creating params,
         # with their ordering preserved.
         # "myDupeAsin3" should only appear once
-        params_2 = self.api.get_prep_instructions_for_asin(
+        params_2 = api_instance.get_prep_instructions_for_asin(
             asins=[
                 "myDupeAsin1",
                 "myDupeAsin2",
@@ -561,33 +559,26 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params_2["ASINList.ID.3"] == "myDupeAsin3"
         assert params_2["ASINList.ID.4"] == "myDupeAsin4"
 
-    # @pytest.mark.parametrize("method_name, action", (
-    #     ("estimate_transport_request", "EstimateTransportRequest"),
-    #     ("get_transport_content", "GetTransportContent"),
-    #     ("confirm_transport_request", "ConfirmTransportRequest"),
-    #     ("void_transport_request", "VoidTransportRequest"),
-    #     ("get_bill_of_lading", "GetBillOfLading"),
-    # ))
-    def test_shipment_id_only_requests(self):
-        """Test the output of methods that only require the shipment ID argument."""
-        # TODO pytest parametrization does not work with a unittest class
-        # Need to remove dependency on unittest to use the mark above
-        mapping = (
+    @pytest.mark.parametrize(
+        "method_name, action",
+        (
             ("estimate_transport_request", "EstimateTransportRequest"),
             ("get_transport_content", "GetTransportContent"),
             ("confirm_transport_request", "ConfirmTransportRequest"),
             ("void_transport_request", "VoidTransportRequest"),
             ("get_bill_of_lading", "GetBillOfLading"),
-        )
-        for method_name, action in mapping:
-            method = getattr(self.api, method_name)
-            params = method("myShipmentId")
-            self.assert_common_params(params, action=action)
-            assert params["ShipmentId"] == "myShipmentId"
+        ),
+    )
+    def test_shipment_id_only_requests(self, api_instance, method_name, action):
+        """Test the output of methods that only require the shipment ID argument."""
+        method = getattr(api_instance, method_name)
+        params = method("myShipmentId")
+        self.assert_common_params(params, action=action)
+        assert params["ShipmentId"] == "myShipmentId"
 
-    def test_get_package_labels(self):
+    def test_get_package_labels(self, api_instance):
         """GetPackageLabels operation."""
-        params = self.api.get_package_labels(
+        params = api_instance.get_package_labels(
             shipment_id="myShipmentId",
             num_labels=53,
             page_type="PackageLabel_Letter_6",
@@ -597,10 +588,10 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params["PageType"] == "PackageLabel_Letter_6"
         assert params["NumberOfPackages"] == "53"
 
-    def test_get_unique_package_labels(self):
+    def test_get_unique_package_labels(self, api_instance):
         """GetUniquePackageLabels operation."""
         # Case 1: list of package_ids
-        params_1 = self.api.get_unique_package_labels(
+        params_1 = api_instance.get_unique_package_labels(
             shipment_id="myShipmentId",
             page_type="PackageLabel_Plain_Paper",
             package_ids=["myPackage1", "myPackage2"],
@@ -612,7 +603,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params_1["PackageLabelsToPrint.member.2"] == "myPackage2"
 
         # Case 2: single string package_id (should still work)
-        params_2 = self.api.get_unique_package_labels(
+        params_2 = api_instance.get_unique_package_labels(
             shipment_id="myShipmentId",
             page_type="PackageLabel_Plain_Paper",
             package_ids="myShipment3",
@@ -620,9 +611,9 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params_2["PackageLabelsToPrint.member.1"] == "myShipment3"
         assert "PackageLabelsToPrint.member.2" not in params_2
 
-    def test_get_pallet_labels(self):
+    def test_get_pallet_labels(self, api_instance):
         """GetPalletLabels operation."""
-        params = self.api.get_pallet_labels(
+        params = api_instance.get_pallet_labels(
             shipment_id="myShipmentId",
             page_type="PackageLabel_A4_4",
             num_labels=69,
@@ -632,9 +623,9 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params["PageType"] == "PackageLabel_A4_4"
         assert params["NumberOfPallets"] == "69"
 
-    def test_list_inbound_shipments(self):
+    def test_list_inbound_shipments(self, api_instance):
         """ListInboundShipments operation."""
-        params = self.api.list_inbound_shipments(
+        params = api_instance.list_inbound_shipments(
             shipment_ids=["myShipment1", "myShipment2"],
             shipment_statuses=["CANCELLED", "IN_TRANSIT"],
             last_updated_before=datetime.datetime(2020, 10, 12),
@@ -649,9 +640,9 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params["ShipmentIdList.member.1"] == "myShipment1"
         assert params["ShipmentIdList.member.2"] == "myShipment2"
 
-    def test_list_inbound_shipment_items(self):
+    def test_list_inbound_shipment_items(self, api_instance):
         """ListInboundShipmentItems operation."""
-        params = self.api.list_inbound_shipment_items(
+        params = api_instance.list_inbound_shipment_items(
             shipment_id="P9NLpC2Afi",
             last_updated_before=datetime.datetime(2020, 10, 12),
             last_updated_after=datetime.datetime(2020, 10, 12)
@@ -662,7 +653,7 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
         assert params["LastUpdatedBefore"] == "2020-10-12T00%3A00%3A00"
         assert params["LastUpdatedAfter"] == "2020-10-12T01%3A00%3A00"
 
-    def test_next_token_methods(self):
+    def test_next_token_methods(self, api_instance):
         """Check content of methods that can use next_tokens"""
         mapping = (
             (
@@ -675,12 +666,12 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
             ),
         )
         for methodname, action in mapping:
-            method = getattr(self.api, methodname)
+            method = getattr(api_instance, methodname)
             params = method(next_token="my_next_token")
             self.assert_common_params(params, action=action)
             assert params["NextToken"] == "my_next_token"
 
-    def test_next_token_alias_methods(self):
+    def test_next_token_alias_methods(self, api_instance):
         """Check content of alias method that can use next_tokens."""
         mapping = (
             (
@@ -693,74 +684,78 @@ class InboundShipmentsRequestsTestCase(CommonAPIRequestTools, unittest.TestCase)
             ),
         )
         for methodname, action in mapping:
-            method = getattr(self.api, methodname)
+            method = getattr(api_instance, methodname)
             params = method("my_next_token")
             self.assert_common_params(params, action=action)
             assert params["NextToken"] == "my_next_token"
 
+    @pytest.mark.parametrize(
+        "statuses",
+        [
+            "STATUS1",
+            ["STATUS1", "STATUS2"],  # list
+            ("STATUS1", "STATUS2"),  # tuple
+            {"STATUS1", "STATUS2"},  # set
+            list(),  # empty list
+            tuple(),  # empty tuple
+            set(),  # empty set
+            None,
+        ],
+    )
+    @pytest.mark.parametrize(
+        "ids",
+        [
+            "ID1",
+            ["ID1", "ID2"],  # list
+            ("ID1", "ID2"),  # tuple
+            {"ID1", "ID2"},  # set
+            list(),  # empty list
+            tuple(),  # empty tuple
+            set(),  # empty set
+            None,
+        ],
+    )
+    def test_list_inbound_shipments_status_and_id(
+        self, api_instance_stored_from_address, statuses, ids
+    ):
+        """Check that a mixture of different argument types for `shipment_statuses`
+        and `shipment_ids` will work in `InboundShipments.list_inbound_shipments`.
 
-### Mix of statuses and IDs for list_inbound_shipments ###
-# fmt: off
-@pytest.mark.parametrize("statuses", [
-    "STATUS1",
-    ["STATUS1", "STATUS2"],  # list
-    ("STATUS1", "STATUS2"),  # tuple
-    {"STATUS1", "STATUS2"},  # set
-    list(),  # empty list
-    tuple(),  # empty tuple
-    set(),  # empty set
-    None,
-])
-@pytest.mark.parametrize("ids", [
-    "ID1",
-    ["ID1", "ID2"],  # list
-    ("ID1", "ID2"),  # tuple
-    {"ID1", "ID2"},  # set
-    list(),  # empty list
-    tuple(),  # empty tuple
-    set(),  # empty set
-    None,
-])
-# fmt: on
-def test_list_inbound_shipments_status_and_id(
-    inboundshipments_api_for_request_testing_with_address, statuses, ids
-):
-    """Check that a mixture of different argument types for `shipment_statuses`
-    and `shipment_ids` will work in `InboundShipments.list_inbound_shipments`.
+        Should cover scenarios like ticket #199.
+        """
+        api = api_instance_stored_from_address
+        params = api.list_inbound_shipments(
+            shipment_statuses=statuses, shipment_ids=ids
+        )
 
-    Should cover scenarios like ticket #199.
-    """
-    api = inboundshipments_api_for_request_testing_with_address
-    params = api.list_inbound_shipments(shipment_statuses=statuses, shipment_ids=ids)
+        # Check statuses:
+        if statuses is None:
+            # Explicitly `None`, should output nothing
+            assert "ShipmentStatusList.member.1" not in params
+        if not statuses:
+            # Evaluates "falsey", should output nothing
+            assert "ShipmentStatusList.member.1" not in params
+        if isinstance(statuses, str):
+            # Single entry string should have one member only.
+            assert params["ShipmentStatusList.member.1"] == statuses
+            assert "ShipmentStatusList.member.2" not in params
+        if isinstance(statuses, (list, tuple, set)):
+            for idx, status in enumerate(statuses, start=1):
+                key = "ShipmentStatusList.member.{}".format(idx)
+                assert params[key] == status
 
-    # Check statuses:
-    if statuses is None:
-        # Explicitly `None`, should output nothing
-        assert "ShipmentStatusList.member.1" not in params
-    if not statuses:
-        # Evaluates "falsey", should output nothing
-        assert "ShipmentStatusList.member.1" not in params
-    if isinstance(statuses, str):
-        # Single entry string should have one member only.
-        assert params["ShipmentStatusList.member.1"] == statuses
-        assert "ShipmentStatusList.member.2" not in params
-    if isinstance(statuses, (list, tuple, set)):
-        for idx, status in enumerate(statuses, start=1):
-            key = "ShipmentStatusList.member.{}".format(idx)
-            assert params[key] == status
-
-    # Check IDs:
-    if ids is None:
-        # Explicitly `None`, should output nothing
-        assert "ShipmentIdList.member.1" not in params
-    if not ids:
-        # Evaluates "falsey", should output nothing
-        assert "ShipmentIdList.member.1" not in params
-    if isinstance(ids, str):
-        # Single entry string should have one member only.
-        assert params["ShipmentIdList.member.1"] == ids
-        assert "ShipmentIdList.member.2" not in params
-    if isinstance(ids, (list, tuple, set)):
-        for idx, id_ in enumerate(ids, start=1):
-            key = "ShipmentIdList.member.{}".format(idx)
-            assert params[key] == id_
+        # Check IDs:
+        if ids is None:
+            # Explicitly `None`, should output nothing
+            assert "ShipmentIdList.member.1" not in params
+        if not ids:
+            # Evaluates "falsey", should output nothing
+            assert "ShipmentIdList.member.1" not in params
+        if isinstance(ids, str):
+            # Single entry string should have one member only.
+            assert params["ShipmentIdList.member.1"] == ids
+            assert "ShipmentIdList.member.2" not in params
+        if isinstance(ids, (list, tuple, set)):
+            for idx, id_ in enumerate(ids, start=1):
+                key = "ShipmentIdList.member.{}".format(idx)
+                assert params[key] == id_

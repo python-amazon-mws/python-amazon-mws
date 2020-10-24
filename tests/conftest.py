@@ -4,39 +4,39 @@ import pytest
 
 from requests import Response
 
+from mws.mws import MWS
 from mws.utils.xml import MWS_ENCODING
 from mws.response import MWSResponse
 
 
-@pytest.fixture
-def cred_access_key():
-    return "cred_access_key"
+TEST_MWS_ACCESS_KEY = "my_access_key"
+TEST_MWS_SECRET_KEY = "my_secret_key"
+TEST_MWS_ACCOUNT_ID = "my_account_id"
+TEST_MWS_AUTH_TOKEN = "my_auth_token"
 
 
 @pytest.fixture
-def cred_secret_key():
-    return "cred_secret_key"
-
-
-@pytest.fixture
-def cred_account_id():
-    return "cred_account_id"
-
-
-@pytest.fixture
-def cred_auth_token():
-    return "cred_auth_token"
-
-
-@pytest.fixture
-def mws_credentials(cred_access_key, cred_secret_key, cred_account_id, cred_auth_token):
+def mws_credentials():
     """Fake set of MWS credentials"""
     return {
-        "access_key": cred_access_key,
-        "secret_key": cred_secret_key,
-        "account_id": cred_account_id,
-        "auth_token": cred_auth_token,
+        "access_key": TEST_MWS_ACCESS_KEY,
+        "secret_key": TEST_MWS_SECRET_KEY,
+        "account_id": TEST_MWS_ACCOUNT_ID,
+        "auth_token": TEST_MWS_AUTH_TOKEN,
     }
+
+
+@pytest.fixture
+def api_instance(request, mws_credentials):
+    """Create an API instance ready for request param testing.
+    If called in a class that includes an `api_class` attribute,
+    uses the class defined there.
+    Otherwise defaults to MWS base class.
+    """
+    klass = getattr(request.cls, "api_class", MWS)
+    instance = klass(**mws_credentials)
+    instance._test_request_params = True
+    return instance
 
 
 @pytest.fixture
