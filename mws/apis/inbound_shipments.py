@@ -131,10 +131,8 @@ class InboundShipments(MWS):
     ]
 
     def __init__(self, *args, **kwargs):
-        """Allow the addition of a from_address dict during object initialization.
-        kwarg "from_address" is caught and popped here,
-        then calls set_ship_from_address.
-        If empty or left out, empty dict is set by default.
+        """Allow the addition of a ``from_address`` kwarg, storing the address
+        on this API instance.
         """
         self._from_address = {}
         addr = kwargs.pop("from_address", None)
