@@ -5,7 +5,11 @@ import pytest
 
 from mws import InboundShipments
 from mws import MWSError
-from mws.models.inbound_shipments import Address
+from mws.models.inbound_shipments import (
+    Address,
+    InboundShipmentItem,
+    InboundShipmentPlanRequestItem,
+)
 
 from .common import APITestCase
 
@@ -233,29 +237,88 @@ class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
         assert output == expected
 
 
-class TestFBAShipmentHandling(InboundShipmentsAPITestCase):
-    """Test cases for InboundShipments involving FBA shipment handling.
-    These cases require `from_address` to be set, while others do not.
-    """
+class TestCreateInboundShipmentPlan(InboundShipmentsAPITestCase):
+    """Test cases for InboundShipments involving CreateInboundShipmentPlan operation."""
 
     api_class = InboundShipments
 
-    def test_create_inbound_shipment_plan_no_items(self, api_instance):
+    def test_create_inbound_shipment_plan_no_items(
+        self, api_instance_stored_from_address
+    ):
         """`create_inbound_shipment_plan` should raise exception for no items."""
-        # 1: `items` empty: raises MWSError
         items = []
         with pytest.raises(MWSError):
-            api_instance.create_inbound_shipment_plan(items)
+            api_instance_stored_from_address.create_inbound_shipment_plan(items)
 
     def test_create_inbound_shipment_plan_no_address(self, api_instance):
         """`create_inbound_shipment_plan` should raise exception for no from_address."""
+        assert api_instance.from_address == {}
         items = [{"sku": "something", "quantity": 6}]
-        api_instance.from_address = None
+        # api_instance.from_address = None
         with pytest.raises(MWSError):
             api_instance.create_inbound_shipment_plan(items)
 
-    def test_create_inbound_shipment_plan(self, api_instance_stored_from_address):
-        """Covers successful data entry for `create_inbound_shipment_plan`."""
+    def test_create_inbound_shipment_plan_item_models(
+        self, api_instance_stored_from_address
+    ):
+        """Covers successful data entry for `create_inbound_shipment_plan`
+        using item models.
+        """
+        items = [
+            InboundShipmentPlanRequestItem("mySku1", 6),
+            InboundShipmentPlanRequestItem("mySku2", 26),
+        ]
+        country_code = "Risa"
+        subdivision_code = "Hotel California"
+        label_preference = "SELLER"
+        params = api_instance_stored_from_address.create_inbound_shipment_plan(
+            items=items,
+            country_code=country_code,
+            subdivision_code=subdivision_code,
+            label_preference=label_preference,
+        )
+        self.assert_common_params(params, action="CreateInboundShipmentPlan")
+
+        expected = {
+            "ShipToCountryCode": "Risa",
+            "ShipToCountrySubdivisionCode": "Hotel%20California",
+            "LabelPrepPreference": "SELLER",
+            "InboundShipmentPlanRequestItems.member.1.SellerSKU": "mySku1",
+            "InboundShipmentPlanRequestItems.member.1.Quantity": "6",
+            "InboundShipmentPlanRequestItems.member.2.SellerSKU": "mySku2",
+            "InboundShipmentPlanRequestItems.member.2.Quantity": "26",
+        }
+
+        for key, val in expected.items():
+            assert params[key] == val
+
+    def test_create_inbound_shipment_plan_wrong_model(
+        self, api_instance_stored_from_address
+    ):
+        """Supplying the wrong item model class to `create_inbound_shipment_plan`
+        should raise MWSError.
+        """
+        items = [
+            InboundShipmentItem("mySku1", 6),
+            InboundShipmentItem("mySku2", 26),
+        ]
+        country_code = "Risa"
+        subdivision_code = "Hotel California"
+        label_preference = "SELLER"
+        with pytest.raises(MWSError):
+            api_instance_stored_from_address.create_inbound_shipment_plan(
+                items=items,
+                country_code=country_code,
+                subdivision_code=subdivision_code,
+                label_preference=label_preference,
+            )
+
+    def test_create_inbound_shipment_plan_legacy_items(
+        self, api_instance_stored_from_address
+    ):
+        """Covers successful data entry for `create_inbound_shipment_plan` using
+        legacy item dicts.
+        """
         items = [
             {"sku": "ievEKnILd3", "quantity": 6},
             {"sku": "9IfTM1aJVG", "quantity": 26},
@@ -284,7 +347,13 @@ class TestFBAShipmentHandling(InboundShipmentsAPITestCase):
         for key, val in expected.items():
             assert params[key] == val
 
-    def test_create_inbound_shipment_exceptions(self, api_instance):
+
+class TestCreateInboundShipment(InboundShipmentsAPITestCase):
+    """Test cases for InboundShipments involving CreateInboundShipmentPlan operation."""
+
+    api_class = InboundShipments
+
+    def test_create_inbound_shipment_no_items(self, api_instance_stored_from_address):
         """Covers cases that should raise exceptions for the
         `create_inbound_shipment` method.
         """
@@ -292,24 +361,35 @@ class TestFBAShipmentHandling(InboundShipmentsAPITestCase):
         shipment_id = "is_a_string"
         shipment_name = "is_a_string"
         destination = "is_a_string"
-        items = [{"sku": "something", "quantity": 6}]
-
         items = []
         with pytest.raises(MWSError):
-            api_instance.create_inbound_shipment(
+            api_instance_stored_from_address.create_inbound_shipment(
                 shipment_id, shipment_name, destination, items
             )
+
+    def test_create_inbound_shipment_no_address(self, api_instance):
+        """Covers cases that should raise exceptions for the
+        `create_inbound_shipment` method.
+        """
+        assert api_instance.from_address == {}
+        # Proper inputs (initial setup)
+        shipment_id = "is_a_string"
+        shipment_name = "is_a_string"
+        destination = "is_a_string"
         items = [{"sku": "something", "quantity": 6}]  # reset
 
         # 5: wipe out the `from_address` for the API class before calling: raises MWSError
-        api_instance.from_address = None
         with pytest.raises(MWSError):
             api_instance.create_inbound_shipment(
                 shipment_id, shipment_name, destination, items
             )
 
-    def test_create_inbound_shipment(self, api_instance_stored_from_address):
-        """Covers successful data entry for `create_inbound_shipment`."""
+    def test_create_inbound_shipment_legacy_items(
+        self, api_instance_stored_from_address
+    ):
+        """Covers successful data entry for `create_inbound_shipment`
+        using legacy item dicts.
+        """
         shipment_id = "b46sEL7sYX"
         shipment_name = "Stuff Going Places"
         destination = "MyDestination"
@@ -349,8 +429,92 @@ class TestFBAShipmentHandling(InboundShipmentsAPITestCase):
         for key, val in expected.items():
             assert params[key] == val
 
-    def test_update_inbound_shipment(self, api_instance_stored_from_address):
-        """Covers successful data entry for `update_inbound_shipment`."""
+    def test_create_inbound_shipment_item_models(
+        self, api_instance_stored_from_address
+    ):
+        """Covers successful data entry for `create_inbound_shipment`
+        using item models.
+        """
+        shipment_id = "b46sEL7sYX"
+        shipment_name = "Stuff Going Places"
+        destination = "MyDestination"
+        items = [
+            InboundShipmentItem("mySku1", 12),
+            InboundShipmentItem("mySku2", 35),
+        ]
+        shipment_status = "RECEIVED"
+        label_preference = "AMAZON"
+        case_required = True
+        box_contents_source = "Boxes"
+        params = api_instance_stored_from_address.create_inbound_shipment(
+            shipment_id=shipment_id,
+            shipment_name=shipment_name,
+            destination=destination,
+            items=items,
+            shipment_status=shipment_status,
+            label_preference=label_preference,
+            case_required=case_required,
+            box_contents_source=box_contents_source,
+        )
+        self.assert_common_params(params, action="CreateInboundShipment")
+        expected = {
+            "ShipmentId": "b46sEL7sYX",
+            "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
+            "InboundShipmentHeader.DestinationFulfillmentCenterId": "MyDestination",
+            "InboundShipmentHeader.LabelPrepPreference": "AMAZON",
+            "InboundShipmentHeader.AreCasesRequired": "true",
+            "InboundShipmentHeader.ShipmentStatus": "RECEIVED",
+            "InboundShipmentHeader.IntendedBoxContentsSource": "Boxes",
+            # item data
+            "InboundShipmentItems.member.1.SellerSKU": "mySku1",
+            "InboundShipmentItems.member.1.QuantityShipped": "12",
+            "InboundShipmentItems.member.2.SellerSKU": "mySku2",
+            "InboundShipmentItems.member.2.QuantityShipped": "35",
+        }
+        for key, val in expected.items():
+            assert params[key] == val
+
+    def test_create_inbound_shipment_wrong_model(
+        self, api_instance_stored_from_address
+    ):
+        """Using CreateInboundShipment with the incorrect item model should
+        raise MWSError.
+        """
+        shipment_id = "b46sEL7sYX"
+        shipment_name = "Stuff Going Places"
+        destination = "MyDestination"
+        items = [
+            InboundShipmentPlanRequestItem("mySku1", 12),
+            InboundShipmentPlanRequestItem("mySku2", 35),
+        ]
+        shipment_status = "RECEIVED"
+        label_preference = "AMAZON"
+        case_required = True
+        box_contents_source = "Boxes"
+        with pytest.raises(MWSError):
+            api_instance_stored_from_address.create_inbound_shipment(
+                shipment_id=shipment_id,
+                shipment_name=shipment_name,
+                destination=destination,
+                items=items,
+                shipment_status=shipment_status,
+                label_preference=label_preference,
+                case_required=case_required,
+                box_contents_source=box_contents_source,
+            )
+
+
+class TestUpdateInboundShipment(InboundShipmentsAPITestCase):
+    """Test cases for InboundShipments involving CreateInboundShipmentPlan operation."""
+
+    api_class = InboundShipments
+
+    def test_update_inbound_shipment_legacy_items(
+        self, api_instance_stored_from_address
+    ):
+        """Covers successful data entry for `update_inbound_shipment`
+        using legacy item dicts.
+        """
         shipment_id = "7DzXpBVxRR"
         shipment_name = "Stuff Going Places"
         destination = "Vulcan"
@@ -391,6 +555,83 @@ class TestFBAShipmentHandling(InboundShipmentsAPITestCase):
         }
         for key, val in expected.items():
             assert params[key] == val
+
+    def test_update_inbound_shipment_item_models(
+        self, api_instance_stored_from_address
+    ):
+        """Covers successful data entry for `update_inbound_shipment`
+        using item models.
+        """
+        shipment_id = "7DzXpBVxRR"
+        shipment_name = "Stuff Going Places"
+        destination = "Vulcan"
+        items = [
+            InboundShipmentItem("mySku1", 98),
+            InboundShipmentItem("mySku2", 65),
+        ]
+        shipment_status = "WORKING"
+        label_preference = "SELLER_LABEL"
+        case_required = True
+        box_contents_source = "Boxes"
+
+        params = api_instance_stored_from_address.update_inbound_shipment(
+            shipment_id=shipment_id,
+            shipment_name=shipment_name,
+            destination=destination,
+            items=items,
+            shipment_status=shipment_status,
+            label_preference=label_preference,
+            case_required=case_required,
+            box_contents_source=box_contents_source,
+        )
+        self.assert_common_params(params)
+
+        expected = {
+            "Action": "UpdateInboundShipment",
+            "ShipmentId": "7DzXpBVxRR",
+            "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
+            "InboundShipmentHeader.DestinationFulfillmentCenterId": "Vulcan",
+            "InboundShipmentHeader.LabelPrepPreference": "SELLER_LABEL",
+            "InboundShipmentHeader.AreCasesRequired": "true",
+            "InboundShipmentHeader.ShipmentStatus": "WORKING",
+            "InboundShipmentHeader.IntendedBoxContentsSource": "Boxes",
+            "InboundShipmentItems.member.1.SellerSKU": "mySku1",
+            "InboundShipmentItems.member.1.QuantityShipped": "98",
+            "InboundShipmentItems.member.2.SellerSKU": "mySku2",
+            "InboundShipmentItems.member.2.QuantityShipped": "65",
+        }
+        for key, val in expected.items():
+            assert params[key] == val
+
+    def test_update_inbound_shipment_wrong_model(
+        self, api_instance_stored_from_address
+    ):
+        """Giving the wrong Item model type to UpdateInboundShipment should
+        raise MWSError.
+        """
+        shipment_id = "7DzXpBVxRR"
+        shipment_name = "Stuff Going Places"
+        destination = "Vulcan"
+        items = [
+            InboundShipmentPlanRequestItem("mySku1", 98),
+            InboundShipmentPlanRequestItem("mySku2", 65),
+        ]
+        shipment_status = "WORKING"
+        label_preference = "SELLER_LABEL"
+        case_required = True
+        box_contents_source = "Boxes"
+
+        with pytest.raises(MWSError):
+            api_instance_stored_from_address.update_inbound_shipment(
+                shipment_id=shipment_id,
+                shipment_name=shipment_name,
+                destination=destination,
+                items=items,
+                shipment_status=shipment_status,
+                label_preference=label_preference,
+                case_required=case_required,
+                box_contents_source=box_contents_source,
+            )
 
     def test_update_inbound_shipment_no_items(self, api_instance_stored_from_address):
         """Additional case: no items required.
@@ -434,6 +675,28 @@ class TestFBAShipmentHandling(InboundShipmentsAPITestCase):
         ]
         # list should be empty, because no keys should be present
         assert not param_item_keys
+
+    def test_update_inbound_shipment_no_address(self, api_instance):
+        """UpdateInboundShipment with no from address should raise exception."""
+        assert api_instance.from_address == {}
+        shipment_id = "7DzXpBVxRR"
+        shipment_name = "Stuff Going Places"
+        destination = "Vulcan"
+        shipment_status = "WORKING"
+        label_preference = "SELLER_LABEL"
+        case_required = True
+        box_contents_source = "Boxes"
+
+        with pytest.raises(MWSError):
+            api_instance.update_inbound_shipment(
+                shipment_id=shipment_id,
+                shipment_name=shipment_name,
+                destination=destination,
+                shipment_status=shipment_status,
+                label_preference=label_preference,
+                case_required=case_required,
+                box_contents_source=box_contents_source,
+            )
 
 
 class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
