@@ -24,6 +24,10 @@ from mws.decorators import next_token_action
 # TODO Add label type enumeration
 # TODO Add helper method for extracting PDF file object from label requests
 
+# TODO `Literal` not available pre-3.8.
+#      This check and import are a slight hack as we continue to support 3.6+
+#      When support drops for 3.7, remove these and replace with a more direct import
+#      an real type annotation for objects that use it (removing type comments)
 if typing.TYPE_CHECKING:
     from typing import Literal
 
