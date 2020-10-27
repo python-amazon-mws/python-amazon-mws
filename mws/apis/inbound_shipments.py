@@ -4,6 +4,7 @@
 # so we rename both to avoid confusion in code
 from collections.abc import Iterable as IterableAbc
 from typing import Iterable as IterableType
+from typing import Literal
 
 from collections.abc import Mapping
 from typing import Dict, List, Optional, Union
@@ -24,9 +25,16 @@ from mws.decorators import next_token_action
 # TODO Add helper method for extracting PDF file object from label requests
 
 
-def parse_legacy_item(item: dict, operation: str) -> dict:
-    """Parses a legacy item dict sent to ``create_inbound_shipment_plan``,
-    ``create_inbound_shipment``, and ``update_inbound_shipment`` methods.
+ITEM_OP_TYPE = Literal[
+    "CreateInboundShipmentPlan",
+    "CreateInboundShipment",
+    "UpdateInboundShipment",
+]
+
+
+def parse_legacy_item(item: dict, operation: ITEM_OP_TYPE) -> dict:
+    """Parses a legacy item dict sent to ``CreateInboundShipmentPlan``,
+    ``CreateInboundShipment``, and ``UpdateInboundShipment`` operations.
 
     ``item`` must contain keys ``"sku"`` and ``"quantity"``; if either is missing,
     ``MWSError`` is raised. Optionally, ``"quantity_in_case"`` is accepted for
@@ -36,8 +44,9 @@ def parse_legacy_item(item: dict, operation: str) -> dict:
     Any keys besides the required or optional keys for the given operation
     will be ignored.
 
-    ``operation`` expects the "Action" name of the operation being performed,
-    i.e. "CreateInboundShipmentPlan".
+    ``operation`` expects the "Action" name of the operation being performed.
+    Expects "CreateInboundShipmentPlan", "CreateInboundShipment", or
+    "UpdateInboundShipment".
     """
     if operation == "CreateInboundShipmentPlan":
         # `key_config` composed of list of tuples, each tuple compose of:
@@ -91,7 +100,7 @@ def parse_legacy_item(item: dict, operation: str) -> dict:
 
 def parse_shipment_items(
     items: List[Union[InboundShipmentPlanRequestItem, InboundShipmentItem, dict]],
-    operation: Optional[str] = None,
+    operation: Optional[ITEM_OP_TYPE] = None,
 ) -> List[dict]:
     """Parses item arguments sent to ``create_inbound_shipment_plan`` request.
 
@@ -99,9 +108,14 @@ def parse_shipment_items(
     models, as well as dicts using "legacy" mode, which are then passed to
     ``parse_legacy_item``
 
-    ``operation`` (required only when legacy item dicts are present in ``items``)
-    expects the "Action" name of the operation being performed,
-    i.e. "CreateInboundShipmentPlan".
+    ```operation`` expects the "Action" name of the operation being performed.
+    Expects "CreateInboundShipmentPlan", "CreateInboundShipment", or
+    "UpdateInboundShipment".
+
+    - When using legacy item dicts, this changes how the dict is prepared for output.
+    - When using item models, checks that the operation matches using
+      the model's ``raise_for_operation_mismatch`` method (passes silently when
+      permitted or raises MWSError).
     """
     if not items:
         raise MWSError("One or more `item` arguments required.")
@@ -109,6 +123,7 @@ def parse_shipment_items(
     item_params = []
     for item in items:
         if isinstance(item, (InboundShipmentPlanRequestItem, InboundShipmentItem)):
+            item.raise_for_operation_mismatch(operation)
             item_params.append(item.to_params())
         else:
             item_params.append(parse_legacy_item(item, operation))

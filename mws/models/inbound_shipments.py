@@ -258,6 +258,7 @@ class InboundShipmentPlanRequestItem(BaseInboundShipmentItem):
     <mws.models.inbound_shipments.ItemCondition>`.
     """
 
+    operations_permitted = ["CreateInboundShipmentPlan"]
     quantity_param = "Quantity"
 
     def __init__(
@@ -288,6 +289,7 @@ class InboundShipmentItem(BaseInboundShipmentItem):
     <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentItem>`_
     """
 
+    operations_permitted = ["CreateInboundShipment", "UpdateInboundShipment"]
     quantity_param = "QuantityShipped"
 
     def __init__(
