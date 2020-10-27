@@ -267,7 +267,7 @@ class InboundShipmentPlanRequestItem(BaseInboundShipmentItem):
         condition: Optional[Union[ItemCondition, str]] = None,
         **kwargs,
     ):
-        super().__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.asin = asin
         self.condition = condition
 
@@ -293,7 +293,7 @@ class InboundShipmentItem(BaseInboundShipmentItem):
     def __init__(
         self, *args, release_date: Optional[datetime.datetime] = None, **kwargs
     ):
-        super().__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.release_date = release_date
 
     def params_dict(self) -> dict:
