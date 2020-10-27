@@ -4,7 +4,7 @@
 # so we rename both to avoid confusion in code
 from collections.abc import Iterable as IterableAbc
 from typing import Iterable as IterableType
-from typing import Literal
+import typing
 
 from collections.abc import Mapping
 from typing import Dict, List, Optional, Union
@@ -24,15 +24,14 @@ from mws.decorators import next_token_action
 # TODO Add label type enumeration
 # TODO Add helper method for extracting PDF file object from label requests
 
-
-ITEM_OP_TYPE = Literal[
-    "CreateInboundShipmentPlan",
-    "CreateInboundShipment",
-    "UpdateInboundShipment",
-]
+if typing.TYPE_CHECKING:
+    from typing import Literal
 
 
-def parse_legacy_item(item: dict, operation: ITEM_OP_TYPE) -> dict:
+def parse_legacy_item(
+    item: dict,
+    operation,  # type: 'Literal["CreateInboundShipmentPlan", "CreateInboundShipment", "UpdateInboundShipment"]'
+) -> dict:
     """Parses a legacy item dict sent to ``CreateInboundShipmentPlan``,
     ``CreateInboundShipment``, and ``UpdateInboundShipment`` operations.
 
@@ -100,7 +99,7 @@ def parse_legacy_item(item: dict, operation: ITEM_OP_TYPE) -> dict:
 
 def parse_shipment_items(
     items: List[Union[InboundShipmentPlanRequestItem, InboundShipmentItem, dict]],
-    operation: Optional[ITEM_OP_TYPE] = None,
+    operation=None,  # type: 'Optional[Literal["CreateInboundShipmentPlan", "CreateInboundShipment", "UpdateInboundShipment"]]'
 ) -> List[dict]:
     """Parses item arguments sent to ``create_inbound_shipment_plan`` request.
 
