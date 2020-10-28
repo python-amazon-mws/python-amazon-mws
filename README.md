@@ -223,7 +223,7 @@ Please make pull requests to `develop`. Code coverage isn't necessary but encour
 
 ## Support
 
-For support using the package, please [join our Slack][1] and post in the `#help` channel.
+For support using the package, please [join our Slack][slack_invite] and post in the `#help` channel.
 
 For support using MWS itself, we advise using the [MWS documentation][2]
 
