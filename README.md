@@ -1,10 +1,12 @@
+[![slack](https://img.shields.io/badge/slack-python--amazon--mws-blue?style=for-the-badge&logo=slack)][slack_invite]
+![CI Testing](https://img.shields.io/github/workflow/status/python-amazon-mws/python-amazon-mws/Testing/develop?logo=github&style=for-the-badge)
+[![Coverage](https://img.shields.io/codecov/c/github/python-amazon-mws/python-amazon-mws?logo=codecov&logoColor=ffffff&style=for-the-badge)][codecov_link]
+
 # python-amazon-mws
 
 python-amazon-mws is a Python connector to [Amazon Marketplace Web Services][2]
 (or MWS). It provides a simple way to build and send requests to MWS,
 allowing access to all that MWS can do from your Python application.
-
-**Join us on [Slack][1]!**
 
 ---
 
@@ -59,13 +61,6 @@ With this flag set, any request made through `api` will be wrapped in the new `M
 ⚡ *Thank you!* ⚡
 
 ---
-
-## Metrics
-
-| Branch    | Coverage                                                                                                                                                                         | Testing                                                                                                | Version                                                                           |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| `master`  | [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master)   | N/A                                                                                                    | [![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws) |
-| `develop` | [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop) | ![CI Testing](https://github.com/python-amazon-mws/python-amazon-mws/workflows/CI%20Testing/badge.svg) | 1.0devXY (GitHub install required)                                               |
 
 ## Installation
 
@@ -232,7 +227,8 @@ For support using the package, please [join our Slack][1] and post in the `#help
 
 For support using MWS itself, we advise using the [MWS documentation][2]
 
-[1]: https://join.slack.com/t/pythonamazonmws/shared_invite/enQtOTcwNTAzNjI4OTc2LTQyMzk1YzIxNTU0MmE1MWE0ZDUzZjBhMjI2ODZhNTQ5Mjk3ZTUyOGFkODk1N2Q2NjczZjY2M2U3NzAzNDU4ZTc
+[slack_invite]: https://join.slack.com/t/pythonamazonmws/shared_invite/enQtOTcwNTAzNjI4OTc2LTQyMzk1YzIxNTU0MmE1MWE0ZDUzZjBhMjI2ODZhNTQ5Mjk3ZTUyOGFkODk1N2Q2NjczZjY2M2U3NzAzNDU4ZTc
+[codecov_link]:  https://codecov.io/gh/python-amazon-mws/python-amazon-mws/
 [2]: http://docs.developer.amazonservices.com/en_US/dev_guide/index.html
 [3]: https://github.com/czpython/python-amazon-mws
 [4]: https://pre-commit.com/
