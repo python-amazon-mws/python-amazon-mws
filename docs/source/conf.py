@@ -26,7 +26,7 @@ author = "Galen Rice, Alex Hellier, James Hiew"
 master_doc = "index"
 
 # The full version, including alpha/beta/rc tags
-release = "1.0dev15"
+release = "1.0dev16"
 
 
 # -- General configuration ---------------------------------------------------

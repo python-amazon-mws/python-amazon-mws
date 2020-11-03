@@ -23,7 +23,7 @@ from mws.utils.params import (
 from mws.utils.timezone import mws_utc_now
 
 
-__version__ = "1.0dev15"
+__version__ = "1.0dev16"
 PAM_USER_AGENT = "python-amazon-mws/{} (Language=Python)".format(__version__)
 """See recommended user agent string format:
 https://docs.developer.amazonservices.com/en_US/dev_guide/DG_UserAgentHeader.html
