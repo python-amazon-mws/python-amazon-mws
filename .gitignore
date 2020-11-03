@@ -40,3 +40,4 @@ htmlcov/
 
 # Virtual Env ignore
 venv
+pythonenv*
