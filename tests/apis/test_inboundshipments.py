@@ -5,6 +5,7 @@ import pytest
 
 from mws import InboundShipments
 from mws import MWSError
+from mws.apis.inbound_shipments import parse_legacy_item
 from mws.models.inbound_shipments import (
     Address,
     InboundShipmentItem,
@@ -1121,3 +1122,17 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
             for idx, id_ in enumerate(ids, start=1):
                 key = "ShipmentIdList.member.{}".format(idx)
                 assert params[key] == id_
+
+
+@pytest.mark.parametrize(
+    "item",
+    (
+        "Not a mapping object",
+        {"sku": "missing quantity key"},
+        {"quantity": "missing sku key"},
+    ),
+)
+def test_legacy_item_dict_errors(item):
+    """Specific instances using parse_legacy_item should raise MWSError"""
+    with pytest.raises(MWSError):
+        parse_legacy_item(item, "OperationIrrelevant")
