@@ -2,7 +2,7 @@ Getting started
 ###############
 
 .. note:: We assume you have an Amazon Professional Seller account and developer access
-   to be able to use MWS. If not, please see :ref:`page_prerequisites`.
+   to be able to use MWS. If not, please see :doc:`prerequisites`.
 
 Entering credentials
 ====================
