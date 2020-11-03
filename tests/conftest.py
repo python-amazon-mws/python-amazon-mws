@@ -106,6 +106,59 @@ def simple_xml_response_no_meta():
     """
 
 
+@pytest.fixture
+def create_inbound_shipment_plan_dummy_response():
+    return """<?xml version="1.0"?>
+    <CreateInboundShipmentPlanResponse
+      xmlns="http://mws.amazonaws.com/FulfillmentInboundShipment/2010-10-01/">
+      <CreateInboundShipmentPlanResult>
+        <InboundShipmentPlans>
+          <member>
+            <DestinationFulfillmentCenterId>ABE2</DestinationFulfillmentCenterId>
+            <LabelPrepType>SELLER_LABEL</LabelPrepType>
+            <ShipToAddress>
+              <City>Breinigsville</City>
+              <CountryCode>US</CountryCode>
+              <PostalCode>18031</PostalCode>
+              <Name>Amazon.com</Name>
+              <AddressLine1>705 Boulder Drive</AddressLine1>
+              <StateOrProvinceCode>PA</StateOrProvinceCode>
+            </ShipToAddress>
+            <EstimatedBoxContentsFee>
+              <TotalUnits>10</TotalUnits>
+              <FeePerUnit>
+                <CurrencyCode>USD</CurrencyCode>
+                <Value>0.10</Value>
+              </FeePerUnit>
+              <TotalFee>
+                <CurrencyCode>USD</CurrencyCode>
+                <Value>10.0</Value>
+              </TotalFee>
+            </EstimatedBoxContentsFee>
+            <Items>
+              <member>
+                <FulfillmentNetworkSKU>FNSKU00001</FulfillmentNetworkSKU>
+                <Quantity>1</Quantity>
+                <SellerSKU>SKU00001</SellerSKU>
+                <PrepDetailsList>
+                  <PrepDetails>
+                    <PrepInstruction>Taping</PrepInstruction>
+                    <PrepOwner>AMAZON</PrepOwner>
+                  </PrepDetails>
+                </PrepDetailsList>
+              </member>
+            </Items>
+            <ShipmentId>FBA0000001</ShipmentId>
+          </member>
+        </InboundShipmentPlans>
+      </CreateInboundShipmentPlanResult>
+      <ResponseMetadata>
+        <RequestId>babd156d-8b2f-40b1-a770-d117f9ccafef</RequestId>
+      </ResponseMetadata>
+    </CreateInboundShipmentPlanResponse>
+    """
+
+
 def mock_response(content):
     response = Response()
     response._content = content

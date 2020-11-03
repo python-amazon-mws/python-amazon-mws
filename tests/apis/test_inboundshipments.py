@@ -6,6 +6,7 @@ import pytest
 from mws import InboundShipments
 from mws import MWSError
 from mws.apis.inbound_shipments import parse_legacy_item, parse_shipment_items
+from mws.utils.xml import mws_xml_to_dotdict
 from mws.models.inbound_shipments import (
     Address,
     InboundShipmentItem,
@@ -1152,3 +1153,35 @@ def test_parse_shipment_items_errors(items):
     """
     with pytest.raises(MWSError):
         parse_shipment_items(items)
+
+
+def test_inbound_shipment_item_from_plan_constructor(
+    create_inbound_shipment_plan_dummy_response,
+):
+    """Check the output of the `from_shipment_plan` alternate constructor
+    for the InboundShipmentItem model.
+    """
+    item = None
+    resp_parsed = mws_xml_to_dotdict(
+        create_inbound_shipment_plan_dummy_response,
+        result_key="CreateInboundShipmentPlanResult",
+    )
+    # Pull out the single item from this dummy plan
+    item = resp_parsed.InboundShipmentPlans.member.Items.member
+    item_model_1 = InboundShipmentItem.from_shipment_plan(item)
+    assert item_model_1.sku == "SKU00001"
+    assert item_model_1.quantity == "1"
+    assert item_model_1.quantity_in_case is None
+    assert item_model_1.release_date is None
+    assert item_model_1.prep_details_list[0].prep_instruction == "Taping"
+    assert item_model_1.prep_details_list[0].prep_owner == "AMAZON"
+
+    # FNSKU injection is a special case of this constructor.
+    assert item_model_1.fnsku == "FNSKU00001"
+
+    # Do the same, but add quantity_in_case and release_date
+    item_model_2 = InboundShipmentItem.from_shipment_plan(
+        item, 4, datetime.datetime(2020, 11, 3)
+    )
+    assert item_model_2.quantity_in_case == 4
+    assert item_model_2.release_date == datetime.datetime(2020, 11, 3)

@@ -1,5 +1,6 @@
 """DataType models for InboundShipments API."""
 
+from mws.utils.collections import DotDict
 from typing import List, Optional, Union
 from enum import Enum
 import datetime
@@ -297,8 +298,57 @@ class InboundShipmentItem(BaseInboundShipmentItem):
     ):
         super().__init__(*args, **kwargs)
         self.release_date = release_date
+        self.fnsku = None
 
     def params_dict(self) -> dict:
         data = self._base_params_dict()
         data.update({"ReleaseDate": self.release_date})
         return data
+
+    @classmethod
+    def from_shipment_plan(
+        cls,
+        item: DotDict,
+        quantity_in_case: Optional[int] = None,
+        release_date: Optional[datetime.datetime] = None,
+    ):
+        """Construct this model from a shipment plan returned from a
+        CreateInboundShipmentPlan request.
+
+        Expects a ``DotDict`` instance that can typically be found in the parsed
+        response object by:
+
+        1. Iterating ``for plan in resp.parsed.InboundShipmentPlans.member:``; and
+        2. Iterating ``for item in plan.Items.member:``.
+
+        Each ``item`` instance in the above example *should* work here [YMMV].
+
+        ``quantity_in_case`` must be passed manually for case-packed shipments,
+        even when constructing from a shipment plan response, as this data is not
+        typically returned in the plan details.
+
+        ``release_date`` is also not part of a shipment plan response, so this
+        must be passed manually in order to add it to the item.
+        """
+        # Parse prep details from the plan object, if any exist.
+        prep_details_list = []
+        if "PrepDetailsList" in item:
+            for prep_details in item.PrepDetailsList.PrepDetails:
+                prep_details_list.append(
+                    PrepDetails(
+                        prep_instruction=prep_details.PrepInstruction,
+                        prep_owner=prep_details.PrepOwner,
+                    )
+                )
+        # Construct the item model instance
+        instance = cls(
+            sku=item.SellerSKU,
+            quantity=item.Quantity,
+            quantity_in_case=quantity_in_case,
+            prep_details_list=prep_details_list,
+            release_date=release_date,
+        )
+        # Add an FNSKU manually to this instance, if present in the plan data.
+        instance.fnsku = item.get("FulfillmentNetworkSKU")
+
+        return instance
