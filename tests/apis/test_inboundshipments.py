@@ -5,7 +5,7 @@ import pytest
 
 from mws import InboundShipments
 from mws import MWSError
-from mws.apis.inbound_shipments import parse_legacy_item
+from mws.apis.inbound_shipments import parse_legacy_item, parse_shipment_items
 from mws.models.inbound_shipments import (
     Address,
     InboundShipmentItem,
@@ -1136,3 +1136,19 @@ def test_legacy_item_dict_errors(item):
     """Specific instances using parse_legacy_item should raise MWSError"""
     with pytest.raises(MWSError):
         parse_legacy_item(item, "OperationIrrelevant")
+
+
+@pytest.mark.parametrize(
+    "items",
+    (
+        list(),
+        tuple(),
+        set(),
+    ),
+)
+def test_parse_shipment_items_errors(items):
+    """Cases where the items collection passed to parse_shipment_items
+    are empty should raise MWSError.
+    """
+    with pytest.raises(MWSError):
+        parse_shipment_items(items)
