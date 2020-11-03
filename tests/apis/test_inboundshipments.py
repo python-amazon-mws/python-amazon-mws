@@ -30,6 +30,21 @@ def inbound_from_address():
 
 
 @pytest.fixture
+def from_address_params_expected():
+    """The expected output when using inbound_from_address fixture."""
+    return {
+        "Name": "Roland Deschain",
+        "AddressLine1": "500 Summat Cully Lane",
+        "AddressLine2": None,
+        "City": "Gilead",
+        "DistrictOrCounty": None,
+        "StateOrProvinceCode": None,
+        "PostalCode": None,
+        "CountryCode": "US",
+    }
+
+
+@pytest.fixture
 def api_instance_stored_from_address(api_instance, inbound_from_address):
     """Instance of InboundShipments ready for request testing
     that includes a ``from_address``.
@@ -140,6 +155,90 @@ class TestLegacySetShipFromAddressCases(InboundShipmentsAPITestCase):
 
 class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
     """Test case covering ``from_address`` storage using the ``Address`` model."""
+
+    def test_ship_from_address_none(self, api_instance):
+        """The from_address property does some complicated stuff, but it
+        should behave normally if `None` is passed.
+        """
+        # Assignment through the property should set None for the underlying attr
+        api_instance.from_address = None
+        assert api_instance._from_address is None
+        # And the return value for the property should also be None
+        assert api_instance.from_address is None
+
+        # Assignment of anything other than an Address model or Mapping raises MWSError
+        with pytest.raises(MWSError):
+            api_instance.from_address = "Not a mapping!"
+
+    @pytest.mark.parametrize(
+        "override_obj",
+        (
+            "String doesn't work",
+            1,
+            ("tuple?", "no way"),
+            ["not", "a", "list"],
+            {"not": "a", "dict": "either"},
+        ),
+    )
+    def test_from_address_params_errors(self, override_obj, api_instance):
+        """The from_address_params method is used as a shorthand for several actions,
+        including using the stored from_address, supplying an override address,
+        and/or providing a prefix.
+
+        This tests those various cases.
+        """
+        # Override address must be an Address model
+        with pytest.raises(MWSError):
+            api_instance.from_address_params(from_address=override_obj)
+
+    def test_from_address_params_override(
+        self, from_address_params_expected, api_instance_stored_from_address
+    ):
+        """Using from_address_params, overriding the from_address with a new Address
+        model should result in that address being used.
+        """
+        # First off, the default should return our expected values
+        assert (
+            api_instance_stored_from_address.from_address_params()
+            == from_address_params_expected
+        )
+
+        # Using a new address with the same method should return the new params,
+        # not the original.
+        new_address = Address(
+            name="Not The Original",
+            address_line_1="45 Blabbity Rd",
+            city="Chicago",
+            country_code="NZ",
+        )
+        override_params = api_instance_stored_from_address.from_address_params(
+            from_address=new_address
+        )
+        assert override_params == {
+            "Name": "Not The Original",
+            "AddressLine1": "45 Blabbity Rd",
+            "AddressLine2": None,
+            "City": "Chicago",
+            "DistrictOrCounty": None,
+            "StateOrProvinceCode": None,
+            "PostalCode": None,
+            "CountryCode": "NZ",
+        }
+
+        # Same as the expected overrides, with a prefix added.
+        override_with_prefix = api_instance_stored_from_address.from_address_params(
+            from_address=new_address, prefix="whatever"
+        )
+        assert override_with_prefix == {
+            "whatever.Name": "Not The Original",
+            "whatever.AddressLine1": "45 Blabbity Rd",
+            "whatever.AddressLine2": None,
+            "whatever.City": "Chicago",
+            "whatever.DistrictOrCounty": None,
+            "whatever.StateOrProvinceCode": None,
+            "whatever.PostalCode": None,
+            "whatever.CountryCode": "NZ",
+        }
 
     def test_address_built_properly(self, api_instance):
         """An address with all fields covered should be constructed properly."""
