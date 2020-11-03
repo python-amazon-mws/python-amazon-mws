@@ -1,9 +1,6 @@
 """Amazon MWS FulfillmentInboundShipment API."""
 
-# collections.abc.Iterable clashes with typing.Iterable,
-# so we rename both to avoid confusion in code
-from collections.abc import Iterable as IterableAbc
-from typing import Iterable as IterableType
+from typing import Iterable
 import typing
 
 from collections.abc import Mapping
@@ -210,26 +207,32 @@ class InboundShipments(MWS):
         return from_address.to_params(prefix=prefix)
 
     ### REQUEST METHODS ###
-    def get_inbound_guidance_for_sku(self, skus: IterableType, marketplace_id: str):
+    def get_inbound_guidance_for_sku(self, skus: Iterable, marketplace_id: str):
         """Returns inbound guidance for a list of items by Seller SKU.
+
+        ``skus`` expects a list, set or tuple. If it is any other type of object,
+        it will be treated as a single instance, similar to passing ``[skus]``.
 
         `MWS docs: GetInboundGuidanceForSKU
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForSKU.html>`_
         """
-        if not isinstance(skus, IterableAbc):
+        if not isinstance(skus, (list, set, tuple)):
             skus = [skus]
 
         data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("SellerSKUList.Id", skus))
         return self.make_request("GetInboundGuidanceForSKU", data)
 
-    def get_inbound_guidance_for_asin(self, asins: IterableType, marketplace_id: str):
+    def get_inbound_guidance_for_asin(self, asins: Iterable, marketplace_id: str):
         """Returns inbound guidance for a list of items by ASIN.
+
+        ``asins`` expects a list, set or tuple. If it is any other type of object,
+        it will be treated as a single instance, similar to passing ``[asins]``.
 
         `MWS docs: GetInboundGuidanceForASIN
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForASIN.html>`_
         """
-        if not isinstance(asins, IterableAbc):
+        if not isinstance(asins, (list, set, tuple)):
             asins = [asins]
 
         data = {"MarketplaceId": marketplace_id}
@@ -238,7 +241,7 @@ class InboundShipments(MWS):
 
     def create_inbound_shipment_plan(
         self,
-        items: IterableType[Union[InboundShipmentPlanRequestItem, dict]],
+        items: Iterable[Union[InboundShipmentPlanRequestItem, dict]],
         country_code: str = "US",
         subdivision_code: str = "",
         label_preference: str = "",
@@ -282,7 +285,7 @@ class InboundShipments(MWS):
         shipment_id: str,
         shipment_name: str,
         destination: str,
-        items: IterableType[dict],
+        items: Iterable[dict],
         shipment_status: str = "",
         label_preference: str = "",
         case_required: bool = False,
@@ -333,7 +336,7 @@ class InboundShipments(MWS):
         shipment_id: str,
         shipment_name: str,
         destination: str,
-        items: Optional[IterableType[dict]] = None,
+        items: Optional[Iterable[dict]] = None,
         shipment_status: str = "",
         label_preference: str = "",
         case_required: Optional[bool] = False,
@@ -393,7 +396,7 @@ class InboundShipments(MWS):
         )
 
     def get_prep_instructions_for_sku(
-        self, skus: IterableType = None, country_code: str = None
+        self, skus: Iterable = None, country_code: str = None
     ):
         """Returns labeling requirements and item preparation instructions
         to help you prepare items for an inbound shipment.
@@ -412,7 +415,7 @@ class InboundShipments(MWS):
         return self.make_request("GetPrepInstructionsForSKU", data, method="POST")
 
     def get_prep_instructions_for_asin(
-        self, asins: IterableType = None, country_code: str = None
+        self, asins: Iterable = None, country_code: str = None
     ):
         """Returns item preparation instructions to help with item sourcing decisions.
 
@@ -443,7 +446,7 @@ class InboundShipments(MWS):
     #         'ShipmentType': shipment_type,
     #     }
     #     data['TransportDetails.NonPartneredSmallParcelData.CarrierName'] = carrier_name
-    #     if isinstance(tracking_id, IterableAbc):
+    #     if isinstance(tracking_id, (list, set, tuple)):
     #         count = 0
     #         for track in tracking_id:
     #             data[
@@ -511,7 +514,7 @@ class InboundShipments(MWS):
         )
 
     def get_unique_package_labels(
-        self, shipment_id: str, page_type: str, package_ids: IterableType
+        self, shipment_id: str, page_type: str, package_ids: Iterable
     ):
         """Returns unique package labels for faster and more accurate shipment
         processing at the Amazon fulfillment center.
@@ -527,8 +530,10 @@ class InboundShipments(MWS):
         - "PackageLabel_A4_4"
         - "PackageLabel_Plain_Paper"
 
-        `package_ids` a single package identifier, or a list/tuple/set of identifiers,
-        specifying for which package(s) you want package labels printed.
+        ``package_ids`` expects a list, set, or tuple of package identifiers,
+        specifying for which packages you want package labels printed.
+        If any other type of object is passed, it will be treated as a single instance,
+        similar to passing ``[package_ids]``.
 
         `MWS docs: GetUniquePackageLabels
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetUniquePackageLabels.html>`_
@@ -537,7 +542,7 @@ class InboundShipments(MWS):
             "ShipmentId": shipment_id,
             "PageType": page_type,
         }
-        if not isinstance(package_ids, IterableAbc):
+        if not isinstance(package_ids, (list, set, tuple)):
             package_ids = [package_ids]
         data.update(enumerate_param("PackageLabelsToPrint.member.", package_ids))
         return self.make_request("GetUniquePackageLabels", data)
@@ -582,8 +587,8 @@ class InboundShipments(MWS):
     @next_token_action("ListInboundShipments")
     def list_inbound_shipments(
         self,
-        shipment_ids: Optional[IterableType[str]] = None,
-        shipment_statuses: Optional[IterableType[str]] = None,
+        shipment_ids: Optional[Iterable[str]] = None,
+        shipment_statuses: Optional[Iterable[str]] = None,
         last_updated_after: Optional[datetime.datetime] = None,
         last_updated_before: Optional[datetime.datetime] = None,
         next_token: str = None,
