@@ -8,6 +8,9 @@ from mws.utils.params import enumerate_params
 from mws.utils.params import coerce_to_bool
 from mws.decorators import next_token_action
 
+# DEPRECATIONS
+from mws.utils.deprecation import kwargs_renamed_for_v11
+
 # TODO Add Schedule enumerations as constants
 
 
@@ -57,6 +60,7 @@ class Reports(MWS):
         "GetReportScheduleList",
     ]
 
+    @kwargs_renamed_for_v11([("marketplaceids", "marketplace_ids")])
     def request_report(
         self,
         report_type,
@@ -81,6 +85,15 @@ class Reports(MWS):
         data.update(enumerate_param("MarketplaceIdList.Id.", marketplace_ids))
         return self.make_request("RequestReport", data)
 
+    @kwargs_renamed_for_v11(
+        [
+            ("requestids", "request_ids"),
+            ("types", "report_types"),
+            ("processingstatuses", "processing_statuses"),
+            ("fromdate", "from_date"),
+            ("todate", "to_date"),
+        ]
+    )
     @next_token_action("GetReportRequestList")
     def get_report_request_list(
         self,
@@ -127,6 +140,13 @@ class Reports(MWS):
         """
         return self.get_report_request_list(next_token=token)
 
+    @kwargs_renamed_for_v11(
+        [
+            ("processingstatuses", "processing_statuses"),
+            ("fromdate", "from_date"),
+            ("todate", "to_date"),
+        ]
+    )
     def get_report_request_count(
         self, report_types=None, processing_statuses=None, from_date=None, to_date=None
     ):
@@ -156,6 +176,14 @@ class Reports(MWS):
     # def cancel_report_requests(self):
     #     pass
 
+    @kwargs_renamed_for_v11(
+        [
+            ("requestids", "request_ids"),
+            ("types", "report_types"),
+            ("fromdate", "from_date"),
+            ("todate", "to_date"),
+        ]
+    )
     @next_token_action("GetReportList")
     def get_report_list(
         self,
@@ -203,6 +231,7 @@ class Reports(MWS):
         """
         return self.get_report_list(next_token=token)
 
+    @kwargs_renamed_for_v11([("fromdate", "from_date"), ("todate", "to_date")])
     def get_report_count(
         self, report_types=None, acknowledged=None, from_date=None, to_date=None
     ):
@@ -235,6 +264,7 @@ class Reports(MWS):
     # def manage_report_schedule(self):
     #     pass
 
+    @kwargs_renamed_for_v11([("types", "report_types")])
     @next_token_action("GetReportScheduleList")
     def get_report_schedule_list(self, report_types=None, next_token=None):
         """Returns a list of order report requests that are scheduled
@@ -257,6 +287,7 @@ class Reports(MWS):
         """
         return self.get_report_schedule_list(next_token=token)
 
+    @kwargs_renamed_for_v11([("types", "report_types")])
     def get_report_schedule_count(self, report_types=None):
         """Returns a count of order report requests that are scheduled to be submitted to Amazon MWS.
 

@@ -25,8 +25,8 @@ class Inventory(MWS):
         skus=(),
         datetime_=None,
         response_group="Basic",
-        next_token=None,
         marketplace_id=None,
+        next_token=None,
     ):
         """Returns information on available inventory
 

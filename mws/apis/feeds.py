@@ -9,6 +9,10 @@ from mws.utils.crypto import calc_md5
 from mws.utils.params import coerce_to_bool
 from mws.utils.params import enumerate_param
 
+# DEPRECATIONS for argument names in v1.1
+from mws.utils.deprecation import kwargs_renamed_for_v11
+
+
 # TODO Add FeedProcessingStatus enumeration
 # TODO Add FeedType enumeration
 
@@ -99,6 +103,7 @@ class Feeds(MWS):
         "GetFeedSubmissionList",
     ]
 
+    @kwargs_renamed_for_v11([("marketplaceids", "marketplace_ids")])
     def submit_feed(
         self,
         feed,
@@ -176,6 +181,15 @@ class Feeds(MWS):
             extra_headers=extra_headers,
         )
 
+    @kwargs_renamed_for_v11(
+        [
+            ("feedids", "feed_ids"),
+            ("feedtypes", "feed_types"),
+            ("processingstatuses", "processing_statuses"),
+            ("fromdate", "from_date"),
+            ("todate", "to_date"),
+        ]
+    )
     @next_token_action("GetFeedSubmissionList")
     def get_feed_submission_list(
         self,
@@ -216,6 +230,14 @@ class Feeds(MWS):
         """
         return self.get_feed_submission_list(next_token=token)
 
+    @kwargs_renamed_for_v11(
+        [
+            ("feedtypes", "feed_types"),
+            ("processingstatuses", "processing_statuses"),
+            ("fromdate", "from_date"),
+            ("todate", "to_date"),
+        ]
+    )
     def get_feed_submission_count(
         self, feed_types=None, processing_statuses=None, from_date=None, to_date=None
     ):
@@ -235,6 +257,14 @@ class Feeds(MWS):
         )
         return self.make_request("GetFeedSubmissionCount", data)
 
+    @kwargs_renamed_for_v11(
+        [
+            ("feedids", "feed_ids"),
+            ("feedtypes", "feed_types"),
+            ("fromdate", "from_date"),
+            ("todate", "to_date"),
+        ]
+    )
     def cancel_feed_submissions(
         self, feed_ids=None, feed_types=None, from_date=None, to_date=None
     ):
@@ -252,6 +282,11 @@ class Feeds(MWS):
         data.update(enumerate_param("FeedTypeList.Type.", feed_types))
         return self.make_request("CancelFeedSubmissions", data)
 
+    @kwargs_renamed_for_v11(
+        [
+            ("feedid", "feed_id"),
+        ]
+    )
     def get_feed_submission_result(self, feed_id):
         """Returns the feed processing report and the Content-MD5 header.
 
