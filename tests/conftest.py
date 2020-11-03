@@ -16,30 +16,13 @@ TEST_MWS_AUTH_TOKEN = "my_auth_token"
 
 
 @pytest.fixture
-def cred_auth_token():
-    return "cred_auth_token"
-
-
-@pytest.fixture
-def mws_credentials(cred_access_key, cred_secret_key, cred_account_id):
+def mws_credentials():
     """Fake set of MWS credentials"""
     return {
-        "access_key": cred_access_key,
-        "secret_key": cred_secret_key,
-        "account_id": cred_account_id,
-    }
-
-
-@pytest.fixture
-def mws_credentials_with_auth_token(
-    cred_access_key, cred_secret_key, cred_account_id, cred_auth_token
-):
-    """Fake set of MWS credentials with auth_token included"""
-    return {
-        "access_key": cred_access_key,
-        "secret_key": cred_secret_key,
-        "account_id": cred_account_id,
-        "auth_token": cred_auth_token,
+        "access_key": TEST_MWS_ACCESS_KEY,
+        "secret_key": TEST_MWS_SECRET_KEY,
+        "account_id": TEST_MWS_ACCOUNT_ID,
+        "auth_token": TEST_MWS_AUTH_TOKEN,
     }
 
 
