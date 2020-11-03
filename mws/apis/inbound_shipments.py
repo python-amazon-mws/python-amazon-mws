@@ -25,7 +25,7 @@ from mws.utils.params import enumerate_param
 #      This check and import are a slight hack as we continue to support 3.6+
 #      When support drops for 3.7, remove these and replace with a more direct import
 #      an real type annotation for objects that use it (removing type comments)
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from typing import Literal
 
 
