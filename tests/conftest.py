@@ -4,7 +4,7 @@ import pytest
 
 from requests import Response
 
-from mws.mws import MWS
+from mws import MWS
 from mws.utils.xml import MWS_ENCODING
 from mws.response import MWSResponse
 
@@ -16,13 +16,30 @@ TEST_MWS_AUTH_TOKEN = "my_auth_token"
 
 
 @pytest.fixture
-def mws_credentials():
+def cred_auth_token():
+    return "cred_auth_token"
+
+
+@pytest.fixture
+def mws_credentials(cred_access_key, cred_secret_key, cred_account_id):
     """Fake set of MWS credentials"""
     return {
-        "access_key": TEST_MWS_ACCESS_KEY,
-        "secret_key": TEST_MWS_SECRET_KEY,
-        "account_id": TEST_MWS_ACCOUNT_ID,
-        "auth_token": TEST_MWS_AUTH_TOKEN,
+        "access_key": cred_access_key,
+        "secret_key": cred_secret_key,
+        "account_id": cred_account_id,
+    }
+
+
+@pytest.fixture
+def mws_credentials_with_auth_token(
+    cred_access_key, cred_secret_key, cred_account_id, cred_auth_token
+):
+    """Fake set of MWS credentials with auth_token included"""
+    return {
+        "access_key": cred_access_key,
+        "secret_key": cred_secret_key,
+        "account_id": cred_account_id,
+        "auth_token": cred_auth_token,
     }
 
 
@@ -35,6 +52,14 @@ def api_instance(request, mws_credentials):
     """
     klass = getattr(request.cls, "api_class", MWS)
     instance = klass(**mws_credentials)
+    instance._test_request_params = True
+    return instance
+
+
+@pytest.fixture
+def api_instance_with_auth_token(request, mws_credentials_with_auth_token):
+    klass = getattr(request.cls, "api_class", MWS)
+    instance = klass(**mws_credentials_with_auth_token)
     instance._test_request_params = True
     return instance
 

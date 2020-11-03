@@ -3,6 +3,9 @@
 from mws import MWS
 from mws.decorators import next_token_action
 
+# DEPRECATIONS
+from mws.utils.deprecation import kwargs_renamed_for_v11
+
 
 class Recommendations(MWS):
     """Amazon MWS Recommendations API
@@ -18,6 +21,7 @@ class Recommendations(MWS):
         "ListRecommendations",
     ]
 
+    @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
     def get_last_updated_time_for_recommendations(self, marketplace_id):
         """Checks whether there are active recommendations for each category for
         the given marketplace, and if there are, returns the time when recommendations
@@ -32,6 +36,12 @@ class Recommendations(MWS):
             method="POST",
         )
 
+    @kwargs_renamed_for_v11(
+        [
+            ("marketplaceid", "marketplace_id"),
+            ("recommendationcategory", "recommendation_category"),
+        ]
+    )
     @next_token_action("ListRecommendations")
     def list_recommendations(
         self, marketplace_id=None, recommendation_category=None, next_token=None

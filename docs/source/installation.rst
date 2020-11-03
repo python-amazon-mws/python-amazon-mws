@@ -13,4 +13,4 @@ Use ``pip`` to install 1.0devXY from GitHub off the ``develop`` branch:
 
 .. code-block:: bash
 
-    pip install git+https://github.com/python-amazon-mws/python-amazon-mws.git@develp#egg=mws
+    pip install git+https://github.com/python-amazon-mws/python-amazon-mws.git@develop#egg=mws

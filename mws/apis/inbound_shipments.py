@@ -10,15 +10,16 @@ from collections.abc import Mapping
 from typing import Dict, List, Optional, Union
 import datetime
 
-from mws import MWS, MWSError
-from mws.models.inbound_shipments import Address
-from mws.models.inbound_shipments import InboundShipmentPlanRequestItem
-from mws.models.inbound_shipments import InboundShipmentItem
-from mws.utils.params import enumerate_param
-
-from mws.utils.params import enumerate_keyed_param
-from mws.utils.collections import unique_list_order_preserved
+from mws import MWS
+from mws import MWSError
 from mws.decorators import next_token_action
+from mws.models.inbound_shipments import Address
+from mws.models.inbound_shipments import InboundShipmentItem
+from mws.models.inbound_shipments import InboundShipmentPlanRequestItem
+from mws.utils.collections import unique_list_order_preserved
+from mws.utils.deprecation import kwargs_renamed_for_v11
+from mws.utils.params import enumerate_keyed_param
+from mws.utils.params import enumerate_param
 
 # TODO Add label type enumeration
 # TODO Add helper method for extracting PDF file object from label requests
@@ -490,6 +491,7 @@ class InboundShipments(MWS):
             "VoidTransportRequest", {"ShipmentId": shipment_id}, method="POST"
         )
 
+    @kwargs_renamed_for_v11([("num_packages", "num_labels")])
     def get_package_labels(
         self, shipment_id: str, num_labels: int, page_type: Optional[str] = None
     ):
