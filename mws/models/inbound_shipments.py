@@ -1,12 +1,25 @@
 """DataType models for InboundShipments API."""
 
-from mws.utils.collections import DotDict
-from typing import List, Optional, Union
 from enum import Enum
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Union
 import datetime
 
-from mws.utils.params import enumerate_keyed_param, enumerate_param
 from mws.models.base import MWSDataType
+from mws.utils.collections import DotDict
+from mws.utils.params import enumerate_keyed_param
+
+
+__all__ = [
+    "Address",
+    "PrepInstruction",
+    "PrepDetails",
+    "ItemCondition",
+    "InboundShipmentPlanRequestItem",
+    "InboundShipmentItem",
+    "ExtraItemData",
+    "shipment_items_from_plan",
+]
 
 
 class Address(MWSDataType):
@@ -352,3 +365,71 @@ class InboundShipmentItem(BaseInboundShipmentItem):
         instance.fnsku = item.get("FulfillmentNetworkSKU")
 
         return instance
+
+
+@dataclass
+class ExtraItemData:
+    """Dataclass used for providing overrides to individual SKUs when
+    processing items from a planned shipment in bulk using
+    :py:func:`shipment_items_from_plan`.
+
+    To utilize, construct a dictionary that maps SellerSKUs to instances of this class,
+    then pass that dictionary to the ``overrides`` argument for
+    ``shipment_items_from_plan``.
+    """
+
+    quantity_in_case: Optional[int] = None
+    release_date: Optional[datetime.datetime] = None
+
+    def to_dict(self) -> dict:
+        output = {
+            "quantity_in_case": self.quantity_in_case,
+            "release_date": self.release_date,
+        }
+        return {k: v for k, v in output.items() if v is not None}
+
+
+def shipment_items_from_plan(
+    plan: Union[DotDict, List[DotDict]],
+    overrides: Optional[Dict[str, ExtraItemData]] = None,
+) -> List[InboundShipmentItem]:
+    """Given a shipment plan response, returns a list of InboundShipmentItem models
+    constructed from the contents of that plan's ``Items`` set.
+
+    Expects ``plan`` to be a node from a parsed MWS response from the
+    CreateInboundShipmentPlan request, typically the
+    ``resp.parsed.InboundShipmentPlans.member`` node (which may be a DotDict for a
+    single plan or a list of DotDicts for multiple; though both options should be
+    natively iterable with the same interface).
+    """
+    overrides = overrides or {}
+
+    if "member" in plan:
+        # User has likely passed node ``InboundShipmentPlans``, but we need the child
+        # node, ``member``. Move down to this node automatically.
+        plan = plan.member
+    if "Items" not in plan:
+        raise ValueError(
+            (
+                "'Items' node not found in plan. "
+                "Requires a parsed response from the CreateInboundShipmentPlan request "
+                "using the correct node in that response "
+                "(typically `resp.parsed.InboundShipmentPlans.member`) "
+            )
+        )
+    shipment_items = []
+    for item in plan.Items.member:
+        # Gather override data from our overrides, if present
+        override_data = overrides.get(item.SellerSKU, {})
+        if isinstance(override_data, ExtraItemData):
+            # Convert from the ExtraItemData dataclass to a dict representation
+            override_data = override_data.to_dict()
+
+        # Narrow down override data to just the proper keys
+        override_data = {
+            k: v
+            for k, v in override_data.items()
+            if k in ("quantity_in_case", "release_date")
+        }
+        shipment_items.append(InboundShipmentItem.from_plan_item(item, **override_data))
+    return shipment_items

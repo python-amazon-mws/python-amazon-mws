@@ -107,7 +107,7 @@ def simple_xml_response_no_meta():
 
 
 @pytest.fixture
-def create_inbound_shipment_plan_dummy_response():
+def create_inbound_shipment_plan_dummy_xml():
     return """<?xml version="1.0"?>
     <CreateInboundShipmentPlanResponse
       xmlns="http://mws.amazonaws.com/FulfillmentInboundShipment/2010-10-01/">
@@ -165,6 +165,13 @@ def mock_response(content):
     response.encoding = MWS_ENCODING
     response.status_code = 200
     return response
+
+
+@pytest.fixture
+def create_inbound_shipment_plan_dummy_response(create_inbound_shipment_plan_dummy_xml):
+    content = create_inbound_shipment_plan_dummy_xml.encode(MWS_ENCODING)
+    response = mock_response(content)
+    return MWSResponse(response, result_key="CreateInboundShipmentPlanResult")
 
 
 @pytest.fixture

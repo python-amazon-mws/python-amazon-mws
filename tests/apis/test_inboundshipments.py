@@ -9,8 +9,10 @@ from mws.apis.inbound_shipments import parse_legacy_item, parse_shipment_items
 from mws.utils.xml import mws_xml_to_dotdict
 from mws.models.inbound_shipments import (
     Address,
+    ExtraItemData,
     InboundShipmentItem,
     InboundShipmentPlanRequestItem,
+    shipment_items_from_plan,
 )
 
 from .common import APITestCase
@@ -1161,11 +1163,7 @@ def test_inbound_shipment_item_from_plan_constructor(
     """Check the output of the `from_plan_item` alternate constructor
     for the InboundShipmentItem model.
     """
-    item = None
-    resp_parsed = mws_xml_to_dotdict(
-        create_inbound_shipment_plan_dummy_response,
-        result_key="CreateInboundShipmentPlanResult",
-    )
+    resp_parsed = create_inbound_shipment_plan_dummy_response.parsed
     # Pull out the single item from this dummy plan
     item = resp_parsed.InboundShipmentPlans.member.Items.member
     item_model_1 = InboundShipmentItem.from_plan_item(item)
@@ -1185,3 +1183,76 @@ def test_inbound_shipment_item_from_plan_constructor(
     )
     assert item_model_2.quantity_in_case == 4
     assert item_model_2.release_date == datetime.datetime(2020, 11, 3)
+
+
+def test_inbound_shipment_items_in_bulk(
+    create_inbound_shipment_plan_dummy_response,
+):
+    """Check the output of the `shipment_items_from_plan` bulk processor."""
+    resp_parsed = create_inbound_shipment_plan_dummy_response.parsed
+    items_1 = shipment_items_from_plan(resp_parsed.InboundShipmentPlans.member)
+    # Pull out the single item from this dummy plan
+    assert items_1[0].sku == "SKU00001"
+    assert items_1[0].quantity == "1"
+    assert items_1[0].quantity_in_case is None
+    assert items_1[0].release_date is None
+    assert items_1[0].prep_details_list[0].prep_instruction == "Taping"
+    assert items_1[0].prep_details_list[0].prep_owner == "AMAZON"
+
+    # FNSKU injection is a special case of this constructor.
+    assert items_1[0].fnsku == "FNSKU00001"
+
+    # provide overrides via dictionary
+    items_2 = shipment_items_from_plan(
+        resp_parsed.InboundShipmentPlans.member,
+        overrides={
+            "SKU00001": {
+                "quantity_in_case": 4,
+                "release_date": datetime.datetime(2020, 11, 3),
+            }
+        },
+    )
+    assert items_2[0].quantity_in_case == 4
+    assert items_2[0].release_date == datetime.datetime(2020, 11, 3)
+
+    # provide overrides via ExtraItemData dataclass
+    items_3 = shipment_items_from_plan(
+        resp_parsed.InboundShipmentPlans.member,
+        overrides={
+            "SKU00001": ExtraItemData(
+                quantity_in_case=12,
+                release_date=datetime.datetime(2020, 12, 25),
+            )
+        },
+    )
+    assert items_3[0].quantity_in_case == 12
+    assert items_3[0].release_date == datetime.datetime(2020, 12, 25)
+
+
+def test_inbound_shipment_items_in_bulk_parent_key(
+    create_inbound_shipment_plan_dummy_response,
+):
+    """Check the output of the `shipment_items_from_plan` bulk processor
+    when using the parent node, InboundShipmentPlans, instead of the member node.
+    """
+    resp_parsed = create_inbound_shipment_plan_dummy_response.parsed
+    items_1 = shipment_items_from_plan(resp_parsed.InboundShipmentPlans)
+    # Pull out the single item from this dummy plan
+    assert items_1[0].sku == "SKU00001"
+    assert items_1[0].quantity == "1"
+    assert items_1[0].quantity_in_case is None
+    assert items_1[0].release_date is None
+    assert items_1[0].prep_details_list[0].prep_instruction == "Taping"
+    assert items_1[0].prep_details_list[0].prep_owner == "AMAZON"
+
+
+def test_inbound_shipment_items_in_bulk_error(simple_mwsresponse_with_resultkey):
+    """Bulk processor `shipment_items_from_plan` should raise ValueError
+    if an incorrect node has been provided.
+
+    Use an incorrect response type to test this, as it won't have the "Items"
+    or "member" keys we need.
+    """
+    resp_parsed = simple_mwsresponse_with_resultkey.parsed
+    with pytest.raises(ValueError):
+        shipment_items_from_plan(resp_parsed.Products)
