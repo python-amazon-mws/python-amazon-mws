@@ -1,8 +1,8 @@
 Managing Fulfillment Inbound (FBA) Shipments
 ############################################
 
-.. note:: Examples in this document use :doc:`MWSResponse preview features
-   <../reference/MWSResponse>`.
+.. include:: /newFeaturesTopNote100dev16.rst
+.. note:: Examples in this document use :doc:`MWSResponse preview features <../reference/MWSResponse>`.
 
 MWS handles **Fulfillment Inbound Shipments**, also known as **FBA** (for "Fulfillment By Amazon")
 through the `Fulfillment Inbound Shipment API section
@@ -137,6 +137,9 @@ When using this option, you can omit passing ``from_address=my_address`` as an a
 All relevant request methods (``create_inbound_shipment_plan``, ``create_inbound_shipment``, and
 ``update_inbound_shipment``) will pass the stored ``from_address`` to these requests automatically.
 
+In any case, supplying a ``from_address`` argument to one of these methods will be used as an override, regardless of
+the address stored within the API instance.
+
 Request a shipment plan
 ------------------------
 
@@ -219,6 +222,22 @@ Now that we have our items handy, it's time to make our request for a shipment p
     # using `inbound_api`, `my_address` and `my_items` from previous examples
     resp = inbound_api.create_inbound_shipment_plan(my_items, from_address=my_address)
 
+Other arguments you can provide include:
+
+- ``country_code`` *or* ``subdivision_code``, the country or country subdivision you are planning to send a shipment to.
+  ``country_code`` defaults to ``"US"``; ``subdivision_code`` (which refers to a subdivision of India specifically)
+  defaults to ``None``.
+
+  - According to `MWS documentation
+    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipmentPlan.html>`_,
+    providing both options will return an error.
+
+- ``label_preference``, a preference for label preparation. Defaults to ``None``, which MWS may interpret
+  as "SELLER_LABEL" internally.
+
+And note that the ``from_address`` argument is optional if the address has been
+`stored on the API instance <#optional-store-your-ship-from-address-on-the-api-instance>`_.
+
 Processing shipment plans
 =========================
 
@@ -226,7 +245,7 @@ If our request to create shipment plans was successful, MWS will respond with an
 python-amazon-mws will :doc:`automatically parse this response <parsedXMLResponses>`, giving us access to the
 Python representation of the response in ``resp.parsed``.
 
-For reference, let's look at an example of an XML response from ``create_inbound_shipment_plan``. You can access
+For reference, we will use the following example XML response from ``create_inbound_shipment_plan``. You can access
 this document in your own response by checking ``resp.original.text``:
 
 .. code-block:: xml
@@ -286,29 +305,214 @@ this document in your own response by checking ``resp.original.text``:
       </ResponseMetadata>
     </CreateInboundShipmentPlanResponse>
 
-Based on this example, we can see that each plan is represented by a ``InboundShipmentPlans.member`` node.
-Multiple copies of the ``<member>`` XML element may be present, indicating more than one shipment is planned.
-We'll take advantage of ``DotDict``'s :ref:`native iteration <dotdict_native_iteration>` to safely access these
-multiple plan members, like so:
+Gathering shipment details
+--------------------------
+
+To begin, we can access each shipment plan in the parsed response like so:
 
 .. code-block:: python
 
-    for plan in resp.parsed.InboundShipmentPlans.member:
-        print(plan.DestinationFulfillmentCenterId)
-        print(plan.LabelPrepType)
-        print(plan.ShipToAddress.AddressLine1)
-        # ...etc.
-
-Each ``plan`` will also contain one or more Items, which (per the XML example) take the form ``plan.Items.member``.
-We can again iterate on these item members to gather information on each of them:
-
-.. code-block:: python
-
+    # Using the `resp` object from our previous examples
     for plan in resp.parsed.InboundShipmentPlans.member:
         ...
-        for item in plan.Items.member:
-            print(item.FulfillmentNetworkSKU)
-            print(item.Quantity)
-            # ...etc.
 
-As mentioned, Amazon may
+Each ``plan`` contains metadata required for creating a new shipment. These include:
+
+- ``plan.ShipmentId``, the FBA shipment ID Amazon generates for the new shipment plan.
+- ``plan.DestinationFulfillmentCenterId``, the short code for a Fulfillment Center planning to receive this shipment.
+- ``plan.LabelPrepType``, the label preparation type for this shipment.
+
+In addition to these data points, you should consider gathering the following data as arguments for the
+``create_inbound_shipment`` request method:
+
+- ``shipment_name`` (required), a human-readable name to help identify your shipment without relying on shipment IDs.
+- ``shipment_status``, the initial status of the shipment. Defaults to "WORKING", indicating the shipment will remain
+  "open" so that items and quantities can still be changed before it is shipped.
+
+  The following constants can be used for this argument:
+
+  - ``InboundShipments.STATUS_WORKING``
+  - ``InboundShipments.STATUS_SHIPPED``
+  - ``InboundShipments.STATUS_CANCELLED``
+  - ``InboundShipments.STATUS_CANCELED`` (alias for ``STATUS_CANCELLED``)
+
+- ``case_required``, a boolean indicating that items in the shipment are either *all case-packed* (if ``True``) or
+  *all loose items* (if ``False``). Defaults to ``False``.
+- ``box_contents_source``, a string indicating a source of box content data for packages within the shipment, or
+  ``None`` indicating no box contents source. Defaults to ``None``.
+
+  The following constants can be used for this argument:
+
+  - ``InboundShipments.BOX_CONTENTS_FEED``, indicating contents will be provided in a :doc:`Feed <../apis/Feeds>` of type
+    ``_POST_FBA_INBOUND_CARTON_CONTENTS_``.
+  - ``InboundShipments.BOX_CONTENTS_2D_BARCODE``, indicating contents will be provided using 2D barcodes present
+    on the cartons of the shipment.
+
+We will illustrate how to use these data points later in this doc.
+
+Converting plan items to shipment items
+---------------------------------------
+
+While the request to ``create_inbound_shipment_plan`` makes use of the
+:py:class:`InboundShipmentPlanRequestItem <mws.models.inbound_shipments.InboundShipmentPlanRequestItem>` model to
+transmit item data, this model is not sufficient for passing data to ``create_inbound_shipment`` and
+``update_inbound_shipment`` requests, as they require slightly different parameters. We will need to use the
+:py:class:`InboundShipmentItem <mws.models.inbound_shipments.InboundShipmentItem>` model, instead.
+
+We can pass data to this model in one of three ways:
+
+1. Manually processing item data from the response:
+
+   .. code-block:: python
+
+      from mws.models.inbound_shipments import InboundShipmentItem
+
+      for plan in resp.parsed.InboundShipmentPlans.member:
+          shipment_items = []
+          for item in plan.Items.member:
+              new_item = InboundShipmentItem(
+                  sku=item.SellerSKU,
+                  quantity=item.Quantity,
+              )
+              shipment_items.append(new_item)
+
+2. Using :py:meth:`InboundShipmentItem.from_plan_item <mws.models.inbound_shipments.InboundShipmentItem.from_plan_item>`
+   to construct an item automatically from each item in the response:
+
+   .. code-block:: python
+
+      from mws.models.inbound_shipments import InboundShipmentItem
+
+      for plan in resp.parsed.InboundShipmentPlans.member:
+          shipment_items = []
+          for item in plan.Items.member:
+              new_item = InboundShipmentItem.from_plan_item(item)
+              shipment_items.append(new_item)
+
+3. Using helper method :py:func:`shipment_items_from_plan <mws.models.inbound_shipments.shipment_items_from_plan>`
+   to return a list of items from the entire plan automatically:
+
+   .. code-block:: python
+
+      from mws.models.inbound_shipments import shipment_items_from_plan
+
+      for plan in resp.parsed.InboundShipmentPlans.member:
+          shipment_items = shipment_items_from_plan(plan)
+
+.. note:: Using ``InboundShipmentItem.from_plan_item`` or ``shipment_items_from_plan``, each item will automatically
+   store the ``fnsku`` of each planned item. This data is ignored in calls to ``create_inbound_shipment`` and
+   ``update_inbound_shipment``, but can be useful for tracking items internally.
+
+Using either of these methods, the list of ``shipment_items`` can be used as the ``items`` argument to either the
+``create_inbound_shipment`` or ``update_inbound_shipment`` request method.
+
+.. rubric:: Adding ``quantity_in_case`` and ``release_date`` values
+
+Item data provided by a ``plan`` is sufficient for most data required for items, but some data points must be
+added manually:
+
+- Case-pack information, specifically the ``quantity_in_case`` argument, is not supplied by the response from
+  ``create_inbound_shipment_plan``, even if this information was provided in the request itself.
+- Pre-order items must provide an additional ``release_date`` data point.
+
+In the first two examples `above <#converting-plan-items-to-shipment-items>`_, these data points can be added as
+arguments when constructing the new item:
+
+.. code-block:: python
+    :emphasize-lines: 5-6,12-13
+
+    # using InboundShipmentItem(...):
+    new_item = InboundShipmentItem(
+        sku=item.SellerSKU,
+        quantity=item.Quantity,
+        quantity_in_case=...,
+        release_date=...,
+    )
+
+    # using InboundShipmentItem.from_plan_item(...):
+    new_item = InboundShipmentItem.from_plan_item(
+      item,
+      quantity_in_case=...,
+      release_date=...,
+    )
+
+    # Confirm this data has been added:
+    print(new_item.quantity_in_case, new_item.release_date)
+
+In either case, when working with multiple items per shipment plan, you will need to determine which SKU these data
+refer to. You should be able to rely on ``item.SellerSKU`` to identify those SKUs.
+
+.. rubric:: Adding extra data when processing items in bulk
+
+When processing a planned shipment's items in bulk, adding ``quantity_in_case`` and/or ``release_date`` values to
+each item can be done using the ``overrides`` argument to ``shipment_items_from_plan``.
+
+``overrides`` expects a dictionary with SellerSKUs as its keys. The values of this dict can be either:
+
+- A dict containing keys ``quantity_in_case`` and/or ``release_date`` (all other keys are ignored):
+
+  .. code-block:: python
+
+      overrides = {
+          'mySku1': {
+              'quantity_in_case': 12,
+              'release_date': datetime.datetime(2020-12-25),
+          },
+      }
+
+- An instance of the dataclass :py:class:`ExtraItemData <mws.models.inbound_shipments.ExtraItemData>`:
+
+  .. code-block:: python
+
+      from mws.models.inbound_shipments import ExtraItemData
+
+      overrides = {
+          'mySku2': ExtraItemData(
+              quantity_in_case=12,
+              release_date=datetime.datetime(2020-12-25),
+          ),
+      }
+
+You should construct this set of overrides for all SKUs sent in your original request to
+``create_inbound_shipment_plan``. You can then use the same set of overrides on any planned shipment resulting
+from that request:
+
+.. code-block:: python
+
+    overrides = {...}
+
+    for plan in resp.parsed.InboundShipmentPlans.member:
+        shipment_items = shipment_items_from_plan(plan, overrides=overrides)
+
+Creating shipments
+------------------
+
+Putting it all together, we can create a new FBA shipment using
+:py:meth:`create_inbound_shipment() <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment>`
+like so:
+
+.. code-block:: python
+
+    from mws.models.inbound_shipments import ExtraItemData, shipment_items_from_plan
+
+    # with optional overrides
+    overrides = {
+        'mySku1': ExtraItemData(...),
+        'mySku2': ExtraItemData(...),
+    }
+
+    for plan in resp.parsed.InboundShipmentPlans.member:
+        shipment_items = shipment_items_from_plan(plan, overrides=overrides)
+        new_shipment_resp = inbound_api.create_inbound_shipment(
+            shipment_id=plan.ShipmentId,
+            shipment_name="My Shiny New FBA Shipment",
+            destination=plan.DestinationFulfillmentCenterId,
+            items=shipment_items,
+            shipment_status=inbound_api.STATUS_WORKING,  # optional, default "WORKING"
+            label_preference=plan.LabelPrepType,  # optional, default None
+            case_required=False,  # optional, default False
+            box_contents_source=inbound_api.BOX_CONTENTS_FEED,  # optional, default None
+            from_address=my_address,  # optional if stored on API instance
+        )
+
+*TODO the rest of this, maybe using update_inbound_shipment? transport details? Related requests?*
