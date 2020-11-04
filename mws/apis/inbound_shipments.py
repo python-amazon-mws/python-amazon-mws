@@ -145,6 +145,12 @@ class InboundShipments(MWS):
         "ListInboundShipmentItems",
     ]
 
+    STATUS_WORKING = "WORKING"
+    STATUS_SHIPPED = "SHIPPED"
+    STATUS_CANCELLED = "CANCELLED"
+    # Alias, for those who spell it with one L
+    STATUS_CANCELED = "CANCELLED"
+
     def __init__(self, *args, **kwargs):
         """Allow the addition of a ``from_address`` kwarg, storing the address
         on this API instance.
@@ -286,7 +292,7 @@ class InboundShipments(MWS):
         shipment_name: str,
         destination: str,
         items: Iterable[dict],
-        shipment_status: str = "",
+        shipment_status: str = STATUS_WORKING,
         label_preference: str = "",
         case_required: bool = False,
         box_contents_source: Optional[str] = None,
