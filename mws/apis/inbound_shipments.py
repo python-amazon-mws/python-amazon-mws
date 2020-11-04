@@ -145,11 +145,19 @@ class InboundShipments(MWS):
         "ListInboundShipmentItems",
     ]
 
+    # Values for `shipment_status` argument accepted by `create_inbound_shipment`:
     STATUS_WORKING = "WORKING"
     STATUS_SHIPPED = "SHIPPED"
+    # Additional values for `shipment_status` accepted by `update_inbound_shipment`
+    # (which also accepts the above statuses):
     STATUS_CANCELLED = "CANCELLED"
-    # Alias, for those who spell it with one L
+    # Alias for CANCELLED, for those who spell it with one L
     STATUS_CANCELED = "CANCELLED"
+
+    # Values for `box_contents_source` accepted by `create_inbound_shipment`
+    # and `update_inbound_shipment`:
+    BOX_CONTENTS_FEED = "FEED"
+    BOX_CONTENTS_2D_BARCODE = "2D_BARCODE"
 
     def __init__(self, *args, **kwargs):
         """Allow the addition of a ``from_address`` kwarg, storing the address
