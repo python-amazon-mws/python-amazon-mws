@@ -306,12 +306,12 @@ class InboundShipmentItem(BaseInboundShipmentItem):
         return data
 
     @classmethod
-    def from_shipment_plan(
+    def from_plan_item(
         cls,
         item: DotDict,
         quantity_in_case: Optional[int] = None,
         release_date: Optional[datetime.datetime] = None,
-    ):
+    ) -> "InboundShipmentItem":
         """Construct this model from a shipment plan returned from a
         CreateInboundShipmentPlan request.
 

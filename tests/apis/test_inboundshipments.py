@@ -1158,7 +1158,7 @@ def test_parse_shipment_items_errors(items):
 def test_inbound_shipment_item_from_plan_constructor(
     create_inbound_shipment_plan_dummy_response,
 ):
-    """Check the output of the `from_shipment_plan` alternate constructor
+    """Check the output of the `from_plan_item` alternate constructor
     for the InboundShipmentItem model.
     """
     item = None
@@ -1168,7 +1168,7 @@ def test_inbound_shipment_item_from_plan_constructor(
     )
     # Pull out the single item from this dummy plan
     item = resp_parsed.InboundShipmentPlans.member.Items.member
-    item_model_1 = InboundShipmentItem.from_shipment_plan(item)
+    item_model_1 = InboundShipmentItem.from_plan_item(item)
     assert item_model_1.sku == "SKU00001"
     assert item_model_1.quantity == "1"
     assert item_model_1.quantity_in_case is None
@@ -1180,8 +1180,8 @@ def test_inbound_shipment_item_from_plan_constructor(
     assert item_model_1.fnsku == "FNSKU00001"
 
     # Do the same, but add quantity_in_case and release_date
-    item_model_2 = InboundShipmentItem.from_shipment_plan(
-        item, 4, datetime.datetime(2020, 11, 3)
+    item_model_2 = InboundShipmentItem.from_plan_item(
+        item, quantity_in_case=4, release_date=datetime.datetime(2020, 11, 3)
     )
     assert item_model_2.quantity_in_case == 4
     assert item_model_2.release_date == datetime.datetime(2020, 11, 3)
