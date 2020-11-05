@@ -1,7 +1,6 @@
 """DataType models for InboundShipments API."""
 
 from enum import Enum
-from dataclasses import dataclass
 from typing import Dict, List, Optional, Union
 import datetime
 
@@ -367,7 +366,6 @@ class InboundShipmentItem(BaseInboundShipmentItem):
         return instance
 
 
-@dataclass
 class ExtraItemData:
     """Dataclass used for providing overrides to individual SKUs when
     processing items from a planned shipment in bulk using
@@ -378,8 +376,13 @@ class ExtraItemData:
     ``shipment_items_from_plan``.
     """
 
-    quantity_in_case: Optional[int] = None
-    release_date: Optional[datetime.datetime] = None
+    def __init__(
+        self,
+        quantity_in_case: Optional[int] = None,
+        release_date: Optional[datetime.datetime] = None,
+    ):
+        self.quantity_in_case = quantity_in_case
+        self.release_date = release_date
 
     def to_dict(self) -> dict:
         output = {

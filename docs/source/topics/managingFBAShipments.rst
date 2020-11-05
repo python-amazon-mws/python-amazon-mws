@@ -460,7 +460,7 @@ each item can be done using the ``overrides`` argument to ``shipment_items_from_
           },
       }
 
-- An instance of the dataclass :py:class:`ExtraItemData <mws.models.inbound_shipments.ExtraItemData>`:
+- An instance of :py:class:`ExtraItemData <mws.models.inbound_shipments.ExtraItemData>`:
 
   .. code-block:: python
 
