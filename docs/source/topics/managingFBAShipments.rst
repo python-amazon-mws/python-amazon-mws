@@ -485,11 +485,11 @@ from that request:
         shipment_items = shipment_items_from_plan(plan, overrides=overrides)
 
 Creating shipments
-------------------
+==================
 
-Putting it all together, we can create a new FBA shipment using
-:py:meth:`create_inbound_shipment() <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment>`
-like so:
+Putting everything together up to this point, we can create a new FBA shipment using the
+:py:meth:`create_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment>`
+method:
 
 .. code-block:: python
 
@@ -502,17 +502,19 @@ like so:
     }
 
     for plan in resp.parsed.InboundShipmentPlans.member:
+        # Gather our items for the planned shipment
         shipment_items = shipment_items_from_plan(plan, overrides=overrides)
+
+        # Send the request to create a new shipment
         new_shipment_resp = inbound_api.create_inbound_shipment(
             shipment_id=plan.ShipmentId,
             shipment_name="My Shiny New FBA Shipment",
             destination=plan.DestinationFulfillmentCenterId,
             items=shipment_items,
-            shipment_status=inbound_api.STATUS_WORKING,  # optional, default "WORKING"
-            label_preference=plan.LabelPrepType,  # optional, default None
-            case_required=False,  # optional, default False
-            box_contents_source=inbound_api.BOX_CONTENTS_FEED,  # optional, default None
-            from_address=my_address,  # optional if stored on API instance
+            label_preference=plan.LabelPrepType,
         )
+
+For help with additional arguments - such as ``shipment_status``, ``case_required``, ``box_contents_source``,
+or ``from_address`` - see `Gathering shipment details`_.
 
 *TODO the rest of this, maybe using update_inbound_shipment? transport details? Related requests?*
