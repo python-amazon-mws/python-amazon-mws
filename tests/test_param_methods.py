@@ -3,6 +3,7 @@ Testing for enumerate_param, enumerate_params, and enumerate_keyed_param
 """
 import unittest
 import mws
+
 # pylint: disable=invalid-name
 
 
@@ -11,6 +12,7 @@ class TestParamsRaiseExceptions(unittest.TestCase):
     Simple test that asserts a ValueError is raised by an improper entry to
     `utils.enumerate_keyed_param`.
     """
+
     def test_keyed_param_fails_without_dict(self):
         """
         Should raise ValueError for values not being a dict.
@@ -78,11 +80,13 @@ def test_multi_params():
     values3 = ["something", "or", "other"]
     # We could test with values as a set, but we cannot be 100% of the order of the output,
     # and I don't feel it necessary to flesh this out enough to account for it.
-    result = mws.utils.enumerate_params({
-        param1: values1,
-        param2: values2,
-        param3: values3,
-    })
+    result = mws.utils.enumerate_params(
+        {
+            param1: values1,
+            param2: values2,
+            param3: values3,
+        }
+    )
     assert result == {
         "Summat.1": "colorful",
         "Summat.2": "cheery",

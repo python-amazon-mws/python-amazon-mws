@@ -14,8 +14,7 @@ import xml.etree.ElementTree as ET
 
 
 class ObjectDict(dict):
-    """
-    Extension of dict to allow accessing keys as attributes.
+    """Extension of dict to allow accessing keys as attributes.
 
     Example:
     >>> a = ObjectDict()
@@ -26,34 +25,62 @@ class ObjectDict(dict):
     >>> a.water
     'water'
     """
+
     def __init__(self, initd=None):
         if initd is None:
             initd = {}
         dict.__init__(self, initd)
 
     def __getattr__(self, item):
-        node = self.__getitem__(item)
+        """Allow access to dict keys as though they were attributes."""
+        return self.__getitem__(item)
 
-        if isinstance(node, dict) and 'value' in node and len(node) == 1:
-            return node['value']
+    def __setattr__(self, item, value):
+        """Allows setting dict keys like attributes, opposite of `__getattr__`."""
+        self.__setitem__(item, value)
+
+    def _value_or_node(self, node):
+        """If `node` contains only a single 'value' key, returns the raw value.
+        Otherwise, returns the node unchanged.
+        """
+        if isinstance(node, self.__class__) and "value" in node and len(node) == 1:
+            return node["value"]
         return node
 
-    # if value is the only key in object, you can omit it
+    def __getitem__(self, key):
+        """Returns single-value nodes as the raw value, and all else unchanged."""
+        node = super().__getitem__(key)
+        return self._value_or_node(node)
+
     def __setstate__(self, item):
         return False
 
-    def __setattr__(self, item, value):
-        self.__setitem__(item, value)
+    def __iter__(self):
+        """Nodes are iterable be default, even with just one child node.
 
-    def getvalue(self, item, value=None):
+        Returns non-list nodes wrapped in an iterator, so they can be iterated
+        and return the child node.
         """
-        Old Python 2-compatible getter method for default value.
-        """
-        return self.get(item, {}).get('value', value)
+        # If the parser finds multiple sibling nodes by the same name
+        # (under the same parent node), that node will return a list of DotDicts.
+        # However, if the same node is returned with only one child in other responses,
+        # downstream code may expect the list, but iterating the single node will
+        # throw an error.
+        # So, when iteration is required, we return single nodes as an iterator
+        # wrapping that single instance.
+        if not isinstance(self, list):
+            return iter([self])
+        return self
+
+    def get(self, key, default=None):
+        """Access a node like `dict.get`, including default values."""
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            return default
 
 
 class XML2Dict(object):
-
     def __init__(self):
         pass
 
@@ -63,12 +90,11 @@ class XML2Dict(object):
         if node.text:
             node_tree.value = node.text
         for key, val in node.attrib.items():
-            key, val = self._namespace_split(key, ObjectDict({'value': val}))
+            key, val = self._namespace_split(key, ObjectDict({"value": val}))
             node_tree[key] = val
-        # Save childrens
-        for child in node.getchildren():
-            tag, tree = self._namespace_split(child.tag,
-                                              self._parse_node(child))
+        # Save children
+        for child in node:
+            tag, tree = self._namespace_split(child.tag, self._parse_node(child))
             if tag not in node_tree:  # the first time, so store it in dict
                 node_tree[tag] = tree
                 continue
@@ -96,7 +122,7 @@ class XML2Dict(object):
         """
         Parse XML file to a dict.
         """
-        file_ = open(filename, 'r')
+        file_ = open(filename, "r")
         return self.fromstring(file_.read())
 
     def fromstring(self, str_):
@@ -128,15 +154,14 @@ def enumerate_param(param, values):
         return {}
     if not isinstance(values, (list, tuple, set)):
         # Coerces a single value to a list before continuing.
-        values = [values, ]
-    if not param.endswith('.'):
+        values = [
+            values,
+        ]
+    if not param.endswith("."):
         # Ensure this enumerated param ends in '.'
-        param += '.'
+        param += "."
     # Return final output: dict comprehension of the enumerated param and values.
-    return {
-        '{}{}'.format(param, idx+1): val
-        for idx, val in enumerate(values)
-    }
+    return {"{}{}".format(param, idx + 1): val for idx, val in enumerate(values)}
 
 
 def enumerate_params(params=None):
@@ -179,27 +204,33 @@ def enumerate_keyed_param(param, values):
     if not values:
         # Shortcut for empty values
         return {}
-    if not param.endswith('.'):
+    if not param.endswith("."):
         # Ensure the enumerated param ends in '.'
-        param += '.'
+        param += "."
     if not isinstance(values, (list, tuple, set)):
         # If it's a single value, convert it to a list first
-        values = [values, ]
+        values = [
+            values,
+        ]
     for val in values:
         # Every value in the list must be a dict.
         if not isinstance(val, dict):
             # Value is not a dict: can't work on it here.
-            raise ValueError((
-                "Non-dict value detected. "
-                "`values` must be a list, tuple, or set; containing only dicts."
-            ))
+            raise ValueError(
+                (
+                    "Non-dict value detected. "
+                    "`values` must be a list, tuple, or set; containing only dicts."
+                )
+            )
     params = {}
     for idx, val_dict in enumerate(values):
         # Build the final output.
-        params.update({
-            '{param}{idx}.{key}'.format(param=param, idx=idx+1, key=k): v
-            for k, v in val_dict.items()
-        })
+        params.update(
+            {
+                "{param}{idx}.{key}".format(param=param, idx=idx + 1, key=k): v
+                for k, v in val_dict.items()
+            }
+        )
     return params
 
 
@@ -207,7 +238,7 @@ def unique_list_order_preserved(seq):
     """
     Returns a unique list of items from the sequence
     while preserving original ordering.
-    The first occurence of an item is returned in the new sequence:
+    The first occurrence of an item is returned in the new sequence:
     any subsequent occurrences of the same item are ignored.
     """
     seen = set()
@@ -240,15 +271,18 @@ def next_token_action(action_name):
     Only the `next_token` kwarg is consumed by the "next" call:
     all other args and kwargs are ignored and not required.
     """
+
     def _decorator(request_func):
         @wraps(request_func)
         def _wrapped_func(self, *args, **kwargs):
-            next_token = kwargs.pop('next_token', None)
+            next_token = kwargs.pop("next_token", None)
             if next_token is not None:
                 # Token captured: run the "next" action.
                 return self.action_by_next_token(action_name, next_token)
             return request_func(self, *args, **kwargs)
+
         return _wrapped_func
+
     return _decorator
 
 

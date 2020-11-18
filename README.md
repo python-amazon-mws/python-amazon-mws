@@ -1,9 +1,9 @@
 # mws [![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws) [![Gitter chat](https://badges.gitter.im/python-amazon-mws/python-amazon-mws.png)](https://gitter.im/python-amazon-mws/community)
 
-master: 
+master:
 [![Requirements Status](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements.svg?branch=master)](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements/) [![Build Status](https://travis-ci.org/python-amazon-mws/python-amazon-mws.svg?branch=master)](https://travis-ci.org/python-amazon-mws/python-amazon-mws?branch=master) [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master)
 
-develop: 
+develop:
 [![Requirements Status](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements.svg?branch=develop)](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements/) [![Build Status](https://travis-ci.org/python-amazon-mws/python-amazon-mws.svg?branch=develop)](https://travis-ci.org/python-amazon-mws/python-amazon-mws?branch=develop) [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop)
 
 Python package for interacting the [Amazon Marketplace Web Services](http://docs.developer.amazonservices.com/en_UK/dev_guide/index.html) API.
@@ -18,16 +18,16 @@ Install the latest version from PyPI.
 pip install mws
 ```
 
-Currently the `mws` package on PyPI points to the 0.x branch, but at some later point may point to 1.x. 
+Currently the `mws` package on PyPI points to the 0.x branch, but at some later point may point to 1.x.
 
 | Versions | Description                                                                                                                                                                                | Branch  |
 |----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
 | 0.x      | A backwards-compatible drop in replacement for the original package (i.e. same method signatures, class names, etc) with some extra features and anything that was obviously broken fixed. | master  |
 | 1.x      | New features along with backwards-incompatible API changes.                                                                                                                                | develop |
 
-If you want to continue using the 0.x versions, please pin your package to major version 0. i.e use something like `mws~=0.8.6` in your project's `requirements.txt`. 
+If you want to continue using the 0.x versions, please pin your package to major version 0. i.e use something like `mws~=0.8.6` in your project's `requirements.txt`.
 
-If you want to use 1.x functionality right now, you can install directly from the Git repo. 
+If you want to use 1.x functionality right now, you can install directly from the Git repo.
 
 ```
 pip install git+https://github.com/python-amazon-mws/python-amazon-mws.git@develop#egg=mws
