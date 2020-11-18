@@ -2,7 +2,43 @@
 
 ## v1.0dev16
 
-*TODO*
+*This update addresses these [issues](https://github.com/python-amazon-mws/python-amazon-mws/issues?q=milestone%3A1.0dev16+).*
+
+This update focuses on the InboundShipments API, adding some new ways to input and manage data related to FBA shipments while also introducing some comprehensive documentation of the same.
+
+Also includes the Products API's `get_my_fees_estimate` method, as well as deprecation warnings for old argument names to smooth the transition from v0.8.
+
+### Changes
+
+- **Products API `get_my_fees_estimate` method added.**
+  - *See [#216](https://github.com/python-amazon-mws/python-amazon-mws/pull/216) for details.*
+- **Deprecation warnings for old argument names.**
+  - Some argument names for certain requests had changed between v0.8 and v1.0dev. This change makes it possible to use the v0.8 argument names in current code.
+  - When using an old argument name, the method will raise a deprecation warning, indicating those old argument names will be removed in v1.1. The method will then proceed as expected using the correct arg names.
+  - *See [#222](https://github.com/python-amazon-mws/python-amazon-mws/pull/222) for details.*
+- **Datatype models added for InboundShipments.**
+  - All models for this API can be found in `mws.models.inbound_shipments`.
+  - Added datatype models for `Address`, `PrepDetails`, `InboundShipmentPlanRequestItem`, and `InboundShipmentItem`. These models can be used in relevant arguments for request methods related to FBA shipment creation and updating (`create_inbound_shipment_plan`, `create_inbound_shipment`, and `update_inbound_shipment`).
+    - With this addition, it is now possible to include `PrepDetails` for items being added to shipments. This was not possible using the now-"legacy" item dictionary method (though it is still possible using the lower-level generic requests.)
+  - Added `mws.models.inbound_shipments.shipment_items_from_plan` helper method.
+    - The method can process the contents of a shipment plan from the parsed response from `create_inbound_shipment_plan`, turning the returned items into a set of `InboundShipmentItem` models automatically.
+    - More details available in documentation
+- **New documentation for Managing FBA Shipments added.**
+  - Comprehensive documentation for how to manage FBA shipments using the InboundShipments API was added, titled **"Topics / Managing FBA Shipments"**.
+  - This documentation showcases the usage of new models provided by this update, as well.
+
+### Minor changes
+
+- Links to Amazon MWS documentation throughout the code base updated from `http://` to `https://`.
+- Type annotations added to methods for InboundShipments API.
+  - As part of this, certain `assert`-style checks for argument types have been removed.
+- Tests for InboundShipments request methods overhauled, removing dependency on `unittest` in favor of `pytest`.
+- Slight URL naming changes for documentation, i.e. from "dotDict" to "DotDict".
+  - Some bookmarks may break with this change, apologies!
+- The Dev update callout removed from project README; will focus on the changelogs, instead.
+- Development tooling configurations moved into `setup.cfg` for consistency.
+- Project test suite expanded to Python 3.9 and Ubuntu-20.04
+  - All automated testing is already performed in a matrix strategy, across Python 3.6, 3.7, 3.8, and 3.9; and on OSes Windows, MacOS, Ubuntu-18, and Ubuntu-20. Every combination of all these versions and OSes is tested.
 
 ## v1.0dev15
 
@@ -18,6 +54,8 @@ We're working on new features in the run-up to releasing v1.0. If you are using 
 - **`XML2Dict` and its alias `xml2dict` are deprecated, and will be removed in v1.1.**
   - We will no longer perform XML parsing with our own methods. Instead, we are adding a dependency to `xmltodict`, which performs the same task a bit more cleanly.
   - Parsed content will no longer include superfluous extra dictionaries with `value` keys. *If your code looks for the `value` key, you may start seeing errors when testing new features.*
+- **Generic requests added.**
+  - *See PR #207 for details.*
 
 ### Testing new features.
 
