@@ -400,10 +400,17 @@ def shipment_items_from_plan(
     constructed from the contents of that plan's ``Items`` set.
 
     Expects ``plan`` to be a node from a parsed MWS response from the
-    CreateInboundShipmentPlan request, typically the
+    ``create_inbound_shipment_plan`` request, typically the
     ``resp.parsed.InboundShipmentPlans.member`` node (which may be a DotDict for a
     single plan or a list of DotDicts for multiple; though both options should be
     natively iterable with the same interface).
+
+    Providing ``overrides`` allows the addition of details that are not returned by
+    ``create_inbound_shipment_plan``, such as ``quantity_in_case`` and ``release_date``.
+    Expects a dict where SellerSKUs are keys and the values are either instances of
+    ``ExtraItemData`` or dictionaries with the keys ``quantity_in_case`` and/or
+    ``release_date``. Only items matching a SellerSKU key in ``overrides`` will have
+    data overridden this way.
     """
     overrides = overrides or {}
 
