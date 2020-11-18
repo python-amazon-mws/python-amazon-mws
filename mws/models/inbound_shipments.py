@@ -1,13 +1,17 @@
 """DataType models for InboundShipments API."""
 
-from enum import Enum
-from typing import Dict, List, Optional, Union
 import datetime
+from enum import Enum
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Union,
+)
 
 from mws.models.base import MWSDataType
 from mws.utils.collections import DotDict
 from mws.utils.params import enumerate_keyed_param
-
 
 __all__ = [
     "Address",
@@ -306,7 +310,10 @@ class InboundShipmentItem(BaseInboundShipmentItem):
     quantity_param = "QuantityShipped"
 
     def __init__(
-        self, *args, release_date: Optional[datetime.datetime] = None, **kwargs
+        self,
+        *args,
+        release_date: Optional[datetime.datetime] = None,
+        **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.release_date = release_date

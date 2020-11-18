@@ -1,22 +1,29 @@
 """Amazon MWS FulfillmentInboundShipment API."""
 
-from typing import Iterable
-import typing
-
-from collections.abc import Mapping
-from typing import Dict, List, Optional, Union
 import datetime
+import typing
+from collections.abc import Mapping
+from typing import (
+    Iterable,
+    List,
+    Optional,
+    Union,
+)
 
-from mws import MWS
-from mws import MWSError
+from mws import MWS, MWSError
 from mws.decorators import next_token_action
-from mws.models.inbound_shipments import Address
-from mws.models.inbound_shipments import InboundShipmentItem
-from mws.models.inbound_shipments import InboundShipmentPlanRequestItem
+from mws.models.inbound_shipments import (
+    Address,
+    InboundShipmentItem,
+    InboundShipmentPlanRequestItem,
+)
 from mws.utils.collections import unique_list_order_preserved
 from mws.utils.deprecation import kwargs_renamed_for_v11
-from mws.utils.params import enumerate_keyed_param
-from mws.utils.params import enumerate_param
+from mws.utils.params import (
+    enumerate_keyed_param,
+    enumerate_param,
+    iterable_param,
+)
 
 # TODO Add label type enumeration
 # TODO Add helper method for extracting PDF file object from label requests
@@ -221,75 +228,94 @@ class InboundShipments(MWS):
         return from_address.to_params(prefix=prefix)
 
     ### REQUEST METHODS ###
-    def get_inbound_guidance_for_sku(self, skus: Iterable, marketplace_id: str):
+    def get_inbound_guidance_for_sku(
+        self,
+        skus: Union[List[str], str],
+        marketplace_id: str,
+    ):
         """Returns inbound guidance for a list of items by Seller SKU.
 
-        ``skus`` expects a list, set or tuple. If it is any other type of object,
-        it will be treated as a single instance, similar to passing ``[skus]``.
+        ``skus`` expects some iterable of strings. If it is any other type of object,
+        it will be treated as a single instance and wrapped in a list first,
+        similar to passing ``[skus]``.
 
         `MWS docs: GetInboundGuidanceForSKU
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForSKU.html>`_
         """
-        if not isinstance(skus, (list, set, tuple)):
-            skus = [skus]
-
-        data = {"MarketplaceId": marketplace_id}
+        skus = iterable_param(skus)
+        data = {
+            "MarketplaceId": marketplace_id,
+        }
         data.update(enumerate_param("SellerSKUList.Id", skus))
         return self.make_request("GetInboundGuidanceForSKU", data)
 
-    def get_inbound_guidance_for_asin(self, asins: Iterable, marketplace_id: str):
+    def get_inbound_guidance_for_asin(
+        self,
+        asins: Union[List[str], str],
+        marketplace_id: str,
+    ):
         """Returns inbound guidance for a list of items by ASIN.
 
-        ``asins`` expects a list, set or tuple. If it is any other type of object,
-        it will be treated as a single instance, similar to passing ``[asins]``.
+        ``asins`` expects some iterable of strings. If it is any other type of object,
+        it will be treated as a single instance and wrapped in a list first,
+        similar to passing ``[asins]``.
 
         `MWS docs: GetInboundGuidanceForASIN
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetInboundGuidanceForASIN.html>`_
         """
-        if not isinstance(asins, (list, set, tuple)):
-            asins = [asins]
-
-        data = {"MarketplaceId": marketplace_id}
+        asins = iterable_param(asins)
+        data = {
+            "MarketplaceId": marketplace_id,
+        }
         data.update(enumerate_param("ASINList.Id", asins))
         return self.make_request("GetInboundGuidanceForASIN", data)
 
     def create_inbound_shipment_plan(
         self,
-        items: Iterable[Union[InboundShipmentPlanRequestItem, dict]],
+        items: List[Union[InboundShipmentPlanRequestItem, dict]],
         country_code: str = "US",
-        subdivision_code: str = "",
-        label_preference: str = "",
+        subdivision_code: Optional[str] = None,
+        label_preference: Optional[str] = None,
         from_address: Optional[Address] = None,
     ):
         """Returns one or more inbound shipment plans, which provide the
         information you need to create inbound shipments.
 
-        At least one dictionary must be passed as `args`. Each dictionary
-        should contain the following keys:
+        ``items`` expects a list of ``InboundShipmentPlanRequestItem`` model instances.
+        Also supports a list of "legacy" dictionaries, in which the keys 'sku' and
+        'quantity' are required; and keys 'asin', 'condition', and 'quantity_in_case'
+        are optional.
 
-            REQUIRED: 'sku', 'quantity'
-            OPTIONAL: 'asin', 'condition', 'quantity_in_case'
+        - Note that the dictionary format does not support adding
+          ``PrepDetails``, as the ``InboundShipmentPlanRequestItem`` model does.
 
-        ``InboundShipments.from_address`` must be set before using this operation.
+        If ``from_address`` is not provided (with an instance of the ``Address`` model),
+        then the ``.from_address`` attribute of this class instance must be set
+        before using this operation.
 
         `MWS docs: CreateInboundShipmentPlan
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipmentPlan.html>`_
         """
         if not items:
             raise MWSError("One or more `item` dict arguments required.")
-        subdivision_code = subdivision_code or None
-        label_preference = label_preference or None
-
         data = {
             "ShipToCountryCode": country_code,
             "ShipToCountrySubdivisionCode": subdivision_code,
             "LabelPrepPreference": label_preference,
         }
-        data.update(self.from_address_params(from_address, "ShipFromAddress"))
+        data.update(
+            self.from_address_params(
+                from_address=from_address,
+                prefix="ShipFromAddress",
+            )
+        )
         data.update(
             enumerate_keyed_param(
-                "InboundShipmentPlanRequestItems.member",
-                parse_shipment_items(items, "CreateInboundShipmentPlan"),
+                param="InboundShipmentPlanRequestItems.member",
+                values=parse_shipment_items(
+                    items=items,
+                    operation="CreateInboundShipmentPlan",
+                ),
             )
         )
         return self.make_request("CreateInboundShipmentPlan", data, method="POST")
@@ -299,22 +325,27 @@ class InboundShipments(MWS):
         shipment_id: str,
         shipment_name: str,
         destination: str,
-        items: Iterable[dict],
+        items: List[Union[InboundShipmentItem, dict]],
         shipment_status: str = STATUS_WORKING,
-        label_preference: str = "",
+        label_preference: Optional[str] = None,
         case_required: bool = False,
         box_contents_source: Optional[str] = None,
         from_address: Optional[Address] = None,
     ):
         """Creates an inbound shipment to Amazon's fulfillment network.
 
-        At least one dictionary must be passed as `items`. Each dictionary
-        should contain the following keys:
+        ``items`` expects a list of ``InboundShipmentItem`` model instances.
+        Also supports a list of "legacy" dictionaries, in which the keys 'sku' and
+        'quantity' are required; and key 'quantity_in_case' is optional.
 
-            REQUIRED: 'sku', 'quantity'
-            OPTIONAL: 'quantity_in_case'
+        - Note that the dictionary format does not support adding
+          ``PrepDetails``, as the ``InboundShipmentItem`` model does.
+        - The model also supports adding ``release_date``, which the dictionary
+          does not.
 
-        ``InboundShipments.from_address`` must be set before using this operation.
+        If ``from_address`` is not provided (with an instance of the ``Address`` model),
+        then the ``.from_address`` attribute of this class instance must be set
+        before using this operation.
 
         `MWS docs: CreateInboundShipment
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipment.html>`_
@@ -339,8 +370,11 @@ class InboundShipments(MWS):
         )
         data.update(
             enumerate_keyed_param(
-                "InboundShipmentItems.member",
-                parse_shipment_items(items, "CreateInboundShipment"),
+                param="InboundShipmentItems.member",
+                values=parse_shipment_items(
+                    items=items,
+                    operation="CreateInboundShipment",
+                ),
             )
         )
         return self.make_request("CreateInboundShipment", data, method="POST")
@@ -350,21 +384,31 @@ class InboundShipments(MWS):
         shipment_id: str,
         shipment_name: str,
         destination: str,
-        items: Optional[Iterable[dict]] = None,
-        shipment_status: str = "",
-        label_preference: str = "",
-        case_required: Optional[bool] = False,
+        items: Optional[List[Union[InboundShipmentItem, dict]]] = None,
+        shipment_status: Optional[str] = None,
+        label_preference: Optional[str] = None,
+        case_required: Optional[bool] = None,
         box_contents_source: Optional[str] = None,
         from_address: Optional[Address] = None,
     ):
         """Updates an existing inbound shipment in Amazon FBA.
 
-        ``InboundShipments.from_address`` must be set before using this operation.
+        ``items`` expects a list of ``InboundShipmentItem`` model instances.
+        Also supports a list of "legacy" dictionaries, in which the keys 'sku' and
+        'quantity' are required; and key 'quantity_in_case' is optional.
+
+        - Note that the dictionary format does not support adding
+          ``PrepDetails``, as the ``InboundShipmentItem`` model does.
+        - The model also supports adding ``release_date``, which the dictionary
+          does not.
+
+        If ``from_address`` is not provided (with an instance of the ``Address`` model),
+        then the ``.from_address`` attribute of this class instance must be set
+        before using this operation.
 
         `MWS docs: UpdateInboundShipment
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_UpdateInboundShipment.html>`_
         """
-        # Assert these are strings, error out if not.
         data = {
             "ShipmentId": shipment_id,
             "InboundShipmentHeader.ShipmentName": shipment_name,
@@ -376,15 +420,19 @@ class InboundShipments(MWS):
         }
         data.update(
             self.from_address_params(
-                from_address, "InboundShipmentHeader.ShipFromAddress"
+                from_address=from_address,
+                prefix="InboundShipmentHeader.ShipFromAddress",
             )
         )
         if items:
             # Update with an items paramater only if they exist.
             data.update(
                 enumerate_keyed_param(
-                    "InboundShipmentItems.member",
-                    parse_shipment_items(items, "UpdateInboundShipment"),
+                    param="InboundShipmentItems.member",
+                    values=parse_shipment_items(
+                        items=items,
+                        operation="UpdateInboundShipment",
+                    ),
                 )
             )
         return self.make_request("UpdateInboundShipment", data, method="POST")
@@ -397,20 +445,31 @@ class InboundShipments(MWS):
         `MWS docs: GetPreorderInfo
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPreorderInfo.html>`_
         """
-        return self.make_request("GetPreorderInfo", {"ShipmentId": shipment_id})
+        data = {
+            "ShipmentId": shipment_id,
+        }
+        return self.make_request("GetPreorderInfo", data)
 
-    def confirm_preorder(self, shipment_id: str, need_by_date: datetime.datetime):
+    def confirm_preorder(
+        self,
+        shipment_id: str,
+        need_by_date: datetime.datetime,
+    ):
         """Confirms a shipment for pre-order.
 
         `MWS docs: ConfirmPreorder
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ConfirmPreorder.html>`_
         """
-        return self.make_request(
-            "ConfirmPreorder", {"ShipmentId": shipment_id, "NeedByDate": need_by_date}
-        )
+        data = {
+            "ShipmentId": shipment_id,
+            "NeedByDate": need_by_date,
+        }
+        return self.make_request("ConfirmPreorder", data)
 
     def get_prep_instructions_for_sku(
-        self, skus: Iterable = None, country_code: str = None
+        self,
+        skus: Union[List[str], str],
+        country_code: str = "US",
     ):
         """Returns labeling requirements and item preparation instructions
         to help you prepare items for an inbound shipment.
@@ -418,31 +477,29 @@ class InboundShipments(MWS):
         `MWS docs: GetPrepInstructionsForSKU
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForSKU.html>`_
         """
-        country_code = country_code or "US"
-        skus = skus or []
-
         # 'skus' should be a unique list, or there may be an error returned.
-        skus = unique_list_order_preserved(skus)
-
-        data = {"ShipToCountryCode": country_code}
+        skus = unique_list_order_preserved(iterable_param(skus))
+        data = {
+            "ShipToCountryCode": country_code,
+        }
         data.update(enumerate_param("SellerSKUList.ID.", skus))
         return self.make_request("GetPrepInstructionsForSKU", data, method="POST")
 
     def get_prep_instructions_for_asin(
-        self, asins: Iterable = None, country_code: str = None
+        self,
+        asins: Union[List[str], str],
+        country_code: str = "US",
     ):
         """Returns item preparation instructions to help with item sourcing decisions.
 
         `MWS docs: GetPrepInstructionsForASIN
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPrepInstructionsForASIN.html>`_
         """
-        country_code = country_code or "US"
-        asins = asins or []
-
         # 'asins' should be a unique list, or there may be an error returned.
-        asins = unique_list_order_preserved(asins)
-
-        data = {"ShipToCountryCode": country_code}
+        asins = unique_list_order_preserved(iterable_param(asins))
+        data = {
+            "ShipToCountryCode": country_code,
+        }
         data.update(enumerate_param("ASINList.ID.", asins))
         return self.make_request("GetPrepInstructionsForASIN", data, method="POST")
 
@@ -474,9 +531,10 @@ class InboundShipments(MWS):
         `MWS docs: EstimateTransportRequest
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_EstimateTransportRequest.html>`_
         """
-        return self.make_request(
-            "EstimateTransportRequest", {"ShipmentId": shipment_id}, method="POST"
-        )
+        data = {
+            "ShipmentId": shipment_id,
+        }
+        return self.make_request("EstimateTransportRequest", data, method="POST")
 
     def get_transport_content(self, shipment_id: str):
         """Returns current transportation information about an inbound shipment.
@@ -484,9 +542,10 @@ class InboundShipments(MWS):
         `MWS docs: GetTransportContent
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetTransportContent.html>`_
         """
-        return self.make_request(
-            "GetTransportContent", {"ShipmentId": shipment_id}, method="POST"
-        )
+        data = {
+            "ShipmentId": shipment_id,
+        }
+        return self.make_request("GetTransportContent", data, method="POST")
 
     def confirm_transport_request(self, shipment_id: str):
         """Confirms that you accept the Amazon-partnered shipping estimate and
@@ -504,38 +563,42 @@ class InboundShipments(MWS):
         `MWS docs: VoidTransportRequest
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_VoidTransportRequest.html>`_
         """
-        return self.make_request(
-            "VoidTransportRequest", {"ShipmentId": shipment_id}, method="POST"
-        )
+        data = {
+            "ShipmentId": shipment_id,
+        }
+        return self.make_request("VoidTransportRequest", data, method="POST")
 
     @kwargs_renamed_for_v11([("num_packages", "num_labels")])
     def get_package_labels(
-        self, shipment_id: str, num_labels: int, page_type: Optional[str] = None
+        self,
+        shipment_id: str,
+        num_labels: int,
+        page_type: Optional[str] = None,
     ):
         """Returns PDF document data for printing package labels for an inbound shipment.
 
         `MWS docs: GetPackageLabels
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPackageLabels.html>`_
         """
-        return self.make_request(
-            "GetPackageLabels",
-            {
-                "ShipmentId": shipment_id,
-                "PageType": page_type,
-                "NumberOfPackages": num_labels,
-            },
-            method="POST",
-        )
+        data = {
+            "ShipmentId": shipment_id,
+            "PageType": page_type,
+            "NumberOfPackages": num_labels,
+        }
+        return self.make_request("GetPackageLabels", data, method="POST")
 
     def get_unique_package_labels(
-        self, shipment_id: str, page_type: str, package_ids: Iterable
+        self,
+        shipment_id: str,
+        page_type: str,
+        package_ids: Union[Iterable[Union[str, int]], Union[str, int]],
     ):
         """Returns unique package labels for faster and more accurate shipment
         processing at the Amazon fulfillment center.
 
-        `shipment_id` must match a valid, current shipment.
+        ``shipment_id`` must match a valid, current shipment.
 
-        `page_type` expected to be string matching one of following
+        ``page_type`` expected to be string matching one of following
         (not checked, in case Amazon requirements change):
 
         - "PackageLabel_Letter_2"
@@ -544,30 +607,31 @@ class InboundShipments(MWS):
         - "PackageLabel_A4_4"
         - "PackageLabel_Plain_Paper"
 
-        ``package_ids`` expects a list, set, or tuple of package identifiers,
-        specifying for which packages you want package labels printed.
-        If any other type of object is passed, it will be treated as a single instance,
-        similar to passing ``[package_ids]``.
+        ``package_ids`` expects some iterable of strings or integers.
+        If it is any other type of object, it will be treated as a single instance and
+        wrapped in a list first, similar to passing ``[package_ids]``.
 
         `MWS docs: GetUniquePackageLabels
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetUniquePackageLabels.html>`_
         """
+        package_ids = iterable_param(package_ids)
         data = {
             "ShipmentId": shipment_id,
             "PageType": page_type,
         }
-        if not isinstance(package_ids, (list, set, tuple)):
-            package_ids = [package_ids]
         data.update(enumerate_param("PackageLabelsToPrint.member.", package_ids))
         return self.make_request("GetUniquePackageLabels", data)
 
-    def get_pallet_labels(self, shipment_id: str, page_type: str, num_labels: int):
-        """Returns pallet labels.
+    def get_pallet_labels(
+        self,
+        shipment_id: str,
+        page_type: str,
+        num_labels: int,
+    ):
+        """Returns ``num_labels`` number of pallet labels for shipment ``shipment_id``
+        of the given ``page_type``.
 
-        `shipment_id` must match a valid, current shipment.
-
-        `page_type` expected to be string matching one of following
-        (not checked, in case Amazon requirements change):
+        Amazon expects ``page_type`` as a string matching one of following:
 
         - "PackageLabel_Letter_2"
         - "PackageLabel_Letter_6"
@@ -575,7 +639,7 @@ class InboundShipments(MWS):
         - "PackageLabel_A4_4"
         - "PackageLabel_Plain_Paper"
 
-        `num_labels` is integer, number of labels to create.
+        ``num_labels`` is integer, number of labels to create.
 
         `MWS docs: GetPalletLabels
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetPalletLabels.html>`_
@@ -594,9 +658,10 @@ class InboundShipments(MWS):
         `MWS docs: GetBillOfLading
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_GetBillOfLading.html>`_
         """
-        return self.make_request(
-            "GetBillOfLading", {"ShipmentId": shipment_id}, method="POST"
-        )
+        data = {
+            "ShipmentId": shipment_id,
+        }
+        return self.make_request("GetBillOfLading", data, method="POST")
 
     @next_token_action("ListInboundShipments")
     def list_inbound_shipments(
@@ -609,7 +674,7 @@ class InboundShipments(MWS):
     ):
         """Returns list of shipments based on statuses, IDs, and/or before/after datetimes.
 
-        Pass `next_token` to call "ListInboundShipmentsByNextToken" instead.
+        Pass ``next_token`` to call "ListInboundShipmentsByNextToken" instead.
 
         `MWS docs: ListInboundShipments
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipments.html>`_
@@ -618,12 +683,22 @@ class InboundShipments(MWS):
             "LastUpdatedAfter": last_updated_after,
             "LastUpdatedBefore": last_updated_before,
         }
-        data.update(enumerate_param("ShipmentStatusList.member.", shipment_statuses))
-        data.update(enumerate_param("ShipmentIdList.member.", shipment_ids))
+        data.update(
+            enumerate_param(
+                param="ShipmentStatusList.member.",
+                values=shipment_statuses,
+            )
+        )
+        data.update(
+            enumerate_param(
+                param="ShipmentIdList.member.",
+                values=shipment_ids,
+            )
+        )
         return self.make_request("ListInboundShipments", data, method="POST")
 
     def list_inbound_shipments_by_next_token(self, token: str):
-        """Alias for `list_inbound_shipments(next_token=token)`
+        """Alias for ``list_inbound_shipments(next_token=token)``
 
         `MWS docs: ListInboundShipmentsByNextToken
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentsByNextToken.html>`_
@@ -640,23 +715,20 @@ class InboundShipments(MWS):
     ):
         """Returns list of items within inbound shipments and/or before/after datetimes.
 
-        Pass `next_token` to call "ListInboundShipmentItemsByNextToken" instead.
+        Pass ``next_token`` to call "ListInboundShipmentItemsByNextToken" instead.
 
         `MWS docs: ListInboundShipmentItems
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItems.html>`_
         """
-        return self.make_request(
-            "ListInboundShipmentItems",
-            {
-                "ShipmentId": shipment_id,
-                "LastUpdatedAfter": last_updated_after,
-                "LastUpdatedBefore": last_updated_before,
-            },
-            method="POST",
-        )
+        data = {
+            "ShipmentId": shipment_id,
+            "LastUpdatedAfter": last_updated_after,
+            "LastUpdatedBefore": last_updated_before,
+        }
+        return self.make_request("ListInboundShipmentItems", data, method="POST")
 
     def list_inbound_shipment_items_by_next_token(self, token: str):
-        """Alias for `list_inbound_shipment_items(next_token=token)`
+        """Alias for ``list_inbound_shipment_items(next_token=token)``
 
         `MWS docs: ListInboundShipmentItemsByNextToken
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_ListInboundShipmentItemsByNextToken.html>`_

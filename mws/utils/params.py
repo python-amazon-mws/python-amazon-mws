@@ -1,10 +1,15 @@
 """Parameter manipulation utilities."""
 
-from collections.abc import Mapping
-from typing import Any, Iterable, Optional, Union
-from urllib.parse import quote
 import datetime
 import json
+from collections.abc import Iterable, Mapping
+from typing import (
+    Any,
+    List,
+    Optional,
+    Union,
+)
+from urllib.parse import quote
 
 from mws.errors import MWSError
 
@@ -46,7 +51,7 @@ def enumerate_params(params: Optional[Mapping] = None) -> dict:
     return params_output
 
 
-def enumerate_keyed_param(param: str, values: Iterable[Mapping]) -> dict:
+def enumerate_keyed_param(param: str, values: List[Mapping]) -> dict:
     """Given a param string and a list of values dicts, returns a flat dict of keyed, enumerated params.
     Each dict in the values list must pertain to a single item and its data points.
 
@@ -123,7 +128,7 @@ def dict_keyed_param(param: str, dict_from: Mapping) -> dict:
     return params
 
 
-def flat_param_dict(value: Union[str, Mapping, Iterable], prefix: str = "") -> dict:
+def flat_param_dict(value: Union[str, Mapping, List], prefix: str = "") -> dict:
     """Returns a flattened params dictionary by collapsing nested dicts and
     non-string iterables.
 
@@ -266,3 +271,15 @@ def clean_date(val: Union[datetime.datetime, datetime.date]) -> str:
     Further passes that string through `urllib.parse.quote`.
     """
     return clean_string(val.isoformat())
+
+
+def iterable_param(val) -> Iterable:
+    """Wraps single values (that are *not* non-string iterables) as a list.
+    Used for methods that require some iterable value that should be enumerated
+    (without exploding string values into enumerated lists of their characters).
+    """
+    # Special case: strings are iterables, too, but shouldn't be treated the same.
+    # TODO make the type check at the end more generic?
+    if isinstance(val, str) or not isinstance(val, Iterable):
+        return [val]
+    return val
