@@ -1,14 +1,19 @@
-# mws [![PyPI version](https://badge.fury.io/py/mws.svg)](https://badge.fury.io/py/mws) [![Gitter chat](https://badges.gitter.im/python-amazon-mws/python-amazon-mws.png)](https://gitter.im/python-amazon-mws/community)
+[![slack](https://img.shields.io/badge/slack-python--amazon--mws-blue?style=for-the-badge&logo=slack)][slack_invite]
+![CI Testing](https://img.shields.io/github/workflow/status/python-amazon-mws/python-amazon-mws/Testing/master?logo=github&style=for-the-badge)
 
-master:
-[![Requirements Status](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements.svg?branch=master)](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements/) [![Build Status](https://travis-ci.org/python-amazon-mws/python-amazon-mws.svg?branch=master)](https://travis-ci.org/python-amazon-mws/python-amazon-mws?branch=master) [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/master)
+# python-amazon-mws
 
-develop:
-[![Requirements Status](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements.svg?branch=develop)](https://requires.io/github/python-amazon-mws/python-amazon-mws/requirements/) [![Build Status](https://travis-ci.org/python-amazon-mws/python-amazon-mws.svg?branch=develop)](https://travis-ci.org/python-amazon-mws/python-amazon-mws?branch=develop) [![codecov](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop/graph/badge.svg)](https://codecov.io/gh/python-amazon-mws/python-amazon-mws/branch/develop)
+python-amazon-mws is a Python connector to [Amazon Marketplace Web Services][2]
+(or MWS). It provides a simple way to build and send requests to MWS,
+allowing access to all that MWS can do from your Python application.
 
-Python package for interacting the [Amazon Marketplace Web Services](http://docs.developer.amazonservices.com/en_UK/dev_guide/index.html) API.
+## ⚠️ Legacy version
 
-This project is a fork and continuation of [czpython/python-amazon-mws](https://github.com/czpython/python-amazon-mws) with added Python 3 support.
+![PyPI](https://img.shields.io/pypi/v/mws?logo=pypi&logoColor=ffffff&style=for-the-badge)
+
+You are viewing a **legacy** version of python-amazon-mws, v0.8. More current versions are available in the `develop` branch of this repo.
+
+To use the latest version (v1.0dev), please check the `develop` branch.
 
 # Installation
 
@@ -89,3 +94,6 @@ make livehtml
 
 ## Contributing
 Please make pull requests to `develop`. Code coverage isn't necessary but encouraged where possible (especially for anything which might behave differently between Python 2/3).
+
+[2]: http://docs.developer.amazonservices.com/en_US/dev_guide/index.html
+[slack_invite]: https://join.slack.com/t/pythonamazonmws/shared_invite/enQtOTcwNTAzNjI4OTc2LTQyMzk1YzIxNTU0MmE1MWE0ZDUzZjBhMjI2ODZhNTQ5Mjk3ZTUyOGFkODk1N2Q2NjczZjY2M2U3NzAzNDU4ZTc
