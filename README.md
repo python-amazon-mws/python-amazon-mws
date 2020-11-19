@@ -18,7 +18,7 @@ Two versions are currently available:
 - The updated **1.0devXY** version must be installed from this repo's `develop` branch.
   - This includes additional API coverage that may be missing in 0.8.x, as well as other new features.
   - Some methods have new or updated arguments compared to 0.8.x, and much of the original monolithic `mws` module has been broken down into separate components (such as the `mws.apis` collection of modules).
-  - Supports Python 3.5+.
+  - Supports Python 3.6+.
 
 ### Installing 0.8.x (PyPI)
 
