@@ -382,8 +382,8 @@ class InboundShipments(MWS):
     def update_inbound_shipment(
         self,
         shipment_id: str,
-        shipment_name: str,
-        destination: str,
+        shipment_name: Optional[str] = None,
+        destination: Optional[str] = None,
         items: Optional[List[Union[InboundShipmentItem, dict]]] = None,
         shipment_status: Optional[str] = None,
         label_preference: Optional[str] = None,
