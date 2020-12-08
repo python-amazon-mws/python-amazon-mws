@@ -517,4 +517,77 @@ method:
 For help with additional arguments - such as ``shipment_status``, ``case_required``, ``box_contents_source``,
 or ``from_address`` - see `Gathering shipment details`_.
 
+Updating shipments
+==================
+
+Creating a shipment is not the end of the story, of course. It is sometimes necessary to make changes to an
+already-created shipment. For this, we use
+:py:meth:`update_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.update_inbound_shipment>`.
+
+``update_inbound_shipment``'s arguments are identical to those of ``create_inbound_shipment``, with the exception that
+all arguments besides ``shipment_id`` are optional. Generally, supplying a value to one of those arguments will
+overwrite that value of the given shipment, such as:
+
+- Setting ``shipment_status=InboundShipments.STATUS_CANCELLED`` to cancel a shipment;
+- Changing the ``from_address``;
+- etc.
+
+Changing item quantities
+------------------------
+
+Item quantities on a shipment can be changed by providing a list of ``InboundShipmentItem`` instances for the ``items``
+argument of ``update_inbound_shipment``. The details of the submitted items will overwrite details of those items in the
+existing shipment based on matching SellerSKUs.
+
+Amazon will expect the *total* quantity for an item: there is no mechanism for adding or subtracting a quantity from
+the existing total. For example, if a shipment contains **24** units of an item and you want to add **12** of that item,
+you will need to submit a total quantity of **36** in the update request:
+
+.. code-block:: python
+
+    resp = inbound_api.update_inbound_shipment(
+        shipment_id="FBAMYSHIPMENT",
+        items=[InboundShipmentItem(sku="MySku1", quantity=36)]
+    )
+
+It is up to you how you keep track of these quantity changes in your process. One way might be to cache these details
+in some local database. Another might be querying the current total quantity using a request to
+:py:meth:`list_inbound_shipment_items <mws.apis.inbound_shipments.InboundShipments.list_inbound_shipment_items>`, then
+calculating the new total:
+
+.. code-block:: python
+
+    my_shipment = "FBAMYSHIPMENT"
+    # Set our change quantities as "deltas", with SKU as key and the change as value
+    quantity_deltas = {
+        'mySku1': 12,  # add 12
+        'mySku2': -6,  # remove 6
+    }
+
+    update_items = []
+
+    list_resp = inbound_api.list_inbound_shipment_items(shipment_id=my_shipment)
+    for item in list_resp.parsed.ItemData.member:
+        if item.SellerSKU in quantity_deltas:
+            new_quantity = item.QuantityShipped + quantity_deltas[item.SellerSKU]
+
+            # Negative quantities not permitted, so set 0 as a minimum using `max`:
+            new_quantity = max([new_quantity, 0])
+
+            # Add items to a list for updates:
+            update_items.append(
+                InboundShipmentItem(item.SellerSKU, new_quantity)
+            )
+
+    if update_items:
+        update_resp = inbound_api.update_inbound_shipment(
+            shipment_id=my_shipment,
+            items=update_items,
+        )
+
+Adding items from a new shipment plan
+-------------------------------------
+
+Under certain conditions, items from a new shipment plan can be added to one of your existing shipments in WORKING status
+
 *TODO the rest of this, maybe using update_inbound_shipment? transport details? Related requests?*
