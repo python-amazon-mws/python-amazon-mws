@@ -1,5 +1,4 @@
 """Amazon MWS Reports API."""
-import urllib.parse
 from enum import Enum
 
 from mws import MWS
@@ -38,9 +37,7 @@ def report_options_str(report_options):
             # (both of which are accurate, because True and False can evaluate to ints 1 and 0).
             # `True` and `False` must be output as a lowercase `"true"` and `"false"`, respectively.
             out_val = str(out_val).lower()
-        # Use `urllib.parse.quote` to URL-encoded the output.
-        # (mostly just auto-convert the `=` to `%3D`, but might as well be safe).
-        output.append(urllib.parse.quote("{}={}".format(key, out_val)))
+        output.append("{}={}".format(key, out_val))
     # Join results with ";" separator
     return ";".join(output)
 

@@ -38,6 +38,28 @@ class ReportsTestCase(CommonAPIRequestTools, unittest.TestCase):
         self.assertEqual(params["MarketplaceIdList.Id.1"], marketplace_ids[0])
         self.assertEqual(params["MarketplaceIdList.Id.2"], marketplace_ids[1])
 
+    def test_report_options_dict(self):
+        """Asserts a dict used for report_options argument for request_report method
+        builds the correct string output.
+        """
+        report_type = "_GET_MERCHANT_LISTINGS_ALL_DATA_"
+        report_options = {"custom": True, "somethingelse": "abc"}
+        params = self.api.request_report(
+            report_type=report_type,
+            report_options=report_options,
+        )
+        self.assert_common_params(params, action="RequestReport")
+        assert params["ReportType"] == report_type
+        # Cannot assume the order of the options dict passed on older versions
+        # of Python, so two possible outputs are used:
+        # Further, the final result should be encoded once before being sent,
+        # resulting in the following URL-encoded strings.
+        options_possible = (
+            "custom%3Dtrue%3Bsomethingelse%3Dabc",
+            "somethingelse%3Dabc%3Bcustom%3Dtrue",
+        )
+        assert params["ReportOptions"] in options_possible
+
     def test_parameter_error(self):
         """RequestReport wrong parameter"""
         # list will throw error
