@@ -37,7 +37,7 @@ The Products API is available in all marketplaces and consists of 15 different o
   
    GetProductCategoriesForSKU = get_product_categories_for_sku
   
-   GetProductCategoriesForASIN = get_product_categories_for_asin
+   `GetProductCategoriesForASIN <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getproductcategoriesforasin>`_ = get_product_categories_for_asin
   
   
 ***************
@@ -88,21 +88,21 @@ We can access individual results with:
 
       response.parsed.Products.product[0]
   
-Sales Rank
+Sales Rank:
 
 .. code-block:: python
 
       response.parsed.Products.Product[0].SalesRankings.SalesRank[0].Rank
       # 6
   
-ASIN
+ASIN:
 
 .. code-block:: python
 
       response.parsed.Products.Product[0].Identifiers.MarketplaceASIN.ASIN
       # B085G58KWT
   
-Title
+Title:
 
 .. code-block:: python
 
@@ -222,7 +222,7 @@ Buy Box price
       response.parsed.Product.CompetitivePricing.CompetitivePrices.CompetitivePrice.Price.LandedPrice.Amount
   
   
-  
+
 *******************************
 `GetCompetitivePricingForASIN <https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForASIN.html>`_
 *******************************
