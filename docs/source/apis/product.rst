@@ -53,10 +53,11 @@ From Amazon:
    The ListMatchingProducts operation returns a list of products and their attributes, ordered by relevancy, based on a search query that you specify. Your search query can be a phrase that describes the product or it can be a product identifier such as a GCID, UPC, EAN, ISBN, or JAN. Returns 10 results.
 
 .. code-block:: python
-   response = products_api.list_matching_products(
-	   marketplace_id = my_marketplace,
-	   query = “Amazon alexa”
-   )
+
+      response = products_api.list_matching_products(
+         marketplace_id = my_marketplace,
+         query = “Amazon alexa”
+      )
 
 
 
@@ -67,22 +68,26 @@ Examples
 We can access individual results with:
 
 .. code-block:: python
-   response.parsed.Products.product[0]
+
+      response.parsed.Products.product[0]
 
 Sales Rank
 .. code-block:: python
-   response.parsed.Products.Product[0].SalesRankings.SalesRank[0].Rank
-	# 6
+
+      response.parsed.Products.Product[0].SalesRankings.SalesRank[0].Rank
+      # 6
 
 ASIN
 .. code-block:: python
-   response.parsed.Products.Product[0].Identifiers.MarketplaceASIN.ASIN
-	# B085G58KWT
+
+      response.parsed.Products.Product[0].Identifiers.MarketplaceASIN.ASIN
+      # B085G58KWT
 
 Title
 .. code-block:: python
-   response.parsed.Products.Product[0].AttributeSets.ItemAttributes.Title
-	# All-new Echo (4th generation) | With premium sound, smart home hub and Alexa | Charcoal
+
+      response.parsed.Products.Product[0].AttributeSets.ItemAttributes.Title
+      # All-new Echo (4th generation) | With premium sound, smart home hub and Alexa | Charcoal
 
 
 *********************
@@ -91,12 +96,14 @@ Title
 
 From Amazon:
    The GetMatchingProduct operation returns a list of products and their attributes, based on a list of ASIN values that you specify. This operation returns a maximum of ten products.
+
 Can supply ASINs as a list:
 .. code-block:: python
-   response = products_api.get_matching_product(
-      marketplace_id=my_marketplace,
-      asins=["B085G58KWT", "B07ZZW7QCM"],
-   )
+
+      response = products_api.get_matching_product(
+         marketplace_id=my_marketplace,
+         asins=["B085G58KWT", "B07ZZW7QCM"],
+      )
 
 
 Example:
@@ -104,36 +111,42 @@ Example:
 
 Access individual ASINs:
 .. code-block:: python
-   response.parsed[0]
+
+      response.parsed[0]
 
 .. code-block:: python
-	response.parsed[0].ASIN
-   # B085G58KWT
+
+      response.parsed[0].ASIN
+      # B085G58KWT
 
 .. code-block:: python
-	response.parsed[0].Product.AttributeSets.ItemAttributes.ListPrice.Amount
-	# 89.99
+
+      response.parsed[0].Product.AttributeSets.ItemAttributes.ListPrice.Amount
+      # 89.99
 	
 
 
 Or as a single string ASIN:
 .. code-block:: python
-   response = products_api.get_matching_product(
-      marketplace_id=my_marketplace,
-      asins="B085G58KWT",
-   )
+
+      response = products_api.get_matching_product(
+         marketplace_id=my_marketplace,
+         asins="B085G58KWT",
+      )
 
 
 Examples:
 =========
 
 .. code-block:: python
-	response.parsed.ASIN
-	# B085G58KWT
+
+      response.parsed.ASIN
+      # B085G58KWT
 
 .. code-block:: python
-	response.parsed.Product.AttributeSets.ItemAttributes.Color
-	# Charcoal
+
+      response.parsed.Product.AttributeSets.ItemAttributes.Color
+      # Charcoal
 
 
 **************************
@@ -147,11 +160,12 @@ From Amazon:
    Returns a list of products and their attributes, based on a list of ASIN, GCID, SellerSKU, UPC, EAN, ISBN, and JAN values.
 
 .. code-block:: python
-   response = products_api.get_matching_product_for_id(
-      marketplace_id=my_marketplace,
-      type_="ASIN", # can be ASIN, GCID, SellerSKU,UPC, EAN,ISBN, JAN
-      ids=["B085G58KWT", "B07ZZW7QCM"],
-   )
+
+      response = products_api.get_matching_product_for_id(
+         marketplace_id=my_marketplace,
+         type_="ASIN", # can be ASIN, GCID, SellerSKU,UPC, EAN,ISBN, JAN
+         ids=["B085G58KWT", "B07ZZW7QCM"],
+      )
 
 
 
@@ -165,10 +179,11 @@ From Amazon:
    Maximum: 20 SellerSKU values
 
 .. code-block:: python
-   response = products_api.get_competitive_pricing_for_sku(
-      marketplace_id=my_marketplace,
-      skus=["OO-NL0F-795Z"],
-   )
+
+      response = products_api.get_competitive_pricing_for_sku(
+         marketplace_id=my_marketplace,
+         skus=["OO-NL0F-795Z"],
+      )
 
 
 Example:
@@ -176,7 +191,8 @@ Example:
 
 Buy Box price
 .. code-block:: python
-   response.parsed.Product.CompetitivePricing.CompetitivePrices.CompetitivePrice.Price.LandedPrice.Amount
+
+      response.parsed.Product.CompetitivePricing.CompetitivePrices.CompetitivePrice.Price.LandedPrice.Amount
 
 
 *******************************
@@ -188,10 +204,11 @@ From Amazon:
    Returns the current competitive price of a product, based on ASIN.
 
 .. code-block:: python
-   response = products_api.get_competitive_pricing_for_asin(
-      marketplace_id=my_marketplace,
-      asins=["B085G58KWT"],
-   )
+
+      response = products_api.get_competitive_pricing_for_asin(
+         marketplace_id=my_marketplace,
+         asins=["B085G58KWT"],
+      )
 
 
 Same as GetCompetitivePricingForSKU above, but pass in a list of ASINs rather than SKUs.
@@ -207,11 +224,11 @@ From Amazon:
 
 .. code-block:: python
 
-   response = products_api.get_lowest_offer_listings_for_sku(
-      marketplace_id=my_marketplace,
-      skus=["OO-NL0F-795Z"],
-      condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
-   )
+      response = products_api.get_lowest_offer_listings_for_sku(
+         marketplace_id=my_marketplace,
+         skus=["OO-NL0F-795Z"],
+         condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
+      )
 
 
 ********************************
@@ -223,11 +240,12 @@ From Amazon:
    Returns pricing information for the lowest-price active offer listings for up to 20 products, based on ASIN.
 
 .. code-block:: python
-   response = products_api.get_lowest_offer_listings_for_asin(
-      marketplace_id=my_marketplace,
-      asins=["B085G58KWT"],
-      condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
-   )
+
+      response = products_api.get_lowest_offer_listings_for_asin(
+         marketplace_id=my_marketplace,
+         asins=["B085G58KWT"],
+         condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
+      )
 
 
 *******************************
@@ -239,11 +257,12 @@ From Amazon:
    Returns lowest priced offers for a single product, based on SellerSKU.
 
 .. code-block:: python
-   response = products_api.get_lowest_priced_offers_for_sku(
-      marketplace_id=my_marketplace,
-      skus=["OO-NL0F-795Z"],
-      condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
-   )
+
+      response = products_api.get_lowest_priced_offers_for_sku(
+         marketplace_id=my_marketplace,
+         skus=["OO-NL0F-795Z"],
+         condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
+      )
 
 
 ********************************
@@ -255,11 +274,12 @@ From Amazon:
    Returns lowest priced offers for a single product, based on ASIN.
 
 .. code-block:: python
-   response = products_api.get_lowest_priced_offers_for_asin(
-      marketplace_id=my_marketplace,
-      asins=["B085G58KWT"],
-      condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
-   )
+
+      response = products_api.get_lowest_priced_offers_for_asin(
+         marketplace_id=my_marketplace,
+         asins=["B085G58KWT"],
+         condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
+      )
 
 
 ********************
@@ -271,20 +291,21 @@ From Amazon:
    Returns the estimated fees for a list of products.
 
 .. code-block:: python 
-   my_price = MoneyType(amount=123.45, currency_code="GBP")
-   my_shipping = MoneyType(amount=0.00, currency_code="GBP")
-   my_product_price = PriceToEstimateFees(listing_price=my_price, shipping=my_shipping)
- 
-   my_product = FeesEstimateRequest(
-      marketplace_id = my_marketplace,
-      id_type="ASIN", #ASIN or SKU
-      id_value="B07QR73T66",
-      price_to_estimate_fees=my_product_price,
-      is_amazon_fulfilled=False, #True or False
-      identifier="request001", #any identifier you want
-   )
 
-   response = products_api.get_my_fees_estimate(my_product)
+      my_price = MoneyType(amount=123.45, currency_code="GBP")
+      my_shipping = MoneyType(amount=0.00, currency_code="GBP")
+      my_product_price = PriceToEstimateFees(listing_price=my_price, shipping=my_shipping)
+   
+      my_product = FeesEstimateRequest(
+         marketplace_id = my_marketplace,
+         id_type="ASIN", #ASIN or SKU
+         id_value="B07QR73T66",
+         price_to_estimate_fees=my_product_price,
+         is_amazon_fulfilled=False, #True or False
+         identifier="request001", #any identifier you want
+      )
+
+      response = products_api.get_my_fees_estimate(my_product)
 
 
 *******************
@@ -296,11 +317,12 @@ From Amazon:
    Returns pricing information for your own active offer listings, based on SellerSKU.
 
 .. code-block:: python
-   response = pr oducts_api.get_my_price_for_sku(
-      marketplace_id = my_marketplace,
-      skus = "OO-NL0F-795Z",
-      condition = "New" # Any, New, Used, Collectible, Refurbished, Club. Default = All
-   )
+
+      response = pr oducts_api.get_my_price_for_sku(
+         marketplace_id = my_marketplace,
+         skus = "OO-NL0F-795Z",
+         condition = "New" # Any, New, Used, Collectible, Refurbished, Club. Default = All
+      )
 
 
 
@@ -313,11 +335,12 @@ From Amazon:
    Returns pricing information for your own active offer listings, based on ASIN.
 
 .. code-block:: python
-   response = products_api.get_my_price_for_asin(
-      marketplace_id = my_marketplace,
-      asins = "B07QR73T66",
-      condition = "New" # Any, New, Used, Collectible, Refurbished, Club. Default = All
-   )
+
+      response = products_api.get_my_price_for_asin(
+         marketplace_id = my_marketplace,
+         asins = "B07QR73T66",
+         condition = "New" # Any, New, Used, Collectible, Refurbished, Club. Default = All
+      )
 
 
 *****************************
@@ -328,10 +351,11 @@ From Amazon:
    Returns the parent product categories that a product belongs to, based on SellerSKU.
 
 .. code-block:: python
-   response = products_api.get_product_categories_for_sku(
-      marketplace_id = my_marketplace,
-      sku = "OO-NL0F-795Z"
-   )
+
+      response = products_api.get_product_categories_for_sku(
+         marketplace_id = my_marketplace,
+         sku = "OO-NL0F-795Z"
+      )
 
 
 ******************************
@@ -343,7 +367,8 @@ From Amazon:
    Returns the parent product categories that a product belongs to, based on ASIN.
 
 .. code-block:: python
-   response = products_api.get_product_categories_for_asin(
-      marketplace_id = my_marketplace,
-      asin = "B07QR73T66"
-   )
+
+      response = products_api.get_product_categories_for_asin(
+         marketplace_id = my_marketplace,
+         asin = "B07QR73T66"
+      )
