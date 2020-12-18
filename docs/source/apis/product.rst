@@ -1,27 +1,27 @@
-############
-Products API
-############
+########
+Products
+########
 
 According to `Amazon’s documentation <http://docs.developer.amazonservices.com/en_US/products/Products_Overview.html>`_: 
 
 
-The Products API section of Amazon Marketplace Web Service (Amazon MWS) helps you get information to match your products to existing product listings on Amazon Marketplace websites and to make sourcing and pricing decisions for listing those products on Amazon Marketplace websites. The Amazon MWS Products API returns product attributes, current Marketplace pricing information, and a variety of other product and listing information.
+   The Products API section of Amazon Marketplace Web Service (Amazon MWS) helps you get information to match your products to existing product listings on Amazon Marketplace websites and to make sourcing and pricing decisions for listing those products on Amazon Marketplace websites. The Amazon MWS Products API returns product attributes, current Marketplace pricing information, and a variety of other product and listing information.
 
 The Products API is available in all marketplaces and consists of 15 different operations:
-ListMatchingProducts = list_matching_products
-GetMatchingProduct = get_matching_product
-GetMatchingProductForId = get_matching_product_for_id
-GetCompetitivePricingForSKU = get_competitive_pricing_for_sku
-GetCompetitivePricingForASIN = get_competitive_pricing_for_asin
-GetLowestOfferListingsForSKU = get_lowest_offer_listings_for_sku
-GetLowestOfferListingsForASIN = get_lowest_offer_listings_for_asin
-GetLowestPricedOffersForSKU = get_lowest_priced_offers_for_sku
-GetLowestPricedOffersForASIN = get_lowest_priced_offers_for_asin
-GetMyFeesEstimate = get_my_fees_estimate
-GetMyPriceForSKU = get_my_price_for_sku
-GetMyPriceForASIN = get_my_price_for_asin
-GetProductCategoriesForSKU = get_product_categories_for_sku
-GetProductCategoriesForASIN = get_product_categories_for_asin
+   ListMatchingProducts = list_matching_products
+   GetMatchingProduct = get_matching_product
+   GetMatchingProductForId = get_matching_product_for_id
+   GetCompetitivePricingForSKU = get_competitive_pricing_for_sku
+   GetCompetitivePricingForASIN = get_competitive_pricing_for_asin
+   GetLowestOfferListingsForSKU = get_lowest_offer_listings_for_sku
+   GetLowestOfferListingsForASIN = get_lowest_offer_listings_for_asin
+   GetLowestPricedOffersForSKU = get_lowest_priced_offers_for_sku
+   GetLowestPricedOffersForASIN = get_lowest_priced_offers_for_asin
+   GetMyFeesEstimate = get_my_fees_estimate
+   GetMyPriceForSKU = get_my_price_for_sku
+   GetMyPriceForASIN = get_my_price_for_asin
+   GetProductCategoriesForSKU = get_product_categories_for_sku
+   GetProductCategoriesForASIN = get_product_categories_for_asin
 
 
 ***************
@@ -44,7 +44,7 @@ Please read through gettingStarted.rst, as these docs build upon those.
 
 
 ************************
-`ListMatchingProducts`_
+`ListMatchingProducts <https://docs.developer.amazonservices.com/en_US/products/Products_ListMatchingProducts.html>`_
 ************************
 
 From Amazon:
