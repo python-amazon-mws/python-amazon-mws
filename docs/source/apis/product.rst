@@ -11,33 +11,33 @@ According to `Amazon’s documentation <http://docs.developer.amazonservices.com
 
 The Products API is available in all marketplaces and consists of 15 different operations:
   
-   ListMatchingProducts = `list_matching_products <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L29>`_
+   `ListMatchingProducts <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#listmatchingproducts>`_ = `list_matching_products() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L29>`_
   
-   GetMatchingProduct = get_matching_product
+   `GetMatchingProduct <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getmatchingproduct>`_ = `get_matching_product() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L45>`_
   
-   GetMatchingProductForId = get_matching_product_for_id
+   `GetMatchingProductForId <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getmatchingproductforid>`_ = `get_matching_product_for_id() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L56>`_
   
-   GetCompetitivePricingForSKU = get_competitive_pricing_for_sku
+   `GetCompetitivePricingForSKU <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getcompetitivepricingforsku>`_ = `get_competitive_pricing_for_sku() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L71>`_
   
-   GetCompetitivePricingForASIN = get_competitive_pricing_for_asin
+   `GetCompetitivePricingForASIN <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getcompetitivepricingforasin>`_ = `get_competitive_pricing_for_asin() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L82>`_
   
-   GetLowestOfferListingsForSKU = get_lowest_offer_listings_for_sku
+   `GetLowestOfferListingsForSKU <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getlowestofferlistingsforsku>`_ = `get_lowest_offer_listings_for_sku() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L95>`_
   
-   GetLowestOfferListingsForASIN = get_lowest_offer_listings_for_asin
+   `GetLowestOfferListingsForASIN <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getlowestofferlistingsforasin>`_ = `get_lowest_offer_listings_for_asin() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L117>`_
   
-   GetLowestPricedOffersForSKU = get_lowest_priced_offers_for_sku
+   `GetLowestPricedOffersForSKU <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getlowestpricedoffersforsku>`_ = `get_lowest_priced_offers_for_sku() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L138>`_
   
-   GetLowestPricedOffersForASIN = get_lowest_priced_offers_for_asin
+   `GetLowestPricedOffersForASIN <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getlowestpricedoffersforasin>`_ = `get_lowest_priced_offers_for_asin() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L161>`_
   
-   GetMyFeesEstimate = get_my_fees_estimate
+   `GetMyFeesEstimate <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getmyfeesestimate>`_ = `get_my_fees_estimate() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L181>`_
   
-   GetMyPriceForSKU = get_my_price_for_sku
+   `GetMyPriceForSKU <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getmypriceforsku>`_ = `get_my_price_for_sku() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L196>`_
   
-   GetMyPriceForASIN = get_my_price_for_asin
+   `GetMyPriceForASIN <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getmypriceforasin>`_ = `get_my_price_for_asin() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L210>`_
   
-   GetProductCategoriesForSKU = get_product_categories_for_sku
+   `GetProductCategoriesForSKU <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getproductcategoriesforsku>`_ = `get_product_categories_for_sku() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L224>`_
   
-   `GetProductCategoriesForASIN <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getproductcategoriesforasin>`_ = get_product_categories_for_asin
+   `GetProductCategoriesForASIN <https://github.com/Ryan-Daly/python-amazon-mws/blob/develop/docs/source/apis/product.rst#getproductcategoriesforasin>`_ = `get_product_categories_for_asin() <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L236>`_
   
   
 ***************
