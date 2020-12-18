@@ -31,15 +31,16 @@ Getting Started
 Please read through gettingStarted.rst, as these docs build upon those.
 
 .. code-block:: python
-   import mws
 
-   access_key = “XXXXXXXXXXXXXXXXXXXX”
-	secret_key = “XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX”
-	seller_id = “XXXXXXXXXXXXXX”
-	region = “XX”
-	my_marketplace = Marketplace.US.marketplace_id
-	
-   products_api = mws.Products(access_key, secret_key, seller_id, region)
+      import mws
+
+      access_key = “XXXXXXXXXXXXXXXXXXXX”
+      secret_key = “XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX”
+      seller_id = “XXXXXXXXXXXXXX”
+      region = “XX”
+      my_marketplace = Marketplace.US.marketplace_id
+      
+      products_api = mws.Products(access_key, secret_key, seller_id, region)
 
 
 
