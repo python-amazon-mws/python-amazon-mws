@@ -85,7 +85,7 @@ Title
 
 
 *********************
-`GetMatchingProduct`_
+`GetMatchingProduct <http://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProduct.html>`_
 *********************
 
 From Amazon:
@@ -136,7 +136,7 @@ Examples:
 
 
 **************************
-`GetMatchingProductForId`_
+`GetMatchingProductForId <https://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProductForId.html>`_
 **************************
 
 
@@ -155,7 +155,7 @@ From Amazon:
 
 
 ******************************
-`GetCompetitivePricingForSKU`_
+`GetCompetitivePricingForSKU <https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForSKU.html>`_
 ******************************
 
 
@@ -179,7 +179,7 @@ Buy Box price
 
 
 *******************************
-`GetCompetitivePricingForASIN`_
+`GetCompetitivePricingForASIN <https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForASIN.html>`_
 *******************************
 
 
@@ -197,7 +197,7 @@ Same as GetCompetitivePricingForSKU above, but pass in a list of ASINs rather th
 
 
 *******************************
-`GetLowestOfferListingsForSKU`_
+`GetLowestOfferListingsForSKU <https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForSKU.html>`_
 *******************************
 
 
@@ -214,7 +214,7 @@ From Amazon:
 
 
 ********************************
-`GetLowestOfferListingsForASIN`_
+`GetLowestOfferListingsForASIN <https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForASIN.html>`_
 ********************************
 
 
@@ -230,7 +230,7 @@ From Amazon:
 
 
 *******************************
-`GetLowestPricedOffersForSKU`_
+`GetLowestPricedOffersForSKU <https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForSKU.html>`_
 *******************************
 
 
@@ -246,7 +246,7 @@ From Amazon:
 
 
 ********************************
-`GetLowestPricedOffersForASIN`_
+`GetLowestPricedOffersForASIN <https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForASIN.html>`_
 ********************************
 
 
@@ -262,7 +262,7 @@ From Amazon:
 
 
 ********************
-`GetMyFeesEstimate`_
+`GetMyFeesEstimate <https://docs.developer.amazonservices.com/en_US/products/Products_GetMyFeesEstimate.html>`_
 ********************
 
 
@@ -287,7 +287,7 @@ From Amazon:
 
 
 *******************
-`GetMyPriceForSKU`_
+`GetMyPriceForSKU <https://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForSKU.html>`_
 *******************
 
 
@@ -304,7 +304,7 @@ From Amazon:
 
 
 ********************
-`GetMyPriceForASIN`_
+`GetMyPriceForASIN <https://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForASIN.html>`_
 ********************
 
 
@@ -320,7 +320,7 @@ From Amazon:
 
 
 *****************************
-`GetProductCategoriesForSKU`_
+`GetProductCategoriesForSKU <https://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForSKU.html>`_
 *****************************
 
 From Amazon:
@@ -334,7 +334,7 @@ From Amazon:
 
 
 ******************************
-`GetProductCategoriesForASIN`_
+`GetProductCategoriesForASIN <https://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForASIN.html>`_
 ******************************
 
 
@@ -346,23 +346,3 @@ From Amazon:
       marketplace_id = my_marketplace,
       asin = "B07QR73T66"
    )
-
-
-
-
-.. target-notes::
-
-.. _`ListMatchingProducts`: https://docs.developer.amazonservices.com/en_US/products/Products_ListMatchingProducts.html
-.. _`GetMatchingProduct`: http://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProduct.html
-.. _`GetMatchingProductForId`: https://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProductForId.html
-.. _`GetCompetitivePricingForSKU`: https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForSKU.html
-.. _`GetCompetitivePricingForASIN`: https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForASIN.html
-.. _`GetLowestOfferListingsForSKU`: https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForSKU.html
-.. _`GetLowestOfferListingsForASIN`: https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForASIN.html
-.. _`GetLowestPricedOffersForSKU`: https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForSKU.html
-.. _`GetLowestPricedOffersForASIN`: https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForASIN.html
-.. _`GetMyFeesEstimate`: https://docs.developer.amazonservices.com/en_US/products/Products_GetMyFeesEstimate.html
-.. _`GetMyPriceForSKU`: https://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForSKU.html
-.. _`GetMyPriceForASIN`: https://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForASIN.html
-.. _`GetProductCategoriesForSKU`: https://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForSKU.html
-.. _`GetProductCategoriesForASIN`: https://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForASIN.html
