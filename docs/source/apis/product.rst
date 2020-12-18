@@ -72,18 +72,21 @@ We can access individual results with:
       response.parsed.Products.product[0]
 
 Sales Rank
+
 .. code-block:: python
 
       response.parsed.Products.Product[0].SalesRankings.SalesRank[0].Rank
       # 6
 
 ASIN
+
 .. code-block:: python
 
       response.parsed.Products.Product[0].Identifiers.MarketplaceASIN.ASIN
       # B085G58KWT
 
 Title
+
 .. code-block:: python
 
       response.parsed.Products.Product[0].AttributeSets.ItemAttributes.Title
