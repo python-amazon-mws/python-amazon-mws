@@ -1,33 +1,49 @@
 ########
 Products
 ########
+  
 
 According to `Amazon’s documentation <http://docs.developer.amazonservices.com/en_US/products/Products_Overview.html>`_: 
 
 
    The Products API section of Amazon Marketplace Web Service (Amazon MWS) helps you get information to match your products to existing product listings on Amazon Marketplace websites and to make sourcing and pricing decisions for listing those products on Amazon Marketplace websites. The Amazon MWS Products API returns product attributes, current Marketplace pricing information, and a variety of other product and listing information.
+  
 
 The Products API is available in all marketplaces and consists of 15 different operations:
+  
    ListMatchingProducts = list_matching_products
+  
    GetMatchingProduct = get_matching_product
+  
    GetMatchingProductForId = get_matching_product_for_id
+  
    GetCompetitivePricingForSKU = get_competitive_pricing_for_sku
+  
    GetCompetitivePricingForASIN = get_competitive_pricing_for_asin
+  
    GetLowestOfferListingsForSKU = get_lowest_offer_listings_for_sku
+  
    GetLowestOfferListingsForASIN = get_lowest_offer_listings_for_asin
+  
    GetLowestPricedOffersForSKU = get_lowest_priced_offers_for_sku
+  
    GetLowestPricedOffersForASIN = get_lowest_priced_offers_for_asin
+  
    GetMyFeesEstimate = get_my_fees_estimate
+  
    GetMyPriceForSKU = get_my_price_for_sku
+  
    GetMyPriceForASIN = get_my_price_for_asin
+  
    GetProductCategoriesForSKU = get_product_categories_for_sku
+  
    GetProductCategoriesForASIN = get_product_categories_for_asin
-
-
+  
+  
 ***************
 Getting Started
 ***************
-
+  
 Please read through gettingStarted.rst, as these docs build upon those.
 
 .. code-block:: python
@@ -41,9 +57,9 @@ Please read through gettingStarted.rst, as these docs build upon those.
       my_marketplace = Marketplace.US.marketplace_id
       
       products_api = mws.Products(access_key, secret_key, seller_id, region)
-
-
-
+  
+  
+  
 ************************
 `ListMatchingProducts <https://docs.developer.amazonservices.com/en_US/products/Products_ListMatchingProducts.html>`_
 ************************
@@ -51,6 +67,7 @@ Please read through gettingStarted.rst, as these docs build upon those.
 From Amazon:
 
    The ListMatchingProducts operation returns a list of products and their attributes, ordered by relevancy, based on a search query that you specify. Your search query can be a phrase that describes the product or it can be a product identifier such as a GCID, UPC, EAN, ISBN, or JAN. Returns 10 results.
+  
 
 .. code-block:: python
 
@@ -61,7 +78,7 @@ From Amazon:
 
 
 
-
+  
 Examples
 ========
 
@@ -70,28 +87,29 @@ We can access individual results with:
 .. code-block:: python
 
       response.parsed.Products.product[0]
-
+  
 Sales Rank
 
 .. code-block:: python
 
       response.parsed.Products.Product[0].SalesRankings.SalesRank[0].Rank
       # 6
-
+  
 ASIN
 
 .. code-block:: python
 
       response.parsed.Products.Product[0].Identifiers.MarketplaceASIN.ASIN
       # B085G58KWT
-
+  
 Title
 
 .. code-block:: python
 
       response.parsed.Products.Product[0].AttributeSets.ItemAttributes.Title
       # All-new Echo (4th generation) | With premium sound, smart home hub and Alexa | Charcoal
-
+  
+  
 
 *********************
 `GetMatchingProduct <http://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProduct.html>`_
@@ -99,7 +117,7 @@ Title
 
 From Amazon:
    The GetMatchingProduct operation returns a list of products and their attributes, based on a list of ASIN values that you specify. This operation returns a maximum of ten products.
-
+  
 Can supply ASINs as a list:
 .. code-block:: python
 
@@ -107,8 +125,8 @@ Can supply ASINs as a list:
          marketplace_id=my_marketplace,
          asins=["B085G58KWT", "B07ZZW7QCM"],
       )
-
-
+  
+  
 Example:
 ========
 
@@ -129,7 +147,7 @@ Access individual ASINs:
       # 89.99
 	
 
-
+  
 Or as a single string ASIN:
 
 .. code-block:: python
@@ -138,8 +156,8 @@ Or as a single string ASIN:
          marketplace_id=my_marketplace,
          asins="B085G58KWT",
       )
-
-
+  
+  
 Examples:
 =========
 
@@ -152,7 +170,8 @@ Examples:
 
       response.parsed.Product.AttributeSets.ItemAttributes.Color
       # Charcoal
-
+  
+  
 
 **************************
 `GetMatchingProductForId <https://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProductForId.html>`_
@@ -160,9 +179,10 @@ Examples:
 
 
 Same as above GetMatchingProduct but allows extra id types.
-
+  
 From Amazon:
    Returns a list of products and their attributes, based on a list of ASIN, GCID, SellerSKU, UPC, EAN, ISBN, and JAN values.
+  
 
 .. code-block:: python
 
@@ -171,9 +191,9 @@ From Amazon:
          type_="ASIN", # can be ASIN, GCID, SellerSKU,UPC, EAN,ISBN, JAN
          ids=["B085G58KWT", "B07ZZW7QCM"],
       )
-
-
-
+  
+  
+  
 ******************************
 `GetCompetitivePricingForSKU <https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForSKU.html>`_
 ******************************
@@ -182,6 +202,7 @@ From Amazon:
 From Amazon:
    The GetCompetitivePricingForSKU operation returns the current competitive pricing of a product, based on the SellerSKU and MarketplaceId that you specify. This operation returns pricing for active offer listings based on two pricing models: New Buy Box Price and Used Buy Box Price.
    Maximum: 20 SellerSKU values
+  
 
 .. code-block:: python
 
@@ -189,8 +210,8 @@ From Amazon:
          marketplace_id=my_marketplace,
          skus=["OO-NL0F-795Z"],
       )
-
-
+  
+  
 Example:
 ========
 
@@ -199,8 +220,9 @@ Buy Box price
 .. code-block:: python
 
       response.parsed.Product.CompetitivePricing.CompetitivePrices.CompetitivePrice.Price.LandedPrice.Amount
-
-
+  
+  
+  
 *******************************
 `GetCompetitivePricingForASIN <https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForASIN.html>`_
 *******************************
