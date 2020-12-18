@@ -2,7 +2,7 @@
 Products API
 ############
 
-According to Amazon’s `documentation`_: 
+According to `Amazon’s documentation <http://docs.developer.amazonservices.com/en_US/products/Products_Overview.html>`_: 
 
 
 The Products API section of Amazon Marketplace Web Service (Amazon MWS) helps you get information to match your products to existing product listings on Amazon Marketplace websites and to make sourcing and pricing decisions for listing those products on Amazon Marketplace websites. The Amazon MWS Products API returns product attributes, current Marketplace pricing information, and a variety of other product and listing information.
@@ -351,7 +351,7 @@ From Amazon:
 
 
 .. target-notes::
-.. _`documentation`: http://docs.developer.amazonservices.com/en_US/products/Products_Overview.html
+
 .. _`ListMatchingProducts`: https://docs.developer.amazonservices.com/en_US/products/Products_ListMatchingProducts.html
 .. _`GetMatchingProduct`: http://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProduct.html
 .. _`GetMatchingProductForId`: https://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProductForId.html
