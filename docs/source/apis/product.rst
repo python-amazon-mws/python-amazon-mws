@@ -11,7 +11,7 @@ According to `Amazon’s documentation <http://docs.developer.amazonservices.com
 
 The Products API is available in all marketplaces and consists of 15 different operations:
   
-   ListMatchingProducts = list_matching_products
+   ListMatchingProducts = `list_matching_products <https://github.com/python-amazon-mws/python-amazon-mws/blob/bba6c5ed2080e5864840098ecb9f6ab7f9ac2def/mws/apis/products.py#L29>`_
   
    GetMatchingProduct = get_matching_product
   
