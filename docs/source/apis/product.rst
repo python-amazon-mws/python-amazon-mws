@@ -113,6 +113,7 @@ Example:
 ========
 
 Access individual ASINs:
+
 .. code-block:: python
 
       response.parsed[0]
@@ -130,6 +131,7 @@ Access individual ASINs:
 
 
 Or as a single string ASIN:
+
 .. code-block:: python
 
       response = products_api.get_matching_product(
@@ -193,6 +195,7 @@ Example:
 ========
 
 Buy Box price
+
 .. code-block:: python
 
       response.parsed.Product.CompetitivePricing.CompetitivePrices.CompetitivePrice.Price.LandedPrice.Amount
