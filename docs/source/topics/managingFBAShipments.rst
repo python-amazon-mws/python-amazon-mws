@@ -588,6 +588,34 @@ calculating the new total:
 Adding items from a new shipment plan
 -------------------------------------
 
-Under certain conditions, items from a new shipment plan can be added to one of your existing shipments in WORKING status
+Under certain conditions, items from a new shipment plan can be added to one of your existing shipments in WORKING
+status. In this way, you can keep a shipment "open" in your own facility, adding new items to the same shipment before
+"closing" it and sending it to Amazon's fulfillment network.
 
-*TODO the rest of this, maybe using update_inbound_shipment? transport details? Related requests?*
+Follow the same steps as `Requesting a shipment plan`_, then inspect the contents of the planned shipments (see
+`Processing shipment plans`_).
+
+Generally, you *may* be able to add newly-planned items to an existing shipment if the
+following details match in the target "WORKING" shipment:
+
+- ``DestinationFulfillmentCenterId``
+- ``LabelPrepType``
+- Whether both shipments are designated for **hazmat** items.
+
+  .. note:: In the author's experience, this detail may not be apparent through MWS ahead of time: you may simply
+     need to attempt to add the item and handle whatever error occurs afterward.
+
+     Forgiveness instead of permission, as they say.
+
+- Whether the two shipments require **case packs** or not.
+
+This list is not exhaustive, so use best judgment and follow Amazon's guidance where necessary.
+
+If you determine that a planned item *can* be added to one of your existing shipments, add that item to an
+``update_inbound_shipment`` request for the given shipment ID.
+
+As mentioned in `Changing item quantities`_, remember to use the **total** quantity of an item being updated, not
+the change in quantity, if the item is already present in the given shipment. If you are not tracking these quantities
+in your own application, you may wish to send a request to
+:py:meth:`list_inbound_shipment_items <mws.apis.inbound_shipments.InboundShipments.list_inbound_shipment_items>` to
+obtain the current quantity of a matching item *before* sending the update request.
