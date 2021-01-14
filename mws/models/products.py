@@ -33,7 +33,8 @@ class CurrencyCode(Enum):
 class MoneyType(MWSDataType):
     """An amount of money in a specified currency.
 
-    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#MoneyType
+    `MWS Docs: MoneyType
+    <https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#MoneyType>`_
     """
 
     def __init__(self, amount: float, currency_code: Union[CurrencyCode, str]):
@@ -51,7 +52,8 @@ class Points(MWSDataType):
     """The number of Amazon Points offered with the purchase of an item.
     The Amazon Points program is only available in Japan.
 
-    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#Points
+    `MWS Docs: Points
+    <https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#Points>`_
     """
 
     def __init__(self, points_number: int, monetary_value: MoneyType):
@@ -70,7 +72,8 @@ class Points(MWSDataType):
 class PriceToEstimateFees(MWSDataType):
     """Price information for a product, used to estimate fees.
 
-    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#PriceToEstimateFees
+    `MWS Docs: PriceToEstimateFees
+    <https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#PriceToEstimateFees>`_
     """
 
     def __init__(
@@ -103,7 +106,8 @@ class PriceToEstimateFees(MWSDataType):
 class FeesEstimateRequest(MWSDataType):
     """A product, marketplace, and proposed price used to request estimated fees.
 
-    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#FeesEstimateRequest
+    `MWS Docs: FeesEstimateRequest
+    <https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#FeesEstimateRequest>`_
     """
 
     def __init__(
