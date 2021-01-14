@@ -1,14 +1,20 @@
 """Parameter manipulation utilities."""
 
-from collections.abc import Iterable, Mapping
-from urllib.parse import quote
 import datetime
 import json
+from collections.abc import Iterable, Mapping
+from typing import (
+    Any,
+    List,
+    Optional,
+    Union,
+)
+from urllib.parse import quote
 
 from mws.errors import MWSError
 
 
-def enumerate_param(param, values):
+def enumerate_param(param: str, values: Union[list, set, tuple]) -> dict:
     """Builds a dictionary of an enumerated parameter, using the param string and some values.
     If values is not a list, tuple, or set, it will be coerced to a list
     with a single item.
@@ -22,7 +28,7 @@ def enumerate_param(param, values):
             MarketplaceIdList.Id.3: 4343
         }
     """
-    if not isinstance(values, (list, tuple, set)):
+    if not isinstance(values, (list, set, tuple)):
         # Coerces a single value to a list before continuing.
         values = [values]
     if not any(values):
@@ -33,11 +39,11 @@ def enumerate_param(param, values):
     return {"{}{}".format(param, idx): val for idx, val in enumerate(values, start=1)}
 
 
-def enumerate_params(params=None):
+def enumerate_params(params: Optional[Mapping] = None) -> dict:
     """For each param and values, runs enumerate_param,
     returning a flat dict of all results
     """
-    if params is None or not isinstance(params, dict):
+    if not params or not isinstance(params, Mapping):
         return {}
     params_output = {}
     for param, values in params.items():
@@ -45,7 +51,7 @@ def enumerate_params(params=None):
     return params_output
 
 
-def enumerate_keyed_param(param, values):
+def enumerate_keyed_param(param: str, values: List[Mapping]) -> dict:
     """Given a param string and a list of values dicts, returns a flat dict of keyed, enumerated params.
     Each dict in the values list must pertain to a single item and its data points.
 
@@ -68,7 +74,7 @@ def enumerate_keyed_param(param, values):
             ...
         }
     """
-    if not isinstance(values, (list, tuple, set)):
+    if not isinstance(values, (list, set, tuple)):
         # If it's a single value, convert it to a list first
         values = [values]
     if not any(values):
@@ -98,7 +104,7 @@ def enumerate_keyed_param(param, values):
     return params
 
 
-def dict_keyed_param(param, dict_from):
+def dict_keyed_param(param: str, dict_from: Mapping) -> dict:
     """Given a param string and a dict, returns a flat dict of keyed params without enumerate.
 
     Example:
@@ -122,7 +128,7 @@ def dict_keyed_param(param, dict_from):
     return params
 
 
-def flat_param_dict(value, prefix=""):
+def flat_param_dict(value: Union[str, Mapping, List], prefix: str = "") -> dict:
     """Returns a flattened params dictionary by collapsing nested dicts and
     non-string iterables.
 
@@ -172,7 +178,7 @@ def flat_param_dict(value, prefix=""):
     return output
 
 
-def dot_appended_param(param_key, reverse=False):
+def dot_appended_param(param_key: str, reverse: bool = False):
     """Returns ``param_key`` string, ensuring that it ends with ``'.'``.
 
     Set ``reverse`` to ``True`` (default ``False``) to reverse this behavior,
@@ -191,7 +197,7 @@ def dot_appended_param(param_key, reverse=False):
 BOOL_FALSE_STRINGS = ("no", "n", "none", "off", "false", "0")
 
 
-def coerce_to_bool(val):
+def coerce_to_bool(val: Any) -> bool:
     """Coerces ``val`` to a boolean for use in MWS requests.
 
     If ``val`` is a string, converts certain (case-insensitive) string values
@@ -211,14 +217,14 @@ def coerce_to_bool(val):
     return bool(val)
 
 
-def remove_empty_param_keys(params):
+def remove_empty_param_keys(params: Mapping) -> dict:
     """Returns a copy of ``params`` dict where any key with a value of ``None``
     or ``""`` (empty string) are removed.
     """
     return {k: v for k, v in params.items() if v is not None and v != ""}
 
 
-def clean_params_dict(params):
+def clean_params_dict(params: Mapping) -> dict:
     """Clean multiple param values in a dict, returning a new dict
     containing the original keys and cleaned values.
     """
@@ -231,9 +237,9 @@ def clean_params_dict(params):
     return cleaned_params
 
 
-def clean_value(val):
+def clean_value(val: Any) -> str:
     """Attempts to clean a value so that it can be sent in a request."""
-    if isinstance(val, (dict, list, set, tuple)):
+    if isinstance(val, (Mapping, list, set, tuple)):
         raise ValueError("Cannot clean parameter value of type %s" % str(type(val)))
 
     if isinstance(val, (datetime.datetime, datetime.date)):
@@ -245,7 +251,7 @@ def clean_value(val):
     return clean_string(str(val))
 
 
-def clean_string(val):
+def clean_string(val: str) -> str:
     """Passes a string value through `urllib.parse.quote` to clean it.
 
     Safe characters permitted: -_.~
@@ -253,15 +259,27 @@ def clean_string(val):
     return quote(val, safe="-_.~")
 
 
-def clean_bool(val):
+def clean_bool(val: bool) -> str:
     """Converts a boolean value to its JSON string equivalent."""
     if val is not True and val is not False:
         raise ValueError("Expected a boolean, got %s" % val)
     return json.dumps(val)
 
 
-def clean_date(val):
+def clean_date(val: Union[datetime.datetime, datetime.date]) -> str:
     """Converts a datetime.datetime or datetime.date to ISO 8601 string.
     Further passes that string through `urllib.parse.quote`.
     """
     return clean_string(val.isoformat())
+
+
+def iterable_param(val) -> Iterable:
+    """Wraps single values (that are *not* non-string iterables) as a list.
+    Used for methods that require some iterable value that should be enumerated
+    (without exploding string values into enumerated lists of their characters).
+    """
+    # Special case: strings are iterables, too, but shouldn't be treated the same.
+    # TODO make the type check at the end more generic?
+    if isinstance(val, str) or not isinstance(val, Iterable):
+        return [val]
+    return val

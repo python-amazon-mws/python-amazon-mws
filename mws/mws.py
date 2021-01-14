@@ -23,7 +23,7 @@ from mws.utils.params import (
 from mws.utils.timezone import mws_utc_now
 
 
-__version__ = "1.0dev15"
+__version__ = "1.0dev16"
 PAM_USER_AGENT = "python-amazon-mws/{} (Language=Python)".format(__version__)
 """See recommended user agent string format:
 https://docs.developer.amazonservices.com/en_US/dev_guide/DG_UserAgentHeader.html
@@ -124,7 +124,7 @@ class MWS(object):
     # There seem to be some xml namespace issues. therefore every api subclass
     # is recommended to define its namespace, so that it can be referenced
     # like so AmazonAPISubclass.NAMESPACE.
-    # For more information see http://stackoverflow.com/a/8719461/389453
+    # For more information see https://stackoverflow.com/a/8719461/389453
     NAMESPACE = ""
 
     # In here we name each of the operations available to the subclass
@@ -343,7 +343,7 @@ class MWS(object):
         subclass you intend to use for other requests!
 
         Docs (from Orders API example):
-        http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/MWS_GetServiceStatus.html
+        https://docs.developer.amazonservices.com/en_US/orders-2013-09-01/MWS_GetServiceStatus.html
         """
         return self.make_request("GetServiceStatus")
 

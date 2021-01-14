@@ -11,7 +11,7 @@ class OutboundShipments(MWS):
     """Amazon MWS Fulfillment Outbound Shipments API.
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_Overview.html
+    https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_Overview.html
     """
 
     URI = "/FulfillmentOutboundShipment/2010-10-01"
@@ -55,7 +55,7 @@ class OutboundShipments(MWS):
         :param delivery_window:
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_CreateFulfillmentOrder.html
+        https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_CreateFulfillmentOrder.html
         """
         data = {
             "MarketplaceId": marketplace_id,
@@ -82,7 +82,7 @@ class OutboundShipments(MWS):
         """Updates and/or requests shipment for a fulfillment order with an order hold on it.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_UpdateFulfillmentOrder.html
+        https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_UpdateFulfillmentOrder.html
         """
         raise NotImplementedError
 
@@ -90,7 +90,7 @@ class OutboundShipments(MWS):
         """Returns a fulfillment order based on a specified SellerFulfillmentOrderId.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetFulfillmentOrder.html
+        https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetFulfillmentOrder.html
         """
         return self.make_request(
             "GetFulfillmentOrder",
@@ -104,7 +104,7 @@ class OutboundShipments(MWS):
         Pass `next_token` to call "ListAllFulfillmentOrdersByNextToken" instead
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_ListAllFulfillmentOrders.html
+        https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_ListAllFulfillmentOrders.html
         """
         return self.make_request(
             "ListAllFulfillmentOrders", {"QueryStartDateTime": query_start_date_time}
@@ -114,7 +114,7 @@ class OutboundShipments(MWS):
         """Alias for `list_all_fulfillment_orders(next_token=token)`.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_ListAllFulfillmentOrdersByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_ListAllFulfillmentOrdersByNextToken.html
         """
         return self.list_all_fulfillment_orders(next_token=token)
 
@@ -123,7 +123,7 @@ class OutboundShipments(MWS):
         in an outbound shipment for a Multi-Channel Fulfillment order.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetPackageTrackingDetails.html
+        https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetPackageTrackingDetails.html
         """
         return self.make_request(
             "GetPackageTrackingDetails", {"PackageNumber": package_number}
@@ -133,7 +133,7 @@ class OutboundShipments(MWS):
         """Requests that Amazon stop attempting to fulfill an existing fulfillment order.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_CancelFulfillmentOrder.html
+        https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_CancelFulfillmentOrder.html
         """
         raise NotImplementedError
 
@@ -141,7 +141,7 @@ class OutboundShipments(MWS):
         """Returns a list of return reason codes for a seller SKU in a given marketplace.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_ListReturnReasonCodes.html
+        https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_ListReturnReasonCodes.html
         """
         raise NotImplementedError
 
@@ -149,6 +149,6 @@ class OutboundShipments(MWS):
         """Creates a fulfillment return.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_CreateFulfillmentReturn.html
+        https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_CreateFulfillmentReturn.html
         """
         raise NotImplementedError

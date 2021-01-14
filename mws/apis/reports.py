@@ -46,7 +46,7 @@ class Reports(MWS):
     """Amazon MWS Reports API.
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/reports/Reports_Overview.html
+    https://docs.developer.amazonservices.com/en_US/reports/Reports_Overview.html
     """
 
     URI = "/Reports/2009-01-01"
@@ -69,7 +69,7 @@ class Reports(MWS):
         """Creates a report request and submits the request to Amazon MWS.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_RequestReport.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_RequestReport.html
         """
         marketplace_ids = marketplace_ids or []
         report_options = report_options or {}
@@ -108,7 +108,7 @@ class Reports(MWS):
         Pass `next_token` to call "GetReportRequestListByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportRequestList.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportRequestList.html
         """
         request_ids = request_ids or []
         report_types = report_types or []
@@ -133,7 +133,7 @@ class Reports(MWS):
         """Alias for `get_report_request_list(next_token=token)`.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportRequestListByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportRequestListByNextToken.html
         """
         return self.get_report_request_list(next_token=token)
 
@@ -151,7 +151,7 @@ class Reports(MWS):
         to Amazon MWS for processing.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportRequestCount.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportRequestCount.html
         """
         report_types = report_types or []
         processing_statuses = processing_statuses or []
@@ -198,7 +198,7 @@ class Reports(MWS):
         Pass `next_token` to call "GetReportListByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportList.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportList.html
         """
         request_ids = request_ids or []
         report_types = report_types or []
@@ -224,7 +224,7 @@ class Reports(MWS):
         """Alias for `get_report_list(next_token=token)`.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportListByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportListByNextToken.html
         """
         return self.get_report_list(next_token=token)
 
@@ -236,7 +236,7 @@ class Reports(MWS):
         with a status of _DONE_ and that are available for download.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportCount.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportCount.html
         """
         report_types = report_types or []
         if acknowledged is not None:
@@ -253,7 +253,7 @@ class Reports(MWS):
         """Returns the contents of a report and the Content-MD5 header for the returned report body.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReport.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_GetReport.html
         """
         return self.make_request("GetReport", {"ReportId": report_id})
 
@@ -270,7 +270,7 @@ class Reports(MWS):
         Pass `next_token` to call "GetReportScheduleListByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleList.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleList.html
         """
         report_types = report_types or []
         data = enumerate_param("ReportTypeList.Type.", report_types)
@@ -280,7 +280,7 @@ class Reports(MWS):
         """Alias for `get_report_schedule_list(next_token=token)`.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleListByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleListByNextToken.html
         """
         return self.get_report_schedule_list(next_token=token)
 
@@ -289,7 +289,7 @@ class Reports(MWS):
         """Returns a count of order report requests that are scheduled to be submitted to Amazon MWS.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleCount.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_GetReportScheduleCount.html
         """
         report_types = report_types or []
         data = enumerate_param("ReportTypeList.Type.", report_types)
@@ -299,7 +299,7 @@ class Reports(MWS):
         """Updates the acknowledged status of one or more reports.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/reports/Reports_UpdateReportAcknowledgements.html
+        https://docs.developer.amazonservices.com/en_US/reports/Reports_UpdateReportAcknowledgements.html
         """
         report_ids = report_ids or []
         if acknowledged is not None:
