@@ -20,6 +20,7 @@ from .apis import (
     EasyShip,
 )
 from .response import MWSResponse
+from .utils import types
 
 __all__ = [
     "EasyShip",
@@ -40,6 +41,7 @@ __all__ = [
     "Reports",
     "Sellers",
     "Subscriptions",
+    "types",
 ]
 
 warnings.simplefilter("default")

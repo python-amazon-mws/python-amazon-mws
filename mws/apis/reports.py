@@ -309,7 +309,7 @@ class Reports(MWS):
         return self.make_request("UpdateReportAcknowledgements", data)
 
 
-class ReportType(Enum):
+class ReportType(str, Enum):
     """Better names for reports."""
 
     # Listing Reports

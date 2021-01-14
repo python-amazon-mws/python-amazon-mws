@@ -3,12 +3,8 @@
 import datetime
 import json
 from collections.abc import Iterable, Mapping
-from typing import (
-    Any,
-    List,
-    Optional,
-    Union,
-)
+from enum import Enum
+from typing import Any, List, Optional, Union
 from urllib.parse import quote
 
 from mws.errors import MWSError
@@ -246,6 +242,8 @@ def clean_value(val: Any) -> str:
         return clean_date(val)
     if isinstance(val, bool):
         return clean_bool(val)
+    if isinstance(val, Enum):
+        return clean_enum(val)
 
     # For all else, assume a string, and clean that.
     return clean_string(str(val))
@@ -271,6 +269,14 @@ def clean_date(val: Union[datetime.datetime, datetime.date]) -> str:
     Further passes that string through `urllib.parse.quote`.
     """
     return clean_string(val.isoformat())
+
+
+def clean_enum(val: Union[Enum, str]) -> str:
+    """Simply put, converts an Enum to its ``.value`` attribute.
+
+    All known MWS Enum classes *should* return a proper value in this case.
+    """
+    return val.value
 
 
 def iterable_param(val) -> Iterable:

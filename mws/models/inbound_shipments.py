@@ -154,7 +154,7 @@ class PrepDetails(MWSDataType):
 
     def params_dict(self) -> dict:
         return {
-            "PrepInstruction": self.clean_enum_val(self.prep_instruction),
+            "PrepInstruction": self.prep_instruction,
             "PrepOwner": self.prep_owner,
         }
 
@@ -292,7 +292,10 @@ class InboundShipmentPlanRequestItem(BaseInboundShipmentItem):
     def params_dict(self) -> dict:
         data = self._base_params_dict()
         data.update(
-            {"ASIN": self.asin, "Condition": self.clean_enum_val(self.condition)}
+            {
+                "ASIN": self.asin,
+                "Condition": self.condition,
+            }
         )
         return data
 

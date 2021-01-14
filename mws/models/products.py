@@ -3,6 +3,8 @@
 from enum import Enum
 from typing import Optional, Union
 
+from mws.utils.types import MarketplaceEnumOrStr
+
 from .base import MWSDataType
 
 
@@ -41,7 +43,7 @@ class MoneyType(MWSDataType):
     def params_dict(self) -> dict:
         return {
             "Amount": self.amount,
-            "CurrencyCode": self.clean_enum_val(self.currency_code),
+            "CurrencyCode": self.currency_code,
         }
 
 
@@ -106,7 +108,7 @@ class FeesEstimateRequest(MWSDataType):
 
     def __init__(
         self,
-        marketplace_id: str,
+        marketplace_id: MarketplaceEnumOrStr,
         id_type: str,
         id_value: str,
         price_to_estimate_fees: PriceToEstimateFees,

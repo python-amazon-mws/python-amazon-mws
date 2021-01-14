@@ -1,11 +1,12 @@
 """Amazon MWS Products API."""
-from typing import List
+from typing import List, Optional, Union
 
 from mws import MWS
 from mws.models.products import FeesEstimateRequest
 from mws.utils import enumerate_keyed_param
 from mws.utils.params import coerce_to_bool
 from mws.utils.params import enumerate_param
+from mws.utils.types import StrOrListStr, MarketplaceEnumOrStr
 
 # DEPRECATION
 from mws.utils.deprecation import kwargs_renamed_for_v11
@@ -26,7 +27,12 @@ class Products(MWS):
     @kwargs_renamed_for_v11(
         [("marketplaceid", "marketplace_id"), ("contextid", "context_id")]
     )
-    def list_matching_products(self, marketplace_id, query, context_id=None):
+    def list_matching_products(
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        query: str,
+        context_id: Optional[str] = None,
+    ):
         """Returns a list of products and their attributes, based on a search query.
 
         Docs:
@@ -42,7 +48,11 @@ class Products(MWS):
         )
 
     @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
-    def get_matching_product(self, marketplace_id, asins):
+    def get_matching_product(
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        asins: StrOrListStr,
+    ):
         """Returns a list of products and their attributes, based on a list of ASIN values.
 
         Docs:
@@ -53,7 +63,12 @@ class Products(MWS):
         return self.make_request("GetMatchingProduct", data)
 
     @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
-    def get_matching_product_for_id(self, marketplace_id, type_, ids):
+    def get_matching_product_for_id(
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        type_: str,
+        ids: StrOrListStr,
+    ):
         """Returns a list of products and their attributes, based on a list of
         ASIN, GCID, SellerSKU, UPC, EAN, ISBN, and JAN values.
 
@@ -68,7 +83,11 @@ class Products(MWS):
         return self.make_request("GetMatchingProductForId", data)
 
     @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
-    def get_competitive_pricing_for_sku(self, marketplace_id, skus):
+    def get_competitive_pricing_for_sku(
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        skus: StrOrListStr,
+    ):
         """Returns the current competitive price of a product, based on SellerSKU.
 
         Docs:
@@ -79,7 +98,11 @@ class Products(MWS):
         return self.make_request("GetCompetitivePricingForSKU", data)
 
     @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
-    def get_competitive_pricing_for_asin(self, marketplace_id, asins):
+    def get_competitive_pricing_for_asin(
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        asins: StrOrListStr,
+    ):
         """Returns the current competitive price of a product, based on ASIN.
 
         Docs:
@@ -93,7 +116,11 @@ class Products(MWS):
         [("marketplaceid", "marketplace_id"), ("excludeme", "exclude_me")]
     )
     def get_lowest_offer_listings_for_sku(
-        self, marketplace_id, skus, condition="Any", exclude_me=False
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        skus: StrOrListStr,
+        condition: str = "Any",
+        exclude_me: bool = False,
     ):
         """Returns pricing information for the lowest-price active offer listings for up to 20 products,
         based on SellerSKU.
@@ -115,7 +142,11 @@ class Products(MWS):
         [("marketplaceid", "marketplace_id"), ("excludeme", "exclude_me")]
     )
     def get_lowest_offer_listings_for_asin(
-        self, marketplace_id, asins, condition="Any", exclude_me=False
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        asins: StrOrListStr,
+        condition: str = "Any",
+        exclude_me: bool = False,
     ):
         """Returns pricing information for the lowest-price active offer listings for up to 20 products, based on ASIN.
 
@@ -136,7 +167,11 @@ class Products(MWS):
         [("marketplaceid", "marketplace_id"), ("excludeme", "exclude_me")]
     )
     def get_lowest_priced_offers_for_sku(
-        self, marketplace_id, sku, condition="New", exclude_me=False
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        sku: str,
+        condition: str = "New",
+        exclude_me: bool = False,
     ):
         """Returns lowest priced offers for a single product, based on SellerSKU.
 
@@ -159,7 +194,11 @@ class Products(MWS):
         [("marketplaceid", "marketplace_id"), ("excludeme", "exclude_me")]
     )
     def get_lowest_priced_offers_for_asin(
-        self, marketplace_id, asin, condition="New", exclude_me=False
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        asin: str,
+        condition: str = "New",
+        exclude_me: bool = False,
     ):
         """Returns lowest priced offers for a single product, based on ASIN.
 
@@ -179,7 +218,9 @@ class Products(MWS):
         )
 
     def get_my_fees_estimate(
-        self, fees_estimate: FeesEstimateRequest, *fees_estimates: FeesEstimateRequest
+        self,
+        fees_estimate: FeesEstimateRequest,
+        *fees_estimates: FeesEstimateRequest,
     ):
         """Returns the estimated fees for a list of products.
 
@@ -195,7 +236,12 @@ class Products(MWS):
         return self.make_request("GetMyFeesEstimate", data, method="POST")
 
     @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
-    def get_my_price_for_sku(self, marketplace_id, skus, condition=None):
+    def get_my_price_for_sku(
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        skus: StrOrListStr,
+        condition: Optional[str] = None,
+    ):
         """Returns pricing information for your own offer listings, based on SellerSKU.
 
         Docs:
@@ -209,7 +255,12 @@ class Products(MWS):
         return self.make_request("GetMyPriceForSKU", data)
 
     @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
-    def get_my_price_for_asin(self, marketplace_id, asins, condition=None):
+    def get_my_price_for_asin(
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        asins: StrOrListStr,
+        condition: Optional[str] = None,
+    ):
         """Returns pricing information for your own offer listings, based on ASIN.
 
         Docs:
@@ -223,25 +274,35 @@ class Products(MWS):
         return self.make_request("GetMyPriceForASIN", data)
 
     @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
-    def get_product_categories_for_sku(self, marketplace_id, sku):
+    def get_product_categories_for_sku(
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        sku: str,
+    ):
         """Returns the parent product categories that a product belongs to, based on SellerSKU.
 
         Docs:
         https://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForSKU.html
         """
-        return self.make_request(
-            "GetProductCategoriesForSKU",
-            {"MarketplaceId": marketplace_id, "SellerSKU": sku},
-        )
+        data = {
+            "MarketplaceId": marketplace_id,
+            "SellerSKU": sku,
+        }
+        return self.make_request("GetProductCategoriesForSKU", data)
 
     @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
-    def get_product_categories_for_asin(self, marketplace_id, asin):
+    def get_product_categories_for_asin(
+        self,
+        marketplace_id: MarketplaceEnumOrStr,
+        asin: str,
+    ):
         """Returns the parent product categories that a product belongs to, based on ASIN.
 
         Docs:
         https://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForASIN.html
         """
-        return self.make_request(
-            "GetProductCategoriesForASIN",
-            {"MarketplaceId": marketplace_id, "ASIN": asin},
-        )
+        data = {
+            "MarketplaceId": marketplace_id,
+            "ASIN": asin,
+        }
+        return self.make_request("GetProductCategoriesForASIN", data)

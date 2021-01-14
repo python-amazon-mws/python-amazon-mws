@@ -67,12 +67,3 @@ class MWSDataType(ABC):
     @staticmethod
     def flat_param_dict(value: Union[str, Mapping, Iterable], prefix: str = "") -> dict:
         return flat_param_dict(value, prefix=prefix)
-
-    @staticmethod
-    def clean_enum_val(data: Any):
-        """Checks if ``data`` is an ``Enum`` instance, returning its value.
-        Otherwise, returns ``data`` unchanged.
-        """
-        if isinstance(data, Enum):
-            return data.value
-        return data

@@ -72,6 +72,10 @@ class Marketplaces(Enum):
         self.endpoint = endpoint
         self.marketplace_id = marketplace_id
 
+    @property
+    def value(self):
+        return self.marketplace_id
+
 
 ## TODO DEPRECATE THIS ##
 def calc_request_description(params):
