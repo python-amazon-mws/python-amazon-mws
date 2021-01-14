@@ -9,46 +9,20 @@ from mws.utils.xml import MWS_ENCODING
 from mws.response import MWSResponse
 
 
-@pytest.fixture
-def cred_access_key():
-    return "cred_access_key"
+TEST_MWS_ACCESS_KEY = "my_access_key"
+TEST_MWS_SECRET_KEY = "my_secret_key"
+TEST_MWS_ACCOUNT_ID = "my_account_id"
+TEST_MWS_AUTH_TOKEN = "my_auth_token"
 
 
 @pytest.fixture
-def cred_secret_key():
-    return "cred_secret_key"
-
-
-@pytest.fixture
-def cred_account_id():
-    return "cred_account_id"
-
-
-@pytest.fixture
-def cred_auth_token():
-    return "cred_auth_token"
-
-
-@pytest.fixture
-def mws_credentials(cred_access_key, cred_secret_key, cred_account_id):
+def mws_credentials():
     """Fake set of MWS credentials"""
     return {
-        "access_key": cred_access_key,
-        "secret_key": cred_secret_key,
-        "account_id": cred_account_id,
-    }
-
-
-@pytest.fixture
-def mws_credentials_with_auth_token(
-    cred_access_key, cred_secret_key, cred_account_id, cred_auth_token
-):
-    """Fake set of MWS credentials with auth_token included"""
-    return {
-        "access_key": cred_access_key,
-        "secret_key": cred_secret_key,
-        "account_id": cred_account_id,
-        "auth_token": cred_auth_token,
+        "access_key": TEST_MWS_ACCESS_KEY,
+        "secret_key": TEST_MWS_SECRET_KEY,
+        "account_id": TEST_MWS_ACCOUNT_ID,
+        "auth_token": TEST_MWS_AUTH_TOKEN,
     }
 
 
@@ -132,12 +106,72 @@ def simple_xml_response_no_meta():
     """
 
 
+@pytest.fixture
+def create_inbound_shipment_plan_dummy_xml():
+    return """<?xml version="1.0"?>
+    <CreateInboundShipmentPlanResponse
+      xmlns="http://mws.amazonaws.com/FulfillmentInboundShipment/2010-10-01/">
+      <CreateInboundShipmentPlanResult>
+        <InboundShipmentPlans>
+          <member>
+            <DestinationFulfillmentCenterId>ABE2</DestinationFulfillmentCenterId>
+            <LabelPrepType>SELLER_LABEL</LabelPrepType>
+            <ShipToAddress>
+              <City>Breinigsville</City>
+              <CountryCode>US</CountryCode>
+              <PostalCode>18031</PostalCode>
+              <Name>Amazon.com</Name>
+              <AddressLine1>705 Boulder Drive</AddressLine1>
+              <StateOrProvinceCode>PA</StateOrProvinceCode>
+            </ShipToAddress>
+            <EstimatedBoxContentsFee>
+              <TotalUnits>10</TotalUnits>
+              <FeePerUnit>
+                <CurrencyCode>USD</CurrencyCode>
+                <Value>0.10</Value>
+              </FeePerUnit>
+              <TotalFee>
+                <CurrencyCode>USD</CurrencyCode>
+                <Value>10.0</Value>
+              </TotalFee>
+            </EstimatedBoxContentsFee>
+            <Items>
+              <member>
+                <FulfillmentNetworkSKU>FNSKU00001</FulfillmentNetworkSKU>
+                <Quantity>1</Quantity>
+                <SellerSKU>SKU00001</SellerSKU>
+                <PrepDetailsList>
+                  <PrepDetails>
+                    <PrepInstruction>Taping</PrepInstruction>
+                    <PrepOwner>AMAZON</PrepOwner>
+                  </PrepDetails>
+                </PrepDetailsList>
+              </member>
+            </Items>
+            <ShipmentId>FBA0000001</ShipmentId>
+          </member>
+        </InboundShipmentPlans>
+      </CreateInboundShipmentPlanResult>
+      <ResponseMetadata>
+        <RequestId>babd156d-8b2f-40b1-a770-d117f9ccafef</RequestId>
+      </ResponseMetadata>
+    </CreateInboundShipmentPlanResponse>
+    """
+
+
 def mock_response(content):
     response = Response()
     response._content = content
     response.encoding = MWS_ENCODING
     response.status_code = 200
     return response
+
+
+@pytest.fixture
+def create_inbound_shipment_plan_dummy_response(create_inbound_shipment_plan_dummy_xml):
+    content = create_inbound_shipment_plan_dummy_xml.encode(MWS_ENCODING)
+    response = mock_response(content)
+    return MWSResponse(response, result_key="CreateInboundShipmentPlanResult")
 
 
 @pytest.fixture

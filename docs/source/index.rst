@@ -3,8 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. _page_index:
-
 python-amazon-mws
 #################
 
@@ -41,14 +39,14 @@ create and manage FBA Inbound Shipments... do it all with python-amazon-mws!
 .. toctree::
    :maxdepth: 1
    :glob:
-   :caption: API Sections
+   :caption: API sections
 
    apis/*
 
 .. toctree::
    :maxdepth: 2
    :glob:
-   :caption: Reference
+   :caption: Other references
 
    reference/*
 

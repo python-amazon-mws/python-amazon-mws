@@ -1,25 +1,57 @@
 """Datatype models for Products API."""
 
-from typing import Optional
-
-from mws.utils import flat_param_dict
+from enum import Enum
+from typing import Optional, Union
 
 from .base import MWSDataType
 
 
+class CurrencyCode(Enum):
+    """Constants for currency codes supported by Amazon."""
+
+    USD = ("USD", "United States dollar")
+    EUR = ("EUR", "European euro")
+    GBP = ("GBP", "Great Britain pounds")
+    RMB = ("RMB", "Chinese yuan")
+    INR = ("INR", "Indian rupee")
+    JPY = ("JPY", "Japanese yen")
+    CAD = ("CAD", "Canadian dollar")
+    MXN = ("MXN", "Mexican peso")
+
+    def __init__(self, code, description):
+        """Easy dot access like: Marketplaces.endpoint ."""
+        self.code = code
+        self.description = description
+
+    @property
+    def value(self):
+        return self.code
+
+
 class MoneyType(MWSDataType):
-    def __init__(self, amount: float, currency_code: str):
+    """An amount of money in a specified currency.
+
+    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#MoneyType
+    """
+
+    def __init__(self, amount: float, currency_code: Union[CurrencyCode, str]):
         self.amount = amount
         self.currency_code = currency_code
 
-    def to_dict(self) -> dict:
+    def params_dict(self) -> dict:
         return {
             "Amount": self.amount,
-            "CurrencyCode": self.currency_code,
+            "CurrencyCode": self.clean_enum_val(self.currency_code),
         }
 
 
 class Points(MWSDataType):
+    """The number of Amazon Points offered with the purchase of an item.
+    The Amazon Points program is only available in Japan.
+
+    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#Points
+    """
+
     def __init__(self, points_number: int, monetary_value: MoneyType):
         self.points_number = points_number
         assert isinstance(
@@ -27,15 +59,18 @@ class Points(MWSDataType):
         ), "monetary_value must be a MoneyType model instance."
         self.monetary_value = monetary_value
 
-    def to_dict(self) -> dict:
+    def params_dict(self) -> dict:
         data = {"PointsNumber": self.points_number}
-        data.update(
-            flat_param_dict(self.monetary_value.to_dict(), prefix="PointsMonetaryValue")
-        )
+        data.update(self.monetary_value.to_params(prefix="PointsMonetaryValue"))
         return data
 
 
 class PriceToEstimateFees(MWSDataType):
+    """Price information for a product, used to estimate fees.
+
+    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#PriceToEstimateFees
+    """
+
     def __init__(
         self,
         listing_price: MoneyType,
@@ -54,18 +89,21 @@ class PriceToEstimateFees(MWSDataType):
             assert isinstance(points, Points), "points must be a Points model instance."
         self.points = points
 
-    def to_dict(self) -> dict:
+    def params_dict(self) -> dict:
         data = {}
-        data.update(
-            flat_param_dict(self.listing_price.to_dict(), prefix="ListingPrice")
-        )
-        data.update(flat_param_dict(self.shipping.to_dict(), prefix="Shipping"))
+        data.update(self.listing_price.to_params(prefix="ListingPrice"))
+        data.update(self.shipping.to_params(prefix="Shipping"))
         if self.points is not None:
-            data.update(flat_param_dict(self.points.to_dict(), prefix="Points"))
+            data.update(self.points.to_params(prefix="Points"))
         return data
 
 
 class FeesEstimateRequest(MWSDataType):
+    """A product, marketplace, and proposed price used to request estimated fees.
+
+    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#FeesEstimateRequest
+    """
+
     def __init__(
         self,
         marketplace_id: str,
@@ -85,7 +123,7 @@ class FeesEstimateRequest(MWSDataType):
         ), "price_to_estimate_fees must be a PriceToEstimateFees model instance"
         self.price_to_estimate_fees = price_to_estimate_fees
 
-    def to_dict(self) -> dict:
+    def params_dict(self) -> dict:
         data = {
             "MarketplaceId": self.marketplace_id,
             "IdType": self.id_type,
@@ -93,9 +131,5 @@ class FeesEstimateRequest(MWSDataType):
             "Identifier": self.identifier,
             "IsAmazonFulfilled": self.is_amazon_fulfilled,
         }
-        data.update(
-            flat_param_dict(
-                self.price_to_estimate_fees.to_dict(), prefix="PriceToEstimateFees"
-            )
-        )
+        data.update(self.price_to_estimate_fees.to_params(prefix="PriceToEstimateFees"))
         return data

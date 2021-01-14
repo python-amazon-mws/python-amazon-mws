@@ -1,2 +1,2 @@
-include LICENSE.txt
+include LICENSE
 recursive-exclude * *.pyc

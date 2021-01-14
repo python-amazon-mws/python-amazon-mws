@@ -32,7 +32,7 @@ class EasyShip(MWS):
     """Amazon EasyShip API.
 
     Docs:
-    http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_Overview.html
+    https://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_Overview.html
     """
 
     URI = "/EasyShip/2018-09-01"
@@ -54,7 +54,7 @@ class EasyShip(MWS):
         based on the package dimensions and package weight that the seller specifies.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_ListPickupSlots.html
+        https://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_ListPickupSlots.html
         """
         return self.make_request(
             "ListPickupSlots",
@@ -92,7 +92,7 @@ class EasyShip(MWS):
         - Generates a shipping label and an invoice.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_CreateScheduledPackage.html
+        https://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_CreateScheduledPackage.html
         """
         return self.make_request(
             "CreateScheduledPackage",
@@ -118,7 +118,7 @@ class EasyShip(MWS):
         """Updates the pickup slot of an existing scheduled package.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_UpdateScheduledPackages.html
+        https://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_UpdateScheduledPackages.html
         """
         data = {"MarketplaceId": marketplace_id}
         package_update_data_list = []
@@ -157,7 +157,7 @@ class EasyShip(MWS):
         pickup slot information, invoice and item information, and status.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_GetScheduledPackage.html
+        https://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_GetScheduledPackage.html
         """
         return self.make_request(
             "GetScheduledPackage",

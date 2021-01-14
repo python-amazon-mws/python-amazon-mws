@@ -8,7 +8,7 @@ class Finances(MWS):
     """Amazon MWS Finances API
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/finances/Finances_Overview.html
+    https://docs.developer.amazonservices.com/en_US/finances/Finances_Overview.html
     """
 
     URI = "/Finances/2015-05-01"
@@ -29,7 +29,7 @@ class Finances(MWS):
         Pass `next_token` to call "ListFinancialEventGroupsByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventGroups.html
+        https://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventGroups.html
         """
         return self.make_request(
             "ListFinancialEventGroups",
@@ -44,7 +44,7 @@ class Finances(MWS):
         """Alias for `list_financial_event_groups(next_token=token)`.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventGroupsByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventGroupsByNextToken.html
         """
         return self.list_financial_event_groups(next_token=token)
 
@@ -64,7 +64,7 @@ class Finances(MWS):
         Pass `next_token` to call "ListFinancialEventsByNextToken" instead
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEvents.html
+        https://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEvents.html
         """
         return self.make_request(
             "ListFinancialEvents",
@@ -81,6 +81,6 @@ class Finances(MWS):
         """Alias for `list_financial_events(next_token=token)`
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventsByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/finances/Finances_ListFinancialEventsByNextToken.html
         """
         return self.list_financial_events(next_token=token)

@@ -1,16 +1,94 @@
 CHANGELOG
 #########
 
+v1.0dev16
+=========
+
+.. note:: This is a **prerelease** version for **v1.0**.
+
+:Date: November 2020
+:Issues: `See here <https://github.com/python-amazon-mws/python-amazon-mws/issues?q=milestone%3A1.0dev16+>`_
+
+This update focused on the InboundShipments API, adding some new ways to input and manage data related to FBA shipments
+while also introducing some comprehensive documentation of the same.
+
+Also includes the Products API's `get_my_fees_estimate` method, deprecation warnings for old argument names to smooth
+the transition from v0.8.
+
+.. _v1-0-dev-16-major-changes:
+
+Major changes
+-------------
+
+- Products API :py:meth:`get_my_fees_estimate <mws.apis.products.Products.get_my_fees_estimate>` method added.
+
+  - See `#216 <https://github.com/python-amazon-mws/python-amazon-mws/pull/216>`_ for details.
+
+- Deprecation warnings for old argument names.
+
+  - Some argument names for certain requests had changed between v0.8 and v1.0dev.
+    This change makes it possible to use the v0.8 argument names in current code.
+  - When using an old argument name, the method will raise a deprecation warning, indicating those old argument names
+    will be removed in v1.1. The method will then proceed as expected using the correct arg names.
+  - See `#222 <https://github.com/python-amazon-mws/python-amazon-mws/pull/222>`_ for details.
+
+- Datatype models added for InboundShipments.
+
+  - All models for this API can be found in module ``mws.models.inbound_shipments``.
+  - Added datatype models for :py:class:`Address <mws.models.inbound_shipments.Address>`,
+    :py:class:`PrepDetails <mws.models.inbound_shipments.PrepDetails`,
+    :py:class:`InboundShipmentPlanRequestItem <mws.models.inbound_shipments.InboundShipmentPlanRequestItem`, and
+    :py:class:`InboundShipmentItem <mws.models.inbound_shipments.InboundShipmentItem`.
+    These models can be used in relevant arguments for request methods related to FBA shipment creation and updating
+    (:py:meth:`create_inbound_shipment_plan <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment_plan>`,
+    :py:meth:`create_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment>`, and
+    :py:meth:`update_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.update_inbound_shipment>`.
+
+    - With this addition, it is now possible to include
+      :py:class:`PrepDetails <mws.models.inbound_shipments.PrepDetails>` for items being added to shipments.
+      This was not possible using the now-"legacy" item dictionary method (though it is still possible using the
+      lower-level generic requests).
+
+  - Added :py:func:`shipment_items_from_plan <mws.models.inbound_shipments.shipment_items_from_plan>` helper method.
+
+    - The method can process the contents of a shipment plan from the parsed response from
+      ``create_inbound_shipment_plan``, turning the returned items into a set of ``InboundShipmentItem`` models
+      automatically.
+
+- **New documentation for Managing FBA Shipments added.**
+
+  - See: :doc:`topics/managingFBAShipments`.
+  - Comprehensive documentation for how to manage FBA shipments using the InboundShipments API.
+  - Showcases the usage of new models provided by this update.
+
+.. _v1-0-dev-16-minor-changes:
+
+Minor changes
+-------------
+
+- Links to Amazon MWS documentation throughout the code base updated from `http://` to `https://`.
+- Type annotations added to request methods for InboundShipments API.
+  - As part of this, certain `assert`-style checks for argument types have been removed.
+- Tests for InboundShipments request methods overhauled, removing dependency on `unittest` in favor of `pytest`.
+- URL naming improvements for documentation pages, and proper usage of doc links instead of adding extraneous anchor links.
+  - Some bookmarks may break with this change, apologies!
+- Dev update callout removed from project README.
+- Development tooling configurations moved into `setup.cfg` for consistency.
+- Project test suite expanded to Python 3.9 and Ubuntu-20.04
+  - All automated testing is already performed in a matrix strategy, across Python 3.6, 3.7, 3.8, and 3.9; and on OSes Windows, MacOS, Ubuntu-18, and Ubuntu-20. Every combination of all these versions and OSes is tested.
+
 v1.0dev15
 =========
 
 .. note:: This is a **prerelease** version for **v1.0**.
 
-**Date**: September 2020
+:Date: September 2020
 
 This update represents a major step towards a v1.0 release candidate. Much of the core components of the project
 have been restructured, new XML parsing logic has been added, and API code has been streamlined to ease development
 efforts going forward.
+
+.. _v1-0-dev-15-major-changes:
 
 Major changes
 -------------
@@ -25,6 +103,8 @@ Major changes
   with any set of parameters necessary (using new utility function, ``mws.utils.params.flat_dict_param``).
 - Several objects have been moved, renamed, and/or retooled to improve code structuring and interoperability, most
   notably ``mws.utils`` (which has been broken down to multiple modules with different concerns).
+
+.. _v1-0-dev-15-code-restructuring:
 
 Code restructuring
 ------------------
@@ -53,6 +133,8 @@ imports may need to be adjusted in application code.
 
   - The new version works the same as the old, but can now accept bytes as well as strings.
 
+.. _v1-0-dev-15-deprecations:
+
 Deprecations
 ------------
 
@@ -64,6 +146,8 @@ The following have been **deprecated**:
 - ``XML2Dict`` (removed in v1.1). XML parsing into Python objects will be performed by the ``xmltodict`` library
   starting in v1.0.
 - ``MWS.enumerate_param`` (removed in v1.0). Use utility methods found in ``mws.utils.params``, instead.
+
+.. _v1-0-dev-15-minor-changes:
 
 Minor changes
 -------------

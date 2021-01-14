@@ -11,7 +11,7 @@ class Recommendations(MWS):
     """Amazon MWS Recommendations API
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_Overview.html
+    https://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_Overview.html
     """
 
     URI = "/Recommendations/2013-04-01"
@@ -28,7 +28,7 @@ class Recommendations(MWS):
         were last updated for each category.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_GetLastUpdatedTimeForRecommendations.html
+        https://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_GetLastUpdatedTimeForRecommendations.html
         """
         return self.make_request(
             "GetLastUpdatedTimeForRecommendations",
@@ -52,7 +52,7 @@ class Recommendations(MWS):
         Pass `next_token` to call "ListRecommendationsByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_ListRecommendations.html
+        https://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_ListRecommendations.html
         """
         return self.make_request(
             "ListRecommendations",
@@ -67,6 +67,6 @@ class Recommendations(MWS):
         """Alias for `list_recommendations(next_token=token)` instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_ListRecommendationsByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/recommendations/Recommendations_ListRecommendationsByNextToken.html
         """
         return self.list_recommendations(next_token=token)

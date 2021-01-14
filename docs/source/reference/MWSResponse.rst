@@ -1,5 +1,3 @@
-.. _page_mwsresponse_reference:
-
 MWSResponse
 ############
 
@@ -9,7 +7,7 @@ MWSResponse
 .. include:: /newFeaturesTopNote100dev15.rst
 
 ``MWSResponse`` acts as a wrapper for ``requests.Response`` objects returned from requests made to MWS.
-When initialized, the response content is :ref:`automatically parsed for XML content <page_parsed_xml_responses>`,
+When initialized, the response content is :doc:`automatically parsed for XML content <../topics/parsedXMLResponses>`,
 making it available as a ``DotDict`` instance in :py:attr:`mws.response.MWSResponse.parsed`.
 
 Parsed content for XML responses
@@ -19,7 +17,7 @@ All XML response content is automatically parsed using the ``xmltodict`` package
 :py:class:`DotDict <mws.utils.collections.DotDict>` accessible from
 :py:meth:`MWSResponse.parsed <mws.response.MWSResponse.parsed>`.
 
-For more details on working with the parsed content, please see the :ref:`DotDict reference <page_dotdict_reference>`.
+For more details on working with the parsed content, please see :doc:`DotDict`.
 
 Original response access
 ========================
