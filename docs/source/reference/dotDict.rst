@@ -85,6 +85,8 @@ And, of course, a mix of the different methods is possible:
       product = response.parsed.Products.Product
       asin = product.Identifiers.MarketplaceASIN.ASIN
 
+.. _native_iteration:
+
 Native iteration
 ================
 
