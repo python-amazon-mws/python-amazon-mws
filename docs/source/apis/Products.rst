@@ -428,3 +428,55 @@ are sold in. For example, using the US marketplace:
         .. code-block:: python
 
             # foo
+
+Data models
+===========
+
+.. autoclass:: mws.models.products.FeesEstimateRequest
+.. autoclass:: mws.models.products.PriceToEstimateFees
+.. autoclass:: mws.models.products.MoneyType
+.. autoclass:: mws.models.products.Points
+
+   .. rubric:: Example:
+
+   .. code-block:: python
+
+      from mws.models.products import Points, MoneyType, CurrencyCode
+
+      # A monetary value of 2000 Japanese yen
+      monetary_value = MoneyType(amount=2000.0, currency_code=CurrencyCode.JPY)
+
+      # Now assign the points like so:
+      points = Points(points_number=35, monetary_value=monetary_value)
+
+Enums
+=====
+
+.. autoclass:: mws.models.products.CurrencyCode
+
+   The following currency codes are available:
+
+   - ``USD``: United States dollar
+   - ``EUR``: European euro
+   - ``GBP``: Great Britain pounds
+   - ``RMB``: Chinese yuan
+   - ``INR``: Indian rupee
+   - ``JPY``: Japanese yen
+   - ``CAD``: Canadian dollar
+   - ``MXN``: Mexican peso
+
+   .. rubric:: Example:
+
+   .. code-block:: python
+
+      from mws.models.products import MoneyType, CurrencyCode
+
+      # 10 US dollars
+      listing_price = MoneyType(amount=10.0, currency_code=CurrencyCode.USD)
+      print(listing_price.to_params())
+      # {"Amount": 10.0, "CurrencyCode": "USD"}
+
+      # 30 Chinese yuan
+      shipping = MoneyType(30.0, CurrencyCode.RMB)
+      print(shipping.to_params())
+      # {"Amount": 30.0, "CurrencyCode": "RMB"}
