@@ -11,10 +11,7 @@ jobs:
       # Specify no fail-fast strategy, so that all testing is executed independently
       fail-fast: false
       matrix:
-        # NOTE according to GitHub docs, `ubuntu-latest` currently points to 18.04
-        # To test on ubuntu20, we need to specify it.
-        # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
-        os: [ubuntu-latest, macos-latest, windows-latest, ubuntu-20.04]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         # Periodically check for versions here: https://github.com/actions/python-versions
         python-version: [3.6, 3.7, 3.8, 3.9]
 
