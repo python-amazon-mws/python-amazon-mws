@@ -15,8 +15,8 @@ from mws.utils.deprecation import kwargs_renamed_for_v11
 class Products(MWS):
     """Amazon MWS Products API
 
-    Docs:
-    https://docs.developer.amazonservices.com/en_US/products/Products_Overview.html
+    `MWS Docs: Products API Overview
+    <https://docs.developer.amazonservices.com/en_US/products/Products_Overview.html>`_
     """
 
     URI = "/Products/2011-10-01"
@@ -35,8 +35,8 @@ class Products(MWS):
     ):
         """Returns a list of products and their attributes, based on a search query.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_ListMatchingProducts.html
+        `MWS Docs: ListMatchingProducts
+        <https://docs.developer.amazonservices.com/en_US/products/Products_ListMatchingProducts.html>`_
         """
         return self.make_request(
             "ListMatchingProducts",
@@ -55,8 +55,8 @@ class Products(MWS):
     ):
         """Returns a list of products and their attributes, based on a list of ASIN values.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProduct.html
+        `MWS Docs: GetMatchingProduct
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProduct.html>`_
         """
         data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("ASINList.ASIN.", asins))
@@ -72,8 +72,8 @@ class Products(MWS):
         """Returns a list of products and their attributes, based on a list of
         ASIN, GCID, SellerSKU, UPC, EAN, ISBN, and JAN values.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProductForId.html
+        `MWS Docs: GetMatchingProductForId
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetMatchingProductForId.html>`_
         """
         data = {
             "MarketplaceId": marketplace_id,
@@ -90,8 +90,8 @@ class Products(MWS):
     ):
         """Returns the current competitive price of a product, based on SellerSKU.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForSKU.html
+        `MWS Docs: GetCompetitivePricingForSKU
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForSKU.html>`_
         """
         data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("SellerSKUList.SellerSKU.", skus))
@@ -105,8 +105,8 @@ class Products(MWS):
     ):
         """Returns the current competitive price of a product, based on ASIN.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForASIN.html
+        `MWS Docs: GetCompetitivePricingForASIN
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetCompetitivePricingForASIN.html>`_
         """
         data = {"MarketplaceId": marketplace_id}
         data.update(enumerate_param("ASINList.ASIN.", asins))
@@ -125,8 +125,8 @@ class Products(MWS):
         """Returns pricing information for the lowest-price active offer listings for up to 20 products,
         based on SellerSKU.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForSKU.html
+        `MWS Docs: GetLowestOfferListingsForSKU
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForSKU.html>`_
         """
         if exclude_me is not None:
             exclude_me = coerce_to_bool(exclude_me)
@@ -150,8 +150,8 @@ class Products(MWS):
     ):
         """Returns pricing information for the lowest-price active offer listings for up to 20 products, based on ASIN.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForASIN.html
+        `MWS Docs: GetLowestOfferListingsForASIN
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestOfferListingsForASIN.html>`_
         """
         if exclude_me is not None:
             exclude_me = coerce_to_bool(exclude_me)
@@ -175,8 +175,8 @@ class Products(MWS):
     ):
         """Returns lowest priced offers for a single product, based on SellerSKU.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForSKU.html
+        `MWS Docs: GetLowestPricedOffersForSKU
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForSKU.html>`_
         """
         if exclude_me is not None:
             exclude_me = coerce_to_bool(exclude_me)
@@ -202,8 +202,8 @@ class Products(MWS):
     ):
         """Returns lowest priced offers for a single product, based on ASIN.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForASIN.html
+        `MWS Docs: GetLowestPricedOffersForASIN
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetLowestPricedOffersForASIN.html>`_
         """
         if exclude_me is not None:
             exclude_me = coerce_to_bool(exclude_me)
@@ -224,8 +224,8 @@ class Products(MWS):
     ):
         """Returns the estimated fees for a list of products.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetMyFeesEstimate.html
+        `MWS Docs: GetMyFeesEstimate
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetMyFeesEstimate.html>`_
         """
         estimates = [fees_estimate.to_params()] + [
             fe.to_params() for fe in fees_estimates
@@ -244,8 +244,8 @@ class Products(MWS):
     ):
         """Returns pricing information for your own offer listings, based on SellerSKU.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForSKU.html
+        `MWS Docs: GetMyPriceForSKU
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForSKU.html>`_
         """
         data = {
             "MarketplaceId": marketplace_id,
@@ -263,8 +263,8 @@ class Products(MWS):
     ):
         """Returns pricing information for your own offer listings, based on ASIN.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForASIN.html
+        `MWS Docs: GetMyPriceForASIN
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetMyPriceForASIN.html>`_
         """
         data = {
             "MarketplaceId": marketplace_id,
@@ -281,8 +281,8 @@ class Products(MWS):
     ):
         """Returns the parent product categories that a product belongs to, based on SellerSKU.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForSKU.html
+        `MWS Docs: GetProductCategoriesForSKU
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForSKU.html>`_
         """
         data = {
             "MarketplaceId": marketplace_id,
@@ -298,8 +298,8 @@ class Products(MWS):
     ):
         """Returns the parent product categories that a product belongs to, based on ASIN.
 
-        Docs:
-        https://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForASIN.html
+        `MWS Docs: GetProductCategoriesForASIN
+        <https://docs.developer.amazonservices.com/en_US/products/Products_GetProductCategoriesForASIN.html>`_
         """
         data = {
             "MarketplaceId": marketplace_id,
