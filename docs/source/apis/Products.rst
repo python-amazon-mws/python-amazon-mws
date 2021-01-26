@@ -9,207 +9,8 @@ According to `Amazon's documentation
    listing those products on Amazon Marketplace websites. The Amazon MWS Products API returns product attributes,
    current Marketplace pricing information, and a variety of other product and listing information.
 
-The Products API is available in all marketplaces and consists of 15 different operations:
-
-GetMatchingProduct
-==================
-
-ASINs can be provided either as a list, or as a single ASIN string:
-
-.. code-block:: python
-
-    resp = products_api.get_matching_product(
-        marketplace_id=my_marketplace,
-        asins=["B085G58KWT", "B07ZZW7QCM"],
-    )
-    # OR:
-    resp = products_api.get_matching_product(
-        marketplace_id=my_marketplace,
-        asins="B085G58KWT",
-    )
-
-.. code-block:: python
-
-    # Access individual ASINs:
-    resp.parsed[0]
-
-    print(resp.parsed[0].ASIN)
-    # B085G58KWT
-
-    print(resp.parsed[0].Product.AttributeSets.ItemAttributes.ListPrice.Amount)
-    # 89.99
-
-Examples:
----------
-
-.. code-block:: python
-
-    resp.parsed.ASIN
-    # B085G58KWT
-
-.. code-block:: python
-
-    resp.parsed.Product.AttributeSets.ItemAttributes.Color
-    # Charcoal
-
-GetMatchingProductForId
-=======================
-
-Same as above GetMatchingProduct but allows extra id types.
-
-.. code-block:: python
-
-    resp = products_api.get_matching_product_for_id(
-        marketplace_id=my_marketplace,
-        type_="ASIN", # can be ASIN, GCID, SellerSKU,UPC, EAN,ISBN, JAN
-        ids=["B085G58KWT", "B07ZZW7QCM"],
-    )
-
-GetCompetitivePricingForSKU
+Using examples on this page
 ===========================
-
-.. code-block:: python
-
-    resp = products_api.get_competitive_pricing_for_sku(
-        marketplace_id=my_marketplace,
-        skus=["OO-NL0F-795Z"],
-    )
-
-
-Example:
---------
-
-Buy Box price
-
-.. code-block:: python
-
-    resp.parsed.Product.CompetitivePricing.CompetitivePrices.CompetitivePrice.Price.LandedPrice.Amount
-
-GetCompetitivePricingForASIN
-============================
-
-From Amazon:
-   Returns the current competitive price of a product, based on ASIN.
-
-.. code-block:: python
-
-    resp = products_api.get_competitive_pricing_for_asin(
-        marketplace_id=my_marketplace,
-        asins=["B085G58KWT"],
-    )
-
-Same as GetCompetitivePricingForSKU above, but pass in a list of ASINs rather than SKUs.
-
-GetLowestOfferListingsForSKU
-============================
-
-.. code-block:: python
-
-    resp = products_api.get_lowest_offer_listings_for_sku(
-        marketplace_id=my_marketplace,
-        skus=["OO-NL0F-795Z"],
-        condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
-    )
-
-GetLowestOfferListingsForASIN
-=============================
-
-.. code-block:: python
-
-    resp = products_api.get_lowest_offer_listings_for_asin(
-        marketplace_id=my_marketplace,
-        asins=["B085G58KWT"],
-        condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
-    )
-
-GetLowestPricedOffersForSKU
-===========================
-
-.. code-block:: python
-
-    resp = products_api.get_lowest_priced_offers_for_sku(
-        marketplace_id=my_marketplace,
-        skus=["OO-NL0F-795Z"],
-        condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
-    )
-
-GetLowestPricedOffersForASIN
-============================
-
-.. code-block:: python
-
-    resp = products_api.get_lowest_priced_offers_for_asin(
-        marketplace_id=my_marketplace,
-        asins=["B085G58KWT"],
-        condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
-    )
-
-GetMyFeesEstimate
-=================
-
-.. code-block:: python
-
-    my_price = MoneyType(amount=123.45, currency_code="GBP")
-    my_shipping = MoneyType(amount=0.00, currency_code="GBP")
-    my_product_price = PriceToEstimateFees(listing_price=my_price, shipping=my_shipping)
-
-    my_product = FeesEstimateRequest(
-        marketplace_id = my_marketplace,
-        id_type="ASIN",  # ASIN or SKU
-        id_value="B07QR73T66",
-        price_to_estimate_fees=my_product_price,
-        is_amazon_fulfilled=False,
-        identifier="request001",  # any identifier you want
-    )
-
-    resp = products_api.get_my_fees_estimate(my_product)
-
-GetMyPriceForSKU
-================
-
-.. code-block:: python
-
-    resp = pr oducts_api.get_my_price_for_sku(
-        marketplace_id = my_marketplace,
-        skus="OO-NL0F-795Z",
-        condition="New"
-        # Any, New, Used, Collectible, Refurbished, Club. Default = All
-    )
-
-GetMyPriceForASIN
-=================
-
-.. code-block:: python
-
-    resp = products_api.get_my_price_for_asin(
-        marketplace_id=my_marketplace,
-        asins="B07QR73T66",
-        condition="New"
-        # Any, New, Used, Collectible, Refurbished, Club. Default = All
-    )
-
-GetProductCategoriesForSKU
-==========================
-
-.. code-block:: python
-
-    resp = products_api.get_product_categories_for_sku(
-        marketplace_id=my_marketplace,
-        sku="OO-NL0F-795Z"
-    )
-
-GetProductCategoriesForASIN
-===========================
-
-.. code-block:: python
-
-    resp = products_api.get_product_categories_for_asin(
-        marketplace_id=my_marketplace,
-        asin="B07QR73T66"
-    )
-
-Products API
-============
 
 All examples below assume you have setup your Products API instance appropriately. Refer to :doc:`../gettingStarted`
 for details:
@@ -225,14 +26,43 @@ for details:
         auth_token="...",
     )
 
-All request methods in the Products API also require a **Marketplace ID** to specify which marketplace the products
-are sold in. For example, using the US marketplace:
+All request methods in the Products API also require a **MarketplaceId** to specify which marketplace the products
+are sold in. MarketplaceId values should match one of the values specified in Amazon documentation:
+`Amazon MWS endpoints and MarkeplaceId values <https://docs.developer.amazonservices.com/en_US/dev_guide/DG_Endpoints.html>`_
+
+python-amazon-mws makes these values available through the :py:class:`Marketplaces <mws.mws.Marketplaces>` Enum, which
+contains both the ``endpoint`` and ``marketplace_id`` for each Amazon region via that region's country code.
+
+For convenience, a ``Marketplaces`` instance will return its MarketplaceId through the ``.value`` attribute, as well.
+Further, all request methods in python-amazon-mws will automatically "clean" Enum instances by returning their ``.value``
+attributes.
+
+The following are all valid methods for obtaining, for example, the MarketplaceId for the US region and passing it
+to a request method in the ``Products`` API:
 
 .. code-block:: python
 
     from mws import Marketplaces
 
-    my_marketplace = Marketplaces.US.marketplace_id
+    my_market = Marketplaces.US
+    # Returns the Enum instance for the US region.
+    # When used in a request method, the `marketplace_id` value will be used automatically.
+
+    print(my_market.marketplace_id)
+    # 'ATVPDKIKX0DER'
+    print(my_market.value)
+    # 'ATVPDKIKX0DER'
+    # (alias for `.marketplace_id`)
+
+    # You can also return the endpoint for that region, if needed:
+    print(my_market.endpoint)
+    # 'https://mws.amazonservices.com'
+
+In all examples below, replace ``my_market`` with the ``Marketplaces`` Enum instance or MarketplaceId string value
+relevant to your region.
+
+Products API reference
+======================
 
 .. ################################################# Class definition ##################################################
 .. autoclass:: mws.apis.products.Products
@@ -247,7 +77,7 @@ are sold in. For example, using the US marketplace:
         .. code-block:: python
 
             resp = products_api.list_matching_products(
-                marketplace_id=my_marketplace,
+                marketplace_id=my_market,
                 query=“Python”,
             )
 
@@ -286,159 +116,248 @@ are sold in. For example, using the US marketplace:
    .. ############################################### GetMatchingProduct ###############################################
    .. automethod:: get_matching_product
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
+          resp = products_api.get_matching_product(
+              marketplace_id=my_market,
+              asins=["B085G58KWT", "B07ZZW7QCM"],
+          )
 
-        .. code-block:: python
+          # Iterate over products returned by the request
+          for product in resp.parsed.Product:
+              # Access identifiers
+              print(product.Identifiers.MarketplaceASIN.ASIN)
+              print(product.Identifiers.MarketplaceASIN.MarketplaceId)
 
-            # foo
+              # Attributes of the product, for instance a ListPrice (by amount and currency code):
+              print(product.AttributeSets.ItemAttributes.ListPrice.Amount)
+              print(product.AttributeSets.ItemAttributes.ListPrice.CurrencyCode)
 
    .. ############################################ GetMatchingProductForId #############################################
    .. automethod:: get_matching_product_for_id(marketplace_id: str, type_: str, ids: Union[List[str], str])
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
-
-        .. code-block:: python
-
-            # foo
+          resp = products_api.get_matching_product_for_id(
+              marketplace_id=my_market,
+              type_="ASIN",
+              ids=["B085G58KWT", "B07ZZW7QCM"],
+          )
 
    .. ########################################## GetCompetitivePricingForSKU ###########################################
    .. automethod:: get_competitive_pricing_for_sku
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
+          resp = products_api.get_competitive_pricing_for_sku(
+              marketplace_id=my_market,
+              skus=["OO-NL0F-795Z"],
+          )
 
-        .. code-block:: python
-
-            # foo
+          for product in resp.parsed.Product:
+              product.CompetitivePricing.NumberOfOfferListings
+              product.CompetitivePricing.CompetitivePrices.CompetitivePrice.Price.LandedPrice.Amount
 
    .. ########################################## GetCompetitivePricingForASIN ##########################################
    .. automethod:: get_competitive_pricing_for_asin
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
-
-        .. code-block:: python
-
-            # foo
+          resp = products_api.get_competitive_pricing_for_asin(
+              marketplace_id=my_market,
+              asins=["B085G58KWT"],
+          )
 
    .. ########################################## GetLowestOfferListingsForSKU ##########################################
    .. automethod:: get_lowest_offer_listings_for_sku
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
-
-        .. code-block:: python
-
-            # foo
+          resp = products_api.get_lowest_offer_listings_for_sku(
+              marketplace_id=my_market,
+                skus=["OO-NL0F-795Z"],
+                condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
+            )
 
    .. ########################################## GetLowestOfferListingsForASIN #########################################
    .. automethod:: get_lowest_offer_listings_for_asin
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
-
-        .. code-block:: python
-
-            # foo
+          resp = products_api.get_lowest_offer_listings_for_asin(
+              marketplace_id=my_market,
+              asins=["B085G58KWT"],
+              condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
+          )
 
    .. ########################################## GetLowestPricedOffersForSKU ###########################################
    .. automethod:: get_lowest_priced_offers_for_sku
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
-
-        .. code-block:: python
-
-            # foo
+          resp = products_api.get_lowest_priced_offers_for_sku(
+              marketplace_id=my_market,
+              skus=["OO-NL0F-795Z"],
+              condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
+          )
 
    .. ########################################## GetLowestPricedOffersForASIN ##########################################
    .. automethod:: get_lowest_priced_offers_for_asin
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
-
-        .. code-block:: python
-
-            # foo
+          resp = products_api.get_lowest_priced_offers_for_asin(
+              marketplace_id=my_market,
+              asins=["B085G58KWT"],
+              condition="New" # Any, New, Used, Collectible, Refurbished, Club. Default = Any
+          )
 
    .. ############################################### GetMyFeesEstimate ################################################
    .. automethod:: get_my_fees_estimate
 
       Accepts one or more :py:class:`FeesEstimateRequest <mws.models.products.FeesEstimateRequest>` instances as
-      arguments.
+      arguments:
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
+          estimate_request = FeesEstimateRequest(...)
+          resp = products_api.get_my_fees_estimate(estimate_request)
 
-        .. code-block:: python
+      Multiple estimates can be requested at the same time, as well:
 
-            # foo
+      .. code-block:: python
+
+          estimate_request1 = FeesEstimateRequest(...)
+          estimate_request2 = FeesEstimateRequest(...)
+          resp = products_api.get_my_fees_estimate(estimate_request1, estimate_request2, ...)
 
    .. ################################################ GetMyPriceForSKU ################################################
    .. automethod:: get_my_price_for_sku
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
-
-        .. code-block:: python
-
-            # foo
+          resp = products_api.get_my_price_for_sku(
+            marketplace_id = my_market,
+            skus="OO-NL0F-795Z",
+            condition="New"
+            # Any, New, Used, Collectible, Refurbished, Club. Default = All
+        )
 
    .. ################################################ GetMyPriceForASIN ###############################################
    .. automethod:: get_my_price_for_asin
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
-
-        .. code-block:: python
-
-            # foo
+          resp = products_api.get_my_price_for_asin(
+              marketplace_id=my_market,
+              asins="B07QR73T66",
+              condition="New"
+              # Any, New, Used, Collectible, Refurbished, Club. Default = All
+          )
 
    .. ########################################### GetProductCategoriesForSKU ###########################################
    .. automethod:: get_product_categories_for_sku
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
-
-        .. code-block:: python
-
-            # foo
+          resp = products_api.get_product_categories_for_sku(
+              marketplace_id=my_market,
+              sku="OO-NL0F-795Z"
+          )
 
    .. ########################################### GetProductCategoriesForASIN ##########################################
    .. automethod:: get_product_categories_for_asin
 
-      .. rubric:: Examples
+      .. rubric:: Example
+      .. code-block:: python
 
-      - Something:
-
-        .. code-block:: python
-
-            # foo
+          resp = products_api.get_product_categories_for_asin(
+              marketplace_id=my_market,
+              asin="B07QR73T66"
+          )
 
 Data models
 ===========
 
 .. autoclass:: mws.models.products.FeesEstimateRequest
+
+   Instances of this model are required for the argument(s) of
+   :py:meth:`get_my_fees_estimate <mws.apis.products.Products.get_my_fees_estimate>`. Constructing an instance of this
+   model requires the use of other data models in the Products API, as well.
+
+   .. rubric:: Example
+
+   1. Start by creating :py:class:`MoneyType <mws.models.products.MoneyType>` instances to account for different prices
+      associated with the request, such as ``listing_price`` and ``shipping``:
+
+      .. code-block:: python
+
+          from mws.models.products import MoneyType, CurrencyCode
+
+          my_price = MoneyType(amount=123.45, currency_code=CurrencyCode.GBP)
+          # Note the `currency_code` argument also accepts string literals of the currency code:
+          my_shipping = MoneyType(amount=5.00, currency_code='GBP')
+
+   2. Combine these prices into a :py:class:`PriceToEstimateFees <mws.models.products.PriceToEstimateFees>` instance:
+
+      .. code-block:: python
+
+          from mws.models.products import PriceToEstimateFees
+
+          my_product_price = PriceToEstimateFees(listing_price=my_price, shipping=my_shipping)
+
+      For the JP market only, this price to estimate fees may optionally include
+      :py:class:`Points <mws.models.products.Points>`.
+
+   3. Use the ``PriceToEstimateFees`` instance along with other data to construct the final
+      ``FeesEstimateRequest`` instance:
+
+      .. code-block:: python
+
+          from mws.models.products import FeesEstimateRequest
+
+          estimate_request = FeesEstimateRequest(
+              marketplace_id=my_market,
+              id_type="ASIN",  # either 'ASIN' or 'SKU', indicating the type of the `id_value` argument:
+              id_value="B07QR73T66",
+              price_to_estimate_fees=my_product_price,  # your `PriceToEstimateFees` instance
+              is_amazon_fulfilled=False,
+              identifier="request001",  # a unique identifier of your choosing
+          )
+
 .. autoclass:: mws.models.products.PriceToEstimateFees
+
+   Accepts instances of :py:class:`MoneyType <mws.models.products.MoneyType>` for its ``listing_price`` and
+   ``shipping``, and optionally accepts a :py:class:`Points <mws.models.products.Points>` instance
+   to denote a points value (in JP region only).
+
 .. autoclass:: mws.models.products.MoneyType
+
+   .. rubric:: Example
+   .. code-block:: python
+
+      from mws.models.products import MoneyType, CurrencyCode
+
+      my_money = MoneyType(amount=3.50, currency_code=CurrencyCode.USD)
+
 .. autoclass:: mws.models.products.Points
 
-   .. rubric:: Example:
+   Points are expressed in terms of a ``points_number`` and a ``monetary_value`` for those points, the latter of which
+   must be an instance of :py:class:`MoneyType <mws.models.products.MoneyType>`.
 
+   .. rubric:: Example:
    .. code-block:: python
 
       from mws.models.products import Points, MoneyType, CurrencyCode
@@ -448,6 +367,18 @@ Data models
 
       # Now assign the points like so:
       points = Points(points_number=35, monetary_value=monetary_value)
+
+   When used in a request, `points` will be converted to a set of parameters like so:
+
+   .. code-block:: python
+
+      print(points.to_params())
+      # {'PointsNumber': 35, 'PointsMonetaryValue.Amount': 2000.0, 'PointsMonetaryValue.CurrencyCode': <CurrencyCode.JPY: ('JPY', 'Japanese yen')>}
+
+   .. note:: You will see the ``PointsMonetaryValue.CurrencyCode`` element remains an instance of Enum at this stage.
+      When used in a request, it is automatically "cleaned" to its parameterized value, ``'JPY'``.
+
+      Passing the string literal ``'JPY'`` as the ``MoneyType.currency_code`` argument is also accepted.
 
 Enums
 =====
@@ -466,7 +397,6 @@ Enums
    - ``MXN``: Mexican peso
 
    .. rubric:: Example:
-
    .. code-block:: python
 
       from mws.models.products import MoneyType, CurrencyCode
