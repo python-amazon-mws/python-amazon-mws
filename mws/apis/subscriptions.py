@@ -12,7 +12,7 @@ class Subscriptions(MWS):
     """Amazon MWS Subscriptions API
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/subscriptions/index.html
+    https://docs.developer.amazonservices.com/en_US/subscriptions/index.html
     """
 
     URI = "/Subscriptions/2013-07-01"
@@ -38,7 +38,7 @@ class Subscriptions(MWS):
         """Specifies a new destination where you want to receive notifications.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_RegisterDestination.html
+        https://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_RegisterDestination.html
 
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
@@ -63,7 +63,7 @@ class Subscriptions(MWS):
         """Removes an existing destination from the list of registered destinations.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_DeregisterDestination.html
+        https://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_DeregisterDestination.html
 
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
@@ -86,7 +86,7 @@ class Subscriptions(MWS):
         """Lists all current destinations that you have registered.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListRegisteredDestinations.html
+        https://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListRegisteredDestinations.html
         """
         return self.make_request(
             "ListRegisteredDestinations",
@@ -100,7 +100,7 @@ class Subscriptions(MWS):
         """Sends a test notification to an existing destination.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_SendTestNotificationToDestination.html
+        https://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_SendTestNotificationToDestination.html
 
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
@@ -129,7 +129,7 @@ class Subscriptions(MWS):
         """Creates a new subscription for the specified notification type and destination.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_CreateSubscription.html
+        https://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_CreateSubscription.html
 
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
@@ -160,7 +160,7 @@ class Subscriptions(MWS):
         """Gets the subscription for the specified notification type and destination.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_GetSubscription.html
+        https://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_GetSubscription.html
 
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
@@ -187,7 +187,7 @@ class Subscriptions(MWS):
         """Deletes the subscription for the specified notification type and destination.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_DeleteSubscription.html
+        https://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_DeleteSubscription.html
 
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}
@@ -208,7 +208,7 @@ class Subscriptions(MWS):
         """Returns a list of all your current subscriptions.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListSubscriptions.html
+        https://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListSubscriptions.html
         """
         return self.make_request(
             "ListSubscriptions", {"MarketplaceId": marketplace_id}, method="POST"
@@ -225,7 +225,7 @@ class Subscriptions(MWS):
         """Updates the subscription for the specified notification type and destination.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_UpdateSubscription.html
+        https://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_UpdateSubscription.html
 
         delivery_channel: Currently only supports SQS
         attributes: example {"sqsQueueUrl": "https://sqs.eu-west-2.amazonaws.com/378051892504/Amazon_MWS_Notify"}

@@ -1,5 +1,3 @@
-.. _page_parsed_xml_responses:
-
 Using Parsed XML Responses
 ##########################
 
@@ -96,8 +94,8 @@ Once parsing is complete, the :py:class:`MWSResponse <mws.response.MWSResponse>`
 instance, we can access the :py:class:`DotDict <mws.utils.collections.DotDict>` that is returned from its
 :py:attr:`.parsed <mws.response.MWSResponse.parsed>` property to comb through the returned data.
 
-For more details on how to make the best use of this parsed data, please see the
-:ref:`DotDict reference <page_dotdict_reference>`.
+For more details on how to make the best use of this parsed data, please see
+:doc:`../reference/DotDict`.
 
 Result keys and metadata
 ========================

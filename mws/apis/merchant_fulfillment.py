@@ -10,7 +10,7 @@ class MerchantFulfillment(MWS):
     """Amazon MWS Merchant Fulfillment API
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_Overview.html
+    https://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_Overview.html
     """
 
     URI = "/MerchantFulfillment/2015-06-01"
@@ -46,7 +46,7 @@ class MerchantFulfillment(MWS):
         :return:
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_GetEligibleShippingServices.html
+        https://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_GetEligibleShippingServices.html
         """
 
         if ship_from_address is None:
@@ -161,7 +161,7 @@ class MerchantFulfillment(MWS):
         :return:
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_CreateShipment.html
+        https://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_CreateShipment.html
         """
 
         if items is None:
@@ -217,7 +217,7 @@ class MerchantFulfillment(MWS):
         """Returns an existing shipment for a given identifier.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_GetShipment.html
+        https://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_GetShipment.html
         """
         return self.make_request("GetShipment", {"ShipmentId": shipment_id})
 
@@ -225,6 +225,6 @@ class MerchantFulfillment(MWS):
         """Cancels an existing shipment.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_CancelShipment.html
+        https://docs.developer.amazonservices.com/en_US/merch_fulfill/MerchFulfill_CancelShipment.html
         """
         return self.make_request("CancelShipment", {"ShipmentId": shipment_id})

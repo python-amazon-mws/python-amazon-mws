@@ -1,5 +1,3 @@
-.. _page_dotdict_reference:
-
 DotDict
 #######
 
@@ -84,6 +82,8 @@ And, of course, a mix of the different methods is possible:
 
       product = response.parsed.Products.Product
       asin = product.Identifiers.MarketplaceASIN.ASIN
+
+.. _dotdict_native_iteration:
 
 Native iteration
 ================

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import setuptools
-import sys
 
-version = "1.0dev15"
+version = "1.0dev16"
 homepage = "https://github.com/python-amazon-mws/python-amazon-mws"
 short_description = "Python library for interacting with the Amazon MWS API"
 with open("README.md", encoding="utf-8") as readme:
@@ -26,20 +25,20 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=requires,
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: The Unlicense (Unlicense)",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-        "Topic :: Software Development",
-        "Topic :: Software Development :: Libraries :: Application Frameworks",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        "Topic :: Software Development",
+        "Topic :: Software Development :: Libraries :: Application Frameworks",
     ],
     platforms=["OS Independent"],
     license="Unlicense",

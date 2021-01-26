@@ -13,7 +13,7 @@ class Orders(MWS):
     """Amazon Orders API
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_Overview.html
+    https://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_Overview.html
     """
 
     URI = "/Orders/2013-09-01"
@@ -56,7 +56,7 @@ class Orders(MWS):
         Pass `next_token` to call "ListOrdersByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrders.html
+        https://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrders.html
         """
         marketplace_ids = marketplace_ids or []
         order_statuses = order_statuses or []
@@ -92,7 +92,7 @@ class Orders(MWS):
         """Alias for `list_orders(next_token=token)`
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrdersByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrdersByNextToken.html
         """
         return self.list_orders(next_token=token)
 
@@ -100,7 +100,7 @@ class Orders(MWS):
         """Returns orders based on the AmazonOrderId values that you specify.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_GetOrder.html
+        https://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_GetOrder.html
         """
         data = enumerate_param("AmazonOrderId.Id.", amazon_order_ids)
         return self.make_request("GetOrder", data)
@@ -112,7 +112,7 @@ class Orders(MWS):
         Pass `next_token` to call "ListOrderItemsByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrderItems.html
+        https://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrderItems.html
         """
         return self.make_request("ListOrderItems", {"AmazonOrderId": amazon_order_id})
 
@@ -120,6 +120,6 @@ class Orders(MWS):
         """Alias for `list_order_items(next_token=token)`
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrderItemsByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/orders-2013-09-01/Orders_ListOrderItemsByNextToken.html
         """
         return self.list_order_items(next_token=token)

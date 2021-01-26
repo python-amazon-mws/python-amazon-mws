@@ -93,7 +93,7 @@ class Feeds(MWS):
     """Amazon MWS Feeds API.
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/feeds/Feeds_Overview.html
+    https://docs.developer.amazonservices.com/en_US/feeds/Feeds_Overview.html
     """
 
     URI = "/Feeds/2009-01-01"
@@ -116,7 +116,7 @@ class Feeds(MWS):
         purge=False,
     ):
         """The `SubmitFeed operation.
-        <http://docs.developer.amazonservices.com/en_US/feeds/Feeds_SubmitFeed.html>`_
+        <https://docs.developer.amazonservices.com/en_US/feeds/Feeds_SubmitFeed.html>`_
         Uploads a feed for processing by Amazon MWS.
 
         Requires ``feed``, a file in XML or flat-file format encoded to bytes; and
@@ -162,7 +162,7 @@ class Feeds(MWS):
             "PurgeAndReplace": purge,
         }
         # for feed type _POST_EASYSHIP_DOCUMENTS_
-        # check http://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_HowToGetEasyShipDocs.html
+        # check https://docs.developer.amazonservices.com/en_IN/easy_ship/EasyShip_HowToGetEasyShipDocs.html
         if amazon_order_id:
             data.update({"AmazonOrderId": amazon_order_id})
             # by default all document PDFs are included
@@ -208,7 +208,7 @@ class Feeds(MWS):
         Pass `next_token` to call "GetFeedSubmissionListByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionList.html
+        https://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionList.html
         """
         data = {
             "MaxCount": max_count,
@@ -226,7 +226,7 @@ class Feeds(MWS):
         """Alias for `get_feed_submission_list(next_token=token)`.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionListByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionListByNextToken.html
         """
         return self.get_feed_submission_list(next_token=token)
 
@@ -245,7 +245,7 @@ class Feeds(MWS):
         If these params are ommitted, defaults to the previous 90 days.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionCount.html
+        https://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionCount.html
         """
         data = {
             "SubmittedFromDate": from_date,
@@ -272,7 +272,7 @@ class Feeds(MWS):
         feed submissions that were canceled.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/feeds/Feeds_CancelFeedSubmissions.html
+        https://docs.developer.amazonservices.com/en_US/feeds/Feeds_CancelFeedSubmissions.html
         """
         data = {
             "SubmittedFromDate": from_date,
@@ -291,7 +291,7 @@ class Feeds(MWS):
         """Returns the feed processing report and the Content-MD5 header.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionResult.html
+        https://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionResult.html
         """
         return self.make_request(
             "GetFeedSubmissionResult",

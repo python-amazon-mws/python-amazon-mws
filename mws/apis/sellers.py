@@ -8,7 +8,7 @@ class Sellers(MWS):
     """Amazon MWS Sellers API
 
     Docs:
-    http://docs.developer.amazonservices.com/en_US/sellers/Sellers_Overview.html
+    https://docs.developer.amazonservices.com/en_US/sellers/Sellers_Overview.html
     """
 
     URI = "/Sellers/2011-07-01"
@@ -26,7 +26,7 @@ class Sellers(MWS):
         Pass `next_token` to call "ListMarketplaceParticipationsByNextToken" instead.
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/sellers/Sellers_ListMarketplaceParticipations.html
+        https://docs.developer.amazonservices.com/en_US/sellers/Sellers_ListMarketplaceParticipations.html
         """
         return self.make_request("ListMarketplaceParticipations")
 
@@ -34,6 +34,6 @@ class Sellers(MWS):
         """Alias for `list_marketplace_participations(next_token=token)`
 
         Docs:
-        http://docs.developer.amazonservices.com/en_US/sellers/Sellers_ListMarketplaceParticipationsByNextToken.html
+        https://docs.developer.amazonservices.com/en_US/sellers/Sellers_ListMarketplaceParticipationsByNextToken.html
         """
         return self.list_marketplace_participations(next_token=token)
