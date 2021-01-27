@@ -293,8 +293,5 @@ class Feeds(MWS):
         Docs:
         https://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionResult.html
         """
-        return self.make_request(
-            "GetFeedSubmissionResult",
-            {"FeedSubmissionId": feed_id},
-            result_key="Message",
-        )
+        data = {"FeedSubmissionId": feed_id}
+        return self.make_request("GetFeedSubmissionResult", data, result_key="Message")
