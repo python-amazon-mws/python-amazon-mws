@@ -34,34 +34,10 @@ Enums
 
 .. autoclass:: PrepInstruction
    :show-inheritance:
-
-   .. rubric:: Available values:
-   .. autoattribute:: POLYBAGGING
-   .. autoattribute:: BUBBLEWRAPPING
-   .. autoattribute:: TAPING
-   .. autoattribute:: BLACKSHRINKWRAPPING
-   .. autoattribute:: LABELING
-   .. autoattribute:: HANGGARMENT
+   :members:
+   :undoc-members:
 
 .. autoclass:: ItemCondition
    :show-inheritance:
-
-   .. rubric:: Available values:
-   .. autoattribute:: NEW_ITEM
-   .. autoattribute:: NEW_WITH_WARRANTY
-   .. autoattribute:: NEW_OEM
-   .. autoattribute:: NEW_OPEN_BOX
-   .. autoattribute:: USED_LIKE_NEW
-   .. autoattribute:: USED_VERY_GOOD
-   .. autoattribute:: USED_GOOD
-   .. autoattribute:: USED_ACCEPTABLE
-   .. autoattribute:: USED_POOR
-   .. autoattribute:: USED_REFURBISHED
-   .. autoattribute:: COLLECTIBLE_LIKE_NEW
-   .. autoattribute:: COLLECTIBLE_VERY_GOOD
-   .. autoattribute:: COLLECTIBLE_GOOD
-   .. autoattribute:: COLLECTIBLE_ACCEPTABLE
-   .. autoattribute:: COLLECTIBLE_POOR
-   .. autoattribute:: REFURBISHED_WITH_WARRANTY
-   .. autoattribute:: REFURBISHED
-   .. autoattribute:: CLUB
+   :members:
+   :undoc-members:
