@@ -33,7 +33,9 @@ class TestReportsAPI(ReportsAPITestCase):
             # Marketplaces.US,
         ],
     )
-    def test_enums_accepted(self, api_instance: Reports, report_type, marketplace_id):
+    def test_request_report_enums_accepted(
+        self, api_instance: Reports, report_type, marketplace_id
+    ):
         """Operations should be able to accept Enum values naturally."""
         params = api_instance.request_report(
             report_type=report_type,

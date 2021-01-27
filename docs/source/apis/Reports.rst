@@ -211,3 +211,25 @@ Enums
 
    .. rubric:: Delete a previously created report request schedule:
    .. autoattribute:: DELETE
+
+.. autoclass:: mws.apis.reports.ProcessingStatus
+   :show-inheritance:
+
+   For convenience, this Enum can also be accessed directly from the
+   :py:class:`Reports <mws.apis.reports.Reports>` class or an instance of that class:
+
+   .. code-block:: python
+
+      from mws import Reports
+
+      my_processing_status = Reports.ProcessingStatus.DONE
+      # OR
+      reports_api = Reports(...)
+      my_processing_status = reports_api.ProcessingStatus.DONE
+
+   .. autoattribute:: SUBMITTED
+   .. autoattribute:: IN_PROGRESS
+   .. autoattribute:: CANCELLED
+   .. autoattribute:: CANCELED
+   .. autoattribute:: DONE
+   .. autoattribute:: DONE_NO_DATA

@@ -100,7 +100,7 @@ class Reports(MWS):
         self,
         request_ids: List[str] = None,
         report_types: List[Union["ReportType", str]] = None,
-        processing_statuses: List[str] = None,
+        processing_statuses: List[Union["ProcessingStatus", str]] = None,
         max_count: int = None,
         from_date: DateType = None,
         to_date: DateType = None,
@@ -152,7 +152,7 @@ class Reports(MWS):
     def get_report_request_count(
         self,
         report_types: List[Union["ReportType", str]] = None,
-        processing_statuses: List[str] = None,
+        processing_statuses: List[Union["ProcessingStatus", str]] = None,
         from_date: DateType = None,
         to_date: DateType = None,
     ):
@@ -522,6 +522,22 @@ class Schedule(str, Enum):
     DELETE = "_NEVER_"
 
 
+class ProcessingStatus(str, Enum):
+    """An optional enumeration of common processing_status values."""
+
+    SUBMITTED = "_SUBMITTED_"
+    IN_PROGRESS = "_IN_PROGRESS_"
+    CANCELLED = "_CANCELLED_"
+    CANCELED = "_CANCELLED_"
+    """An alias for "CANCELLED", as some folks spell it with one L and
+    there's nothing wrong with that.
+    """
+
+    DONE = "_DONE_"
+    DONE_NO_DATA = "_DONE_NO_DATA_"
+
+
 # Attach the Enums to the Reports API for convenience.
 Reports.ReportType = ReportType
 Reports.Schedule = Schedule
+Reports.ProcessingStatus = ProcessingStatus
