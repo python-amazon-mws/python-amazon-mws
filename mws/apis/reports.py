@@ -545,8 +545,9 @@ class Schedule(str, Enum):
     # 30 days
     EVERY_30_DAY = "_30_DAYS_"
     EVERY_30_DAYS = "_30_DAYS_"
-    # Delete a previously created report request schedule
+
     DELETE = "_NEVER_"
+    """Delete a previously created report request schedule."""
 
 
 class ProcessingStatus(str, Enum):
