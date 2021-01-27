@@ -97,15 +97,6 @@ class PrepInstruction(Enum):
 
     `MWS docs: PrepInstruction Datatype
     <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#PrepInstruction>`_
-
-    Provides constants for each prep type:
-
-    - POLYBAGGING - Indicates that polybagging is required.
-    - BUBBLEWRAPPING - Indicates that bubble wrapping is required.
-    - TAPING - Indicates that taping is required.
-    - BLACKSHRINKWRAPPING - Indicates that black shrink wrapping is required.
-    - LABELING - Indicates that the FNSKU label should be applied to the item.
-    - HANGGARMENT - Indicates that the item should be placed on a hanger.
     """
 
     POLYBAGGING = ("Polybagging", "polybagging is required")
@@ -158,32 +149,10 @@ class PrepDetails(MWSDataType):
         }
 
 
-class ItemCondition(Enum):
+class ItemCondition(str, Enum):
     """Condition value for an item included with a CreateInboundShipmentPlan request.
-
-    `MWS docs: InboundShipmentPlanRequestItem Datatype
-    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem>`_
-
-    Values provided:
-
-    - NEW_ITEM
-    - NEW_WITH_WARRANTY
-    - NEW_OEM
-    - NEW_OPEN_BOX
-    - USED_LIKE_NEW
-    - USED_VERY_GOOD
-    - USED_GOOD
-    - USED_ACCEPTABLE
-    - USED_POOR
-    - USED_REFURBISHED
-    - COLLECTIBLE_LIKE_NEW
-    - COLLECTIBLE_VERY_GOOD
-    - COLLECTIBLE_GOOD
-    - COLLECTIBLE_ACCEPTABLE
-    - COLLECTIBLE_POOR
-    - REFURBISHED_WITH_WARRANTY
-    - REFURBISHED
-    - CLUB
+    Values are defined within the `InboundShipmentPlanRequestItem Datatype documentation
+    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem>`_.
     """
 
     NEW_ITEM = "NewItem"
