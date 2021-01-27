@@ -1,6 +1,6 @@
 """Tests related to kwarg renaming from 0.8 to 1.0dev versions"""
 
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Union
 import pytest
 
 from mws import apis, MWS
@@ -15,7 +15,7 @@ class MethodRenamedBase:
         method: Callable,
         old: Union[dict, str],
         new: Union[dict, str],
-        required: Optional[Union[List[str], str, dict]] = None,
+        required: Union[List[str], str, dict] = None,
     ):
         """Runs an API method to test for old and new kwarg warnings.
         Defines the testing pattern for renamed kwargs.

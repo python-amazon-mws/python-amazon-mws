@@ -6,7 +6,6 @@ from collections.abc import Mapping
 from typing import (
     Iterable,
     List,
-    Optional,
     Union,
 )
 
@@ -107,7 +106,7 @@ def parse_legacy_item(
 
 def parse_shipment_items(
     items: List[Union[InboundShipmentPlanRequestItem, InboundShipmentItem, dict]],
-    operation=None,  # type: 'Optional[Literal["CreateInboundShipmentPlan", "CreateInboundShipment", "UpdateInboundShipment"]]'
+    operation=None,  # type: 'Literal["CreateInboundShipmentPlan", "CreateInboundShipment", "UpdateInboundShipment"]'
 ) -> List[dict]:
     """Parses item arguments sent to ``create_inbound_shipment_plan`` request.
 
@@ -274,9 +273,9 @@ class InboundShipments(MWS):
         self,
         items: List[Union[InboundShipmentPlanRequestItem, dict]],
         country_code: str = "US",
-        subdivision_code: Optional[str] = None,
-        label_preference: Optional[str] = None,
-        from_address: Optional[Address] = None,
+        subdivision_code: str = None,
+        label_preference: str = None,
+        from_address: Address = None,
     ):
         """Returns one or more inbound shipment plans, which provide the
         information you need to create inbound shipments.
@@ -327,10 +326,10 @@ class InboundShipments(MWS):
         destination: str,
         items: List[Union[InboundShipmentItem, dict]],
         shipment_status: str = STATUS_WORKING,
-        label_preference: Optional[str] = None,
+        label_preference: str = None,
         case_required: bool = False,
-        box_contents_source: Optional[str] = None,
-        from_address: Optional[Address] = None,
+        box_contents_source: str = None,
+        from_address: Address = None,
     ):
         """Creates an inbound shipment to Amazon's fulfillment network.
 
@@ -382,14 +381,14 @@ class InboundShipments(MWS):
     def update_inbound_shipment(
         self,
         shipment_id: str,
-        shipment_name: Optional[str] = None,
-        destination: Optional[str] = None,
-        items: Optional[List[Union[InboundShipmentItem, dict]]] = None,
-        shipment_status: Optional[str] = None,
-        label_preference: Optional[str] = None,
-        case_required: Optional[bool] = None,
-        box_contents_source: Optional[str] = None,
-        from_address: Optional[Address] = None,
+        shipment_name: str = None,
+        destination: str = None,
+        items: List[Union[InboundShipmentItem, dict]] = None,
+        shipment_status: str = None,
+        label_preference: str = None,
+        case_required: bool = None,
+        box_contents_source: str = None,
+        from_address: Address = None,
     ):
         """Updates an existing inbound shipment in Amazon FBA.
 
@@ -573,7 +572,7 @@ class InboundShipments(MWS):
         self,
         shipment_id: str,
         num_labels: int,
-        page_type: Optional[str] = None,
+        page_type: str = None,
     ):
         """Returns PDF document data for printing package labels for an inbound shipment.
 
@@ -666,10 +665,10 @@ class InboundShipments(MWS):
     @next_token_action("ListInboundShipments")
     def list_inbound_shipments(
         self,
-        shipment_ids: Optional[Iterable[str]] = None,
-        shipment_statuses: Optional[Iterable[str]] = None,
-        last_updated_after: Optional[datetime.datetime] = None,
-        last_updated_before: Optional[datetime.datetime] = None,
+        shipment_ids: Iterable[str] = None,
+        shipment_statuses: Iterable[str] = None,
+        last_updated_after: datetime.datetime = None,
+        last_updated_before: datetime.datetime = None,
         next_token: str = None,
     ):
         """Returns list of shipments based on statuses, IDs, and/or before/after datetimes.
@@ -708,10 +707,10 @@ class InboundShipments(MWS):
     @next_token_action("ListInboundShipmentItems")
     def list_inbound_shipment_items(
         self,
-        shipment_id: Optional[str] = None,
-        last_updated_after: Optional[datetime.datetime] = None,
-        last_updated_before: Optional[datetime.datetime] = None,
-        next_token: Optional[str] = None,
+        shipment_id: str = None,
+        last_updated_after: datetime.datetime = None,
+        last_updated_before: datetime.datetime = None,
+        next_token: str = None,
     ):
         """Returns list of items within inbound shipments and/or before/after datetimes.
 

@@ -1,7 +1,7 @@
 """Datatype models for Products API."""
 
 from enum import Enum
-from typing import Optional, Union
+from typing import Union
 
 from .base import MWSDataType
 
@@ -75,7 +75,7 @@ class PriceToEstimateFees(MWSDataType):
         self,
         listing_price: MoneyType,
         shipping: MoneyType,
-        points: Optional[Points] = None,
+        points: Points = None,
     ):
         assert isinstance(
             listing_price, MoneyType

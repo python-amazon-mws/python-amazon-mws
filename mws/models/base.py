@@ -1,7 +1,7 @@
 """Base models for datatypes used in MWS."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable, List, Mapping, Optional, Union
+from typing import Any, Iterable, List, Mapping, Union
 from enum import Enum
 
 from mws.errors import MWSError
@@ -39,7 +39,7 @@ class MWSDataType(ABC):
         """Returns list of permitted ops, all lowercase for case-insensitive testing."""
         return [x.lower() for x in self.operations_permitted]
 
-    def raise_for_operation_mismatch(self, operation: Optional[str] = None):
+    def raise_for_operation_mismatch(self, operation: str = None):
         """Check that ``operation`` matches one of the Actions permitted for this model.
 
         This check will pass silently if:

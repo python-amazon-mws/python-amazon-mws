@@ -5,7 +5,6 @@ from enum import Enum
 from typing import (
     Dict,
     List,
-    Optional,
     Union,
 )
 
@@ -34,14 +33,14 @@ class Address(MWSDataType):
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        address_line_1: Optional[str] = None,
-        address_line_2: Optional[str] = None,
-        city: Optional[str] = None,
-        district_or_county: Optional[str] = None,
-        state_or_province_code: Optional[str] = None,
+        name: str = None,
+        address_line_1: str = None,
+        address_line_2: str = None,
+        city: str = None,
+        district_or_county: str = None,
+        state_or_province_code: str = None,
         country_code: str = "US",
-        postal_code: Optional[Union[str, int]] = None,
+        postal_code: Union[str, int] = None,
     ):
         self.name = name
         self.address_line_1 = address_line_1
@@ -232,8 +231,8 @@ class BaseInboundShipmentItem(MWSDataType):
         self,
         sku: str,
         quantity: int,
-        quantity_in_case: Optional[int] = None,
-        prep_details_list: Optional[List[PrepDetails]] = None,
+        quantity_in_case: int = None,
+        prep_details_list: List[PrepDetails] = None,
     ):
         self.sku = sku
         self.quantity = quantity
@@ -281,8 +280,8 @@ class InboundShipmentPlanRequestItem(BaseInboundShipmentItem):
     def __init__(
         self,
         *args,
-        asin: Optional[str] = None,
-        condition: Optional[Union[ItemCondition, str]] = None,
+        asin: str = None,
+        condition: Union[ItemCondition, str] = None,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
@@ -312,7 +311,7 @@ class InboundShipmentItem(BaseInboundShipmentItem):
     def __init__(
         self,
         *args,
-        release_date: Optional[datetime.datetime] = None,
+        release_date: datetime.datetime = None,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
@@ -328,8 +327,8 @@ class InboundShipmentItem(BaseInboundShipmentItem):
     def from_plan_item(
         cls,
         item: DotDict,
-        quantity_in_case: Optional[int] = None,
-        release_date: Optional[datetime.datetime] = None,
+        quantity_in_case: int = None,
+        release_date: datetime.datetime = None,
     ) -> "InboundShipmentItem":
         """Construct this model from a shipment plan returned from a
         CreateInboundShipmentPlan request.
@@ -385,8 +384,8 @@ class ExtraItemData:
 
     def __init__(
         self,
-        quantity_in_case: Optional[int] = None,
-        release_date: Optional[datetime.datetime] = None,
+        quantity_in_case: int = None,
+        release_date: datetime.datetime = None,
     ):
         self.quantity_in_case = quantity_in_case
         self.release_date = release_date
@@ -401,7 +400,7 @@ class ExtraItemData:
 
 def shipment_items_from_plan(
     plan: Union[DotDict, List[DotDict]],
-    overrides: Optional[Dict[str, ExtraItemData]] = None,
+    overrides: Dict[str, ExtraItemData] = None,
 ) -> List[InboundShipmentItem]:
     """Given a shipment plan response, returns a list of InboundShipmentItem models
     constructed from the contents of that plan's ``Items`` set.
