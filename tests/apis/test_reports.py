@@ -301,3 +301,55 @@ class TestReportsAPI(ReportsAPITestCase):
         assert (
             params["ReportTypeList.Type.2"] == "_GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA_"
         )
+
+    def test_manage_report_schedule(self, api_instance: Reports):
+        """ManageReportSchedule operation."""
+        schedule_date = datetime.datetime(2021, 1, 26)
+        params = api_instance.manage_report_schedule(
+            report_type="_GET_AFN_INVENTORY_DATA_",
+            schedule="_15_MINUTES_",
+            schedule_date=schedule_date,
+        )
+        self.assert_common_params(params, action="ManageReportSchedule")
+        assert params["ReportType"] == "_GET_AFN_INVENTORY_DATA_"
+        assert params["Schedule"] == "_15_MINUTES_"
+        assert params["ScheduleDate"] == "2021-01-26T00%3A00%3A00"
+
+    @pytest.mark.parametrize(
+        "report_type",
+        [
+            "_GET_STRANDED_INVENTORY_UI_DATA_",
+            Reports.ReportType.FBA_INVENTORY_STRANDED.value,
+            # TODO #248 merge required:
+            # Reports.ReportType.FBA_INVENTORY_STRANDED,
+        ],
+    )
+    @pytest.mark.parametrize(
+        "schedule",
+        [
+            "_30_MINUTES_",
+            Reports.Schedule.EVERY_30_MIN.value,
+            # And aliases
+            Reports.Schedule.EVERY_30_MINS.value,
+            Reports.Schedule.EVERY_30_MINUTE.value,
+            Reports.Schedule.EVERY_30_MINUTES.value,
+            # TODO #248 merge required:
+            # Reports.Schedule.EVERY_30_MIN,
+            # Reports.Schedule.EVERY_30_MINS,
+            # Reports.Schedule.EVERY_30_MINUTE,
+            # Reports.Schedule.EVERY_30_MINUTES,
+        ],
+    )
+    def test_manage_report_schedule_enums(
+        self, api_instance: Reports, report_type, schedule
+    ):
+        """Using enums for report_type and schedule should produce the correct
+        string literals when cleaned.
+        """
+        params = api_instance.manage_report_schedule(
+            report_type=report_type,
+            schedule=schedule,
+        )
+        self.assert_common_params(params, action="ManageReportSchedule")
+        assert params["ReportType"] == "_GET_STRANDED_INVENTORY_UI_DATA_"
+        assert params["Schedule"] == "_30_MINUTES_"
