@@ -355,3 +355,58 @@ class TestReportsAPI(ReportsAPITestCase):
         self.assert_common_params(params, action="ManageReportSchedule")
         assert params["ReportType"] == "_GET_STRANDED_INVENTORY_UI_DATA_"
         assert params["Schedule"] == "_30_MINUTES_"
+
+    def test_cancel_report_requests(self, api_instance: Reports):
+        """CancelReportRequests operation."""
+        request_ids = [
+            "bV414Uy8Ab",
+            "wCP115hLSn",
+        ]
+        report_types = [
+            "_GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA_",
+            "_GET_FBA_REIMBURSEMENTS_DATA_",
+        ]
+        processing_statuses = [
+            "_SUBMITTED_",
+            "_DONE_NO_DATA_",
+        ]
+        from_date = datetime.datetime(2021, 1, 27, 22, 59, 59)
+        to_date = datetime.datetime(2021, 1, 27, 23, 59, 59)
+        params = api_instance.cancel_report_requests(
+            request_ids=request_ids,
+            report_types=report_types,
+            processing_statuses=processing_statuses,
+            from_date=from_date,
+            to_date=to_date,
+        )
+        self.assert_common_params(params, action="CancelReportRequests")
+        assert params["RequestedFromDate"] == "2021-01-27T22%3A59%3A59"
+        assert params["RequestedToDate"] == "2021-01-27T23%3A59%3A59"
+        assert params["ReportRequestIdList.Id.1"] == "bV414Uy8Ab"
+        assert params["ReportRequestIdList.Id.2"] == "wCP115hLSn"
+        assert (
+            params["ReportTypeList.Type.1"] == "_GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA_"
+        )
+        assert params["ReportTypeList.Type.2"] == "_GET_FBA_REIMBURSEMENTS_DATA_"
+        assert params["ReportProcessingStatusList.Status.1"] == "_SUBMITTED_"
+        assert params["ReportProcessingStatusList.Status.2"] == "_DONE_NO_DATA_"
+
+    @pytest.mark.parametrize(
+        "processing_status",
+        [
+            "_DONE_NO_DATA_",
+            Reports.ProcessingStatus.DONE_NO_DATA.value,
+            # TODO #248 merge required:
+            # Reports.ProcessingStatus.DONE_NO_DATA,
+        ],
+    )
+    def test_cancel_report_requests_processing_enums(
+        self, api_instance: Reports, processing_status
+    ):
+        """Using enums for processing_status should produce the correct
+        string literal when cleaned.
+        """
+        params = api_instance.cancel_report_requests(
+            processing_statuses=processing_status,
+        )
+        assert params["ReportProcessingStatusList.Status.1"] == "_DONE_NO_DATA_"

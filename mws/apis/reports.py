@@ -178,9 +178,36 @@ class Reports(MWS):
         )
         return self.make_request("GetReportRequestCount", data)
 
-    # # TODO Add:
-    # def cancel_report_requests(self):
-    #     pass
+    def cancel_report_requests(
+        self,
+        request_ids: List[str] = None,
+        report_types: List[Union["ReportType", str]] = None,
+        processing_statuses: List[Union["ProcessingStatus", str]] = None,
+        from_date: DateType = None,
+        to_date: DateType = None,
+    ):
+        """Cancels one or more report requests.
+
+        `MWS Docs: CancelReportRequests
+        <https://docs.developer.amazonservices.com/en_US/reports/Reports_CancelReportRequests.html>`_
+        """
+        request_ids = request_ids or []
+        report_types = report_types or []
+        processing_statuses = processing_statuses or []
+        data = {
+            "RequestedFromDate": from_date,
+            "RequestedToDate": to_date,
+        }
+        data.update(
+            enumerate_params(
+                {
+                    "ReportRequestIdList.Id.": request_ids,
+                    "ReportTypeList.Type.": report_types,
+                    "ReportProcessingStatusList.Status.": processing_statuses,
+                }
+            )
+        )
+        return self.make_request("CancelReportRequests", data)
 
     @kwargs_renamed_for_v11(
         [
