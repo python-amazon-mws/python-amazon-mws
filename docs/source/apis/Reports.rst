@@ -13,21 +13,8 @@ Reports API reference
 =====================
 
 .. autoclass:: mws.apis.reports.Reports
-
-   .. automethod:: request_report
-   .. automethod:: get_report_request_list
-   .. automethod:: get_report_request_list_by_next_token
-   .. automethod:: get_report_request_count
-   .. automethod:: cancel_report_requests
-   .. automethod:: get_report_list
-   .. automethod:: get_report_list_by_next_token
-   .. automethod:: get_report_count
-   .. automethod:: get_report
-   .. automethod:: manage_report_schedule
-   .. automethod:: get_report_schedule_list
-   .. automethod:: get_report_schedule_list_by_next_token
-   .. automethod:: get_report_schedule_count
-   .. automethod:: update_report_acknowledgements
+   :members:
+   :exclude-members: ReportType, Schedule, ProcessingStatus
 
 Enums
 =====
