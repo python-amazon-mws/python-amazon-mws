@@ -111,11 +111,23 @@ You are welcome to use a similar method to perform your own FeedOptions string f
    produce incorrect output for your data, you will need to perform your own input cleaning, ensuring only permitted
    characters are sent.
 
-Feeds API
-=========
+Feeds API reference
+===================
 
 .. autoclass:: mws.apis.feeds.Feeds
    :members:
+   :exclude-members: FeedProcessingStatus, FeedType
 
 .. autofunction:: mws.apis.feeds.clean_feed_option_val
 .. autofunction:: mws.apis.feeds.feed_options_str
+
+Enums
+=====
+
+.. autoclass:: mws.apis.feeds.FeedProcessingStatus
+   :members:
+   :undoc-members:
+
+.. autoclass:: mws.apis.feeds.FeedType
+   :members:
+   :undoc-members:

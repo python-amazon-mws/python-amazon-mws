@@ -1,20 +1,16 @@
 """Amazon MWS Feeds API."""
 
-import string
 import datetime
+import string
+from enum import Enum
 
 from mws import MWS
 from mws.decorators import next_token_action
 from mws.utils.crypto import calc_md5
-from mws.utils.params import coerce_to_bool
-from mws.utils.params import enumerate_param
+from mws.utils.params import coerce_to_bool, enumerate_param
 
 # DEPRECATIONS for argument names in v1.1
 from mws.utils.deprecation import kwargs_renamed_for_v11
-
-
-# TODO Add FeedProcessingStatus enumeration
-# TODO Add FeedType enumeration
 
 
 def clean_feed_option_val(val):
@@ -202,7 +198,7 @@ class Feeds(MWS):
         next_token=None,
     ):
         """Returns a list of all feed submissions submitted
-        between `from_date` and `to_date`. If these params are ommitted,
+        between `from_date` and `to_date`. If these params are omitted,
         defaults to the previous 90 days.
 
         Pass `next_token` to call "GetFeedSubmissionListByNextToken" instead.
@@ -242,7 +238,7 @@ class Feeds(MWS):
         self, feed_types=None, processing_statuses=None, from_date=None, to_date=None
     ):
         """Returns a count of the feeds submitted between `from_date` and `to_date`.
-        If these params are ommitted, defaults to the previous 90 days.
+        If these params are omitted, defaults to the previous 90 days.
 
         Docs:
         https://docs.developer.amazonservices.com/en_US/feeds/Feeds_GetFeedSubmissionCount.html
@@ -295,3 +291,169 @@ class Feeds(MWS):
         """
         data = {"FeedSubmissionId": feed_id}
         return self.make_request("GetFeedSubmissionResult", data, result_key="Message")
+
+
+class FeedProcessingStatus(str, Enum):
+    """Enumerates all the feed processing status values that are available
+    through the Feeds API section.
+
+    `MWS Docs: FeedProcessingStatus enumeration
+    <https://docs.developer.amazonservices.com/en_US/feeds/Feeds_FeedProcessingStatus.html>`_
+    """
+
+    AWAITING_ASYNCHRONOUS_REPLY = "_AWAITING_ASYNCHRONOUS_REPLY_"
+    """The request is being processed, but is waiting for external information
+    before it can complete.
+    """
+
+    CANCELLED = "_CANCELLED_"
+    """The request has been aborted due to a fatal error."""
+
+    DONE = "_DONE_"
+    """The request has been processed. You can call the GetFeedSubmissionResult
+    operation to receive a processing report that describes which records in the
+    feed were successful and which records generated errors.
+    """
+
+    IN_PROGRESS = "_IN_PROGRESS_"
+    """The request is being processed."""
+
+    IN_SAFETY_NET = "_IN_SAFETY_NET_"
+    """The request is being processed, but the system has determined that there is
+    a potential error with the feed (for example, the request will remove all inventory
+    from a seller's account.) An Amazon seller support associate will contact the
+    seller to confirm whether the feed should be processed.
+    """
+
+    SUBMITTED = "_SUBMITTED_"
+    """The request has been received, but has not yet started processing."""
+
+    UNCONFIRMED = "_UNCONFIRMED_"
+    """The request is pending."""
+
+
+class FeedType(str, Enum):
+    """Enumerates all the feed types that are available through the Feeds API section.
+
+    `MWS Docs: FeedType enumeration
+    <https://docs.developer.amazonservices.com/en_US/feeds/Feeds_FeedType.html>`_
+
+    Please refer to MWS documentation for details on each FeedType, including usage,
+    template files, and additional information links.
+    """
+
+    POST_PRODUCT_DATA = "_POST_PRODUCT_DATA_"
+    """Product Feed"""
+
+    POST_INVENTORY_AVAILABILITY_DATA = "_POST_INVENTORY_AVAILABILITY_DATA_"
+    """Inventory Feed"""
+
+    POST_PRODUCT_OVERRIDES_DATA = "_POST_PRODUCT_OVERRIDES_DATA_"
+    """Overrides Feed"""
+
+    POST_PRODUCT_PRICING_DATA = "_POST_PRODUCT_PRICING_DATA_"
+    """Pricing Feed"""
+
+    POST_PRODUCT_IMAGE_DATA = "_POST_PRODUCT_IMAGE_DATA_"
+    """Product Images Feed"""
+
+    POST_PRODUCT_RELATIONSHIP_DATA = "_POST_PRODUCT_RELATIONSHIP_DATA_"
+    """Relationships Feed"""
+
+    POST_FLAT_FILE_INVLOADER_DATA = "_POST_FLAT_FILE_INVLOADER_DATA_"
+    """Flat File Inventory Loader Feed"""
+
+    POST_FLAT_FILE_LISTINGS_DATA = "_POST_FLAT_FILE_LISTINGS_DATA_"
+    """Flat File Listings Feed"""
+
+    POST_FLAT_FILE_BOOKLOADER_DATA = "_POST_FLAT_FILE_BOOKLOADER_DATA_"
+    """Flat File Book Loader Feed"""
+
+    POST_FLAT_FILE_CONVERGENCE_LISTINGS_DATA = (
+        "_POST_FLAT_FILE_CONVERGENCE_LISTINGS_DATA_"
+    )
+    """Flat File Music Loader Feed"""
+
+    POST_FLAT_FILE_VIDEO_LOADER = "_POST_FLAT_FILE_LISTINGS_DATA_"
+    """Flat File Video Loader Feed"""
+
+    POST_FLAT_FILE_PRICEANDQUANTITYONLY_UPDATE_DATA = (
+        "_POST_FLAT_FILE_PRICEANDQUANTITYONLY_UPDATE_DATA_"
+    )
+    """Flat File Price and Quantity Update Feed"""
+
+    POST_UIEE_BOOKLOADER_DATA = "_POST_UIEE_BOOKLOADER_DATA_"
+    """UIEE Inventory Feed"""
+
+    POST_STD_ACES_DATA = "_POST_STD_ACES_DATA_"
+    """ACES 3.0 Data (Automotive Part Finder) Feed"""
+
+    POST_ORDER_ACKNOWLEDGEMENT_DATA = "_POST_ORDER_ACKNOWLEDGEMENT_DATA_"
+    """Order Acknowledgement Feed"""
+
+    POST_PAYMENT_ADJUSTMENT_DATA = "_POST_PAYMENT_ADJUSTMENT_DATA_"
+    """Order Adjustments Feed"""
+
+    POST_ORDER_FULFILLMENT_DATA = "_POST_ORDER_FULFILLMENT_DATA_"
+    """Order Fulfillment Feed"""
+
+    POST_INVOICE_CONFIRMATION_DATA = "_POST_INVOICE_CONFIRMATION_DATA_"
+    """Invoice Confirmation Feed"""
+
+    POST_EXPECTED_SHIP_DATE_SOD = "_POST_EXPECTED_SHIP_DATE_SOD_"
+    """Sourcing On Demand Feed (Japan only)"""
+
+    POST_FLAT_FILE_ORDER_ACKNOWLEDGEMENT_DATA = (
+        "_POST_FLAT_FILE_ORDER_ACKNOWLEDGEMENT_DATA_"
+    )
+    """Flat File Order Acknowledgement Feed"""
+
+    POST_FLAT_FILE_PAYMENT_ADJUSTMENT_DATA = "_POST_FLAT_FILE_PAYMENT_ADJUSTMENT_DATA_"
+    """Flat File Order Adjustments Feed"""
+
+    POST_FLAT_FILE_FULFILLMENT_DATA = "_POST_FLAT_FILE_FULFILLMENT_DATA_"
+    """Flat File Order Fulfillment Feed"""
+
+    POST_EXPECTED_SHIP_DATE_SOD_FLAT_FILE = "_POST_EXPECTED_SHIP_DATE_SOD_FLAT_FILE_"
+    """Flat File Sourcing On Demand Feed (Japan only)"""
+
+    POST_FULFILLMENT_ORDER_REQUEST_DATA = "_POST_FULFILLMENT_ORDER_REQUEST_DATA_"
+    """FBA Fulfillment Order Feed"""
+
+    POST_FULFILLMENT_ORDER_CANCELLATION_REQUEST_DATA = (
+        "_POST_FULFILLMENT_ORDER_CANCELLATION_REQUEST_DATA_"
+    )
+    """FBA Fulfillment Order Cancellation Feed"""
+
+    POST_FBA_INBOUND_CARTON_CONTENTS = "_POST_FBA_INBOUND_CARTON_CONTENTS_"
+    """FBA Inbound Shipment Carton Information Feed"""
+
+    POST_FLAT_FILE_FULFILLMENT_ORDER_REQUEST_DATA = (
+        "_POST_FLAT_FILE_FULFILLMENT_ORDER_REQUEST_DATA_"
+    )
+    """Flat File FBA Fulfillment Order Feed"""
+
+    POST_FLAT_FILE_FULFILLMENT_ORDER_CANCELLATION_REQUEST_DATA = (
+        "_POST_FLAT_FILE_FULFILLMENT_ORDER_CANCELLATION_REQUEST_DATA_"
+    )
+    """Flat File FBA Fulfillment Order Cancellation Feed"""
+
+    POST_FLAT_FILE_FBA_CREATE_INBOUND_PLAN = "_POST_FLAT_FILE_FBA_CREATE_INBOUND_PLAN_"
+    """Flat File FBA Create Inbound Shipment Plan Feed"""
+
+    POST_FLAT_FILE_FBA_UPDATE_INBOUND_PLAN = "_POST_FLAT_FILE_FBA_UPDATE_INBOUND_PLAN_"
+    """Flat File FBA Update Inbound Shipment Plan Feed"""
+
+    POST_FLAT_FILE_FBA_CREATE_REMOVAL = "_POST_FLAT_FILE_FBA_CREATE_REMOVAL_"
+    """Flat File FBA Create Removal Feed"""
+
+    RFQ_UPLOAD_FEED = "_RFQ_UPLOAD_FEED_"
+    """Flat File Manage Quotes Feed"""
+
+    POST_EASYSHIP_DOCUMENTS = "_POST_EASYSHIP_DOCUMENTS_"
+    """Easy Ship Feed"""
+
+
+# Attach enums to Feeds class
+Feeds.FeedProcessingStatus = FeedProcessingStatus
+Feeds.FeedType = FeedType
