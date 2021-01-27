@@ -271,9 +271,23 @@ class Reports(MWS):
         """
         return self.make_request("GetReport", {"ReportId": report_id})
 
-    # # TODO Add:
-    # def manage_report_schedule(self):
-    #     pass
+    def manage_report_schedule(
+        self,
+        report_type: "ReportType",
+        schedule: "Schedule",
+        schedule_date: DateType = None,
+    ):
+        """Creates, updates, or deletes a report request schedule for a specified report type.
+
+        `MWS Docs: ManageReportSchedule
+        <https://docs.developer.amazonservices.com/en_US/reports/Reports_ManageReportSchedule.html>`_
+        """
+        data = {
+            "ReportType": report_type,
+            "Schedule": schedule,
+            "ScheduleDate": schedule_date,
+        }
+        return self.make_request("ManageReportSchedule", data)
 
     @kwargs_renamed_for_v11([("types", "report_types")])
     @next_token_action("GetReportScheduleList")
