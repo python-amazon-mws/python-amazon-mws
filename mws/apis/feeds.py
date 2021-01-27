@@ -172,7 +172,6 @@ class Feeds(MWS):
         return self.make_request(
             "SubmitFeed",
             data,
-            method="POST",
             body=feed,
             extra_headers=extra_headers,
         )

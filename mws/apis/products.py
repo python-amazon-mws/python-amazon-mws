@@ -192,7 +192,7 @@ class Products(MWS):
         data = enumerate_keyed_param(
             "FeesEstimateRequestList.FeesEstimateRequest.", estimates
         )
-        return self.make_request("GetMyFeesEstimate", data, method="POST")
+        return self.make_request("GetMyFeesEstimate", data)
 
     @kwargs_renamed_for_v11([("marketplaceid", "marketplace_id")])
     def get_my_price_for_sku(self, marketplace_id, skus, condition=None):

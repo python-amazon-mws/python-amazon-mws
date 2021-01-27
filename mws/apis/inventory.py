@@ -41,7 +41,7 @@ class Inventory(MWS):
             "MarketplaceId": marketplace_id,
         }
         data.update(enumerate_param("SellerSkus.member.", skus))
-        return self.make_request("ListInventorySupply", data, method="POST")
+        return self.make_request("ListInventorySupply", data)
 
     def list_inventory_supply_by_next_token(self, token):
         """Alias for `list_inventory_supply(next_token=token)`

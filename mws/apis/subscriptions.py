@@ -55,7 +55,7 @@ class Subscriptions(MWS):
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
-        return self.make_request("RegisterDestination", data, method="POST")
+        return self.make_request("RegisterDestination", data)
 
     def deregister_destination(
         self, marketplace_id, attributes=None, delivery_channel="SQS"
@@ -80,7 +80,7 @@ class Subscriptions(MWS):
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
-        return self.make_request("DeregisterDestination", data, method="POST")
+        return self.make_request("DeregisterDestination", data)
 
     def list_registered_destinations(self, marketplace_id):
         """Lists all current destinations that you have registered.
@@ -91,7 +91,6 @@ class Subscriptions(MWS):
         return self.make_request(
             "ListRegisteredDestinations",
             {"MarketplaceId": marketplace_id},
-            method="POST",
         )
 
     def send_test_notification_to_destination(
@@ -114,9 +113,7 @@ class Subscriptions(MWS):
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
-        return self.make_request(
-            "SendTestNotificationToDestination", data, method="POST"
-        )
+        return self.make_request("SendTestNotificationToDestination", data)
 
     def create_subscription(
         self,
@@ -148,7 +145,7 @@ class Subscriptions(MWS):
                 self._parse_attributes(attributes),
             )
         )
-        return self.make_request("CreateSubscription", data, method="POST")
+        return self.make_request("CreateSubscription", data)
 
     def get_subscription(
         self,
@@ -175,7 +172,7 @@ class Subscriptions(MWS):
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
-        return self.make_request("GetSubscription", data, method="POST")
+        return self.make_request("GetSubscription", data)
 
     def delete_subscription(
         self,
@@ -202,7 +199,7 @@ class Subscriptions(MWS):
                 "Destination.AttributeList.member", self._parse_attributes(attributes)
             )
         )
-        return self.make_request("DeleteSubscription", data, method="POST")
+        return self.make_request("DeleteSubscription", data)
 
     def list_subscriptions(self, marketplace_id):
         """Returns a list of all your current subscriptions.
@@ -210,9 +207,7 @@ class Subscriptions(MWS):
         Docs:
         https://docs.developer.amazonservices.com/en_US/subscriptions/Subscriptions_ListSubscriptions.html
         """
-        return self.make_request(
-            "ListSubscriptions", {"MarketplaceId": marketplace_id}, method="POST"
-        )
+        return self.make_request("ListSubscriptions", {"MarketplaceId": marketplace_id})
 
     def update_subscription(
         self,
@@ -244,4 +239,4 @@ class Subscriptions(MWS):
                 self._parse_attributes(attributes),
             )
         )
-        return self.make_request("UpdateSubscription", data, method="POST")
+        return self.make_request("UpdateSubscription", data)

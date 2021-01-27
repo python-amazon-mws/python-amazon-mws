@@ -1,6 +1,6 @@
 """Tests covering miscellaneous utility functions found throughout project."""
 
-from mws.mws import calc_request_description
+from mws.mws import canonicalized_query_string
 from mws.utils import calc_md5
 from mws.models.products import (
     MoneyType,
@@ -13,19 +13,19 @@ def test_calc_md5():
     assert calc_md5(b"mws") == b"mA5nPbh1CSx9M3dbkr3Cyg=="
 
 
-def test_calc_request_description():
-    request_description = calc_request_description(
+def test_canonicalized_query_string():
+    canonical_query = canonicalized_query_string(
         {
             "AWSAccessKeyId": "MY_ACCESS_KEY",
             "Markets": "MY_ACCOUNT_ID",
             "SignatureVersion": "2",
-            "Timestamp": "2017-08-12T19%3A40%3A35Z",
+            "Timestamp": "2017-08-12T19:40:35Z",
             "Version": "2017-01-01",
             "SignatureMethod": "HmacSHA256",
         }
     )
-    assert not request_description.startswith("&")
-    assert request_description == (
+    assert not canonical_query.startswith("&")
+    assert canonical_query == (
         "AWSAccessKeyId=MY_ACCESS_KEY"
         "&Markets=MY_ACCOUNT_ID"
         "&SignatureMethod=HmacSHA256"

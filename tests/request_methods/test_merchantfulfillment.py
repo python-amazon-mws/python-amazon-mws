@@ -3,12 +3,7 @@ import datetime
 import unittest
 
 import mws
-from .utils import (
-    CommonAPIRequestTools,
-    clean_date,
-    clean_string,
-    clean_bool,
-)
+from .utils import CommonAPIRequestTools
 
 
 class MerchantFulfillmentTestCase(CommonAPIRequestTools, unittest.TestCase):
@@ -81,33 +76,33 @@ class MerchantFulfillmentTestCase(CommonAPIRequestTools, unittest.TestCase):
         # Check for our expected params
         # fmt: off
         expected = {
-            "ShipmentRequestDetails.AmazonOrderId": clean_string(amazon_order_id),
-            "ShipmentRequestDetails.SellerOrderId": clean_string(seller_order_id),
-            "ShipmentRequestDetails.MustArriveByDate": clean_date(must_arrive_by_date),
-            "ShipmentRequestDetails.PackageDimensions.Length": clean_string(package_dimensions["Length"]),
-            "ShipmentRequestDetails.PackageDimensions.Width": clean_string(package_dimensions["Width"]),
-            "ShipmentRequestDetails.PackageDimensions.Height": clean_string(package_dimensions["Height"]),
-            "ShipmentRequestDetails.PackageDimensions.Unit": clean_string(package_dimensions["Unit"]),
-            "ShipmentRequestDetails.Weight.Value": clean_string(weight["Value"]),
-            "ShipmentRequestDetails.Weight.Unit": clean_string(weight["Unit"]),
-            "ShipmentRequestDetails.ShipDate": clean_date(ship_date),
-            "ShipmentRequestDetails.ShipFromAddress.Name": clean_string(ship_from_address["Name"]),
-            "ShipmentRequestDetails.ShipFromAddress.AddressLine1": clean_string(ship_from_address["AddressLine1"]),
-            "ShipmentRequestDetails.ShipFromAddress.City": clean_string(ship_from_address["City"]),
-            "ShipmentRequestDetails.ShipFromAddress.StateOrProvinceCode": clean_string(ship_from_address["StateOrProvinceCode"]),
-            "ShipmentRequestDetails.ShipFromAddress.PostalCode": clean_string(ship_from_address["PostalCode"]),
-            "ShipmentRequestDetails.ShipFromAddress.CountryCode": clean_string(ship_from_address["CountryCode"]),
-            "ShipmentRequestDetails.ShipFromAddress.Email": clean_string(ship_from_address["Email"]),
-            "ShipmentRequestDetails.ShipFromAddress.Phone": clean_string(ship_from_address["Phone"]),
-            "ShipmentRequestDetails.ShippingServiceOptions.DeliveryExperience": clean_string(shipping_service_options["DeliveryExperience"]),
-            "ShipmentRequestDetails.ShippingServiceOptions.CarrierWillPickUp": clean_bool(shipping_service_options["CarrierWillPickUp"]),
-            "ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.CurrencyCode": clean_string(shipping_service_options["DeclaredValue.CurrencyCode"]),
-            "ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.Amount": clean_string(shipping_service_options["DeclaredValue.Amount"]),
-            "ShipmentRequestDetails.ItemList.Item.1.OrderItemId": clean_string(items[0]["OrderItemId"]),
-            "ShipmentRequestDetails.ItemList.Item.1.Quantity": clean_string(items[0]["Quantity"]),
-            "ShipmentRequestDetails.ItemList.Item.2.OrderItemId": clean_string(items[1]["OrderItemId"]),
-            "ShipmentRequestDetails.ItemList.Item.2.Quantity": clean_string(items[1]["Quantity"]),
-            "ShippingOfferingFilter.IncludeComplexShippingOptions": clean_bool(include_complex_options),
+            "ShipmentRequestDetails.AmazonOrderId": amazon_order_id,
+            "ShipmentRequestDetails.SellerOrderId": seller_order_id,
+            "ShipmentRequestDetails.MustArriveByDate": must_arrive_by_date.isoformat(),
+            "ShipmentRequestDetails.PackageDimensions.Length": package_dimensions["Length"],
+            "ShipmentRequestDetails.PackageDimensions.Width": package_dimensions["Width"],
+            "ShipmentRequestDetails.PackageDimensions.Height": package_dimensions["Height"],
+            "ShipmentRequestDetails.PackageDimensions.Unit": package_dimensions["Unit"],
+            "ShipmentRequestDetails.Weight.Value": weight["Value"],
+            "ShipmentRequestDetails.Weight.Unit": weight["Unit"],
+            "ShipmentRequestDetails.ShipDate": ship_date.isoformat(),
+            "ShipmentRequestDetails.ShipFromAddress.Name": ship_from_address["Name"],
+            "ShipmentRequestDetails.ShipFromAddress.AddressLine1": ship_from_address["AddressLine1"],
+            "ShipmentRequestDetails.ShipFromAddress.City": ship_from_address["City"],
+            "ShipmentRequestDetails.ShipFromAddress.StateOrProvinceCode": ship_from_address["StateOrProvinceCode"],
+            "ShipmentRequestDetails.ShipFromAddress.PostalCode": ship_from_address["PostalCode"],
+            "ShipmentRequestDetails.ShipFromAddress.CountryCode": ship_from_address["CountryCode"],
+            "ShipmentRequestDetails.ShipFromAddress.Email": ship_from_address["Email"],
+            "ShipmentRequestDetails.ShipFromAddress.Phone": ship_from_address["Phone"],
+            "ShipmentRequestDetails.ShippingServiceOptions.DeliveryExperience": shipping_service_options["DeliveryExperience"],
+            "ShipmentRequestDetails.ShippingServiceOptions.CarrierWillPickUp": 'true' if shipping_service_options["CarrierWillPickUp"] else 'false',
+            "ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.CurrencyCode": shipping_service_options["DeclaredValue.CurrencyCode"],
+            "ShipmentRequestDetails.ShippingServiceOptions.DeclaredValue.Amount": shipping_service_options["DeclaredValue.Amount"],
+            "ShipmentRequestDetails.ItemList.Item.1.OrderItemId": items[0]["OrderItemId"],
+            "ShipmentRequestDetails.ItemList.Item.1.Quantity": items[0]["Quantity"],
+            "ShipmentRequestDetails.ItemList.Item.2.OrderItemId": items[1]["OrderItemId"],
+            "ShipmentRequestDetails.ItemList.Item.2.Quantity": items[1]["Quantity"],
+            "ShippingOfferingFilter.IncludeComplexShippingOptions": 'true' if include_complex_options else 'false',
         }
         # fmt: on
 
@@ -144,16 +139,16 @@ class MerchantFulfillmentTestCase(CommonAPIRequestTools, unittest.TestCase):
 
         # fmt: off
         expected = {
-            "OrderId": clean_string(order_id),
-            "ShippingServiceId": clean_string(shipping_service_id),
-            "ShipFromAddress.Name": clean_string(ship_from_address["Name"]),
-            "ShipFromAddress.AddressLine1": clean_string(ship_from_address["AddressLine1"]),
-            "ShipFromAddress.City": clean_string(ship_from_address["City"]),
-            "ShipFromAddress.StateOrProvinceCode": clean_string(ship_from_address["StateOrProvinceCode"]),
-            "ShipFromAddress.PostalCode": clean_string(ship_from_address["PostalCode"]),
-            "ShipFromAddress.CountryCode": clean_string(ship_from_address["CountryCode"]),
-            "ShipFromAddress.Email": clean_string(ship_from_address["Email"]),
-            "ShipFromAddress.Phone": clean_string(ship_from_address["Phone"]),
+            "OrderId": order_id,
+            "ShippingServiceId": shipping_service_id,
+            "ShipFromAddress.Name": ship_from_address["Name"],
+            "ShipFromAddress.AddressLine1": ship_from_address["AddressLine1"],
+            "ShipFromAddress.City": ship_from_address["City"],
+            "ShipFromAddress.StateOrProvinceCode": ship_from_address["StateOrProvinceCode"],
+            "ShipFromAddress.PostalCode": ship_from_address["PostalCode"],
+            "ShipFromAddress.CountryCode": ship_from_address["CountryCode"],
+            "ShipFromAddress.Email": ship_from_address["Email"],
+            "ShipFromAddress.Phone": ship_from_address["Phone"],
         }
         # fmt: on
 
