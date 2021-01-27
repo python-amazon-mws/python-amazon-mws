@@ -37,6 +37,7 @@ release = "1.0dev16"
 extensions = [
     "sphinx_rtd_theme",
     "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
 ]
 
 # Default "alphabetical", change to source ordering:
