@@ -1,6 +1,14 @@
 Reports
 #######
 
+According to `Amazon's documentation
+<https://docs.developer.amazonservices.com/en_US/reports/Reports_Overview.html>`_:
+
+  The Reports API section of the Amazon Marketplace Web Service (Amazon MWS)
+  API lets you request various reports that help you manage your Sell on
+  Amazon business. Report types are specified using the ReportTypes
+  enumeration.
+
 Reports API reference
 =====================
 
