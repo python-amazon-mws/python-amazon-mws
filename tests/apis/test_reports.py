@@ -42,7 +42,7 @@ class TestReportsAPI(ReportsAPITestCase):
         assert params["ReportType"] == "_GET_FLAT_FILE_OPEN_LISTINGS_DATA_"
         assert params["MarketplaceIdList.Id.1"] == "ATVPDKIKX0DER"
 
-    def test_request_report(self, api_instance):
+    def test_request_report(self, api_instance: Reports):
         """RequestReport operation."""
         report_type = "_GET_FLAT_FILE_OPEN_LISTINGS_DATA_"
         start_date = datetime.datetime(2018, 4, 30, 22, 59, 59)
@@ -64,7 +64,7 @@ class TestReportsAPI(ReportsAPITestCase):
         assert params["MarketplaceIdList.Id.1"] == marketplace_ids[0]
         assert params["MarketplaceIdList.Id.2"] == marketplace_ids[1]
 
-    def test_report_options_dict(self, api_instance):
+    def test_report_options_dict(self, api_instance: Reports):
         """Asserts a dict used for report_options argument for request_report method
         builds the correct string output.
         """
@@ -86,7 +86,7 @@ class TestReportsAPI(ReportsAPITestCase):
         )
         assert params["ReportOptions"] in options_possible
 
-    def test_request_report_error(self, api_instance):
+    def test_request_report_error(self, api_instance: Reports):
         """RequestReport wrong parameter"""
         # list will throw error
         report_type = ["_GET_FLAT_FILE_OPEN_LISTINGS_DATA_"]
@@ -104,7 +104,7 @@ class TestReportsAPI(ReportsAPITestCase):
                 marketplace_ids=marketplace_ids,
             )
 
-    def test_get_report_request_list(self, api_instance):
+    def test_get_report_request_list(self, api_instance: Reports):
         """GetReportRequestList operation."""
         request_ids = [
             "rPlSxpfnR7",
@@ -140,19 +140,19 @@ class TestReportsAPI(ReportsAPITestCase):
         assert params["ReportProcessingStatusList.Status.1"] == "_SUBMITTED_"
         assert params["ReportProcessingStatusList.Status.2"] == "_DONE_NO_DATA_"
 
-    def test_get_report_request_list_by_next_token(self, api_instance):
+    def test_get_report_request_list_by_next_token(self, api_instance: Reports):
         """GetReportRequestListByNextToken operation, via method decorator."""
         params = api_instance.get_report_request_list(next_token="RXmLZ2bEgE")
         self.assert_common_params(params, action="GetReportRequestListByNextToken")
         assert params["NextToken"] == "RXmLZ2bEgE"
 
-    def test_get_report_request_list_by_next_token_alias(self, api_instance):
+    def test_get_report_request_list_by_next_token_alias(self, api_instance: Reports):
         """GetReportRequestListByNextToken operation, via alias method."""
         params = api_instance.get_report_request_list_by_next_token("0hytxbkaOb")
         self.assert_common_params(params, action="GetReportRequestListByNextToken")
         assert params["NextToken"] == "0hytxbkaOb"
 
-    def test_get_report_request_count(self, api_instance):
+    def test_get_report_request_count(self, api_instance: Reports):
         """GetReportRequestCount operation."""
         report_types = [
             "_GET_XML_ALL_ORDERS_DATA_BY_LAST_UPDATE_",
@@ -184,7 +184,7 @@ class TestReportsAPI(ReportsAPITestCase):
         assert params["ReportProcessingStatusList.Status.1"] == "_CANCELLED_"
         assert params["ReportProcessingStatusList.Status.2"] == "_IN_PROGRESS_"
 
-    def test_get_report_list(self, api_instance):
+    def test_get_report_list(self, api_instance: Reports):
         """GetReportList operation."""
         request_ids = [
             "c4eik8sxXC",
@@ -216,19 +216,19 @@ class TestReportsAPI(ReportsAPITestCase):
         assert params["ReportTypeList.Type.1"] == "_GET_V1_SELLER_PERFORMANCE_REPORT_"
         assert params["ReportTypeList.Type.2"] == "_GET_SELLER_FEEDBACK_DATA_"
 
-    def test_get_report_list_by_next_token(self, api_instance):
+    def test_get_report_list_by_next_token(self, api_instance: Reports):
         """GetReportListByNextToken operation, via method decorator."""
         params = api_instance.get_report_list(next_token="5u6Of2fS8B")
         self.assert_common_params(params, action="GetReportListByNextToken")
         assert params["NextToken"] == "5u6Of2fS8B"
 
-    def test_get_report_list_by_next_token_alias(self, api_instance):
+    def test_get_report_list_by_next_token_alias(self, api_instance: Reports):
         """GetReportListByNextToken operation, via alias method."""
         params = api_instance.get_report_list_by_next_token("3TczcliCkb")
         self.assert_common_params(params, action="GetReportListByNextToken")
         assert params["NextToken"] == "3TczcliCkb"
 
-    def test_get_report_count(self, api_instance):
+    def test_get_report_count(self, api_instance: Reports):
         """GetReportCount operation."""
         report_types = [
             "_GET_AMAZON_FULFILLED_SHIPMENTS_DATA_",
@@ -252,13 +252,13 @@ class TestReportsAPI(ReportsAPITestCase):
         )
         assert params["ReportTypeList.Type.2"] == "_GET_AFN_INVENTORY_DATA_BY_COUNTRY_"
 
-    def test_get_report(self, api_instance):
+    def test_get_report(self, api_instance: Reports):
         """GetReport operation."""
         params = api_instance.get_report(report_id="wwqrl4bHvD")
         self.assert_common_params(params, action="GetReport")
         assert params["ReportId"] == "wwqrl4bHvD"
 
-    def test_get_report_schedule_list(self, api_instance):
+    def test_get_report_schedule_list(self, api_instance: Reports):
         """GetReportScheduleList operation."""
         params = api_instance.get_report_schedule_list(
             report_types=[
@@ -276,19 +276,19 @@ class TestReportsAPI(ReportsAPITestCase):
             == "_GET_RESTOCK_INVENTORY_RECOMMENDATIONS_REPORT_"
         )
 
-    def test_get_report_schedule_list_by_next_token(self, api_instance):
+    def test_get_report_schedule_list_by_next_token(self, api_instance: Reports):
         """GetReportScheduleListByNextToken operation, via method decorator."""
         params = api_instance.get_report_schedule_list(next_token="Yj3hOfPcIE")
         self.assert_common_params(params, action="GetReportScheduleListByNextToken")
         assert params["NextToken"] == "Yj3hOfPcIE"
 
-    def test_get_report_schedule_list_by_next_token_alias(self, api_instance):
+    def test_get_report_schedule_list_by_next_token_alias(self, api_instance: Reports):
         """GetReportScheduleListByNextToken operation, via alias method."""
         params = api_instance.get_report_schedule_list_by_next_token("SAlt4JwJGv")
         self.assert_common_params(params, action="GetReportScheduleListByNextToken")
         assert params["NextToken"] == "SAlt4JwJGv"
 
-    def test_get_report_schedule_count(self, api_instance):
+    def test_get_report_schedule_count(self, api_instance: Reports):
         """GetReportScheduleCount operation."""
         params = api_instance.get_report_schedule_count(
             report_types=[
