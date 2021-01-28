@@ -8,26 +8,32 @@ from mws.utils.types import MarketplaceEnumOrStr
 from .base import MWSDataType
 
 
-class CurrencyCode(Enum):
+class CurrencyCode(str, Enum):
     """Constants for currency codes supported by Amazon."""
 
-    USD = ("USD", "United States dollar")
-    EUR = ("EUR", "European euro")
-    GBP = ("GBP", "Great Britain pounds")
-    RMB = ("RMB", "Chinese yuan")
-    INR = ("INR", "Indian rupee")
-    JPY = ("JPY", "Japanese yen")
-    CAD = ("CAD", "Canadian dollar")
-    MXN = ("MXN", "Mexican peso")
+    USD = "USD"
+    """United States dollar"""
 
-    def __init__(self, code, description):
-        """Easy dot access like: Marketplaces.endpoint ."""
-        self.code = code
-        self.description = description
+    EUR = "EUR"
+    """European euro"""
 
-    @property
-    def value(self):
-        return self.code
+    GBP = "GBP"
+    """Great Britain pounds"""
+
+    RMB = "RMB"
+    """Chinese yuan"""
+
+    INR = "INR"
+    """Indian rupee"""
+
+    JPY = "JPY"
+    """Japanese yen"""
+
+    CAD = "CAD"
+    """Canadian dollar"""
+
+    MXN = "MXN"
+    """Mexican peso"""
 
 
 class MoneyType(MWSDataType):
