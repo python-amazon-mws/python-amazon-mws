@@ -384,17 +384,9 @@ Enums
 =====
 
 .. autoclass:: mws.models.products.CurrencyCode
-
-   The following currency codes are available:
-
-   - ``USD``: United States dollar
-   - ``EUR``: European euro
-   - ``GBP``: Great Britain pounds
-   - ``RMB``: Chinese yuan
-   - ``INR``: Indian rupee
-   - ``JPY``: Japanese yen
-   - ``CAD``: Canadian dollar
-   - ``MXN``: Mexican peso
+   :show-inheritance:
+   :members:
+   :undoc-members:
 
    .. rubric:: Example:
    .. code-block:: python
