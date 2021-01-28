@@ -19,8 +19,7 @@ class TestReportsAPI(ReportsAPITestCase):
         [
             "_GET_FLAT_FILE_OPEN_LISTINGS_DATA_",
             Reports.ReportType.INVENTORY.value,
-            # TODO waiting on #248 merge before below option will work.
-            # ReportType.INVENTORY,
+            Reports.ReportType.INVENTORY,
         ],
     )
     @pytest.mark.parametrize(
@@ -28,9 +27,8 @@ class TestReportsAPI(ReportsAPITestCase):
         [
             "ATVPDKIKX0DER",
             Marketplaces.US.marketplace_id,
-            # TODO waiting on #248 merge before below options will work.
-            # Marketplaces.US.value,
-            # Marketplaces.US,
+            Marketplaces.US.value,
+            Marketplaces.US,
         ],
     )
     def test_request_report_enums_accepted(
@@ -322,8 +320,7 @@ class TestReportsAPI(ReportsAPITestCase):
         [
             "_GET_STRANDED_INVENTORY_UI_DATA_",
             Reports.ReportType.FBA_INVENTORY_STRANDED.value,
-            # TODO #248 merge required:
-            # Reports.ReportType.FBA_INVENTORY_STRANDED,
+            Reports.ReportType.FBA_INVENTORY_STRANDED,
         ],
     )
     @pytest.mark.parametrize(
@@ -335,11 +332,10 @@ class TestReportsAPI(ReportsAPITestCase):
             Reports.Schedule.EVERY_30_MINS.value,
             Reports.Schedule.EVERY_30_MINUTE.value,
             Reports.Schedule.EVERY_30_MINUTES.value,
-            # TODO #248 merge required:
-            # Reports.Schedule.EVERY_30_MIN,
-            # Reports.Schedule.EVERY_30_MINS,
-            # Reports.Schedule.EVERY_30_MINUTE,
-            # Reports.Schedule.EVERY_30_MINUTES,
+            Reports.Schedule.EVERY_30_MIN,
+            Reports.Schedule.EVERY_30_MINS,
+            Reports.Schedule.EVERY_30_MINUTE,
+            Reports.Schedule.EVERY_30_MINUTES,
         ],
     )
     def test_manage_report_schedule_enums(
@@ -396,8 +392,7 @@ class TestReportsAPI(ReportsAPITestCase):
         [
             "_DONE_NO_DATA_",
             Reports.ProcessingStatus.DONE_NO_DATA.value,
-            # TODO #248 merge required:
-            # Reports.ProcessingStatus.DONE_NO_DATA,
+            Reports.ProcessingStatus.DONE_NO_DATA,
         ],
     )
     def test_cancel_report_requests_processing_enums(
