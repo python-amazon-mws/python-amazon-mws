@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<GetMatchingProductResponse xmlns="http://mws.amazonservices.com/schema/Products/2011-10-01">
+  <GetMatchingProductResult ASIN="B085G58KWT" status="Success">
+    <Product xmlns:ns2="http://mws.amazonservices.com/schema/Products/2011-10-01/default.xsd">
+      <Identifiers>
+        <MarketplaceASIN>
+          <MarketplaceId>ATVPDKIKX0DER</MarketplaceId>
+          <ASIN>B085G58KWT</ASIN>
+        </MarketplaceASIN>
+      </Identifiers>
+      <AttributeSets>
+        <ns2:ItemAttributes xml:lang="en-US">
+          <ns2:Binding>Electronics</ns2:Binding>
+          <ns2:Brand>Amazon</ns2:Brand>
+          <ns2:ItemDimensions>
+            <ns2:Height Units="inches">5.3</ns2:Height>
+            <ns2:Length Units="inches">5.69</ns2:Length>
+            <ns2:Width Units="inches">5.69</ns2:Width>
+            <ns2:Weight Units="pounds">2.16</ns2:Weight>
+          </ns2:ItemDimensions>
+          <ns2:IsAdultProduct>false</ns2:IsAdultProduct>
+          <ns2:Label>Amazon</ns2:Label>
+          <ns2:ListPrice>
+            <ns2:Amount>99.00</ns2:Amount>
+            <ns2:CurrencyCode>USD</ns2:CurrencyCode>
+          </ns2:ListPrice>
+          <ns2:Manufacturer>Amazon</ns2:Manufacturer>
+          <ns2:Model>L4S3RE</ns2:Model>
+          <ns2:PackageDimensions>
+            <ns2:Height Units="inches">6.2992125920</ns2:Height>
+            <ns2:Length Units="inches">8.6614173140</ns2:Length>
+            <ns2:Width Units="inches">6.3385826707</ns2:Width>
+            <ns2:Weight Units="pounds">3.4392112872</ns2:Weight>
+          </ns2:PackageDimensions>
+          <ns2:PartNumber>53-024602</ns2:PartNumber>
+          <ns2:ProductGroup>Amazon Home</ns2:ProductGroup>
+          <ns2:ProductTypeName>DIGITAL_DEVICE_3</ns2:ProductTypeName>
+          <ns2:Publisher>Amazon</ns2:Publisher>
+          <ns2:ReleaseDate>2014-01-01</ns2:ReleaseDate>
+          <ns2:SmallImage>
+            <ns2:URL>https://m.media-amazon.com/images/I/51kWsbtfTCL._SL75_.jpg</ns2:URL>
+            <ns2:Height Units="pixels">67</ns2:Height>
+            <ns2:Width Units="pixels">75</ns2:Width>
+          </ns2:SmallImage>
+          <ns2:Studio>Amazon</ns2:Studio>
+          <ns2:Title>Staging Product – Not for Retail Sale</ns2:Title>
+        </ns2:ItemAttributes>
+      </AttributeSets>
+      <Relationships/>
+      <SalesRankings/>
+    </Product>
+  </GetMatchingProductResult>
+  <GetMatchingProductResult ASIN="B07ZZW7QCM" status="Success">
+    <Product xmlns:ns2="http://mws.amazonservices.com/schema/Products/2011-10-01/default.xsd">
+      <Identifiers>
+        <MarketplaceASIN>
+          <MarketplaceId>ATVPDKIKX0DER</MarketplaceId>
+          <ASIN>B07ZZW7QCM</ASIN>
+        </MarketplaceASIN>
+      </Identifiers>
+      <AttributeSets>
+        <ns2:ItemAttributes xml:lang="en-US">
+          <ns2:Binding>Electronics</ns2:Binding>
+          <ns2:Brand>Amazon</ns2:Brand>
+          <ns2:ItemDimensions>
+            <ns2:Height Units="inches">0.49</ns2:Height>
+            <ns2:Length Units="inches">3.38</ns2:Length>
+            <ns2:Width Units="inches">1.18</ns2:Width>
+            <ns2:Weight Units="pounds">0.0755083247350</ns2:Weight>
+          </ns2:ItemDimensions>
+          <ns2:IsAdultProduct>false</ns2:IsAdultProduct>
+          <ns2:Label>Amazon</ns2:Label>
+          <ns2:ListPrice>
+            <ns2:Amount>99.00</ns2:Amount>
+            <ns2:CurrencyCode>USD</ns2:CurrencyCode>
+          </ns2:ListPrice>
+          <ns2:Manufacturer>Amazon</ns2:Manufacturer>
+          <ns2:Model>S3L46N</ns2:Model>
+          <ns2:PackageDimensions>
+            <ns2:Height Units="inches">2.2440944859</ns2:Height>
+            <ns2:Length Units="inches">6.2204724346</ns2:Length>
+            <ns2:Width Units="inches">5.5905511754</ns2:Width>
+            <ns2:Weight Units="pounds">0.5732018812</ns2:Weight>
+          </ns2:PackageDimensions>
+          <ns2:PartNumber>53-023766</ns2:PartNumber>
+          <ns2:ProductGroup>Amazon SMP</ns2:ProductGroup>
+          <ns2:ProductTypeName>DIGITAL_DEVICE_4</ns2:ProductTypeName>
+          <ns2:Publisher>Amazon</ns2:Publisher>
+          <ns2:ReleaseDate>2014-01-01</ns2:ReleaseDate>
+          <ns2:SmallImage>
+            <ns2:URL>https://m.media-amazon.com/images/I/31fqQNHYL6L._SL75_.jpg</ns2:URL>
+            <ns2:Height Units="pixels">67</ns2:Height>
+            <ns2:Width Units="pixels">75</ns2:Width>
+          </ns2:SmallImage>
+          <ns2:Studio>Amazon</ns2:Studio>
+          <ns2:Title>Staging Product – Not for Retail Sale</ns2:Title>
+        </ns2:ItemAttributes>
+      </AttributeSets>
+      <Relationships/>
+      <SalesRankings/>
+    </Product>
+  </GetMatchingProductResult>
+  <ResponseMetadata>
+    <RequestId>422a36f1-4ef3-4e85-a534-75d8e57d25f1</RequestId>
+  </ResponseMetadata>
+</GetMatchingProductResponse>

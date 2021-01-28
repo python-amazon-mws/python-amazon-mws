@@ -1,8 +1,8 @@
 InboundShipments
 ################
 
-InboundShipments API
-====================
+InboundShipments API reference
+==============================
 
 .. autoclass:: mws.apis.inbound_shipments.InboundShipments
    :members:
