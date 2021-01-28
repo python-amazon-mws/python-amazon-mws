@@ -65,7 +65,7 @@ Products API reference
 ======================
 
 .. ################################################# Class definition ##################################################
-.. autoclass:: mws.apis.products.Products
+.. autoclass:: mws.Products
 
    .. ############################################## ListMatchingProducts ##############################################
    .. automethod:: list_matching_products
@@ -223,7 +223,7 @@ Products API reference
    .. ############################################### GetMyFeesEstimate ################################################
    .. automethod:: get_my_fees_estimate
 
-      Accepts one or more :py:class:`FeesEstimateRequest <mws.models.products.FeesEstimateRequest>` instances as
+      Accepts one or more :py:class:`FeesEstimateRequest <Products.FeesEstimateRequest>` instances as
       arguments:
 
       .. rubric:: Example
@@ -291,44 +291,60 @@ Products API reference
 Data models
 ===========
 
-.. autoclass:: mws.models.products.FeesEstimateRequest
+Several data models are attached to the ``Products`` API class, either from the class itself or an instance of it.
+These can be used as arguments for certain requests.
+
+.. autoclass:: mws.Products.FeesEstimateRequest
 
    Instances of this model are required for the argument(s) of
    :py:meth:`get_my_fees_estimate <mws.apis.products.Products.get_my_fees_estimate>`. Constructing an instance of this
    model requires the use of other data models in the Products API, as well.
 
    .. rubric:: Example
+   .. note:: In examples below, we use the ``Products`` class definition to locate our models:
 
-   1. Start by creating :py:class:`MoneyType <mws.models.products.MoneyType>` instances to account for different prices
+      .. code-block:: python
+
+          from mws import Products
+          Products.MoneyType(...)
+
+      You can also access the same models from any instance of the ``Products`` class:
+
+      .. code-block:: python
+
+          products_api = Products(...)
+          products_api.MoneyType(...)
+
+   1. Start by creating :py:class:`MoneyType <Products.MoneyType>` instances to account for different prices
       associated with the request, such as ``listing_price`` and ``shipping``:
 
       .. code-block:: python
 
-          from mws.models.products import MoneyType, CurrencyCode
-
-          my_price = MoneyType(amount=123.45, currency_code=CurrencyCode.GBP)
+          my_price = Products.MoneyType(
+              amount=123.45,
+              currency_code=Products.CurrencyCode.GBP,
+          )
           # Note the `currency_code` argument also accepts string literals of the currency code:
-          my_shipping = MoneyType(amount=5.00, currency_code='GBP')
+          my_shipping = Products.MoneyType(amount=5.00, currency_code='GBP')
 
-   2. Combine these prices into a :py:class:`PriceToEstimateFees <mws.models.products.PriceToEstimateFees>` instance:
+   2. Combine these prices into a :py:class:`PriceToEstimateFees <Products.PriceToEstimateFees>` instance:
 
       .. code-block:: python
 
-          from mws.models.products import PriceToEstimateFees
-
-          my_product_price = PriceToEstimateFees(listing_price=my_price, shipping=my_shipping)
+          my_product_price = Products.PriceToEstimateFees(
+              listing_price=my_price,
+              shipping=my_shipping,
+          )
 
       For the JP market only, this price to estimate fees may optionally include
-      :py:class:`Points <mws.models.products.Points>`.
+      :py:class:`Points <Products.Points>`.
 
    3. Use the ``PriceToEstimateFees`` instance along with other data to construct the final
       ``FeesEstimateRequest`` instance:
 
       .. code-block:: python
 
-          from mws.models.products import FeesEstimateRequest
-
-          estimate_request = FeesEstimateRequest(
+          estimate_request = Products.FeesEstimateRequest(
               marketplace_id=my_market,
               id_type="ASIN",  # either 'ASIN' or 'SKU', indicating the type of the `id_value` argument:
               id_value="B07QR73T66",
@@ -337,36 +353,41 @@ Data models
               identifier="request001",  # a unique identifier of your choosing
           )
 
-.. autoclass:: mws.models.products.PriceToEstimateFees
+.. autoclass:: mws.Products.PriceToEstimateFees
 
-   Accepts instances of :py:class:`MoneyType <mws.models.products.MoneyType>` for its ``listing_price`` and
-   ``shipping``, and optionally accepts a :py:class:`Points <mws.models.products.Points>` instance
+   Accepts instances of :py:class:`MoneyType <Products.MoneyType>` for its ``listing_price`` and
+   ``shipping``, and optionally accepts a :py:class:`Points <Products.Points>` instance
    to denote a points value (in JP region only).
 
-.. autoclass:: mws.models.products.MoneyType
+.. autoclass:: mws.Products.MoneyType
 
    .. rubric:: Example
    .. code-block:: python
 
-      from mws.models.products import MoneyType, CurrencyCode
+      my_money = Products.MoneyType(
+          amount=3.50,
+          currency_code=Products.CurrencyCode.USD,
+      )
 
-      my_money = MoneyType(amount=3.50, currency_code=CurrencyCode.USD)
-
-.. autoclass:: mws.models.products.Points
+.. autoclass:: mws.Products.Points
 
    Points are expressed in terms of a ``points_number`` and a ``monetary_value`` for those points, the latter of which
-   must be an instance of :py:class:`MoneyType <mws.models.products.MoneyType>`.
+   must be an instance of :py:class:`MoneyType <Products.MoneyType>`.
 
    .. rubric:: Example:
    .. code-block:: python
 
-      from mws.models.products import Points, MoneyType, CurrencyCode
-
       # A monetary value of 2000 Japanese yen
-      monetary_value = MoneyType(amount=2000.0, currency_code=CurrencyCode.JPY)
+      monetary_value = Products.MoneyType(
+          amount=2000.0,
+          currency_code=Products.CurrencyCode.JPY,
+      )
 
       # Now assign the points like so:
-      points = Points(points_number=35, monetary_value=monetary_value)
+      points = Products.Points(
+          points_number=35,
+          monetary_value=monetary_value,
+      )
 
    When used in a request, `points` will be converted to a set of parameters like so:
 
@@ -383,7 +404,9 @@ Data models
 Enums
 =====
 
-.. autoclass:: mws.models.products.CurrencyCode
+Related Enums are also attached to the ``Products`` API class, and can be accessed the same way as `Data models`_.
+
+.. autoclass:: mws.Products.CurrencyCode
    :show-inheritance:
    :members:
    :undoc-members:
@@ -391,14 +414,15 @@ Enums
    .. rubric:: Example:
    .. code-block:: python
 
-      from mws.models.products import MoneyType, CurrencyCode
-
       # 10 US dollars
-      listing_price = MoneyType(amount=10.0, currency_code=CurrencyCode.USD)
+      listing_price = Products.MoneyType(
+          amount=10.0,
+          currency_code=Products.CurrencyCode.USD,
+      )
       print(listing_price.to_params())
       # {"Amount": 10.0, "CurrencyCode": "USD"}
 
       # 30 Chinese yuan
-      shipping = MoneyType(30.0, CurrencyCode.RMB)
+      shipping = Products.MoneyType(30.0, Products.CurrencyCode.RMB)
       print(shipping.to_params())
       # {"Amount": 30.0, "CurrencyCode": "RMB"}

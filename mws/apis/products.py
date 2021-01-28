@@ -2,7 +2,7 @@
 from typing import List, Optional, Union
 
 from mws import MWS
-from mws.models.products import FeesEstimateRequest
+from mws.models import products as models
 from mws.utils import enumerate_keyed_param
 from mws.utils.params import coerce_to_bool
 from mws.utils.params import enumerate_param
@@ -219,8 +219,8 @@ class Products(MWS):
 
     def get_my_fees_estimate(
         self,
-        fees_estimate: FeesEstimateRequest,
-        *fees_estimates: FeesEstimateRequest,
+        fees_estimate: models.FeesEstimateRequest,
+        *fees_estimates: models.FeesEstimateRequest,
     ):
         """Returns the estimated fees for a list of products.
 
@@ -306,3 +306,8 @@ class Products(MWS):
             "ASIN": asin,
         }
         return self.make_request("GetProductCategoriesForASIN", data)
+
+
+# Attach related models to the API class
+for obj_name in models.__all__:
+    setattr(Products, obj_name, getattr(models, obj_name))

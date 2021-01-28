@@ -8,6 +8,17 @@ from mws.utils.types import MarketplaceEnumOrStr
 from .base import MWSDataType
 
 
+# NOTE: objects listed in __all__ will be attached to the Products API by the same name.
+# Maintain this list, please!
+__all__ = [
+    "CurrencyCode",
+    "MoneyType",
+    "Points",
+    "PriceToEstimateFees",
+    "FeesEstimateRequest",
+]
+
+
 class CurrencyCode(str, Enum):
     """Constants for currency codes supported by Amazon."""
 
