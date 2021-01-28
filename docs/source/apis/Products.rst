@@ -78,7 +78,7 @@ Products API reference
 
             resp = products_api.list_matching_products(
                 marketplace_id=my_market,
-                query=“Python”,
+                query="Python",
             )
 
             for product in resp.parsed.Products.Product:
