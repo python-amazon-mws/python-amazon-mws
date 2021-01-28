@@ -1,6 +1,7 @@
 """Tests for ``utils.xml`` module."""
 
-import pytest
+# import pytest
+from pathlib import Path
 
 from mws.utils.xml import mws_xml_to_dict
 from mws.utils.xml import mws_xml_to_dotdict
@@ -44,3 +45,21 @@ def test_mws_xml_to_dotdict_resultkey(simple_xml_response_str):
     identifiers = output.Products.Product[0].Identifiers
     assert identifiers.MarketplaceASIN.MarketplaceId == "APJ6JRA9NG5V4"
     assert identifiers.MarketplaceASIN.ASIN == "8891808660"
+
+
+def test_mws_xml_to_dotdict_multiple_results():
+    # Pull up test content
+    sample_file = (
+        Path(__file__).resolve().parents[1]
+        / "apis/products/samples/GetMatchingProductResponse_multiple.xml"
+    )
+    # Must exist!
+    assert sample_file.exists()
+
+    content = sample_file.read_bytes()
+
+    output = mws_xml_to_dotdict(content, result_key="GetMatchingProductResult")
+    # Output from this response should be a list
+    assert isinstance(output, list)
+    assert output[0].ASIN == "B085G58KWT"
+    assert output[1].ASIN == "B07ZZW7QCM"

@@ -54,6 +54,7 @@ def mws_xml_to_dotdict(data, encoding=MWS_ENCODING, result_key=None, force_cdata
     and then sending the res
     """
     xmldict = mws_xml_to_dict(data, encoding=encoding, force_cdata=force_cdata)
+    result = DotDict(xmldict)
     if result_key:
-        xmldict = xmldict.get(result_key, xmldict)
-    return DotDict(xmldict)
+        result = result.get(result_key, result)
+    return result
