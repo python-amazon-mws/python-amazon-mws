@@ -3,6 +3,8 @@
 from enum import Enum
 from typing import Optional, Union
 
+from mws.utils.types import MarketplaceEnumOrStr
+
 from .base import MWSDataType
 
 
@@ -31,7 +33,8 @@ class CurrencyCode(Enum):
 class MoneyType(MWSDataType):
     """An amount of money in a specified currency.
 
-    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#MoneyType
+    `MWS Docs: MoneyType
+    <https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#MoneyType>`_
     """
 
     def __init__(self, amount: float, currency_code: Union[CurrencyCode, str]):
@@ -41,7 +44,7 @@ class MoneyType(MWSDataType):
     def params_dict(self) -> dict:
         return {
             "Amount": self.amount,
-            "CurrencyCode": self.clean_enum_val(self.currency_code),
+            "CurrencyCode": self.currency_code,
         }
 
 
@@ -49,7 +52,8 @@ class Points(MWSDataType):
     """The number of Amazon Points offered with the purchase of an item.
     The Amazon Points program is only available in Japan.
 
-    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#Points
+    `MWS Docs: Points
+    <https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#Points>`_
     """
 
     def __init__(self, points_number: int, monetary_value: MoneyType):
@@ -68,7 +72,8 @@ class Points(MWSDataType):
 class PriceToEstimateFees(MWSDataType):
     """Price information for a product, used to estimate fees.
 
-    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#PriceToEstimateFees
+    `MWS Docs: PriceToEstimateFees
+    <https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#PriceToEstimateFees>`_
     """
 
     def __init__(
@@ -101,12 +106,13 @@ class PriceToEstimateFees(MWSDataType):
 class FeesEstimateRequest(MWSDataType):
     """A product, marketplace, and proposed price used to request estimated fees.
 
-    https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#FeesEstimateRequest
+    `MWS Docs: FeesEstimateRequest
+    <https://docs.developer.amazonservices.com/en_US/products/Products_Datatypes.html#FeesEstimateRequest>`_
     """
 
     def __init__(
         self,
-        marketplace_id: str,
+        marketplace_id: MarketplaceEnumOrStr,
         id_type: str,
         id_value: str,
         price_to_estimate_fees: PriceToEstimateFees,
