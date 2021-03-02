@@ -66,6 +66,7 @@ class Marketplaces(Enum):
     TR = ("https://mws-eu.amazonservices.com", "A33AVAJ2PDY3EV")
     UK = ("https://mws-eu.amazonservices.com", "A1F83G8C2ARO7P")  # alias for GB
     US = ("https://mws.amazonservices.com", "ATVPDKIKX0DER")
+    PL = ("https://mws-eu.amazonservices.com", "A1C3SOZRARQ6R3")
 
     def __init__(self, endpoint, marketplace_id):
         """Easy dot access like: Marketplaces.endpoint ."""
