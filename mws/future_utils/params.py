@@ -255,4 +255,4 @@ def clean_date(val):
     """Converts a datetime.datetime or datetime.date to ISO 8601 string.
     Further passes that string through `urllib.parse.quote`.
     """
-    return clean_string(val.isoformat())
+    return val.isoformat()
