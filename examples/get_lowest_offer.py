@@ -20,7 +20,7 @@ def find_asin_lowest_offer(search_asins="B07QR73T66"):
 
     # Make sure we send a LIST of ids in.
     if not isinstance(search_asins, list):
-        product = [search_asins]
+        search_asins = [search_asins]
 
     # Call the products api and get find products in amazons catalogue based on our query parameters.
     # Notice how we are using our Marketplaces enum to send in the correct marketplace ID
