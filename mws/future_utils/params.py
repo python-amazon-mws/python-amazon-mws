@@ -230,6 +230,14 @@ def clean_value(val):
 
     if isinstance(val, (datetime.datetime, datetime.date)):
         return clean_date(val)
+
+    # Detect date strings
+    for m in (datetime.date, datetime.datetime):
+        try:
+            return clean_date(m.fromisoformat(val))
+        except ValueError:
+            pass
+
     if isinstance(val, bool):
         return clean_bool(val)
 
