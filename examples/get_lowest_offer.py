@@ -49,6 +49,7 @@ def find_asin_lowest_offer(search_asins="B07QR73T66"):
         for lowest_offer in lowest_listings:
             print(lowest_offer)
 
+
 if __name__ == "__main__":
     ACCESS_KEY = os.environ["MWS_ACCESS_KEY"] if ACCESS_KEY is None else ACCESS_KEY
     SECRET_KEY = os.environ["MWS_SECRET_KEY"] if SECRET_KEY is None else SECRET_KEY
