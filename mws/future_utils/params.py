@@ -1,9 +1,11 @@
 """Parameter manipulation utilities."""
 
-from collections.abc import Iterable, Mapping
-from urllib.parse import quote
 import datetime
 import json
+from collections.abc import Iterable, Mapping
+from urllib.parse import quote
+
+from dateutil.parser import isoparse
 
 # Removed top-level import to correct circular imports
 # (we're in backport territory, these things happen)
@@ -231,15 +233,17 @@ def clean_value(val):
     if isinstance(val, (datetime.datetime, datetime.date)):
         return clean_date(val)
 
-    # Detect date strings
-    for m in (datetime.date, datetime.datetime):
-        try:
-            return clean_date(m.fromisoformat(val))
-        except ValueError:
-            pass
-
     if isinstance(val, bool):
         return clean_bool(val)
+
+    # Detect date strings
+    try:
+        parsed_date = isoparse(val)
+        if len(val) == 10:
+            return clean_date(parsed_date.date())
+        return clean_date(parsed_date)
+    except ValueError:
+        pass
 
     # For all else, assume a string, and clean that.
     return clean_string(str(val))
@@ -260,7 +264,5 @@ def clean_bool(val):
 
 
 def clean_date(val):
-    """Converts a datetime.datetime or datetime.date to ISO 8601 string.
-    Further passes that string through `urllib.parse.quote`.
-    """
+    """Converts a `datetime.datetime` or `datetime.date` to ISO 8601 string."""
     return val.isoformat()
