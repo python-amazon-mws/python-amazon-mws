@@ -1,6 +1,8 @@
 Reports
 #######
 
+.. currentmodule:: mws
+
 According to `Amazon's documentation
 <https://docs.developer.amazonservices.com/en_US/reports/Reports_Overview.html>`_:
 
@@ -12,29 +14,17 @@ According to `Amazon's documentation
 Reports API reference
 =====================
 
-.. autoclass:: mws.apis.reports.Reports
+.. autoclass:: Reports
    :members:
    :exclude-members: ReportType, Schedule, ProcessingStatus
 
 Enums
 =====
 
-.. autoclass:: mws.apis.reports.ReportType
+.. autoclass:: mws.Reports.ReportType
    :show-inheritance:
    :members:
    :undoc-members:
-
-   For convenience, this Enum can also be accessed directly from the
-   :py:class:`Reports <mws.apis.reports.Reports>` class or an instance of that class:
-
-   .. code-block:: python
-
-      from mws import Reports
-
-      inventory_type = Reports.ReportType.INVENTORY
-      # OR
-      reports_api = Reports(...)
-      inventory_type = reports_api.ReportType.INVENTORY
 
    .. rubric:: Available values
 
@@ -44,30 +34,18 @@ Enums
 
    .. code-block:: python
 
-      from mws.apis.reports import ReportType
+      from mws import Reports
 
-      my_report_type = ReportType.INVENTORY
+      my_report_type = Reports.ReportType.INVENTORY
       # OR
-      my_report_type = ReportType.INVENTORY.value
+      my_report_type = Reports.ReportType.INVENTORY.value
       # OR
       my_report_type = '_GET_FLAT_FILE_OPEN_LISTINGS_DATA_'
 
-.. autoclass:: mws.apis.reports.Schedule
+.. autoclass:: mws.Reports.Schedule
    :show-inheritance:
    :members:
    :undoc-members:
-
-   For convenience, this Enum can also be accessed directly from the
-   :py:class:`Reports <mws.apis.reports.Reports>` class or an instance of that class:
-
-   .. code-block:: python
-
-      from mws import Reports
-
-      my_schedule = Reports.Schedule.EVERY_15_MIN
-      # OR
-      reports_api = Reports(...)
-      my_schedule = reports_api.Schedule.EVERY_15_MIN
 
    .. rubric:: Available values
 
@@ -75,19 +53,7 @@ Enums
    provides easy access to all of them through several aliases for each
    schedule type.
 
-.. autoclass:: mws.apis.reports.ProcessingStatus
+.. autoclass:: mws.Reports.ProcessingStatus
    :show-inheritance:
    :members:
    :undoc-members:
-
-   For convenience, this Enum can also be accessed directly from the
-   :py:class:`Reports <mws.apis.reports.Reports>` class or an instance of that class:
-
-   .. code-block:: python
-
-      from mws import Reports
-
-      my_processing_status = Reports.ProcessingStatus.DONE
-      # OR
-      reports_api = Reports(...)
-      my_processing_status = reports_api.ProcessingStatus.DONE

@@ -15,22 +15,60 @@ According to `Amazon's documentation
 InboundShipments API reference
 ==============================
 
-.. autoclass:: mws.apis.inbound_shipments.InboundShipments
+.. autoclass:: mws.InboundShipments
    :members:
+   :exclude-members:
+     Address,
+     PrepDetails,
+     InboundShipmentPlanRequestItem,
+     InboundShipmentItem,
+     PrepInstruction,
+     ItemCondition,
+     ExtraItemData,
+     shipment_items_from_plan
 
-Data models
+Other tools
 ===========
 
-.. automodule:: mws.models.inbound_shipments
+.. module:: mws.models.inbound_shipments
+.. note:: The following classes and utility functions are attached to the
+   :py:class:`InboundShipments` class for convenient access. For example,
+   the :py:class:`Address` model can be accessed like so:
 
-   .. autoclass:: Address
-   .. autoclass:: PrepDetails
-   .. autoclass:: InboundShipmentPlanRequestItem
-   .. autoclass:: InboundShipmentItem
-   .. autofunction:: shipment_items_from_plan
+   .. code-block:: python
+
+      from mws import InboundShipments
+
+      my_address = InboundShipments.Address(...)
+
+      # or from an instance of InboundShipments:
+
+      inbound_api = InboundShipments(...)
+      my_address = inbound_api.Address(...)
+
+.. todo:: get rid of the :type directives throughout code.
+
+Data models
+-----------
+
+.. autoclass:: Address
+   :members:
+   :inherited-members:
+
+.. autoclass:: PrepDetails
+   :members:
+   :inherited-members:
+
+.. autoclass:: InboundShipmentPlanRequestItem
+   :members:
+   :inherited-members:
+
+.. autoclass:: InboundShipmentItem
+   :members:
+   :inherited-members:
 
 Enums
-=====
+-----
 
 .. autoclass:: PrepInstruction
    :show-inheritance:
@@ -41,3 +79,12 @@ Enums
    :show-inheritance:
    :members:
    :undoc-members:
+
+Utilities
+---------
+
+.. autofunction:: shipment_items_from_plan
+
+   For example usage, see: :ref:`converting_plan_items_to_shipment_items`
+
+.. autoclass:: ExtraItemData

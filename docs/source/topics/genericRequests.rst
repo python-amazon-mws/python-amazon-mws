@@ -9,7 +9,7 @@ Amazon may occasionally update MWS to include new parameters that we do not yet 
 you just want lower-level access to input your own request, without going through the rest of python-amazon-mws
 to do so.
 
-For these situations, you can use :py:meth:`APIClass.generic_request() <mws.mws.MWS.generic_request>`, available
+For these situations, you can use :py:meth:`APIClass.generic_request() <mws.MWS.generic_request>`, available
 in all API classes that inherit from the base ``MWS`` class.
 
 Back to basics
@@ -18,7 +18,7 @@ Back to basics
 To use ``.generic_request()``, you must first instantiate the API class that contains the operation you want to send.
 Using the correct API class is required, as the base URI used the build the request is different for each API section.
 For instance, to use the ``ListOrders`` operation in the ``Orders`` API, you would create an
-:py:class:`Orders <mws.apis.orders.Orders>` instance.
+:py:class:`Orders <mws.Orders>` instance.
 
 With the class instantiated, specify the operation to call as the ``action`` arg to ``.generic_request()``;
 then provide a dict of parameters for your request as ``params``:
@@ -45,7 +45,7 @@ then provide a dict of parameters for your request as ``params``:
     )
 
 The above is equivalent to calling
-:py:meth:`Orders.list_orders <mws.apis.orders.Orders.list_orders>` with:
+:py:meth:`Orders.list_orders <mws.Orders.list_orders>` with:
 
 .. code-block:: python
 

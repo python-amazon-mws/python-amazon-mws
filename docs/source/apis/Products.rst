@@ -30,7 +30,7 @@ All request methods in the Products API also require a **MarketplaceId** to spec
 are sold in. MarketplaceId values should match one of the values specified in Amazon documentation:
 `Amazon MWS endpoints and MarkeplaceId values <https://docs.developer.amazonservices.com/en_US/dev_guide/DG_Endpoints.html>`_
 
-python-amazon-mws makes these values available through the :py:class:`Marketplaces <mws.mws.Marketplaces>` Enum, which
+python-amazon-mws makes these values available through the :py:class:`Marketplaces <mws.Marketplaces>` Enum, which
 contains both the ``endpoint`` and ``marketplace_id`` for each Amazon region via that region's country code.
 
 For convenience, a ``Marketplaces`` instance will return its MarketplaceId through the ``.value`` attribute, as well.
@@ -297,7 +297,7 @@ These can be used as arguments for certain requests.
 .. autoclass:: mws.Products.FeesEstimateRequest
 
    Instances of this model are required for the argument(s) of
-   :py:meth:`get_my_fees_estimate <mws.apis.products.Products.get_my_fees_estimate>`. Constructing an instance of this
+   :py:meth:`get_my_fees_estimate <Products.get_my_fees_estimate>`. Constructing an instance of this
    model requires the use of other data models in the Products API, as well.
 
    .. rubric:: Example

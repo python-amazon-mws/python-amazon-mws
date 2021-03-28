@@ -11,11 +11,7 @@ from typing import (
 
 from mws import MWS, MWSError
 from mws.decorators import next_token_action
-from mws.models.inbound_shipments import (
-    Address,
-    InboundShipmentItem,
-    InboundShipmentPlanRequestItem,
-)
+from mws.models import inbound_shipments as models
 from mws.utils.collections import unique_list_order_preserved
 from mws.utils.deprecation import kwargs_renamed_for_v11
 from mws.utils.params import (
@@ -105,7 +101,13 @@ def parse_legacy_item(
 
 
 def parse_shipment_items(
-    items: List[Union[InboundShipmentPlanRequestItem, InboundShipmentItem, dict]],
+    items: List[
+        Union[
+            "InboundShipments.InboundShipmentPlanRequestItem",
+            "InboundShipments.InboundShipmentItem",
+            dict,
+        ]
+    ],
     operation=None,  # type: 'Literal["CreateInboundShipmentPlan", "CreateInboundShipment", "UpdateInboundShipment"]'
 ) -> List[dict]:
     """Parses item arguments sent to ``create_inbound_shipment_plan`` request.
@@ -128,7 +130,9 @@ def parse_shipment_items(
 
     item_params = []
     for item in items:
-        if isinstance(item, (InboundShipmentPlanRequestItem, InboundShipmentItem)):
+        if isinstance(
+            item, (models.InboundShipmentPlanRequestItem, models.InboundShipmentItem)
+        ):
             item.raise_for_operation_mismatch(operation)
             item_params.append(item.to_params())
         else:
@@ -165,6 +169,20 @@ class InboundShipments(MWS):
     BOX_CONTENTS_FEED = "FEED"
     BOX_CONTENTS_2D_BARCODE = "2D_BARCODE"
 
+    # Models attached to class
+    Address = models.Address
+    PrepInstruction = models.PrepInstruction
+    PrepDetails = models.PrepDetails
+    ItemCondition = models.ItemCondition
+    InboundShipmentPlanRequestItem = models.InboundShipmentPlanRequestItem
+    InboundShipmentItem = models.InboundShipmentItem
+    ExtraItemData = models.ExtraItemData
+
+    # Utility functions attached from models
+    @staticmethod
+    def shipment_items_from_plan(*args, **kwargs):
+        return models.shipment_items_from_plan(*args, **kwargs)
+
     def __init__(self, *args, **kwargs):
         """Allow the addition of a ``from_address`` kwarg, storing the address
         on this API instance.
@@ -182,7 +200,7 @@ class InboundShipments(MWS):
         return self._from_address
 
     @from_address.setter
-    def from_address(self, value: Union[Address, dict]):
+    def from_address(self, value: Union[models.Address, dict]):
         """Stores the ship-from address on this API instance.
 
         Accepts instances of ``Address`` model natively, while dict values
@@ -191,23 +209,23 @@ class InboundShipments(MWS):
         if value is None:
             self._from_address = None
             return
-        if isinstance(value, Address):
+        if isinstance(value, models.Address):
             # Shortcut by using the Address model's to_dict method.
             self._from_address = value
             return
         if not isinstance(value, Mapping):
             raise MWSError("value must be an instance of Address model or a dict")
 
-        self._from_address = Address.from_legacy_dict(value)
+        self._from_address = models.Address.from_legacy_dict(value)
 
-    def set_ship_from_address(self, address: Union[Address, dict]):
+    def set_ship_from_address(self, address: Union[models.Address, dict]):
         """DEPRECATED, remove later.
         Now an alias to assigning ``from_address`` property directly.
         """
         self.from_address = address
 
     def from_address_params(
-        self, from_address: Address = None, prefix: str = ""
+        self, from_address: models.Address = None, prefix: str = ""
     ) -> dict:
         """Converts a from address, either stored or passed as an argument, to params.
 
@@ -217,7 +235,7 @@ class InboundShipments(MWS):
         Providing a from_address as an argument will override any address stored
         on this API instance.
         """
-        if from_address and not isinstance(from_address, Address):
+        if from_address and not isinstance(from_address, models.Address):
             raise MWSError(
                 "from_address must be an instance of Address datatype model."
             )
@@ -271,11 +289,11 @@ class InboundShipments(MWS):
 
     def create_inbound_shipment_plan(
         self,
-        items: List[Union[InboundShipmentPlanRequestItem, dict]],
+        items: List[Union[models.InboundShipmentPlanRequestItem, dict]],
         country_code: str = "US",
         subdivision_code: str = None,
         label_preference: str = None,
-        from_address: Address = None,
+        from_address: models.Address = None,
     ):
         """Returns one or more inbound shipment plans, which provide the
         information you need to create inbound shipments.
@@ -324,12 +342,12 @@ class InboundShipments(MWS):
         shipment_id: str,
         shipment_name: str,
         destination: str,
-        items: List[Union[InboundShipmentItem, dict]],
+        items: List[Union[models.InboundShipmentItem, dict]],
         shipment_status: str = STATUS_WORKING,
         label_preference: str = None,
         case_required: bool = False,
         box_contents_source: str = None,
-        from_address: Address = None,
+        from_address: models.Address = None,
     ):
         """Creates an inbound shipment to Amazon's fulfillment network.
 
@@ -383,12 +401,12 @@ class InboundShipments(MWS):
         shipment_id: str,
         shipment_name: str = None,
         destination: str = None,
-        items: List[Union[InboundShipmentItem, dict]] = None,
+        items: List[Union[models.InboundShipmentItem, dict]] = None,
         shipment_status: str = None,
         label_preference: str = None,
         case_required: bool = None,
         box_contents_source: str = None,
-        from_address: Address = None,
+        from_address: models.Address = None,
     ):
         """Updates an existing inbound shipment in Amazon FBA.
 

@@ -122,7 +122,7 @@ class PrepDetails(MWSDataType):
     <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#PrepDetails>`_
 
     ``prep_instruction`` accepts either a string or an instance of the :py:class:`PrepInstruction
-    <mws.models.inbound_shipments.PrepInstruction>` enum, detailing the type of prep
+    <mws.InboundShipments.PrepInstruction>` enum, detailing the type of prep
     to perform.
 
     ``prep_owner`` (optional) accepts a string, typically "AMAZON" or "SELLER", to
@@ -185,7 +185,7 @@ class BaseInboundShipmentItem(MWSDataType):
     Include ``quantity_in_case`` if your items are case-packed.
 
     ``prep_details_list`` (optional) expects an iterable of :py:class:`PrepDetails
-    <mws.models.inbound_shipments.PrepDetails>` instances.
+    <mws.InboundShipments.PrepDetails>` instances.
     """
 
     quantity_param = ""
@@ -239,7 +239,7 @@ class InboundShipmentPlanRequestItem(BaseInboundShipmentItem):
     (to add item condition information).
 
     ``condition`` may be a string or an instance of :py:class:`ItemCondition
-    <mws.models.inbound_shipments.ItemCondition>`.
+    <mws.InboundShipments.ItemCondition>`.
     """
 
     operations_permitted = ["CreateInboundShipmentPlan"]
@@ -348,9 +348,24 @@ class ExtraItemData:
     processing items from a planned shipment in bulk using
     :py:func:`shipment_items_from_plan`.
 
-    To utilize, construct a dictionary that maps SellerSKUs to instances of this class,
-    then pass that dictionary to the ``overrides`` argument for
+    To utilize this data, construct a dictionary that maps SellerSKUs to instances of
+    this class, then pass that dictionary to the ``overrides`` argument for
     ``shipment_items_from_plan``.
+
+    Example:
+
+    .. code-block:: python
+
+        override_data = {
+            # with a case quantity
+            "MySku1": ExtraItemData(quantity_in_case=12),
+            # a release date
+            "MySku2": ExtraItemData(release_date=datetime.datetime(2021, 1, 28)),
+            # or both (short version)
+            "MySku3": ExtraItemData(24, datetime.datetime(2021, 1, 28)),
+        }
+
+        data = shipment_items_from_plan(plan, override_data)
     """
 
     def __init__(
@@ -373,14 +388,16 @@ def shipment_items_from_plan(
     plan: Union[DotDict, List[DotDict]],
     overrides: Dict[str, ExtraItemData] = None,
 ) -> List[InboundShipmentItem]:
-    """Given a shipment plan response, returns a list of InboundShipmentItem models
+    """Given a shipment plan response, returns a list of
+    :py:class:`InboundShipmentItem <mws.InboundShipments.InboundShipmentItem>` models
     constructed from the contents of that plan's ``Items`` set.
 
     Expects ``plan`` to be a node from a parsed MWS response from the
     ``create_inbound_shipment_plan`` request, typically the
-    ``resp.parsed.InboundShipmentPlans.member`` node (which may be a DotDict for a
-    single plan or a list of DotDicts for multiple; though both options should be
-    natively iterable with the same interface).
+    ``resp.parsed.InboundShipmentPlans.member`` node (which may be a
+    :py:class:`DotDict <mws.DotDict>` for a single plan or a list of ``DotDict``
+    instances for multiple; though both options should be natively iterable with the
+    same interface).
 
     Providing ``overrides`` allows the addition of details that are not returned by
     ``create_inbound_shipment_plan``, such as ``quantity_in_case`` and ``release_date``.

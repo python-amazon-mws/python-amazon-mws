@@ -20,7 +20,7 @@ the transition from v0.8.
 Major changes
 -------------
 
-- Products API :py:meth:`get_my_fees_estimate <mws.apis.products.Products.get_my_fees_estimate>` method added.
+- Products API :py:meth:`get_my_fees_estimate <mws.Products.get_my_fees_estimate>` method added.
 
   - See `#216 <https://github.com/python-amazon-mws/python-amazon-mws/pull/216>`_ for details.
 
@@ -35,21 +35,21 @@ Major changes
 - Datatype models added for InboundShipments.
 
   - All models for this API can be found in module ``mws.models.inbound_shipments``.
-  - Added datatype models for :py:class:`Address <mws.models.inbound_shipments.Address>`,
-    :py:class:`PrepDetails <mws.models.inbound_shipments.PrepDetails`,
-    :py:class:`InboundShipmentPlanRequestItem <mws.models.inbound_shipments.InboundShipmentPlanRequestItem`, and
-    :py:class:`InboundShipmentItem <mws.models.inbound_shipments.InboundShipmentItem`.
+  - Added datatype models for :py:class:`Address <mws.InboundShipments.Address>`,
+    :py:class:`PrepDetails <mws.InboundShipments.PrepDetails`,
+    :py:class:`InboundShipmentPlanRequestItem <mws.InboundShipments.InboundShipmentPlanRequestItem`, and
+    :py:class:`InboundShipmentItem <mws.InboundShipments.InboundShipmentItem`.
     These models can be used in relevant arguments for request methods related to FBA shipment creation and updating
-    (:py:meth:`create_inbound_shipment_plan <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment_plan>`,
-    :py:meth:`create_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment>`, and
-    :py:meth:`update_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.update_inbound_shipment>`.
+    (:py:meth:`create_inbound_shipment_plan <mws.InboundShipments.create_inbound_shipment_plan>`,
+    :py:meth:`create_inbound_shipment <mws.InboundShipments.create_inbound_shipment>`, and
+    :py:meth:`update_inbound_shipment <mws.InboundShipments.update_inbound_shipment>`.
 
     - With this addition, it is now possible to include
-      :py:class:`PrepDetails <mws.models.inbound_shipments.PrepDetails>` for items being added to shipments.
+      :py:class:`PrepDetails <mws.InboundShipments.PrepDetails>` for items being added to shipments.
       This was not possible using the now-"legacy" item dictionary method (though it is still possible using the
       lower-level generic requests).
 
-  - Added :py:func:`shipment_items_from_plan <mws.models.inbound_shipments.shipment_items_from_plan>` helper method.
+  - Added :py:func:`shipment_items_from_plan <mws.InboundShipments.shipment_items_from_plan>` helper method.
 
     - The method can process the contents of a shipment plan from the parsed response from
       ``create_inbound_shipment_plan``, turning the returned items into a set of ``InboundShipmentItem`` models

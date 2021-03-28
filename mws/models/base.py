@@ -27,16 +27,25 @@ class MWSDataType(ABC):
 
     @abstractmethod
     def params_dict(self) -> dict:
-        """Returns a dict of this model's parameters suitable for an MWS request."""
+        """Returns a dict of this model's parameters suitable for an MWS request.
+
+        :meta private:
+        """
         pass
 
     def to_params(self, prefix: str = "") -> dict:
+        """Flattens all parameters and values of this model into a single key-value
+        dictionary, suitable for use in a request to MWS.
+        """
         params_dict = self.params_dict()
         return flat_param_dict(params_dict, prefix=prefix)
 
     @property
     def operations_permitted_lower(self) -> List[str]:
-        """Returns list of permitted ops, all lowercase for case-insensitive testing."""
+        """Returns list of permitted ops, all lowercase for case-insensitive testing.
+
+        :meta private:
+        """
         return [x.lower() for x in self.operations_permitted]
 
     def raise_for_operation_mismatch(self, operation: str = None):
@@ -53,6 +62,8 @@ class MWSDataType(ABC):
         For any other scenario - where ``operations_permitted`` contains at least
         one operation name and ``operation`` does not match any of its members -
         raises MWSError.
+
+        :meta private:
         """
         if not self.operations_permitted or operation is None:
             # Silent pass; undefined list of ops or no op given
@@ -66,4 +77,8 @@ class MWSDataType(ABC):
 
     @staticmethod
     def flat_param_dict(value: Union[str, Mapping, Iterable], prefix: str = "") -> dict:
+        """Simple access to ``flat_param_dict`` from any subclass of this model base.
+
+        :meta private:
+        """
         return flat_param_dict(value, prefix=prefix)
