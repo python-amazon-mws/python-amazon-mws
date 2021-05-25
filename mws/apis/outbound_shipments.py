@@ -78,6 +78,41 @@ class OutboundShipments(MWS):
         )
         return self.make_request("CreateFulfillmentOrder", data)
 
+    def get_fulfillment_preview(
+        self,
+        marketplace_id=None,
+        address=None,
+        items=None,
+        shipping_speed_categories=None,
+        include_cod_fulfillment_preview=None,
+        include_delivery_windows=None,
+    ):
+        """Returns a list of fulfillment order previews based on shipping criteria that you specify.
+
+        :param marketplace_id:
+        :param address: Required
+        :param items: Required
+        :param shipping_speed_categories:
+        :param include_cod_fulfillment_preview:
+        :param include_delivery_windows:
+
+        Docs:
+        https://docs.developer.amazonservices.com/en_US/fba_outbound/FBAOutbound_GetFulfillmentPreview.html
+        """
+        data = {
+            "MarketplaceId": marketplace_id,
+            "IncludeCODFulfillmentPreview": include_cod_fulfillment_preview,
+            "IncludeDeliveryWindows": include_delivery_windows,
+        }
+        data.update(dict_keyed_param("Address", address or {}))
+        data.update(enumerate_keyed_param("Items.member", items or []))
+        data.update(
+            enumerate_param(
+                "ShippingSpeedCategories.member", shipping_speed_categories or []
+            )
+        )
+        return self.make_request("GetFulfillmentPreview", data)
+
     def update_fulfillment_order(self):
         """Updates and/or requests shipment for a fulfillment order with an order hold on it.
 
