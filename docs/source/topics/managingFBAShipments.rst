@@ -9,8 +9,7 @@ through the `Fulfillment Inbound Shipment API section
 <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Overview.html>`_.
 Users should familiarize themselves with this section of the API in MWS documentation before getting started.
 
-In python-amazon-mws, this API is covered by
-:py:class:`mws.InboundShipments <mws.apis.inbound_shipments.InboundShipments>`.
+In python-amazon-mws, this API is covered by :py:class:`InboundShipments <mws.InboundShipments>`.
 
 Basic steps to create a shipment in MWS
 =======================================
@@ -18,18 +17,18 @@ Basic steps to create a shipment in MWS
 For a quick overview, MWS requires the following pattern to creating FBA shipments:
 
 1. Send a request to
-   :py:meth:`create_inbound_shipment_plan <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment_plan>`
+   :py:meth:`create_inbound_shipment_plan <mws.InboundShipments.create_inbound_shipment_plan>`
    with all items you wish to ship, along with their quantities, conditions, prep details, and so on.
 2. MWS will respond with one or more **shipment plans**, indicating where to send each of your items. Multiple shipments
    may be requested, and the same item may have its quantities split between these shipments. Each plan also returns
    the FBA Shipment ID needed to create a shipment, as well as the ID and address of the Fulfillment Center that will
    expect that shipment.
 3. For each shipment plan, send a
-   :py:meth:`create_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment>`
+   :py:meth:`create_inbound_shipment <mws.InboundShipments.create_inbound_shipment>`
    request with the items, quantities, and other details identified in the plan.
 
    - Optionally, it is possible to use
-     :py:meth:`update_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.update_inbound_shipment>`
+     :py:meth:`update_inbound_shipment <mws.InboundShipments.update_inbound_shipment>`
      to add planned items for a new shipment to an existing shipment under certain conditions.
      **Using this option improperly may violate the terms of your seller account, so use with caution!**
 
@@ -84,13 +83,11 @@ Next, set up your ship-from address, which is required for the three core operat
 planning, creation, and updating.
 
 The simplest way to store your ship-from address is to create an instance of the
-:py:class:`Address <mws.models.inbound_shipments.Address>` model:
+:py:class:`Address <mws.InboundShipments.Address>` model:
 
 .. code-block:: python
 
-    from mws.models.inbound_shipments import Address
-
-    my_address = Address(
+    my_address = inbound_api.Address(
         name="My Warehouse",
         address_line_1="555 Selling Stuff Lane",
         address_line_2="Suite 404",
@@ -162,16 +159,14 @@ Building a list of planned items
 ********************************
 
 Each item in your shipment plan can be represented by an instance of
-:py:class:`InboundShipmentPlanRequestItem <mws.models.inbound_shipments.InboundShipmentPlanRequestItem>`,
+:py:class:`InboundShipmentPlanRequestItem <mws.InboundShipments.InboundShipmentPlanRequestItem>`,
 which closely follows the `MWS Datatype of the same name
 <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem>`_:
 
 .. code-block:: python
 
-    from mws.models.inbound_shipments import InboundShipmentPlanRequestItem
-
-    item1 = InboundShipmentPlanRequestItem('MY-SKU-1', 36)
-    item2 = InboundShipmentPlanRequestItem('MY-SKU-2', 12)
+    item1 = inbound_api.InboundShipmentPlanRequestItem('MY-SKU-1', 36)
+    item2 = inbound_api.InboundShipmentPlanRequestItem('MY-SKU-2', 12)
 
     my_items = [item1, item2]
 
@@ -184,26 +179,20 @@ shipments of new items when prep details do not need to be specified.
 
    .. code-block:: python
 
-       from mws.models.inbound_shipments import (
-           InboundShipmentPlanRequestItem,
-           ItemCondition,
-           PrepDetails,
-           PrepInstruction,
-       )
+      my_condition = inbound_api.ItemCondition.NEW_OEM  # or the string "NewOEM"
+      my_prep_details = inbound_api.PrepDetails(
+          prep_instruction=PrepInstruction.POLYBAGGING,  # or "Polybagging"
+          prep_owner=PrepDetails.AMAZON  # or "AMAZON"
+      )
 
-       detailed_item = InboundShipmentPlanRequestItem(
-           sku='MY-OTHER-SKU',
-           quantity=48,
-           quantity_in_case=12,
-           asin='B0123456789',
-           condition=ItemCondition.NEW_OEM,  # or the string "NewOEM"
-           prep_details_list=[
-               PrepDetails(
-                   prep_instruction=PrepInstruction.POLYBAGGING,  # or "Polybagging"
-                   prep_owner=PrepDetails.AMAZON  # or "AMAZON"
-               )
-           ]
-       )
+      detailed_item = inbound_api.InboundShipmentPlanRequestItem(
+          sku='MY-OTHER-SKU',
+          quantity=48,
+          quantity_in_case=12,
+          asin='B0123456789',
+          condition=my_condition,
+          prep_details_list=[my_prep_details],
+      )
 
    Again for the curious, ``detailed_item.to_params()`` looks like so:
 
@@ -350,14 +339,16 @@ In addition to these data points, you should consider gathering the following da
 
 We will illustrate how to use these data points later in this doc.
 
+.. _converting_plan_items_to_shipment_items:
+
 Converting plan items to shipment items
 ---------------------------------------
 
 While the request to ``create_inbound_shipment_plan`` makes use of the
-:py:class:`InboundShipmentPlanRequestItem <mws.models.inbound_shipments.InboundShipmentPlanRequestItem>` model to
+:py:class:`InboundShipmentPlanRequestItem <mws.InboundShipments.InboundShipmentPlanRequestItem>` model to
 transmit item data, this model is not sufficient for passing data to ``create_inbound_shipment`` and
 ``update_inbound_shipment`` requests, as they require slightly different parameters. We will need to use the
-:py:class:`InboundShipmentItem <mws.models.inbound_shipments.InboundShipmentItem>` model, instead.
+:py:class:`InboundShipmentItem <mws.InboundShipments.InboundShipmentItem>` model, instead.
 
 We can pass data to this model in one of three ways:
 
@@ -365,39 +356,33 @@ We can pass data to this model in one of three ways:
 
    .. code-block:: python
 
-      from mws.models.inbound_shipments import InboundShipmentItem
-
       for plan in resp.parsed.InboundShipmentPlans.member:
           shipment_items = []
           for item in plan.Items.member:
-              new_item = InboundShipmentItem(
+              new_item = inbound_api.InboundShipmentItem(
                   sku=item.SellerSKU,
                   quantity=item.Quantity,
               )
               shipment_items.append(new_item)
 
-2. Using :py:meth:`InboundShipmentItem.from_plan_item <mws.models.inbound_shipments.InboundShipmentItem.from_plan_item>`
+2. Using :py:meth:`InboundShipmentItem.from_plan_item <mws.InboundShipments.InboundShipmentItem.from_plan_item>`
    to construct an item automatically from each item in the response:
 
    .. code-block:: python
 
-      from mws.models.inbound_shipments import InboundShipmentItem
-
       for plan in resp.parsed.InboundShipmentPlans.member:
           shipment_items = []
           for item in plan.Items.member:
-              new_item = InboundShipmentItem.from_plan_item(item)
+              new_item = inbound_api.InboundShipmentItem.from_plan_item(item)
               shipment_items.append(new_item)
 
-3. Using helper method :py:func:`shipment_items_from_plan <mws.models.inbound_shipments.shipment_items_from_plan>`
+3. Using helper method :py:func:`shipment_items_from_plan <mws.InboundShipments.shipment_items_from_plan>`
    to return a list of items from the entire plan automatically:
 
    .. code-block:: python
 
-      from mws.models.inbound_shipments import shipment_items_from_plan
-
       for plan in resp.parsed.InboundShipmentPlans.member:
-          shipment_items = shipment_items_from_plan(plan)
+          shipment_items = inbound_api.shipment_items_from_plan(plan)
 
 .. note:: Using ``InboundShipmentItem.from_plan_item`` or ``shipment_items_from_plan``, each item will automatically
    store the ``fnsku`` of each planned item. This data is ignored in calls to ``create_inbound_shipment`` and
@@ -422,7 +407,7 @@ arguments when constructing the new item:
     :emphasize-lines: 5-6,12-13
 
     # using InboundShipmentItem(...):
-    new_item = InboundShipmentItem(
+    new_item = inbound_api.InboundShipmentItem(
         sku=item.SellerSKU,
         quantity=item.Quantity,
         quantity_in_case=...,
@@ -430,7 +415,7 @@ arguments when constructing the new item:
     )
 
     # using InboundShipmentItem.from_plan_item(...):
-    new_item = InboundShipmentItem.from_plan_item(
+    new_item = inbound_api.InboundShipmentItem.from_plan_item(
       item,
       quantity_in_case=...,
       release_date=...,
@@ -460,14 +445,12 @@ each item can be done using the ``overrides`` argument to ``shipment_items_from_
           },
       }
 
-- An instance of :py:class:`ExtraItemData <mws.models.inbound_shipments.ExtraItemData>`:
+- An instance of :py:class:`ExtraItemData <mws.InboundShipments.ExtraItemData>`:
 
   .. code-block:: python
 
-      from mws.models.inbound_shipments import ExtraItemData
-
       overrides = {
-          'mySku2': ExtraItemData(
+          'mySku2': inbound_api.ExtraItemData(
               quantity_in_case=12,
               release_date=datetime.datetime(2020-12-25),
           ),
@@ -482,28 +465,26 @@ from that request:
     overrides = {...}
 
     for plan in resp.parsed.InboundShipmentPlans.member:
-        shipment_items = shipment_items_from_plan(plan, overrides=overrides)
+        shipment_items = inbound_api.shipment_items_from_plan(plan, overrides=overrides)
 
 Creating shipments
 ==================
 
 Putting everything together up to this point, we can create a new FBA shipment using the
-:py:meth:`create_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.create_inbound_shipment>`
+:py:meth:`create_inbound_shipment <mws.InboundShipments.create_inbound_shipment>`
 method:
 
 .. code-block:: python
 
-    from mws.models.inbound_shipments import ExtraItemData, shipment_items_from_plan
-
     # with optional overrides
     overrides = {
-        'mySku1': ExtraItemData(...),
-        'mySku2': ExtraItemData(...),
+        'mySku1': inbound_api.ExtraItemData(...),
+        'mySku2': inbound_api.ExtraItemData(...),
     }
 
     for plan in resp.parsed.InboundShipmentPlans.member:
         # Gather our items for the planned shipment
-        shipment_items = shipment_items_from_plan(plan, overrides=overrides)
+        shipment_items = inbound_api.shipment_items_from_plan(plan, overrides=overrides)
 
         # Send the request to create a new shipment
         new_shipment_resp = inbound_api.create_inbound_shipment(
@@ -522,7 +503,7 @@ Updating shipments
 
 Creating a shipment is not the end of the story, of course. It is sometimes necessary to make changes to an
 already-created shipment. For this, we use
-:py:meth:`update_inbound_shipment <mws.apis.inbound_shipments.InboundShipments.update_inbound_shipment>`.
+:py:meth:`update_inbound_shipment <mws.InboundShipments.update_inbound_shipment>`.
 
 ``update_inbound_shipment``'s arguments are identical to those of ``create_inbound_shipment``, with the exception that
 all arguments besides ``shipment_id`` are optional. Generally, supplying a value to one of those arguments will
@@ -547,12 +528,17 @@ you will need to submit a total quantity of **36** in the update request:
 
     resp = inbound_api.update_inbound_shipment(
         shipment_id="FBAMYSHIPMENT",
-        items=[InboundShipmentItem(sku="MySku1", quantity=36)]
+        items=[
+            inbound_api.InboundShipmentItem(
+                sku="MySku1",
+                quantity=36,
+            )
+        ]
     )
 
 It is up to you how you keep track of these quantity changes in your process. One way might be to cache these details
 in some local database. Another might be querying the current total quantity using a request to
-:py:meth:`list_inbound_shipment_items <mws.apis.inbound_shipments.InboundShipments.list_inbound_shipment_items>`, then
+:py:meth:`list_inbound_shipment_items <mws.InboundShipments.list_inbound_shipment_items>`, then
 calculating the new total:
 
 .. code-block:: python
@@ -576,7 +562,7 @@ calculating the new total:
 
             # Add items to a list for updates:
             update_items.append(
-                InboundShipmentItem(item.SellerSKU, new_quantity)
+                inbound_api.InboundShipmentItem(item.SellerSKU, new_quantity)
             )
 
     if update_items:
@@ -617,5 +603,5 @@ If you determine that a planned item *can* be added to one of your existing ship
 As mentioned in `Changing item quantities`_, remember to use the **total** quantity of an item being updated, not
 the change in quantity, if the item is already present in the given shipment. If you are not tracking these quantities
 in your own application, you may wish to send a request to
-:py:meth:`list_inbound_shipment_items <mws.apis.inbound_shipments.InboundShipments.list_inbound_shipment_items>` to
+:py:meth:`list_inbound_shipment_items <mws.InboundShipments.list_inbound_shipment_items>` to
 obtain the current quantity of a matching item *before* sending the update request.

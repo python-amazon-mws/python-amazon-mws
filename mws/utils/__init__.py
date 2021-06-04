@@ -1,4 +1,4 @@
-from .collections import unique_list_order_preserved
+from .collections import unique_list_order_preserved, DotDict
 from .crypto import calc_md5
 from .params import (
     clean_bool,
@@ -28,6 +28,7 @@ __all__ = [
     "DataWrapper",
     "dict_keyed_param",
     "DictWrapper",
+    "DotDict",
     "enumerate_keyed_param",
     "enumerate_param",
     "enumerate_params",

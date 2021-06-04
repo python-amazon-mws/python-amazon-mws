@@ -5,7 +5,6 @@ from enum import Enum
 from typing import (
     Dict,
     List,
-    Optional,
     Union,
 )
 
@@ -34,14 +33,14 @@ class Address(MWSDataType):
 
     def __init__(
         self,
-        name: Optional[str] = None,
-        address_line_1: Optional[str] = None,
-        address_line_2: Optional[str] = None,
-        city: Optional[str] = None,
-        district_or_county: Optional[str] = None,
-        state_or_province_code: Optional[str] = None,
+        name: str = None,
+        address_line_1: str = None,
+        address_line_2: str = None,
+        city: str = None,
+        district_or_county: str = None,
+        state_or_province_code: str = None,
         country_code: str = "US",
-        postal_code: Optional[Union[str, int]] = None,
+        postal_code: Union[str, int] = None,
     ):
         self.name = name
         self.address_line_1 = address_line_1
@@ -98,15 +97,6 @@ class PrepInstruction(Enum):
 
     `MWS docs: PrepInstruction Datatype
     <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#PrepInstruction>`_
-
-    Provides constants for each prep type:
-
-    - POLYBAGGING - Indicates that polybagging is required.
-    - BUBBLEWRAPPING - Indicates that bubble wrapping is required.
-    - TAPING - Indicates that taping is required.
-    - BLACKSHRINKWRAPPING - Indicates that black shrink wrapping is required.
-    - LABELING - Indicates that the FNSKU label should be applied to the item.
-    - HANGGARMENT - Indicates that the item should be placed on a hanger.
     """
 
     POLYBAGGING = ("Polybagging", "polybagging is required")
@@ -132,9 +122,8 @@ class PrepDetails(MWSDataType):
     <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#PrepDetails>`_
 
     ``prep_instruction`` accepts either a string or an instance of the :py:class:`PrepInstruction
-    <mws.models.inbound_shipments.PrepInstruction>` enum, detailing the type of prep
-    to perform. When using a string, the value should match one of the
-    ``PrepInstruction.<PREP>.code`` values.
+    <mws.InboundShipments.PrepInstruction>` enum, detailing the type of prep
+    to perform.
 
     ``prep_owner`` (optional) accepts a string, typically "AMAZON" or "SELLER", to
     indicate who is responsible for the prep. You can use ``PrepDetails.AMAZON``
@@ -159,32 +148,10 @@ class PrepDetails(MWSDataType):
         }
 
 
-class ItemCondition(Enum):
+class ItemCondition(str, Enum):
     """Condition value for an item included with a CreateInboundShipmentPlan request.
-
-    `MWS docs: InboundShipmentPlanRequestItem Datatype
-    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem>`_
-
-    Values provided:
-
-    - NEW_ITEM
-    - NEW_WITH_WARRANTY
-    - NEW_OEM
-    - NEW_OPEN_BOX
-    - USED_LIKE_NEW
-    - USED_VERY_GOOD
-    - USED_GOOD
-    - USED_ACCEPTABLE
-    - USED_POOR
-    - USED_REFURBISHED
-    - COLLECTIBLE_LIKE_NEW
-    - COLLECTIBLE_VERY_GOOD
-    - COLLECTIBLE_GOOD
-    - COLLECTIBLE_ACCEPTABLE
-    - COLLECTIBLE_POOR
-    - REFURBISHED_WITH_WARRANTY
-    - REFURBISHED
-    - CLUB
+    Values are defined within the `InboundShipmentPlanRequestItem Datatype documentation
+    <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_Datatypes.html#InboundShipmentPlanRequestItem>`_.
     """
 
     NEW_ITEM = "NewItem"
@@ -218,7 +185,7 @@ class BaseInboundShipmentItem(MWSDataType):
     Include ``quantity_in_case`` if your items are case-packed.
 
     ``prep_details_list`` (optional) expects an iterable of :py:class:`PrepDetails
-    <mws.models.inbound_shipments.PrepDetails>` instances.
+    <mws.InboundShipments.PrepDetails>` instances.
     """
 
     quantity_param = ""
@@ -232,8 +199,8 @@ class BaseInboundShipmentItem(MWSDataType):
         self,
         sku: str,
         quantity: int,
-        quantity_in_case: Optional[int] = None,
-        prep_details_list: Optional[List[PrepDetails]] = None,
+        quantity_in_case: int = None,
+        prep_details_list: List[PrepDetails] = None,
     ):
         self.sku = sku
         self.quantity = quantity
@@ -272,7 +239,7 @@ class InboundShipmentPlanRequestItem(BaseInboundShipmentItem):
     (to add item condition information).
 
     ``condition`` may be a string or an instance of :py:class:`ItemCondition
-    <mws.models.inbound_shipments.ItemCondition>`.
+    <mws.InboundShipments.ItemCondition>`.
     """
 
     operations_permitted = ["CreateInboundShipmentPlan"]
@@ -281,8 +248,8 @@ class InboundShipmentPlanRequestItem(BaseInboundShipmentItem):
     def __init__(
         self,
         *args,
-        asin: Optional[str] = None,
-        condition: Optional[Union[ItemCondition, str]] = None,
+        asin: str = None,
+        condition: Union[ItemCondition, str] = None,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
@@ -315,7 +282,7 @@ class InboundShipmentItem(BaseInboundShipmentItem):
     def __init__(
         self,
         *args,
-        release_date: Optional[datetime.datetime] = None,
+        release_date: datetime.datetime = None,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
@@ -331,8 +298,8 @@ class InboundShipmentItem(BaseInboundShipmentItem):
     def from_plan_item(
         cls,
         item: DotDict,
-        quantity_in_case: Optional[int] = None,
-        release_date: Optional[datetime.datetime] = None,
+        quantity_in_case: int = None,
+        release_date: datetime.datetime = None,
     ) -> "InboundShipmentItem":
         """Construct this model from a shipment plan returned from a
         CreateInboundShipmentPlan request.
@@ -381,15 +348,30 @@ class ExtraItemData:
     processing items from a planned shipment in bulk using
     :py:func:`shipment_items_from_plan`.
 
-    To utilize, construct a dictionary that maps SellerSKUs to instances of this class,
-    then pass that dictionary to the ``overrides`` argument for
+    To utilize this data, construct a dictionary that maps SellerSKUs to instances of
+    this class, then pass that dictionary to the ``overrides`` argument for
     ``shipment_items_from_plan``.
+
+    Example:
+
+    .. code-block:: python
+
+        override_data = {
+            # with a case quantity
+            "MySku1": ExtraItemData(quantity_in_case=12),
+            # a release date
+            "MySku2": ExtraItemData(release_date=datetime.datetime(2021, 1, 28)),
+            # or both (short version)
+            "MySku3": ExtraItemData(24, datetime.datetime(2021, 1, 28)),
+        }
+
+        data = shipment_items_from_plan(plan, override_data)
     """
 
     def __init__(
         self,
-        quantity_in_case: Optional[int] = None,
-        release_date: Optional[datetime.datetime] = None,
+        quantity_in_case: int = None,
+        release_date: datetime.datetime = None,
     ):
         self.quantity_in_case = quantity_in_case
         self.release_date = release_date
@@ -404,16 +386,18 @@ class ExtraItemData:
 
 def shipment_items_from_plan(
     plan: Union[DotDict, List[DotDict]],
-    overrides: Optional[Dict[str, ExtraItemData]] = None,
+    overrides: Dict[str, ExtraItemData] = None,
 ) -> List[InboundShipmentItem]:
-    """Given a shipment plan response, returns a list of InboundShipmentItem models
+    """Given a shipment plan response, returns a list of
+    :py:class:`InboundShipmentItem <mws.InboundShipments.InboundShipmentItem>` models
     constructed from the contents of that plan's ``Items`` set.
 
     Expects ``plan`` to be a node from a parsed MWS response from the
     ``create_inbound_shipment_plan`` request, typically the
-    ``resp.parsed.InboundShipmentPlans.member`` node (which may be a DotDict for a
-    single plan or a list of DotDicts for multiple; though both options should be
-    natively iterable with the same interface).
+    ``resp.parsed.InboundShipmentPlans.member`` node (which may be a
+    :py:class:`DotDict <mws.DotDict>` for a single plan or a list of ``DotDict``
+    instances for multiple; though both options should be natively iterable with the
+    same interface).
 
     Providing ``overrides`` allows the addition of details that are not returned by
     ``create_inbound_shipment_plan``, such as ``quantity_in_case`` and ``release_date``.

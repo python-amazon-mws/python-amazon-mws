@@ -4,7 +4,7 @@ import datetime
 import json
 from collections.abc import Iterable, Mapping
 from enum import Enum
-from typing import Any, List, Optional, Union
+from typing import Any, List, Union
 from urllib.parse import quote
 
 from mws.errors import MWSError
@@ -35,7 +35,7 @@ def enumerate_param(param: str, values: Union[list, set, tuple]) -> dict:
     return {"{}{}".format(param, idx): val for idx, val in enumerate(values, start=1)}
 
 
-def enumerate_params(params: Optional[Mapping] = None) -> dict:
+def enumerate_params(params: Mapping = None) -> dict:
     """For each param and values, runs enumerate_param,
     returning a flat dict of all results
     """

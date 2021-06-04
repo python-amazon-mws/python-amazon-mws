@@ -6,10 +6,10 @@ DotDict
 
 .. include:: /newFeaturesTopNote100dev15.rst
 
-The :py:class:`DotDict <mws.utils.collections.DotDict>` class is a subclass of a standard Python dict that provides
+The :py:class:`DotDict <mws.DotDict>` class is a subclass of a standard Python dict that provides
 access to its keys as attributes. This object is used mainly for parsed XML content returned by
-:py:attr:`MWSResponse.parsed <mws.response.MWSResponse.parsed>` and
-:py:attr:`MWSResponse.metadata <mws.response.MWSResponse.metadata>`, but ``DotDict`` can also be used as a
+:py:attr:`MWSResponse.parsed <mws.MWSResponse.parsed>` and
+:py:attr:`MWSResponse.metadata <mws.MWSResponse.metadata>`, but ``DotDict`` can also be used as a
 general-purpose ``dict`` replacement (with some caveats, as shown below).
 
 Keys as attributes
@@ -312,6 +312,7 @@ These ``@`` and ``#text`` keys cannot be accessed directly as attributes due to 
 DotDict API
 ===========
 
-.. versionadded:: 1.0dev15
-.. autoclass:: mws.utils.collections.DotDict
+.. autoclass:: mws.DotDict
    :members:
+
+   .. versionadded:: 1.0dev15

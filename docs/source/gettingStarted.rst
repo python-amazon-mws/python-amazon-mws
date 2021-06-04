@@ -78,8 +78,8 @@ as ``DictWrapper``, with the raw document stored in ``.original``, and ``.parsed
    these objects will still be returned from requests by default, and parsed content will still use ``ObjectDict``
    instances (also deprecated).
 
-   To use newer features, such as the :py:class:`MWSResponse <mws.response.MWSResponse>` wrapper and
-   parsed XML using :py:class:`DotDict <mws.utils.collections.DotDict>`, set flag ``_use_feature_mwsresponse`` to
+   To use newer features, such as the :py:class:`MWSResponse <mws.MWSResponse>` wrapper and
+   parsed XML using :py:class:`DotDict <mws.DotDict>`, set flag ``_use_feature_mwsresponse`` to
    ``True`` on an API class instance *before* making any requests:
 
    .. code-block:: python

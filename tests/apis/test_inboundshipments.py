@@ -6,7 +6,6 @@ import pytest
 from mws import InboundShipments
 from mws import MWSError
 from mws.apis.inbound_shipments import parse_legacy_item, parse_shipment_items
-from mws.utils.xml import mws_xml_to_dotdict
 from mws.models.inbound_shipments import (
     Address,
     ExtraItemData,
@@ -49,7 +48,9 @@ def from_address_params_expected():
 
 
 @pytest.fixture
-def api_instance_stored_from_address(api_instance, inbound_from_address):
+def api_instance_stored_from_address(
+    api_instance: InboundShipments, inbound_from_address: Address
+):
     """Instance of InboundShipments ready for request testing
     that includes a ``from_address``.
     """
@@ -61,7 +62,7 @@ def api_instance_stored_from_address(api_instance, inbound_from_address):
 class TestLegacySetShipFromAddressCases(InboundShipmentsAPITestCase):
     """Test case covering ``from_address`` storage using the legacy dict."""
 
-    def test_legacy_address_built_properly(self, api_instance):
+    def test_legacy_address_built_properly(self, api_instance: InboundShipments):
         """An address with all fields covered should be constructed properly."""
         address = {
             "name": "Roland Deschain",
@@ -87,7 +88,9 @@ class TestLegacySetShipFromAddressCases(InboundShipmentsAPITestCase):
         }
         assert output == expected
 
-    def test_legacy_partial_address_built_properly(self, api_instance):
+    def test_legacy_partial_address_built_properly(
+        self, api_instance: InboundShipments
+    ):
         """An address with only required fields covered should be constructed properly,
         with omitted keys filled in with defaults.
         """
@@ -133,7 +136,9 @@ class TestLegacySetShipFromAddressCases(InboundShipmentsAPITestCase):
         }
         assert inbound_constructed.from_address.to_params() == expected
 
-    def test_set_legacy_address_with_legacy_setter(self, api_instance):
+    def test_set_legacy_address_with_legacy_setter(
+        self, api_instance: InboundShipments
+    ):
         """Using the (deprecated) ``set_ship_from_address`` should work similar to
         ``from_address`` property assignment.
         """
@@ -160,7 +165,7 @@ class TestLegacySetShipFromAddressCases(InboundShipmentsAPITestCase):
 class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
     """Test case covering ``from_address`` storage using the ``Address`` model."""
 
-    def test_ship_from_address_none(self, api_instance):
+    def test_ship_from_address_none(self, api_instance: InboundShipments):
         """The from_address property does some complicated stuff, but it
         should behave normally if `None` is passed.
         """
@@ -184,7 +189,9 @@ class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
             {"not": "a", "dict": "either"},
         ),
     )
-    def test_from_address_params_errors(self, override_obj, api_instance):
+    def test_from_address_params_errors(
+        self, override_obj, api_instance: InboundShipments
+    ):
         """The from_address_params method is used as a shorthand for several actions,
         including using the stored from_address, supplying an override address,
         and/or providing a prefix.
@@ -196,7 +203,9 @@ class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
             api_instance.from_address_params(from_address=override_obj)
 
     def test_from_address_params_override(
-        self, from_address_params_expected, api_instance_stored_from_address
+        self,
+        from_address_params_expected,
+        api_instance_stored_from_address: InboundShipments,
     ):
         """Using from_address_params, overriding the from_address with a new Address
         model should result in that address being used.
@@ -244,7 +253,7 @@ class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
             "whatever.CountryCode": "NZ",
         }
 
-    def test_address_built_properly(self, api_instance):
+    def test_address_built_properly(self, api_instance: InboundShipments):
         """An address with all fields covered should be constructed properly."""
         address = Address(
             name="Roland Deschain",
@@ -270,7 +279,7 @@ class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
         }
         assert output == expected
 
-    def test_partial_address_built_properly(self, api_instance):
+    def test_partial_address_built_properly(self, api_instance: InboundShipments):
         """An address with only required fields covered should be constructed properly,
         with omitted keys filled in with defaults.
         """
@@ -293,7 +302,7 @@ class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
         }
         assert output == expected
 
-    def test_set_address_with_constructor(self, mws_credentials):
+    def test_set_address_with_constructor(self, mws_credentials: InboundShipments):
         """An address passed to the InboundShipments constructor as a
         `from_address` kwarg should automatically set the `from_address` attribute
         (ignoring the self.inbound attribute in this case).
@@ -316,7 +325,7 @@ class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
         }
         assert inbound_constructed.from_address.to_params() == expected
 
-    def test_set_address_with_legacy_setter(self, api_instance):
+    def test_set_address_with_legacy_setter(self, api_instance: InboundShipments):
         """Using the (deprecated) ``set_ship_from_address`` should work similar to
         ``from_address`` property assignment.
         """
@@ -346,14 +355,16 @@ class TestCreateInboundShipmentPlan(InboundShipmentsAPITestCase):
     api_class = InboundShipments
 
     def test_create_inbound_shipment_plan_no_items(
-        self, api_instance_stored_from_address
+        self, api_instance_stored_from_address: InboundShipments
     ):
         """`create_inbound_shipment_plan` should raise exception for no items."""
         items = []
         with pytest.raises(MWSError):
             api_instance_stored_from_address.create_inbound_shipment_plan(items)
 
-    def test_create_inbound_shipment_plan_no_address(self, api_instance):
+    def test_create_inbound_shipment_plan_no_address(
+        self, api_instance: InboundShipments
+    ):
         """`create_inbound_shipment_plan` should raise exception for no from_address."""
         assert api_instance.from_address == {}
         items = [{"sku": "something", "quantity": 6}]
@@ -362,7 +373,7 @@ class TestCreateInboundShipmentPlan(InboundShipmentsAPITestCase):
             api_instance.create_inbound_shipment_plan(items)
 
     def test_create_inbound_shipment_plan_item_models(
-        self, api_instance_stored_from_address
+        self, api_instance_stored_from_address: InboundShipments
     ):
         """Covers successful data entry for `create_inbound_shipment_plan`
         using item models.
@@ -396,7 +407,7 @@ class TestCreateInboundShipmentPlan(InboundShipmentsAPITestCase):
             assert params[key] == val
 
     def test_create_inbound_shipment_plan_wrong_model(
-        self, api_instance_stored_from_address
+        self, api_instance_stored_from_address: InboundShipments
     ):
         """Supplying the wrong item model class to `create_inbound_shipment_plan`
         should raise MWSError.
@@ -417,7 +428,7 @@ class TestCreateInboundShipmentPlan(InboundShipmentsAPITestCase):
             )
 
     def test_create_inbound_shipment_plan_legacy_items(
-        self, api_instance_stored_from_address
+        self, api_instance_stored_from_address: InboundShipments
     ):
         """Covers successful data entry for `create_inbound_shipment_plan` using
         legacy item dicts.
@@ -456,7 +467,9 @@ class TestCreateInboundShipment(InboundShipmentsAPITestCase):
 
     api_class = InboundShipments
 
-    def test_create_inbound_shipment_no_items(self, api_instance_stored_from_address):
+    def test_create_inbound_shipment_no_items(
+        self, api_instance_stored_from_address: InboundShipments
+    ):
         """Covers cases that should raise exceptions for the
         `create_inbound_shipment` method.
         """
@@ -470,7 +483,7 @@ class TestCreateInboundShipment(InboundShipmentsAPITestCase):
                 shipment_id, shipment_name, destination, items
             )
 
-    def test_create_inbound_shipment_no_address(self, api_instance):
+    def test_create_inbound_shipment_no_address(self, api_instance: InboundShipments):
         """Covers cases that should raise exceptions for the
         `create_inbound_shipment` method.
         """
@@ -488,7 +501,7 @@ class TestCreateInboundShipment(InboundShipmentsAPITestCase):
             )
 
     def test_create_inbound_shipment_legacy_items(
-        self, api_instance_stored_from_address
+        self, api_instance_stored_from_address: InboundShipments
     ):
         """Covers successful data entry for `create_inbound_shipment`
         using legacy item dicts.
@@ -533,7 +546,7 @@ class TestCreateInboundShipment(InboundShipmentsAPITestCase):
             assert params[key] == val
 
     def test_create_inbound_shipment_item_models(
-        self, api_instance_stored_from_address
+        self, api_instance_stored_from_address: InboundShipments
     ):
         """Covers successful data entry for `create_inbound_shipment`
         using item models.
@@ -578,7 +591,7 @@ class TestCreateInboundShipment(InboundShipmentsAPITestCase):
             assert params[key] == val
 
     def test_create_inbound_shipment_wrong_model(
-        self, api_instance_stored_from_address
+        self, api_instance_stored_from_address: InboundShipments
     ):
         """Using CreateInboundShipment with the incorrect item model should
         raise MWSError.
@@ -613,7 +626,7 @@ class TestUpdateInboundShipment(InboundShipmentsAPITestCase):
     api_class = InboundShipments
 
     def test_update_inbound_shipment_legacy_items(
-        self, api_instance_stored_from_address
+        self, api_instance_stored_from_address: InboundShipments
     ):
         """Covers successful data entry for `update_inbound_shipment`
         using legacy item dicts.
@@ -660,7 +673,7 @@ class TestUpdateInboundShipment(InboundShipmentsAPITestCase):
             assert params[key] == val
 
     def test_update_inbound_shipment_item_models(
-        self, api_instance_stored_from_address
+        self, api_instance_stored_from_address: InboundShipments
     ):
         """Covers successful data entry for `update_inbound_shipment`
         using item models.
@@ -707,7 +720,7 @@ class TestUpdateInboundShipment(InboundShipmentsAPITestCase):
             assert params[key] == val
 
     def test_update_inbound_shipment_wrong_model(
-        self, api_instance_stored_from_address
+        self, api_instance_stored_from_address: InboundShipments
     ):
         """Giving the wrong Item model type to UpdateInboundShipment should
         raise MWSError.
@@ -736,7 +749,9 @@ class TestUpdateInboundShipment(InboundShipmentsAPITestCase):
                 box_contents_source=box_contents_source,
             )
 
-    def test_update_inbound_shipment_no_items(self, api_instance_stored_from_address):
+    def test_update_inbound_shipment_no_items(
+        self, api_instance_stored_from_address: InboundShipments
+    ):
         """Additional case: no items required.
         Params should have no Items keys if not provided
         """
@@ -779,7 +794,7 @@ class TestUpdateInboundShipment(InboundShipmentsAPITestCase):
         # list should be empty, because no keys should be present
         assert not param_item_keys
 
-    def test_update_inbound_shipment_no_address(self, api_instance):
+    def test_update_inbound_shipment_no_address(self, api_instance: InboundShipments):
         """UpdateInboundShipment with no from address should raise exception."""
         assert api_instance.from_address == {}
         shipment_id = "7DzXpBVxRR"
@@ -809,7 +824,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
 
     api_class = InboundShipments
 
-    def test_get_inbound_guidance_for_sku(self, api_instance):
+    def test_get_inbound_guidance_for_sku(self, api_instance: InboundShipments):
         """GetInboundGuidanceForSKU operation."""
         # Case 1: list of SKUs
         sku_list_1 = [
@@ -833,7 +848,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         assert params_2["SellerSKUList.Id.1"] == "mySku3"
         assert "SellerSKUList.Id.2" not in params_2
 
-    def test_get_inbound_guidance_for_asin(self, api_instance):
+    def test_get_inbound_guidance_for_asin(self, api_instance: InboundShipments):
         """GetInboundGuidanceForASIN operation."""
         # Case 1: list of ASINs
         params_1 = api_instance.get_inbound_guidance_for_asin(
@@ -854,13 +869,13 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         assert params_2["ASINList.Id.1"] == "myAsin3"
         assert "ASINList.Id.2" not in params_2
 
-    def test_get_preorder_info(self, api_instance):
+    def test_get_preorder_info(self, api_instance: InboundShipments):
         """GetPreorderInfo operation."""
         params = api_instance.get_preorder_info("oYRjQbGLL6")
         self.assert_common_params(params, action="GetPreorderInfo")
         assert params["ShipmentId"] == "oYRjQbGLL6"
 
-    def test_confirm_preorder(self, api_instance):
+    def test_confirm_preorder(self, api_instance: InboundShipments):
         """ConfirmPreorder operation."""
         params = api_instance.confirm_preorder(
             shipment_id="H4UiUjY7Fr",
@@ -870,7 +885,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         assert params["ShipmentId"] == "H4UiUjY7Fr"
         assert params["NeedByDate"] == "2020-10-12T00:00:00"
 
-    def test_get_prep_instructions_for_sku(self, api_instance):
+    def test_get_prep_instructions_for_sku(self, api_instance: InboundShipments):
         """GetPrepInstructionsForSKU operation."""
         # Case 1: simple list
         params_1 = api_instance.get_prep_instructions_for_sku(
@@ -895,7 +910,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         assert params_2["SellerSKUList.ID.4"] == "mySkuDupe4"
         # The second instance of `mySkuDupe` is ignored, and the ordering is preserved.
 
-    def test_get_prep_instructions_for_asin(self, api_instance):
+    def test_get_prep_instructions_for_asin(self, api_instance: InboundShipments):
         """GetPrepInstructionsForASIN operation."""
         # Case 1: simple list
         params_1 = api_instance.get_prep_instructions_for_asin(
@@ -935,14 +950,16 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
             ("get_bill_of_lading", "GetBillOfLading"),
         ),
     )
-    def test_shipment_id_only_requests(self, api_instance, method_name, action):
+    def test_shipment_id_only_requests(
+        self, api_instance: InboundShipments, method_name, action
+    ):
         """Test the output of methods that only require the shipment ID argument."""
         method = getattr(api_instance, method_name)
         params = method("myShipmentId")
         self.assert_common_params(params, action=action)
         assert params["ShipmentId"] == "myShipmentId"
 
-    def test_get_package_labels(self, api_instance):
+    def test_get_package_labels(self, api_instance: InboundShipments):
         """GetPackageLabels operation."""
         params = api_instance.get_package_labels(
             shipment_id="myShipmentId",
@@ -954,7 +971,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         assert params["PageType"] == "PackageLabel_Letter_6"
         assert params["NumberOfPackages"] == "53"
 
-    def test_get_unique_package_labels(self, api_instance):
+    def test_get_unique_package_labels(self, api_instance: InboundShipments):
         """GetUniquePackageLabels operation."""
         # Case 1: list of package_ids
         params_1 = api_instance.get_unique_package_labels(
@@ -977,7 +994,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         assert params_2["PackageLabelsToPrint.member.1"] == "myShipment3"
         assert "PackageLabelsToPrint.member.2" not in params_2
 
-    def test_get_pallet_labels(self, api_instance):
+    def test_get_pallet_labels(self, api_instance: InboundShipments):
         """GetPalletLabels operation."""
         params = api_instance.get_pallet_labels(
             shipment_id="myShipmentId",
@@ -989,7 +1006,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         assert params["PageType"] == "PackageLabel_A4_4"
         assert params["NumberOfPallets"] == "69"
 
-    def test_list_inbound_shipments(self, api_instance):
+    def test_list_inbound_shipments(self, api_instance: InboundShipments):
         """ListInboundShipments operation."""
         params = api_instance.list_inbound_shipments(
             shipment_ids=["myShipment1", "myShipment2"],
@@ -1006,7 +1023,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         assert params["ShipmentIdList.member.1"] == "myShipment1"
         assert params["ShipmentIdList.member.2"] == "myShipment2"
 
-    def test_list_inbound_shipment_items(self, api_instance):
+    def test_list_inbound_shipment_items(self, api_instance: InboundShipments):
         """ListInboundShipmentItems operation."""
         params = api_instance.list_inbound_shipment_items(
             shipment_id="P9NLpC2Afi",
@@ -1019,7 +1036,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         assert params["LastUpdatedBefore"] == "2020-10-12T00:00:00"
         assert params["LastUpdatedAfter"] == "2020-10-12T01:00:00"
 
-    def test_next_token_methods(self, api_instance):
+    def test_next_token_methods(self, api_instance: InboundShipments):
         """Check content of methods that can use next_tokens"""
         mapping = (
             (
@@ -1037,7 +1054,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
             self.assert_common_params(params, action=action)
             assert params["NextToken"] == "my_next_token"
 
-    def test_next_token_alias_methods(self, api_instance):
+    def test_next_token_alias_methods(self, api_instance: InboundShipments):
         """Check content of alias method that can use next_tokens."""
         mapping = (
             (
@@ -1082,7 +1099,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         ],
     )
     def test_list_inbound_shipments_status_and_id(
-        self, api_instance_stored_from_address, statuses, ids
+        self, api_instance_stored_from_address: InboundShipments, statuses, ids
     ):
         """Check that a mixture of different argument types for `shipment_statuses`
         and `shipment_ids` will work in `InboundShipments.list_inbound_shipments`.

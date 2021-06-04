@@ -1,33 +1,50 @@
 """Datatype models for Products API."""
 
 from enum import Enum
-from typing import Optional, Union
+from typing import Union
 
 from mws.utils.types import MarketplaceEnumOrStr
 
 from .base import MWSDataType
 
 
-class CurrencyCode(Enum):
+# NOTE: objects listed in __all__ will be attached to the Products API by the same name.
+# Maintain this list, please!
+__all__ = [
+    "CurrencyCode",
+    "MoneyType",
+    "Points",
+    "PriceToEstimateFees",
+    "FeesEstimateRequest",
+]
+
+
+class CurrencyCode(str, Enum):
     """Constants for currency codes supported by Amazon."""
 
-    USD = ("USD", "United States dollar")
-    EUR = ("EUR", "European euro")
-    GBP = ("GBP", "Great Britain pounds")
-    RMB = ("RMB", "Chinese yuan")
-    INR = ("INR", "Indian rupee")
-    JPY = ("JPY", "Japanese yen")
-    CAD = ("CAD", "Canadian dollar")
-    MXN = ("MXN", "Mexican peso")
+    USD = "USD"
+    """United States dollar"""
 
-    def __init__(self, code, description):
-        """Easy dot access like: ``CurrencyCode.Foo.code`` and ``.description`` ."""
-        self.code = code
-        self.description = description
+    EUR = "EUR"
+    """European euro"""
 
-    @property
-    def value(self):
-        return self.code
+    GBP = "GBP"
+    """Great Britain pounds"""
+
+    RMB = "RMB"
+    """Chinese yuan"""
+
+    INR = "INR"
+    """Indian rupee"""
+
+    JPY = "JPY"
+    """Japanese yen"""
+
+    CAD = "CAD"
+    """Canadian dollar"""
+
+    MXN = "MXN"
+    """Mexican peso"""
 
 
 class MoneyType(MWSDataType):
@@ -80,7 +97,7 @@ class PriceToEstimateFees(MWSDataType):
         self,
         listing_price: MoneyType,
         shipping: MoneyType,
-        points: Optional[Points] = None,
+        points: Points = None,
     ):
         assert isinstance(
             listing_price, MoneyType

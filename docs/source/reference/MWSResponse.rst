@@ -8,14 +8,14 @@ MWSResponse
 
 ``MWSResponse`` acts as a wrapper for ``requests.Response`` objects returned from requests made to MWS.
 When initialized, the response content is :doc:`automatically parsed for XML content <../topics/parsedXMLResponses>`,
-making it available as a ``DotDict`` instance in :py:attr:`mws.response.MWSResponse.parsed`.
+making it available as a ``DotDict`` instance in :py:attr:`MWSResponse.parsed <mws.MWSResponse.parsed>`.
 
 Parsed content for XML responses
 ================================
 
 All XML response content is automatically parsed using the ``xmltodict`` package. The parsed results are stored as a
-:py:class:`DotDict <mws.utils.collections.DotDict>` accessible from
-:py:meth:`MWSResponse.parsed <mws.response.MWSResponse.parsed>`.
+:py:class:`DotDict <mws.DotDict>` accessible from
+:py:meth:`MWSResponse.parsed <mws.MWSResponse.parsed>`.
 
 For more details on working with the parsed content, please see :doc:`DotDict`.
 
@@ -25,7 +25,7 @@ Original response access
 As ``MWSResponse`` wraps a ``requests.Response`` object, all data and methods of that underlying object can be accessed
 from the ``MWSResponse`` instance using one of the following:
 
-- The :py:attr:`MWSResponse.original <mws.response.MWSResponse.original>` attribute:
+- The :py:attr:`MWSResponse.original <mws.MWSResponse.original>` attribute:
 
   .. code-block:: python
 
@@ -69,7 +69,7 @@ MWSResponse API
 ===============
 
 .. versionadded:: 1.0dev15
-.. autoclass:: mws.response.MWSResponse
+.. autoclass:: mws.MWSResponse
    :members:
    :inherited-members:
 

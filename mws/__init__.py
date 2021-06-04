@@ -20,7 +20,7 @@ from .apis import (
     EasyShip,
 )
 from .response import MWSResponse
-from .utils import types
+from .utils import types, DotDict
 
 __all__ = [
     "EasyShip",
@@ -42,6 +42,7 @@ __all__ = [
     "Sellers",
     "Subscriptions",
     "types",
+    "DotDict",
 ]
 
 warnings.simplefilter("default")
