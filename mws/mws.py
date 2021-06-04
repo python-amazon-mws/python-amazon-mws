@@ -32,7 +32,7 @@ https://docs.developer.amazonservices.com/en_US/dev_guide/DG_UserAgentHeader.htm
 PAM_DEFAULT_TIMEOUT = 300
 
 __all__ = [
-    "calc_request_description",
+    "canonicalized_query_string",
     "Marketplaces",
     "MWS",
 ]
@@ -78,9 +78,10 @@ class Marketplaces(Enum):
         return self.marketplace_id
 
 
-## TODO DEPRECATE THIS ##
-def calc_request_description(params):
-    """Builds the request description as a single string from the set of params.
+def canonicalized_query_string(params):
+    """Builds the canonicalized query string from the set of params,
+    according to `Creating a Canonicalized Query String
+    <https://docs.developer.amazonservices.com/en_US/dev_guide/DG_QueryString.html>`_.
 
     Each key-value pair takes the form "key=value"
     Sets of "key=value" pairs are joined by "&".
@@ -92,8 +93,9 @@ def calc_request_description(params):
       "bar=4&baz=potato&foo=1"
     """
     description_items = []
-    for item in sorted(params.keys()):
-        encoded_val = params[item]
+    encoded_params = clean_params_dict(params, urlencode=True)
+    for item in sorted(encoded_params.keys()):
+        encoded_val = encoded_params[item]
         description_items.append("{}={}".format(item, encoded_val))
     return "&".join(description_items)
 
@@ -211,21 +213,26 @@ class MWS(object):
         return params
 
     def make_request(
-        self, action, params=None, method="GET", timeout=PAM_DEFAULT_TIMEOUT, **kwargs
+        self,
+        action,
+        params=None,
+        method="POST",
+        timeout=PAM_DEFAULT_TIMEOUT,
+        **kwargs,
     ):
         """Make request to Amazon MWS API with these params.
 
-        `action` is a string matching the name of the request action
+        ``action`` is a string matching the name of the request action
         (i.e. "ListOrders").
 
-        `params` is a flat dict containing params to pass to the operation.
+        ``params`` is a flat dict containing params to pass to the operation.
 
-        `method` is a string, matching an HTTP verb ("GET", "POST", etc.),
+        ``method`` is a string, matching an HTTP verb ("GET", "POST", etc.),
         which sets the method for a `requests.request` call.
 
-        `timeout` passes to `requests.request`, setting the timeout for this request.
+        ``timeout`` passes to `requests.request`, setting the timeout for this request.
 
-        `kwargs` may include:
+        ``kwargs`` may include:
 
         - `result_key`, providing a custom key to use as the root for results
           returned by `response.parsed`.
@@ -241,42 +248,44 @@ class MWS(object):
         # Remove empty keys and clean values before transmitting
         request_params = remove_empty_param_keys(request_params)
         request_params = clean_params_dict(request_params)
-
+        # Create a canonical query string
+        canonical_query = canonicalized_query_string(request_params)
         if self._test_request_params:
-            # Testing method: return the params from this request before the request is made.
+            # For tests: return the params from this request before the request is made.
             return request_params
         # TODO: All current testing stops here. More branches needed.
 
-        request_description = calc_request_description(request_params)
-        signature = self.calc_signature(method, request_description)
-        url = "{domain}{uri}?{description}&Signature={signature}".format(
-            domain=self.domain,
-            uri=self.uri,
-            description=request_description,
-            signature=quote(signature),
-        )
+        # Sign the request using the canonical string.
+        signature = self.calc_signature(method, canonical_query)
+        request_params["Signature"] = signature
         headers = {"User-Agent": self.user_agent_str}
         headers.update(self.extra_headers)
         headers.update(kwargs.get("extra_headers", {}))
 
         result_key = kwargs.get("result_key", "{}Result".format(action))
 
-        try:
-            # Some might wonder as to why i don't pass the params dict as the params argument to request.
-            # My answer is, here i have to get the url parsed string of params in order to sign it, so
-            # if i pass the params dict as params to request, request will repeat that step because it will need
-            # to convert the dict to a url parsed string, so why do it twice if i can just pass the full url :).
+        request_args = {
+            "method": method,
+            "url": self.endpoint,
+            "headers": headers,
+            "proxies": proxies,
+            "timeout": timeout,
+        }
+        body = kwargs.get("body")
+        if body:
+            # Force POST method: no other choice in this case.
+            method = "POST"
+            # Typically for a SubmitFeed operation, our data is in the body,
+            # and other params need to be set in query parameters.
+            request_args["data"] = body
+            request_args["params"] = request_params
+        elif method == "POST":
+            request_args["data"] = request_params
+        else:
+            request_args["params"] = request_params
 
-            # TODO ^^ Because that's not how a POST request works, man!
-            # We're gonna fix this!
-            response = request(
-                method,
-                url,
-                data=kwargs.get("body", ""),
-                headers=headers,
-                proxies=proxies,
-                timeout=timeout,
-            )
+        try:
+            response = request(**request_args)
             response.raise_for_status()
             # When retrieving data from the response object,
             # be aware that response.content returns the content in bytes while response.text calls
@@ -321,6 +330,10 @@ class MWS(object):
 
         # Store the response object in the parsed_response for quick access
         return parsed_response
+
+    @property
+    def endpoint(self):
+        return "{}{}".format(self.domain, self.uri)
 
     def get_proxies(self):
         """Return a dict of http and https proxies, as defined by `self.proxy`."""
@@ -371,21 +384,21 @@ class MWS(object):
 
         action = "{}ByNextToken".format(action)
 
-        return self.make_request(action, {"NextToken": next_token}, method="POST")
+        return self.make_request(action, {"NextToken": next_token})
 
-    def calc_signature(self, method, request_description):
+    def calc_signature(self, method, canonical_query):
         """Calculate MWS signature to interface with Amazon
 
         Args:
             method (str)
-            request_description (str)
+            canonical_query (str)
         """
         sig_data = "\n".join(
             [
                 method,
                 self.domain.replace("https://", "").lower(),
                 self.uri,
-                request_description,
+                canonical_query,
             ]
         )
         return base64.b64encode(
@@ -408,7 +421,12 @@ class MWS(object):
         return enumerate_param(param, values)
 
     def generic_request(
-        self, action, params=None, method="GET", timeout=PAM_DEFAULT_TIMEOUT, **kwargs
+        self,
+        action,
+        params=None,
+        method="POST",
+        timeout=PAM_DEFAULT_TIMEOUT,
+        **kwargs,
     ):
         """Builds a generic request with arbitrary parameter arguments.
         This method should be called from an API subclass (``Orders``, ``Feeds``, etc.),

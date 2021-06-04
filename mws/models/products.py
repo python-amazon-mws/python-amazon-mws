@@ -21,7 +21,7 @@ class CurrencyCode(Enum):
     MXN = ("MXN", "Mexican peso")
 
     def __init__(self, code, description):
-        """Easy dot access like: Marketplaces.endpoint ."""
+        """Easy dot access like: ``CurrencyCode.Foo.code`` and ``.description`` ."""
         self.code = code
         self.description = description
 

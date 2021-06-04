@@ -5,7 +5,6 @@ import pytest
 from ..conftest import TEST_MWS_ACCESS_KEY, TEST_MWS_ACCOUNT_ID, TEST_MWS_AUTH_TOKEN
 
 from mws.mws import MWS
-from mws.utils.params import clean_string
 
 
 class APITestCase:
@@ -16,7 +15,7 @@ class APITestCase:
     def assert_common_params(self, params, action=None):
         """Tests the common params expected in every call."""
         if action:
-            assert params["Action"] == clean_string(action)
+            assert params["Action"] == action
 
         assert params["AWSAccessKeyId"] == TEST_MWS_ACCESS_KEY
         assert params[self.api_class.ACCOUNT_TYPE] == TEST_MWS_ACCOUNT_ID
@@ -27,13 +26,13 @@ class APITestCase:
         # If test fails here, check that method.
         assert params["SignatureMethod"] == "HmacSHA256"
         assert params["SignatureVersion"] == "2"
-        isoformat_str = "%Y-%m-%dT%H%%3A%M%%3A%S"
+        isoformat_str = "%Y-%m-%dT%H:%M:%S"
         try:
             datetime.datetime.strptime(params["Timestamp"], isoformat_str)
         except ValueError:
             pytest.fail(
                 "Timestamp expected an ISO-8601 datetime string url encoded"
-                " with format [YYYY-MM-DDTHH%3AMM%3ASS]."
+                " with format [YYYY-MM-DDTHH:MM:SS]."
             )
 
     def test_service_status(self, api_instance):
@@ -117,7 +116,7 @@ class APITestCase:
 
         request_params = api_instance.generic_request(action=action, params=params)
         self.assert_common_params(request_params, action="BasicGenericRequest")
-        assert request_params["ADateTime"] == "2020-10-12T00%3A00%3A00"
+        assert request_params["ADateTime"] == "2020-10-12T00:00:00"
         assert request_params["ATrueBool"] == "true"
         assert request_params["AFalseBool"] == "false"
         assert "NoneShouldNotExist" not in request_params

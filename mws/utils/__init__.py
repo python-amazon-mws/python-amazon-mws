@@ -3,7 +3,6 @@ from .crypto import calc_md5
 from .params import (
     clean_bool,
     clean_date,
-    clean_string,
     clean_value,
     clean_enum,
     dict_keyed_param,
@@ -24,7 +23,6 @@ __all__ = [
     "calc_md5",
     "clean_bool",
     "clean_date",
-    "clean_string",
     "clean_value",
     "clean_enum",
     "DataWrapper",

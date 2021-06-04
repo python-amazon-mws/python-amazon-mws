@@ -33,8 +33,8 @@ class ReportsTestCase(CommonAPIRequestTools, unittest.TestCase):
 
         self.assert_common_params(params, action="RequestReport")
         self.assertEqual(params["ReportType"], report_type)
-        self.assertEqual(params["StartDate"], "2018-04-30T22%3A59%3A59")
-        self.assertEqual(params["EndDate"], "2018-04-30T23%3A59%3A59")
+        self.assertEqual(params["StartDate"], "2018-04-30T22:59:59")
+        self.assertEqual(params["EndDate"], "2018-04-30T23:59:59")
         self.assertEqual(params["MarketplaceIdList.Id.1"], marketplace_ids[0])
         self.assertEqual(params["MarketplaceIdList.Id.2"], marketplace_ids[1])
 
@@ -55,8 +55,8 @@ class ReportsTestCase(CommonAPIRequestTools, unittest.TestCase):
         # Further, the final result should be encoded once before being sent,
         # resulting in the following URL-encoded strings.
         options_possible = (
-            "custom%3Dtrue%3Bsomethingelse%3Dabc",
-            "somethingelse%3Dabc%3Bcustom%3Dtrue",
+            "custom=true;somethingelse=abc",
+            "somethingelse=abc;custom=true",
         )
         assert params["ReportOptions"] in options_possible
 

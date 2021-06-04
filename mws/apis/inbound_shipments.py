@@ -318,7 +318,7 @@ class InboundShipments(MWS):
                 ),
             )
         )
-        return self.make_request("CreateInboundShipmentPlan", data, method="POST")
+        return self.make_request("CreateInboundShipmentPlan", data)
 
     def create_inbound_shipment(
         self,
@@ -377,7 +377,7 @@ class InboundShipments(MWS):
                 ),
             )
         )
-        return self.make_request("CreateInboundShipment", data, method="POST")
+        return self.make_request("CreateInboundShipment", data)
 
     def update_inbound_shipment(
         self,
@@ -435,7 +435,7 @@ class InboundShipments(MWS):
                     ),
                 )
             )
-        return self.make_request("UpdateInboundShipment", data, method="POST")
+        return self.make_request("UpdateInboundShipment", data)
 
     def get_preorder_info(self, shipment_id: str):
         """Returns pre-order information, including dates, that a seller needs
@@ -483,7 +483,7 @@ class InboundShipments(MWS):
             "ShipToCountryCode": country_code,
         }
         data.update(enumerate_param("SellerSKUList.ID.", skus))
-        return self.make_request("GetPrepInstructionsForSKU", data, method="POST")
+        return self.make_request("GetPrepInstructionsForSKU", data)
 
     def get_prep_instructions_for_asin(
         self,
@@ -501,7 +501,7 @@ class InboundShipments(MWS):
             "ShipToCountryCode": country_code,
         }
         data.update(enumerate_param("ASINList.ID.", asins))
-        return self.make_request("GetPrepInstructionsForASIN", data, method="POST")
+        return self.make_request("GetPrepInstructionsForASIN", data)
 
     # # TODO this method is incomplete: it should be able to account for all TransportDetailInput types
     # def put_transport_content(self, shipment_id, is_partnered, shipment_type, carrier_name, tracking_id):
@@ -534,7 +534,7 @@ class InboundShipments(MWS):
         data = {
             "ShipmentId": shipment_id,
         }
-        return self.make_request("EstimateTransportRequest", data, method="POST")
+        return self.make_request("EstimateTransportRequest", data)
 
     def get_transport_content(self, shipment_id: str):
         """Returns current transportation information about an inbound shipment.
@@ -545,7 +545,7 @@ class InboundShipments(MWS):
         data = {
             "ShipmentId": shipment_id,
         }
-        return self.make_request("GetTransportContent", data, method="POST")
+        return self.make_request("GetTransportContent", data)
 
     def confirm_transport_request(self, shipment_id: str):
         """Confirms that you accept the Amazon-partnered shipping estimate and
@@ -566,7 +566,7 @@ class InboundShipments(MWS):
         data = {
             "ShipmentId": shipment_id,
         }
-        return self.make_request("VoidTransportRequest", data, method="POST")
+        return self.make_request("VoidTransportRequest", data)
 
     @kwargs_renamed_for_v11([("num_packages", "num_labels")])
     def get_package_labels(
@@ -585,7 +585,7 @@ class InboundShipments(MWS):
             "PageType": page_type,
             "NumberOfPackages": num_labels,
         }
-        return self.make_request("GetPackageLabels", data, method="POST")
+        return self.make_request("GetPackageLabels", data)
 
     def get_unique_package_labels(
         self,
@@ -661,7 +661,7 @@ class InboundShipments(MWS):
         data = {
             "ShipmentId": shipment_id,
         }
-        return self.make_request("GetBillOfLading", data, method="POST")
+        return self.make_request("GetBillOfLading", data)
 
     @next_token_action("ListInboundShipments")
     def list_inbound_shipments(
@@ -695,7 +695,7 @@ class InboundShipments(MWS):
                 values=shipment_ids,
             )
         )
-        return self.make_request("ListInboundShipments", data, method="POST")
+        return self.make_request("ListInboundShipments", data)
 
     def list_inbound_shipments_by_next_token(self, token: str):
         """Alias for ``list_inbound_shipments(next_token=token)``
@@ -725,7 +725,7 @@ class InboundShipments(MWS):
             "LastUpdatedAfter": last_updated_after,
             "LastUpdatedBefore": last_updated_before,
         }
-        return self.make_request("ListInboundShipmentItems", data, method="POST")
+        return self.make_request("ListInboundShipmentItems", data)
 
     def list_inbound_shipment_items_by_next_token(self, token: str):
         """Alias for ``list_inbound_shipment_items(next_token=token)``
