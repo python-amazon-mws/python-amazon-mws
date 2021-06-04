@@ -95,7 +95,7 @@ def calc_md5(string):
 def calc_request_description(params):
     request_description = ""
     for key in sorted(params):
-        encoded_value = quote(params[key], safe="-_.~")
+        encoded_value = params[key]
         request_description += "&{}={}".format(key, encoded_value)
     return request_description[1:]  # don't include leading ampersand
 
