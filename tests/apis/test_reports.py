@@ -59,8 +59,8 @@ class TestReportsAPI(ReportsAPITestCase):
         )
         self.assert_common_params(params, action="RequestReport")
         assert params["ReportType"] == "_GET_FLAT_FILE_OPEN_LISTINGS_DATA_"
-        assert params["StartDate"] == "2018-04-30T22%3A59%3A59"
-        assert params["EndDate"] == "2018-04-30T23%3A59%3A59"
+        assert params["StartDate"] == "2018-04-30T22:59:59"
+        assert params["EndDate"] == "2018-04-30T23:59:59"
         assert params["MarketplaceIdList.Id.1"] == marketplace_ids[0]
         assert params["MarketplaceIdList.Id.2"] == marketplace_ids[1]
 
@@ -81,8 +81,8 @@ class TestReportsAPI(ReportsAPITestCase):
         # Further, the final result should be encoded once before being sent,
         # resulting in the following URL-encoded strings.
         options_possible = (
-            "custom%3Dtrue%3Bsomethingelse%3Dabc",
-            "somethingelse%3Dabc%3Bcustom%3Dtrue",
+            "custom=true;somethingelse=abc",
+            "somethingelse=abc;custom=true",
         )
         assert params["ReportOptions"] in options_possible
 
@@ -131,8 +131,8 @@ class TestReportsAPI(ReportsAPITestCase):
         )
         self.assert_common_params(params, action="GetReportRequestList")
         assert params["MaxCount"] == str(max_count)
-        assert params["RequestedFromDate"] == "2021-01-26T22%3A59%3A59"
-        assert params["RequestedToDate"] == "2021-01-26T23%3A59%3A59"
+        assert params["RequestedFromDate"] == "2021-01-26T22:59:59"
+        assert params["RequestedToDate"] == "2021-01-26T23:59:59"
         assert params["ReportRequestIdList.Id.1"] == "rPlSxpfnR7"
         assert params["ReportRequestIdList.Id.2"] == "qRrkqv03qh"
         assert params["ReportTypeList.Type.1"] == "_GET_MFN_PAN_EU_OFFER_STATUS_"
@@ -171,8 +171,8 @@ class TestReportsAPI(ReportsAPITestCase):
             to_date=to_date,
         )
         self.assert_common_params(params, action="GetReportRequestCount")
-        assert params["RequestedFromDate"] == "2021-01-26T22%3A59%3A59"
-        assert params["RequestedToDate"] == "2021-01-26T23%3A59%3A59"
+        assert params["RequestedFromDate"] == "2021-01-26T22:59:59"
+        assert params["RequestedToDate"] == "2021-01-26T23:59:59"
         assert (
             params["ReportTypeList.Type.1"]
             == "_GET_XML_ALL_ORDERS_DATA_BY_LAST_UPDATE_"
@@ -208,8 +208,8 @@ class TestReportsAPI(ReportsAPITestCase):
         )
         self.assert_common_params(params, action="GetReportList")
         assert params["Acknowledged"] == "true"
-        assert params["AvailableFromDate"] == "2021-01-26T22%3A59%3A59"
-        assert params["AvailableToDate"] == "2021-01-26T23%3A59%3A59"
+        assert params["AvailableFromDate"] == "2021-01-26T22:59:59"
+        assert params["AvailableToDate"] == "2021-01-26T23:59:59"
         assert params["MaxCount"] == "564"
         assert params["ReportRequestIdList.Id.1"] == "c4eik8sxXC"
         assert params["ReportRequestIdList.Id.2"] == "NIVgnbHXe0"
@@ -245,8 +245,8 @@ class TestReportsAPI(ReportsAPITestCase):
         )
         self.assert_common_params(params, action="GetReportCount")
         assert params["Acknowledged"] == "true"
-        assert params["AvailableFromDate"] == "2021-01-26T22%3A59%3A59"
-        assert params["AvailableToDate"] == "2021-01-26T23%3A59%3A59"
+        assert params["AvailableFromDate"] == "2021-01-26T22:59:59"
+        assert params["AvailableToDate"] == "2021-01-26T23:59:59"
         assert (
             params["ReportTypeList.Type.1"] == "_GET_AMAZON_FULFILLED_SHIPMENTS_DATA_"
         )
@@ -313,7 +313,7 @@ class TestReportsAPI(ReportsAPITestCase):
         self.assert_common_params(params, action="ManageReportSchedule")
         assert params["ReportType"] == "_GET_AFN_INVENTORY_DATA_"
         assert params["Schedule"] == "_15_MINUTES_"
-        assert params["ScheduleDate"] == "2021-01-26T00%3A00%3A00"
+        assert params["ScheduleDate"] == "2021-01-26T00:00:00"
 
     @pytest.mark.parametrize(
         "report_type",
@@ -376,8 +376,8 @@ class TestReportsAPI(ReportsAPITestCase):
             to_date=to_date,
         )
         self.assert_common_params(params, action="CancelReportRequests")
-        assert params["RequestedFromDate"] == "2021-01-27T22%3A59%3A59"
-        assert params["RequestedToDate"] == "2021-01-27T23%3A59%3A59"
+        assert params["RequestedFromDate"] == "2021-01-27T22:59:59"
+        assert params["RequestedToDate"] == "2021-01-27T23:59:59"
         assert params["ReportRequestIdList.Id.1"] == "bV414Uy8Ab"
         assert params["ReportRequestIdList.Id.2"] == "wCP115hLSn"
         assert (
