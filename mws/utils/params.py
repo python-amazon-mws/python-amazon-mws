@@ -220,14 +220,17 @@ def remove_empty_param_keys(params: Mapping) -> dict:
     return {k: v for k, v in params.items() if v is not None and v != ""}
 
 
-def clean_params_dict(params: Mapping) -> dict:
+def clean_params_dict(params: Mapping, urlencode=False) -> dict:
     """Clean multiple param values in a dict, returning a new dict
     containing the original keys and cleaned values.
     """
     cleaned_params = dict()
     for key, val in params.items():
         try:
-            cleaned_params[key] = clean_value(val)
+            newval = clean_value(val)
+            if urlencode:
+                newval = quote(val, safe="-_.~")
+            cleaned_params[key] = newval
         except ValueError as exc:
             raise MWSError(str(exc)) from exc
     return cleaned_params
@@ -245,16 +248,8 @@ def clean_value(val: Any) -> str:
     if isinstance(val, Enum):
         return clean_enum(val)
 
-    # For all else, assume a string, and clean that.
-    return clean_string(str(val))
-
-
-def clean_string(val: str) -> str:
-    """Passes a string value through `urllib.parse.quote` to clean it.
-
-    Safe characters permitted: -_.~
-    """
-    return quote(val, safe="-_.~")
+    # For all else, simply convert to a string value.
+    return str(val)
 
 
 def clean_bool(val: bool) -> str:
@@ -268,7 +263,7 @@ def clean_date(val: Union[datetime.datetime, datetime.date]) -> str:
     """Converts a datetime.datetime or datetime.date to ISO 8601 string.
     Further passes that string through `urllib.parse.quote`.
     """
-    return clean_string(val.isoformat())
+    return val.isoformat()
 
 
 def clean_enum(val: Union[Enum, str]) -> str:

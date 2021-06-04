@@ -2,7 +2,6 @@
 
 import unittest
 import mws
-from mws.utils import clean_string
 
 from .utils import CommonAPIRequestTools
 
@@ -21,7 +20,7 @@ class RecommendationsTestCase(CommonAPIRequestTools, unittest.TestCase):
         marketplace_id = "marketplace_foobar"
         params = self.api.get_last_updated_time_for_recommendations(marketplace_id)
         self.assert_common_params(params, action="GetLastUpdatedTimeForRecommendations")
-        self.assertEqual(params["MarketplaceId"], marketplace_id)
+        assert params["MarketplaceId"] == marketplace_id
 
     def test_list_recommendations(self):
         """ListRecommendations operation"""
@@ -32,21 +31,17 @@ class RecommendationsTestCase(CommonAPIRequestTools, unittest.TestCase):
             recommendation_category=recommendation_category,
         )
         self.assert_common_params(params, action="ListRecommendations")
-        self.assertEqual(params["MarketplaceId"], marketplace_id)
-        self.assertEqual(
-            params["RecommendationCategory"], clean_string(recommendation_category)
-        )
+        assert params["MarketplaceId"] == marketplace_id
+        assert params["RecommendationCategory"] == recommendation_category
 
     def test_list_recommendations_by_next_token(self):
         """ListRecommendationsByNextToken operation, via next_token arg."""
-        next_token = "foobar123"
-        params = self.api.list_recommendations(next_token=next_token)
+        params = self.api.list_recommendations(next_token="foobar123")
         self.assert_common_params(params, action="ListRecommendationsByNextToken")
-        self.assertEqual(params["NextToken"], next_token)
+        assert params["NextToken"] == "foobar123"
 
     def test_list_recommendations_by_next_token_alias(self):
         """ListRecommendationsByNextToken operation, via alias method."""
-        next_token = "barbaz456"
-        params = self.api.list_recommendations_by_next_token(next_token)
+        params = self.api.list_recommendations_by_next_token("barbaz456")
         self.assert_common_params(params, action="ListRecommendationsByNextToken")
-        self.assertEqual(params["NextToken"], next_token)
+        assert params["NextToken"] == "barbaz456"

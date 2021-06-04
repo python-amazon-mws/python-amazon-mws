@@ -4,8 +4,6 @@ Utilities common to request method tests.
 import datetime
 import mws
 
-from urllib.parse import quote
-
 import pytest
 
 
@@ -46,7 +44,7 @@ class CommonAPIRequestTools(object):
     def assert_common_params(self, params, action=None):
         """Tests the common params expected in every call."""
         if action:
-            assert params["Action"] == clean_string(action)
+            assert params["Action"] == action
 
         assert params["AWSAccessKeyId"] == self.CREDENTIAL_ACCESS
         assert params[self.api.ACCOUNT_TYPE] == self.CREDENTIAL_ACCOUNT
@@ -56,13 +54,13 @@ class CommonAPIRequestTools(object):
         # If test fails here, check that method.
         assert params["SignatureMethod"] == "HmacSHA256"
         assert params["SignatureVersion"] == "2"
-        isoformat_str = "%Y-%m-%dT%H%%3A%M%%3A%S"
+        isoformat_str = "%Y-%m-%dT%H:%M:%S"
         try:
             datetime.datetime.strptime(params["Timestamp"], isoformat_str)
         except ValueError:
             pytest.fail(
                 "Timestamp expected an ISO-8601 datetime string url encoded"
-                " with format [YYYY-MM-DDTHH%3AMM%3ASS]."
+                " with format [YYYY-MM-DDTHH:MM:SS]."
             )
 
     def test_service_status(self):
@@ -135,7 +133,7 @@ class CommonAPIRequestTools(object):
     def test_basic_generic_request(self):
         """Test an arbitrary generic request with a series of simple data elements."""
         action = "BasicGenericRequest"
-        test_datetime = datetime.datetime.utcnow()
+        test_datetime = datetime.datetime(2021, 1, 27, 22, 59, 59)
 
         # Send a basic payload.
         params = {
@@ -147,9 +145,9 @@ class CommonAPIRequestTools(object):
 
         request_params = self.api.generic_request(action=action, params=params)
         self.assert_common_params(request_params, action="BasicGenericRequest")
-        assert request_params["ADateTime"] == clean_date(test_datetime)
-        assert request_params["ATrueBool"] == clean_bool(True)
-        assert request_params["AFalseBool"] == clean_bool(False)
+        assert request_params["ADateTime"] == "2021-01-27T22:59:59"
+        assert request_params["ATrueBool"] == "true"
+        assert request_params["AFalseBool"] == "false"
         assert "NoneShouldNotExist" not in request_params
 
     def test_complex_generic_request(self):
@@ -193,18 +191,6 @@ class CommonAPIRequestTools(object):
         }
         for key, val in expected.items():
             assert request_params[key] == val
-
-
-def clean_string(s):
-    return quote(s, safe="-_.~")
-
-
-def clean_bool(b):
-    return str(b).lower()
-
-
-def clean_date(date):
-    return quote(date.isoformat(), safe="-_.~")
 
 
 def get_api_instance(api_class):

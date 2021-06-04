@@ -395,7 +395,7 @@ class TestCreateInboundShipmentPlan(InboundShipmentsAPITestCase):
 
         expected = {
             "ShipToCountryCode": "Risa",
-            "ShipToCountrySubdivisionCode": "Hotel%20California",
+            "ShipToCountrySubdivisionCode": "Hotel California",
             "LabelPrepPreference": "SELLER",
             "InboundShipmentPlanRequestItems.member.1.SellerSKU": "mySku1",
             "InboundShipmentPlanRequestItems.member.1.Quantity": "6",
@@ -450,7 +450,7 @@ class TestCreateInboundShipmentPlan(InboundShipmentsAPITestCase):
 
         expected = {
             "ShipToCountryCode": "Risa",
-            "ShipToCountrySubdivisionCode": "Hotel%20California",
+            "ShipToCountrySubdivisionCode": "Hotel California",
             "LabelPrepPreference": "SELLER",
             "InboundShipmentPlanRequestItems.member.1.SellerSKU": "ievEKnILd3",
             "InboundShipmentPlanRequestItems.member.1.Quantity": "6",
@@ -530,7 +530,7 @@ class TestCreateInboundShipment(InboundShipmentsAPITestCase):
         self.assert_common_params(params, action="CreateInboundShipment")
         expected = {
             "ShipmentId": "b46sEL7sYX",
-            "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
+            "InboundShipmentHeader.ShipmentName": "Stuff Going Places",
             "InboundShipmentHeader.DestinationFulfillmentCenterId": "MyDestination",
             "InboundShipmentHeader.LabelPrepPreference": "AMAZON",
             "InboundShipmentHeader.AreCasesRequired": "true",
@@ -575,7 +575,7 @@ class TestCreateInboundShipment(InboundShipmentsAPITestCase):
         self.assert_common_params(params, action="CreateInboundShipment")
         expected = {
             "ShipmentId": "b46sEL7sYX",
-            "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
+            "InboundShipmentHeader.ShipmentName": "Stuff Going Places",
             "InboundShipmentHeader.DestinationFulfillmentCenterId": "MyDestination",
             "InboundShipmentHeader.LabelPrepPreference": "AMAZON",
             "InboundShipmentHeader.AreCasesRequired": "true",
@@ -658,7 +658,7 @@ class TestUpdateInboundShipment(InboundShipmentsAPITestCase):
         expected = {
             "Action": "UpdateInboundShipment",
             "ShipmentId": "7DzXpBVxRR",
-            "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
+            "InboundShipmentHeader.ShipmentName": "Stuff Going Places",
             "InboundShipmentHeader.DestinationFulfillmentCenterId": "Vulcan",
             "InboundShipmentHeader.LabelPrepPreference": "SELLER_LABEL",
             "InboundShipmentHeader.AreCasesRequired": "true",
@@ -705,7 +705,7 @@ class TestUpdateInboundShipment(InboundShipmentsAPITestCase):
         expected = {
             "Action": "UpdateInboundShipment",
             "ShipmentId": "7DzXpBVxRR",
-            "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
+            "InboundShipmentHeader.ShipmentName": "Stuff Going Places",
             "InboundShipmentHeader.DestinationFulfillmentCenterId": "Vulcan",
             "InboundShipmentHeader.LabelPrepPreference": "SELLER_LABEL",
             "InboundShipmentHeader.AreCasesRequired": "true",
@@ -777,7 +777,7 @@ class TestUpdateInboundShipment(InboundShipmentsAPITestCase):
         expected = {
             "Action": "UpdateInboundShipment",
             "ShipmentId": "7DzXpBVxRR",
-            "InboundShipmentHeader.ShipmentName": "Stuff%20Going%20Places",
+            "InboundShipmentHeader.ShipmentName": "Stuff Going Places",
             "InboundShipmentHeader.DestinationFulfillmentCenterId": "Vulcan",
             "InboundShipmentHeader.LabelPrepPreference": "SELLER_LABEL",
             "InboundShipmentHeader.AreCasesRequired": "true",
@@ -883,7 +883,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         )
         self.assert_common_params(params, action="ConfirmPreorder")
         assert params["ShipmentId"] == "H4UiUjY7Fr"
-        assert params["NeedByDate"] == "2020-10-12T00%3A00%3A00"
+        assert params["NeedByDate"] == "2020-10-12T00:00:00"
 
     def test_get_prep_instructions_for_sku(self, api_instance: InboundShipments):
         """GetPrepInstructionsForSKU operation."""
@@ -1016,8 +1016,8 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
             + datetime.timedelta(hours=1),
         )
         self.assert_common_params(params, action="ListInboundShipments")
-        assert params["LastUpdatedBefore"] == "2020-10-12T00%3A00%3A00"
-        assert params["LastUpdatedAfter"] == "2020-10-12T01%3A00%3A00"
+        assert params["LastUpdatedBefore"] == "2020-10-12T00:00:00"
+        assert params["LastUpdatedAfter"] == "2020-10-12T01:00:00"
         assert params["ShipmentStatusList.member.1"] == "CANCELLED"
         assert params["ShipmentStatusList.member.2"] == "IN_TRANSIT"
         assert params["ShipmentIdList.member.1"] == "myShipment1"
@@ -1033,8 +1033,8 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
         )
         self.assert_common_params(params, action="ListInboundShipmentItems")
         assert params["ShipmentId"] == "P9NLpC2Afi"
-        assert params["LastUpdatedBefore"] == "2020-10-12T00%3A00%3A00"
-        assert params["LastUpdatedAfter"] == "2020-10-12T01%3A00%3A00"
+        assert params["LastUpdatedBefore"] == "2020-10-12T00:00:00"
+        assert params["LastUpdatedAfter"] == "2020-10-12T01:00:00"
 
     def test_next_token_methods(self, api_instance: InboundShipments):
         """Check content of methods that can use next_tokens"""
