@@ -72,8 +72,8 @@ body:
   # Credential check
   - type: checkboxes
     id: credential-check
-    label: MWS Credential check
     attributes:
+      label: MWS Credential check
       description: |
         Please check any code samples or tracebacks you wish to submit for MWS credentials
         (secret key, account ID, access key, developer token, etc.).
