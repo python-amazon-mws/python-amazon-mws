@@ -18,11 +18,11 @@ body:
         (any Python version *not* listed here is unsupported,
         and we may be unable to help with your issue in those cases)
       options:
-        - 3.6
-        - 3.7
-        - 3.8
-        - 3.9
-        - 3.10
+        - "3.6"
+        - "3.7"
+        - "3.8"
+        - "3.9"
+        - "3.10"
     validations:
       required: true
   - type: dropdown
