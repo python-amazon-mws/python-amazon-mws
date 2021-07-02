@@ -70,20 +70,17 @@ body:
         
 
   # Credential check
-  - type: markdown
+  - type: checkboxes
+    id: credential-check
+    label: MWS Credential check
     attributes:
-      value: |
-        ## Credential check
+      description: |
         Please check any code samples or tracebacks you wish to submit for MWS credentials
         (secret key, account ID, access key, developer token, etc.).
         
         All data uploaded to a public repo can be scraped via GitHub's API within seconds.
         Accidentally posting your credentials in a traceback or code sample can result in
         unauthorized access to your Amazon seller account.
-  - type: checkboxes
-    id: credential-check-ack
-    attributes:
       options:
         - label: I have removed my MWS credentials from any tracebacks and code samples
           required: true
-    
