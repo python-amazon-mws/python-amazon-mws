@@ -42,10 +42,7 @@ body:
     attributes:
       label: Has your copy of PAM been altered in any way?
       description: |
-        There are several forks of this project available. Users will often customize the package
-        to fit the needs of their own applications. Please indicate whether you have made any changes
-        to the package (if so, please describe these changes below or provide a link to your own repo,
-        so that we can help investigate root causes).
+        There are several forks of this project available. Users will often customize the package to fit the needs of their own applications. Please indicate whether you have made any changes to the package (if so, please describe these changes below or provide a link to your own repo, so that we can help investigate root causes).
       options:
         - "No, I HAVE NOT made changes to the MWS code"
         - "Yes, I HAVE made some changes, and will describe or link to them"
@@ -75,12 +72,9 @@ body:
     attributes:
       label: MWS Credential check
       description: |
-        Please check any code samples or tracebacks you wish to submit for MWS credentials
-        (secret key, account ID, access key, developer token, etc.).
+        Please check any code samples or tracebacks you wish to submit for MWS credentials (secret key, account ID, access key, developer token, etc.).
         
-        All data uploaded to a public repo can be scraped via GitHub's API within seconds.
-        Accidentally posting your credentials in a traceback or code sample can result in
-        unauthorized access to your Amazon seller account.
+        All data uploaded to a public repo can be scraped via GitHub's API within seconds. Accidentally posting your credentials in a traceback or code sample can result in unauthorized access to your Amazon seller account.
       options:
         - label: I have removed my MWS credentials from any tracebacks and code samples
           required: true
