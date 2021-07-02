@@ -58,26 +58,17 @@ body:
     attributes:
       label: Describe the issue
       value: |
-        ## What happened
+        **What happened**
         Tell us about the issue you've encountered. Please take some time to
         add as much detail as necessary for us to understand the context of the problem.
+        Where relevant, please add code samples or full tracebacks to help illustrate the issue.
         
-        Where relevant, please add:
+        Please *do not* post screenshots of code or error messages: text is easier for everyone
+        to read and copy.
         
-        ```python
-        # code samples
-        ```
-        
-        and/or
-        
-        ```
-        Traceback (most recent call last):
-          File "<stdin>", line 1, in <module>
-        Exception: A copy of the full traceback showing the error that occurred
-        ```
-        
-        ## Expected behavior
-        (Something more than "it should work!", please)
+        **Expected behavior**
+        Tell us what you wanted the code to do, in a broad sense. Understanding what you're trying
+        to do can help us offer alternatives that might work.
     validations:
       required: true
         
