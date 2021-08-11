@@ -74,7 +74,7 @@ GetServiceStatusResponse>\n'
 All dependencies for working on `mws` are in `requirements.txt` and `docs/requirements.txt`.
 
 ## Tests
-Tests are run with pytest. We test against Python 2.7 and supported Python 3.x versions with Travis.
+Tests are run with pytest. We test against all Python 3.6+ versions using GitHub Actions.
 
 ## Documentation
 Docs are built using Sphinx. Change into the `docs/` directory and install any dependencies from the `requirements.txt` there.
