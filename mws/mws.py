@@ -1511,8 +1511,10 @@ class InboundShipments(MWS):
 
 
 class Inventory(MWS):
-    """
-    Amazon MWS Inventory Fulfillment API
+    """Amazon MWS Inventory Fulfillment API
+
+    `MWS Docs: Inventory API
+    <https://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_Overview.html>`_
     """
 
     URI = "/FulfillmentInventory/2010-10-01"
@@ -1524,24 +1526,35 @@ class Inventory(MWS):
 
     @utils.next_token_action("ListInventorySupply")
     def list_inventory_supply(
-        self, skus=(), datetime_=None, response_group="Basic", next_token=None
+        self,
+        skus=(),
+        datetime_=None,
+        response_group="Basic",
+        marketplace_id=None,
+        next_token=None,
     ):
-        """
-        Returns information on available inventory
+        """Returns information on available inventory
+
+        Pass ``next_token`` to call "ListInventorySupplyByNextToken" instead.
+
+        `MWS Docs: ListInventorySupply
+        <https://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupply.html>`_
         """
 
         data = dict(
             Action="ListInventorySupply",
             QueryStartDateTime=datetime_,
             ResponseGroup=response_group,
+            MarketplaceId=marketplace_id,
         )
         data.update(utils.enumerate_param("SellerSkus.member.", skus))
         return self.make_request(data, "POST")
 
     def list_inventory_supply_by_next_token(self, token):
-        """
-        Deprecated.
-        Use `list_inventory_supply(next_token=token)` instead.
+        """Alias for ``list_inventory_supply(next_token=token)``
+
+        `MWS Docs: ListInventorySupplyByNextToken
+        <https://docs.developer.amazonservices.com/en_US/fba_inventory/FBAInventory_ListInventorySupplyByNextToken.html>`_
         """
         # data = dict(Action='ListInventorySupplyByNextToken', NextToken=token)
         # return self.make_request(data, "POST")
