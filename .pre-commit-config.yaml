@@ -1,17 +1,21 @@
 default_language_version:
-    python: python3.8
+  python: python3.8
 repos:
-    -   repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v4.0.1
-        hooks:
-        -   id: check-yaml
-        -   id: end-of-file-fixer
-        -   id: trailing-whitespace
-    -   repo: https://github.com/psf/black
-        rev: 21.9b0
-        hooks:
-        -   id: black
-    -   repo: https://gitlab.com/PyCQA/flake8
-        rev: 3.9.2
-        hooks:
-        -   id: flake8
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: check-toml
+      - id: check-yaml
+      - id: check-byte-order-marker
+      - id: check-case-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+  - repo: https://github.com/psf/black
+    rev: 21.9b0
+    hooks:
+      - id: black
+  - repo: https://gitlab.com/PyCQA/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
