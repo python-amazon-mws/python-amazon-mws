@@ -22,7 +22,7 @@ setuptools.setup(
     description=short_description,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(exclude=["tests"]),
     install_requires=requires,
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
