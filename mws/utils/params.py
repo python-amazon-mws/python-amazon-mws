@@ -7,8 +7,6 @@ from enum import Enum
 from typing import Any, List, Union
 from urllib.parse import quote
 
-from mws.errors import MWSError
-
 
 def enumerate_param(param: str, values: Union[list, set, tuple]) -> dict:
     """Builds a dictionary of an enumerated parameter, using the param string and some values.

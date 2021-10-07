@@ -326,9 +326,7 @@ class MWS(object):
                 parsed_response.response = response
 
         except HTTPError as exc:
-            error = MWSRequestError(str(exc.response.text))
-            error.response = exc.response
-            raise error
+            raise MWSRequestError(exc)
 
         # Store the response object in the parsed_response for quick access
         return parsed_response

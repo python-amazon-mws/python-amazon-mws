@@ -1,13 +1,23 @@
 """Error classes particular to MWS."""
+from requests import HTTPError
 
 
 class MWSError(Exception):
+    """Main MWS Exception class"""
+
     pass
 
 
-class MWSRequestError(MWSError):
-    """Main MWS Exception class"""
+class MWSRequestError(MWSError, HTTPError):
+    """Main MWS Request Exception class"""
 
-    # Allows quick access to the response object.
-    # Do not rely on this attribute, always check if `is None`.
-    response = None
+    def __init__(self, err):
+        args = err.args
+        kwargs = vars(err)
+
+        super().__init__(*args, **kwargs)
+
+        if self.response != None:
+            headers = self.response.headers
+            self.request_id = headers.get("x-mws-request-id")
+            self.timestamp = headers.get("x-mws-timestamp")
