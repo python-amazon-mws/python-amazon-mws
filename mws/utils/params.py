@@ -226,13 +226,11 @@ def clean_params_dict(params: Mapping, urlencode=False) -> dict:
     """
     cleaned_params = dict()
     for key, val in params.items():
-        try:
-            newval = clean_value(val)
-            if urlencode:
-                newval = quote(val, safe="-_.~")
-            cleaned_params[key] = newval
-        except ValueError as exc:
-            raise MWSError(str(exc)) from exc
+        newval = clean_value(val)
+        if urlencode:
+            newval = quote(val, safe="-_.~")
+        cleaned_params[key] = newval
+
     return cleaned_params
 
 

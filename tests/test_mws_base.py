@@ -3,12 +3,11 @@
 import datetime
 
 import pytest
-
-from mws import MWS, MWSError, Marketplaces
+from mws import MWS, Marketplaces, MWSError
 
 
 def test_invalid_region(mws_credentials):
-    with pytest.raises(MWSError):
+    with pytest.raises(ValueError):
         MWS(region="DOESN'T EXIST", **mws_credentials)
 
 

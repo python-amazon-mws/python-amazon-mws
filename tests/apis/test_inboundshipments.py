@@ -175,8 +175,8 @@ class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
         # And the return value for the property should also be None
         assert api_instance.from_address is None
 
-        # Assignment of anything other than an Address model or Mapping raises MWSError
-        with pytest.raises(MWSError):
+        # Assignment of anything other than an Address model or Mapping raises TypeError
+        with pytest.raises(TypeError):
             api_instance.from_address = "Not a mapping!"
 
     @pytest.mark.parametrize(
@@ -199,7 +199,7 @@ class TestSetShipFromAddressCases(InboundShipmentsAPITestCase):
         This tests those various cases.
         """
         # Override address must be an Address model
-        with pytest.raises(MWSError):
+        with pytest.raises(TypeError):
             api_instance.from_address_params(from_address=override_obj)
 
     def test_from_address_params_override(
@@ -359,7 +359,7 @@ class TestCreateInboundShipmentPlan(InboundShipmentsAPITestCase):
     ):
         """`create_inbound_shipment_plan` should raise exception for no items."""
         items = []
-        with pytest.raises(MWSError):
+        with pytest.raises(ValueError):
             api_instance_stored_from_address.create_inbound_shipment_plan(items)
 
     def test_create_inbound_shipment_plan_no_address(
@@ -369,7 +369,7 @@ class TestCreateInboundShipmentPlan(InboundShipmentsAPITestCase):
         assert api_instance.from_address == {}
         items = [{"sku": "something", "quantity": 6}]
         # api_instance.from_address = None
-        with pytest.raises(MWSError):
+        with pytest.raises(ValueError):
             api_instance.create_inbound_shipment_plan(items)
 
     def test_create_inbound_shipment_plan_item_models(
@@ -410,7 +410,7 @@ class TestCreateInboundShipmentPlan(InboundShipmentsAPITestCase):
         self, api_instance_stored_from_address: InboundShipments
     ):
         """Supplying the wrong item model class to `create_inbound_shipment_plan`
-        should raise MWSError.
+        should raise TypeError.
         """
         items = [
             InboundShipmentItem("mySku1", 6),
@@ -478,7 +478,7 @@ class TestCreateInboundShipment(InboundShipmentsAPITestCase):
         shipment_name = "is_a_string"
         destination = "is_a_string"
         items = []
-        with pytest.raises(MWSError):
+        with pytest.raises(ValueError):
             api_instance_stored_from_address.create_inbound_shipment(
                 shipment_id, shipment_name, destination, items
             )
@@ -494,8 +494,8 @@ class TestCreateInboundShipment(InboundShipmentsAPITestCase):
         destination = "is_a_string"
         items = [{"sku": "something", "quantity": 6}]  # reset
 
-        # 5: wipe out the `from_address` for the API class before calling: raises MWSError
-        with pytest.raises(MWSError):
+        # 5: wipe out the `from_address` for the API class before calling: raises ValueError
+        with pytest.raises(ValueError):
             api_instance.create_inbound_shipment(
                 shipment_id, shipment_name, destination, items
             )
@@ -805,7 +805,7 @@ class TestUpdateInboundShipment(InboundShipmentsAPITestCase):
         case_required = True
         box_contents_source = "Boxes"
 
-        with pytest.raises(MWSError):
+        with pytest.raises(ValueError):
             api_instance.update_inbound_shipment(
                 shipment_id=shipment_id,
                 shipment_name=shipment_name,
@@ -1154,7 +1154,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
 )
 def test_legacy_item_dict_errors(item):
     """Specific instances using parse_legacy_item should raise MWSError"""
-    with pytest.raises(MWSError):
+    with pytest.raises((TypeError, ValueError)):
         parse_legacy_item(item, "OperationIrrelevant")
 
 
@@ -1170,7 +1170,7 @@ def test_parse_shipment_items_errors(items):
     """Cases where the items collection passed to parse_shipment_items
     are empty should raise MWSError.
     """
-    with pytest.raises(MWSError):
+    with pytest.raises(ValueError):
         parse_shipment_items(items)
 
 

@@ -96,7 +96,7 @@ class TestReportsAPI(ReportsAPITestCase):
             "iQzBCmf1y3",
             "wH9q0CiEMp",
         ]
-        with pytest.raises(MWSError):
+        with pytest.raises(ValueError):
             api_instance.request_report(
                 report_type=report_type,
                 start_date=start_date,

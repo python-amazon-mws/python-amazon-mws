@@ -11,7 +11,7 @@ import warnings
 from requests import request
 from requests.exceptions import HTTPError
 
-from mws.errors import MWSError
+from mws.errors import MWSError, MWSRequestError
 from mws.response import MWSResponse
 from mws.utils.crypto import response_md5_is_valid
 from mws.utils.params import (
@@ -193,7 +193,7 @@ class MWS(object):
                     regions=", ".join(Marketplaces.__members__.keys()),
                 )
             )
-            raise MWSError(error_msg)
+            raise ValueError(error_msg)
 
     def get_default_params(self, action, timestamp):
         """Get the params required in all MWS requests."""
@@ -295,7 +295,7 @@ class MWS(object):
                 # Turn on the new response parser and DotDict parsed output
                 # (will be made standard in v1.0)
                 if not response_md5_is_valid(response):
-                    raise MWSError(
+                    raise ValueError(
                         "MD5 hash validation failed: wrong content length for response"
                     )
 
@@ -309,7 +309,9 @@ class MWS(object):
                 ### DEPRECATED ###
                 # Remove in v1.0
                 from xml.etree.ElementTree import ParseError as XMLError
-                from mws.utils.parsers import DictWrapper, DataWrapper
+
+                from mws.utils.parsers import DataWrapper
+                from mws.utils.parsers import DictWrapper
 
                 data = response.content
                 try:
@@ -324,7 +326,7 @@ class MWS(object):
                 parsed_response.response = response
 
         except HTTPError as exc:
-            error = MWSError(str(exc.response.text))
+            error = MWSRequestError(str(exc.response.text))
             error.response = exc.response
             raise error
 
