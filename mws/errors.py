@@ -17,7 +17,7 @@ class MWSRequestError(MWSError, HTTPError):
 
         super().__init__(*args, **kwargs)
 
-        if self.response != None:
+        if self.response is not None:
             headers = self.response.headers
             self.request_id = headers.get("x-mws-request-id")
             self.timestamp = headers.get("x-mws-timestamp")
