@@ -1,8 +1,20 @@
 # Changelog
 
+## v1.0dev17
+
+*This update addresses these [issues](https://github.com/python-amazon-mws/python-amazon-mws/issues?q=milestone%3A1.0dev17).*
+
+### Changes
+
+- **Exception handling refactored**
+  - `MWSRequestError` is now thrown when HTTP errors occur during requests. This class inherits from both `MWSError` and `requests.HTTPError`.
+    - This allows existing code that catches `MWSError` to remain unchanged while also providing all of the underlying functionaltiy of [`requests.HTTPError`](https://github.com/psf/requests/blob/main/requests/exceptions.py#L38).
+  - Most methods that threw `MWSError` now more appropriately throw `ValueError` for missing arguments, or `TypeError` for incorrect datatypes.
+  - *See [#277](https://github.com/python-amazon-mws/python-amazon-mws/pull/277) for details.*
+
 ## v1.0dev16
 
-*This update addresses these [issues](https://github.com/python-amazon-mws/python-amazon-mws/issues?q=milestone%3A1.0dev16+).*
+*This update addresses these [issues](https://github.com/python-amazon-mws/python-amazon-mws/issues?q=milestone%3A1.0dev16).*
 
 This update focuses on the InboundShipments API, adding some new ways to input and manage data related to FBA shipments while also introducing some comprehensive documentation of the same.
 
