@@ -75,14 +75,11 @@ def parse_legacy_item(
         raise TypeError("`item` argument must be a dict.")
     if not all(k in item for k in [c[0] for c in key_config if c[2]]):
         # Required keys of an item line missing
+        required = ", ".join([c[0] for c in key_config if c[2]])
+        optional = ", ".join([c[0] for c in key_config if not c[2]])
         raise ValueError(
-            (
-                "`item` dict missing required keys: {required}."
-                "\n- Optional keys: {optional}."
-            ).format(
-                required=", ".join([c[0] for c in key_config if c[2]]),
-                optional=", ".join([c[0] for c in key_config if not c[2]]),
-            )
+            f"`item` dict missing required keys: {required}."
+            f"\n- Optional keys: {optional}."
         )
 
     item_dict = {
@@ -538,7 +535,7 @@ class InboundShipments(MWS):
     #         count = 0
     #         for track in tracking_id:
     #             data[
-    #                 'TransportDetails.NonPartneredSmallParcelData.PackageList.member.{}.TrackingId'.format(count + 1)
+    #                 f'TransportDetails.NonPartneredSmallParcelData.PackageList.member.{count + 1}.TrackingId'
     #             ] = track
     #     return self.make_request("PutTransportContent", data)
 

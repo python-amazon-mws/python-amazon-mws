@@ -24,7 +24,7 @@ from mws.utils.timezone import mws_utc_now
 
 
 __version__ = "1.0dev16"
-PAM_USER_AGENT = "python-amazon-mws/{} (Language=Python)".format(__version__)
+PAM_USER_AGENT = f"python-amazon-mws/{__version__} (Language=Python)"
 """See recommended user agent string format:
 https://docs.developer.amazonservices.com/en_US/dev_guide/DG_UserAgentHeader.html
 """
@@ -96,7 +96,7 @@ def canonicalized_query_string(params):
     encoded_params = clean_params_dict(params, urlencode=True)
     for item in sorted(encoded_params.keys()):
         encoded_val = encoded_params[item]
-        description_items.append("{}={}".format(item, encoded_val))
+        description_items.append(f"{item}={encoded_val}")
     return "&".join(description_items)
 
 
@@ -186,12 +186,10 @@ class MWS(object):
         if region in Marketplaces.__members__:
             self.domain = Marketplaces[region].endpoint
         else:
+            regions = ", ".join(Marketplaces.__members__.keys())
             error_msg = (
-                "Incorrect region supplied: {region}. "
-                "Must be one of the following: {regions}".format(
-                    region=region,
-                    regions=", ".join(Marketplaces.__members__.keys()),
-                )
+                f"Incorrect region supplied: {region}. "
+                f"Must be one of the following: {regions}"
             )
             raise ValueError(error_msg)
 
@@ -262,7 +260,7 @@ class MWS(object):
         headers.update(self.extra_headers)
         headers.update(kwargs.get("extra_headers", {}))
 
-        result_key = kwargs.get("result_key", "{}Result".format(action))
+        result_key = kwargs.get("result_key", f"{action}Result")
 
         request_args = {
             "method": method,
@@ -333,7 +331,7 @@ class MWS(object):
 
     @property
     def endpoint(self):
-        return "{}{}".format(self.domain, self.uri)
+        return f"{self.domain}{self.uri}"
 
     def get_proxies(self):
         """Return a dict of http and https proxies, as defined by `self.proxy`."""
@@ -341,8 +339,8 @@ class MWS(object):
         if self.proxy:
             # TODO need test to enter here
             proxies = {
-                "http": "http://{}".format(self.proxy),
-                "https": "https://{}".format(self.proxy),
+                "http": f"http://{self.proxy}",
+                "https": f"https://{self.proxy}",
             }
         return proxies
 
@@ -376,13 +374,11 @@ class MWS(object):
             # TODO Would like a test entering here.
             # Requires a dummy API class to be written that will trigger it.
             raise MWSError(
-                (
-                    "{} action not listed in this API's NEXT_TOKEN_OPERATIONS. "
-                    "Please refer to documentation."
-                ).format(action)
+                f"{action} action not listed in this API's NEXT_TOKEN_OPERATIONS. "
+                "Please refer to documentation."
             )
 
-        action = "{}ByNextToken".format(action)
+        action = f"{action}ByNextToken"
 
         return self.make_request(action, {"NextToken": next_token})
 

@@ -19,11 +19,9 @@ class MWSDataType(ABC):
     """
 
     def __repr__(self):
-        output = f"<{self.__class__.__name__}("
-        values = [f"{key}={repr(val)}" for key, val in self.__dict__.items()]
-        output += ", ".join(values)
-        output += ")>"
-        return output
+        values = ", ".join(f"{k}={repr(v)}" for k, v in self.__dict__.items())
+
+        return f"<{self.__class__.__name__}({values})>"
 
     @abstractmethod
     def params_dict(self) -> dict:

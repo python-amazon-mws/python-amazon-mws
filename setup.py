@@ -16,7 +16,7 @@ setuptools.setup(
     name="mws",
     version=version,
     maintainer="python-amazon-mws",
-    download_url=homepage + "/archive/v{}.tar.gz".format(version),
+    download_url=f"{homepage}/archive/v{version}.tar.gz",
     maintainer_email="python-amazon-mws@googlegroups.com",
     url=homepage,
     description=short_description,

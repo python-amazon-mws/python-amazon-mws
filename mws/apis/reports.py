@@ -42,7 +42,7 @@ def report_options_str(report_options: dict) -> str:
             # (both of which are accurate, because True and False can evaluate to ints 1 and 0).
             # `True` and `False` must be output as a lowercase `"true"` and `"false"`, respectively.
             out_val = str(out_val).lower()
-        output.append("{}={}".format(key, out_val))
+        output.append(f"{key}={out_val}")
     # Join results with ";" separator
     return ";".join(output)
 

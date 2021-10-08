@@ -1124,7 +1124,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
             assert "ShipmentStatusList.member.2" not in params
         if isinstance(statuses, (list, tuple, set)):
             for idx, status in enumerate(statuses, start=1):
-                key = "ShipmentStatusList.member.{}".format(idx)
+                key = f"ShipmentStatusList.member.{idx}"
                 assert params[key] == status
 
         # Check IDs:
@@ -1140,7 +1140,7 @@ class TestInboundShipmentsRequests(InboundShipmentsAPITestCase):
             assert "ShipmentIdList.member.2" not in params
         if isinstance(ids, (list, tuple, set)):
             for idx, id_ in enumerate(ids, start=1):
-                key = "ShipmentIdList.member.{}".format(idx)
+                key = f"ShipmentIdList.member.{idx}"
                 assert params[key] == id_
 
 
