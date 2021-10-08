@@ -6,15 +6,12 @@
 
 ### Changes
 
+- **Now requires Python >= 3.7**
 - **Exception handling refactored**
   - `MWSRequestError` is now thrown when HTTP errors occur during requests. This class inherits from both `MWSError` and `requests.HTTPError`.
     - This allows existing code that catches `MWSError` to remain unchanged while also providing all of the underlying functionaltiy of [`requests.HTTPError`](https://github.com/psf/requests/blob/main/requests/exceptions.py#L38).
   - Most methods that threw `MWSError` now more appropriately throw `ValueError` for missing arguments, or `TypeError` for incorrect datatypes.
   - *See [#277](https://github.com/python-amazon-mws/python-amazon-mws/pull/277) for details.*
-
-### Minor changes
-
-- String format calls changed to f-strings
 
 ## v1.0dev16
 
