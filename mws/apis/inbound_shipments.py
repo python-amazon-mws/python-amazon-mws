@@ -9,7 +9,7 @@ from typing import (
     Union,
 )
 
-from mws import MWS, MWSError
+from mws import MWS
 from mws.decorators import next_token_action
 from mws.models import inbound_shipments as models
 from mws.utils.collections import unique_list_order_preserved
@@ -39,7 +39,7 @@ def parse_legacy_item(
     ``CreateInboundShipment``, and ``UpdateInboundShipment`` operations.
 
     ``item`` must contain keys ``"sku"`` and ``"quantity"``; if either is missing,
-    ``MWSError`` is raised. Optionally, ``"quantity_in_case"`` is accepted for
+    ``ValueError`` is raised. Optionally, ``"quantity_in_case"`` is accepted for
     case-packed items. For ``create_inbound_shipment_plan`` requests, also accepts
     optional keys for ``"asin"`` and ``"condition"``.
 
@@ -72,10 +72,10 @@ def parse_legacy_item(
         quantity_key = "QuantityShipped"
 
     if not isinstance(item, Mapping):
-        raise MWSError("`item` argument must be a dict.")
+        raise TypeError("`item` argument must be a dict.")
     if not all(k in item for k in [c[0] for c in key_config if c[2]]):
         # Required keys of an item line missing
-        raise MWSError(
+        raise ValueError(
             (
                 "`item` dict missing required keys: {required}."
                 "\n- Optional keys: {optional}."
@@ -123,10 +123,10 @@ def parse_shipment_items(
     - When using legacy item dicts, this changes how the dict is prepared for output.
     - When using item models, checks that the operation matches using
       the model's ``raise_for_operation_mismatch`` method (passes silently when
-      permitted or raises MWSError).
+      permitted or raises ValueError).
     """
     if not items:
-        raise MWSError("One or more `item` arguments required.")
+        raise ValueError("One or more `item` arguments required.")
 
     item_params = []
     for item in items:
@@ -214,7 +214,7 @@ class InboundShipments(MWS):
             self._from_address = value
             return
         if not isinstance(value, Mapping):
-            raise MWSError("value must be an instance of Address model or a dict")
+            raise TypeError("value must be an instance of Address model or a dict")
 
         self._from_address = models.Address.from_legacy_dict(value)
 
@@ -230,18 +230,18 @@ class InboundShipments(MWS):
         """Converts a from address, either stored or passed as an argument, to params.
 
         If provided as an argument, checks first that the arg is the correct type,
-        raising MWSError if it's not an instance of the Address model.
+        raising TypeError if it's not an instance of the Address model.
 
         Providing a from_address as an argument will override any address stored
         on this API instance.
         """
         if from_address and not isinstance(from_address, models.Address):
-            raise MWSError(
+            raise TypeError(
                 "from_address must be an instance of Address datatype model."
             )
         from_address = from_address or self.from_address
         if not from_address:
-            raise MWSError("from_address must be set before calling this operation.")
+            raise ValueError("from_address must be set before calling this operation.")
         return from_address.to_params(prefix=prefix)
 
     ### REQUEST METHODS ###
@@ -314,7 +314,7 @@ class InboundShipments(MWS):
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipmentPlan.html>`_
         """
         if not items:
-            raise MWSError("One or more `item` dict arguments required.")
+            raise ValueError("One or more `item` dict arguments required.")
         data = {
             "ShipToCountryCode": country_code,
             "ShipToCountrySubdivisionCode": subdivision_code,
@@ -368,7 +368,7 @@ class InboundShipments(MWS):
         <https://docs.developer.amazonservices.com/en_US/fba_inbound/FBAInbound_CreateInboundShipment.html>`_
         """
         if not items:
-            raise MWSError("One or more `item` dict arguments required.")
+            raise ValueError("One or more `item` dict arguments required.")
 
         data = {
             "ShipmentId": shipment_id,
