@@ -26,7 +26,7 @@ class OffAmazonPayments(MWS):
                 "AmazonOrderReferenceId": order_ref,
                 "AuthorizationReferenceId": auth_id,
                 "TransactionTimeout": timeout,
-                "AuthorizationAmount.Amount": "{:.2f}".format(order_total),
+                "AuthorizationAmount.Amount": f"{order_total:.2f}",
                 "AuthorizationAmount.CurrencyCode": "USD",
             },
         )
@@ -49,7 +49,7 @@ class OffAmazonPayments(MWS):
                 "AmazonAuthorizationId": auth_id,
                 "CaptureReferenceId": capture_id,
                 "SellerCaptureNote": notes,
-                "CaptureAmount.Amount": "{:.2f}".format(amount),
+                "CaptureAmount.Amount": f"{amount:.2f}",
                 "CaptureAmount.CurrencyCode": currency,
             },
         )
@@ -80,7 +80,7 @@ class OffAmazonPayments(MWS):
                 "AmazonCaptureId": capture_id,
                 "RefundReferenceId": refund_id,
                 "SellerRefundNote": notes,
-                "RefundAmount.Amount": "{:.2f}".format(amount),
+                "RefundAmount.Amount": f"{amount:.2f}",
                 "RefundAmount.CurrencyCode": currency,
             },
         )

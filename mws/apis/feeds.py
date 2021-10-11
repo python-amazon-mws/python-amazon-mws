@@ -81,7 +81,7 @@ def feed_options_str(feed_options):
     for key, val in feed_options.items():
         clean_val = clean_feed_option_val(val)
         if clean_val is not None:
-            output.append("metadata:{}={}".format(key, clean_val))
+            output.append(f"metadata:{key}={clean_val}")
     return ";".join(output)
 
 

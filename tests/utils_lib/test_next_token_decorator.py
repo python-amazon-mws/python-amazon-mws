@@ -27,7 +27,7 @@ class ToyClass(object):
         self.method_run = "action_by_next_token"
         # Modify the action similar to how live code does it,
         # for the sake of our sanity here.
-        modified_action = "{}ByNextToken".format(action)
+        modified_action = f"{action}ByNextToken"
         return modified_action, token
 
     @mws.decorators.next_token_action(ACTION)
@@ -59,7 +59,7 @@ class NextTokenTestCase(unittest.TestCase):
         instance = ToyClass()
         next_token = "Olly Olly Oxen Free!"
         action, token = instance.target_request_method(next_token=next_token)
-        what_action_should_be = "{}ByNextToken".format(ACTION)
+        what_action_should_be = f"{ACTION}ByNextToken"
         assert action == what_action_should_be
         assert token == next_token
         assert instance.method_run == "action_by_next_token"

@@ -30,7 +30,7 @@ def enumerate_param(param: str, values: Union[list, set, tuple]) -> dict:
         return {}
     param = dot_appended_param(param)
     # Return final output: dict comprehension of the enumerated param and values.
-    return {"{}{}".format(param, idx): val for idx, val in enumerate(values, start=1)}
+    return {f"{param}{idx}": val for idx, val in enumerate(values, start=1)}
 
 
 def enumerate_params(params: Mapping = None) -> dict:
@@ -89,12 +89,7 @@ def enumerate_keyed_param(param: str, values: List[Mapping]) -> dict:
     params = {}
     for idx, val_dict in enumerate(values, start=1):
         # Build the final output.
-        params.update(
-            {
-                "{param}{idx}.{key}".format(param=param, idx=idx, key=k): v
-                for k, v in val_dict.items()
-            }
-        )
+        params.update({f"{param}{idx}.{k}": v for k, v in val_dict.items()})
     return params
 
 
@@ -118,7 +113,7 @@ def dict_keyed_param(param: str, dict_from: Mapping) -> dict:
 
     param = dot_appended_param(param)
     for k, v in dict_from.items():
-        params.update({"{param}{key}".format(param=param, key=k): v})
+        params.update({f"{param}{k}": v})
     return params
 
 
@@ -162,12 +157,12 @@ def flat_param_dict(value: Union[str, Mapping, List], prefix: str = "") -> dict:
     output = {}
     if isinstance(value, Mapping):
         for key, val in value.items():
-            new_key = "{}{}".format(prefix, key)
+            new_key = f"{prefix}{key}"
             output.update(flat_param_dict(val, prefix=new_key))
     else:
         # value must be an Iterable
         for idx, val in enumerate(value, start=1):
-            new_key = "{}{}".format(prefix, idx)
+            new_key = f"{prefix}{idx}"
             output.update(flat_param_dict(val, prefix=new_key))
     return output
 
