@@ -141,19 +141,32 @@ class OffAmazonPayments(MWS):
         """
         return self.make_request("GetRefundDetails", {"AmazonRefundId": refund_id})
 
-    def get_billing_agreement_details(self, order_ref, address_consent_token):
-        return self.make_request(
-            "GetBillingAgreementDetails",
-            {
-                "AmazonBillingAgreementId": order_ref,
-                "AddressConsentToken": address_consent_token,
-            },
-        )
+    def get_billing_agreement_details(self, ref, access_token=None):
+        """Retrieves the details and state of a billing a billing agreement.
 
-    def get_order_reference_details(self, order_ref, address_consent_token=""):
+        Docs: https://amazonpaylegacyintegrationguide.s3.amazonaws.com/docs/amazon-pay-api/getbillingagreementdetails.html
+
+        :param ref: identifier of the billing agreement
+        :param access_token: required to get the full shipping address before
+                             the billing agreement is confirmed
+        """
+        params = {"AmazonBillingAgreementId": ref}
+        if access_token:
+            params["AccessToken"] = access_token
+        return self.make_request("GetBillingAgreementDetails", params)
+
+    def get_order_reference_details(self, order_ref, access_token=None):
+        """Retrieves the details of an order reference.
+
+        Docs: https://amazonpaylegacyintegrationguide.s3.amazonaws.com/docs/amazon-pay-api/getorderreferencedetails.html
+
+        :param order_ref: identifier of the order reference
+        :param access_token: required to retrieve the full shipping address
+                             before confirmation
+        """
         data = {"AmazonOrderReferenceId": order_ref}
-        if address_consent_token:
-            data["AddressConsentToken"] = address_consent_token
+        if access_token:
+            data["AccessToken"] = access_token
         return self.make_request("GetOrderReferenceDetails", data)
 
     def set_order_reference_details(
