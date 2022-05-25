@@ -7,10 +7,8 @@ from enum import Enum
 from mws import MWS
 from mws.decorators import next_token_action
 from mws.utils.crypto import calc_md5
-from mws.utils.params import coerce_to_bool, enumerate_param
-
-# DEPRECATIONS for argument names in v1.1
 from mws.utils.deprecation import kwargs_renamed_for_v11
+from mws.utils.params import coerce_to_bool, enumerate_param
 
 
 def clean_feed_option_val(val):

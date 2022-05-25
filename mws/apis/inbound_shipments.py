@@ -3,22 +3,14 @@
 import datetime
 import typing
 from collections.abc import Mapping
-from typing import (
-    Iterable,
-    List,
-    Union,
-)
+from typing import Iterable, List, Union
 
 from mws import MWS
 from mws.decorators import next_token_action
 from mws.models import inbound_shipments as models
 from mws.utils.collections import unique_list_order_preserved
 from mws.utils.deprecation import kwargs_renamed_for_v11
-from mws.utils.params import (
-    enumerate_keyed_param,
-    enumerate_param,
-    iterable_param,
-)
+from mws.utils.params import enumerate_keyed_param, enumerate_param, iterable_param
 
 # TODO Add label type enumeration
 # TODO Add helper method for extracting PDF file object from label requests

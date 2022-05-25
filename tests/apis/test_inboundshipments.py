@@ -3,8 +3,7 @@ import datetime
 
 import pytest
 
-from mws import InboundShipments
-from mws import MWSError
+from mws import InboundShipments, MWSError
 from mws.apis.inbound_shipments import parse_legacy_item, parse_shipment_items
 from mws.models.inbound_shipments import (
     Address,

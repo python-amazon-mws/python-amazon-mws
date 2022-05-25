@@ -3,12 +3,7 @@
 import pytest
 
 from mws.utils.deprecation import RemovedInPAM11Warning
-from mws.utils.parsers import (
-    DataWrapper,
-    DictWrapper,
-    ObjectDict,
-    XML2Dict,
-)
+from mws.utils.parsers import DataWrapper, DictWrapper, ObjectDict, XML2Dict
 
 
 ### DEPRECATION TESTING - REMOVE IN v1.1 ###

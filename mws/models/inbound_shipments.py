@@ -2,11 +2,7 @@
 
 import datetime
 from enum import Enum
-from typing import (
-    Dict,
-    List,
-    Union,
-)
+from typing import Dict, List, Union
 
 from mws.models.base import MWSDataType
 from mws.utils.collections import DotDict
@@ -208,9 +204,10 @@ class BaseInboundShipmentItem(MWSDataType):
         self.prep_details_list = prep_details_list
 
     def _base_params_dict(self) -> dict:
-        assert (
-            self.quantity_param != ""
-        ), f"{self.__class__.__name__}.quantity_param must be defined."
+        if not self.quantity_param:
+            raise ValueError(
+                f"{self.__class__.__name__}.quantity_param must be defined."
+            )
         data = {
             "SellerSKU": self.sku,
             self.quantity_param: self.quantity,

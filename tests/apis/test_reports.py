@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from mws import Reports, Marketplaces, MWSError
+from mws import Marketplaces, MWSError, Reports
 
 from .common import APITestCase
 

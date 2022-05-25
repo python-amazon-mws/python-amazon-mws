@@ -1,8 +1,8 @@
 """Base models for datatypes used in MWS."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable, List, Mapping, Union
 from enum import Enum
+from typing import Any, Iterable, List, Mapping, Union
 
 from mws.errors import MWSError
 from mws.utils import flat_param_dict

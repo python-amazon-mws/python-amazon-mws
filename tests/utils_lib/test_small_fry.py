@@ -1,12 +1,8 @@
 """Tests covering miscellaneous utility functions found throughout project."""
 
+from mws.models.products import FeesEstimateRequest, MoneyType, PriceToEstimateFees
 from mws.mws import canonicalized_query_string
 from mws.utils import calc_md5
-from mws.models.products import (
-    MoneyType,
-    PriceToEstimateFees,
-    FeesEstimateRequest,
-)
 
 
 def test_calc_md5():

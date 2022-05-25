@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import setuptools
 
-version = "1.0dev17"
+version = "1.0dev18"
 homepage = "https://github.com/python-amazon-mws/python-amazon-mws"
 short_description = "Python library for interacting with the Amazon MWS API"
 with open("README.md", encoding="utf-8") as readme:
@@ -9,7 +9,8 @@ with open("README.md", encoding="utf-8") as readme:
 
 requires = [
     "requests",
-    "xmltodict>=0.12.0,<0.13",
+    "defusedxml>=0.7.1",
+    "xmltodict>=0.12.0",
 ]
 
 setuptools.setup(

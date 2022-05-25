@@ -3,11 +3,12 @@
 XML to Dict code Borrowed from https://github.com/timotheus/ebaysdk-python
 """
 
-from io import BytesIO
-from zipfile import ZipFile
 import re
 import warnings
-import xml.etree.ElementTree as ET
+from io import BytesIO
+from zipfile import ZipFile
+
+import defusedxml.ElementTree as ET
 
 from mws.utils.crypto import calc_md5
 from mws.utils.deprecation import RemovedInPAM11Warning

@@ -1,14 +1,11 @@
 """Tests for the Products API class."""
 
 import unittest
+
 import mws
+from mws.models.products import FeesEstimateRequest, MoneyType, PriceToEstimateFees
 
 from .utils import CommonAPIRequestTools
-from mws.models.products import (
-    MoneyType,
-    PriceToEstimateFees,
-    FeesEstimateRequest,
-)
 
 
 class ProductsTestCase(CommonAPIRequestTools, unittest.TestCase):

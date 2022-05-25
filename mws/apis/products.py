@@ -4,12 +4,11 @@ from typing import List, Optional, Union
 from mws import MWS
 from mws.models import products as models
 from mws.utils import enumerate_keyed_param
-from mws.utils.params import coerce_to_bool
-from mws.utils.params import enumerate_param
-from mws.utils.types import StrOrListStr, MarketplaceEnumOrStr
 
 # DEPRECATION
 from mws.utils.deprecation import kwargs_renamed_for_v11
+from mws.utils.params import coerce_to_bool, enumerate_param
+from mws.utils.types import MarketplaceEnumOrStr, StrOrListStr
 
 
 class Products(MWS):

@@ -2,20 +2,36 @@ default_language_version:
   python: python3.8
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.2.0
+    rev: "v4.2.0"
     hooks:
-      - id: check-toml
-      - id: check-yaml
+      - id: check-ast
       - id: check-byte-order-marker
       - id: check-case-conflict
+      - id: check-toml
+      - id: check-yaml
       - id: end-of-file-fixer
+      - id: fix-byte-order-marker
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: "22.3.0"
     hooks:
       - id: black
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1
+    hooks:
+      - id: isort
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: "4.0.1"
     hooks:
       - id: flake8
+        additional_dependencies:
+          - flake8-bandit~=3.0.0
+  - repo: https://github.com/PyCQA/bandit/
+    rev: "1.7.4"
+    hooks:
+      - id: bandit
+        # We're not using a full pyproject.toml here,
+        # but we can trick bandit into using a separate toml config
+        args: ["-c", "bandit.toml"]
+        additional_dependencies: [ "bandit[toml]" ]

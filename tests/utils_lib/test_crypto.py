@@ -1,11 +1,9 @@
 """Tests for ``utils.crypto`` module."""
 
+import pytest
 from requests import Response
 
-import pytest
-
-from mws.utils.crypto import response_md5_is_valid
-from mws.utils.crypto import calc_md5
+from mws.utils.crypto import calc_md5, response_md5_is_valid
 
 
 def test_calc_md5():

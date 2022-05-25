@@ -2,10 +2,9 @@
 
 from xml.parsers.expat import ExpatError
 
-from mws.utils.xml import mws_xml_to_dict
 from mws.utils.collections import DotDict
 from mws.utils.crypto import calc_md5
-
+from mws.utils.xml import mws_xml_to_dict
 
 __all__ = ["MWSResponse"]
 

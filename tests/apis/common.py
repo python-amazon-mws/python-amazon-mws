@@ -2,9 +2,9 @@ import datetime
 
 import pytest
 
-from ..conftest import TEST_MWS_ACCESS_KEY, TEST_MWS_ACCOUNT_ID, TEST_MWS_AUTH_TOKEN
-
 from mws.mws import MWS
+
+from ..conftest import TEST_MWS_ACCESS_KEY, TEST_MWS_ACCOUNT_ID, TEST_MWS_AUTH_TOKEN
 
 
 class APITestCase:

@@ -1,7 +1,9 @@
 """Tests for the MWS.OutboundShipments API class."""
 
 import unittest
+
 import mws
+
 from .utils import CommonAPIRequestTools
 
 

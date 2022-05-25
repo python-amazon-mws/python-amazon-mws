@@ -1,7 +1,9 @@
 """Tests for the Sellers API class."""
 
 import unittest
+
 import mws
+
 from .utils import CommonAPIRequestTools
 
 

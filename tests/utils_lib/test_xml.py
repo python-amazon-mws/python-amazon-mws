@@ -3,9 +3,8 @@
 # import pytest
 from pathlib import Path
 
-from mws.utils.xml import mws_xml_to_dict
-from mws.utils.xml import mws_xml_to_dotdict
 from mws.utils.collections import DotDict
+from mws.utils.xml import mws_xml_to_dict, mws_xml_to_dotdict
 
 
 def test_mws_xml_to_dict_method(simple_xml_response_str):

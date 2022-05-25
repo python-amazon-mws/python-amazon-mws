@@ -1,13 +1,11 @@
 import datetime
 
 import pytest
-
 from requests import Response
 
 from mws import MWS
-from mws.utils.xml import MWS_ENCODING
 from mws.response import MWSResponse
-
+from mws.utils.xml import MWS_ENCODING
 
 TEST_MWS_ACCESS_KEY = "my_access_key"
 TEST_MWS_SECRET_KEY = "my_secret_key"

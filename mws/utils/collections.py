@@ -1,6 +1,6 @@
 """Data structure utilities."""
 
-from collections.abc import Mapping, Iterable
+from collections.abc import Iterable, Mapping
 
 
 def unique_list_order_preserved(seq):

@@ -1,8 +1,9 @@
 """
 Testing the `next_token_action` decorator on a toy class.
 """
-import mws
 import unittest
+
+import mws
 
 # pylint: disable=invalid-name
 

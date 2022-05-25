@@ -1,13 +1,11 @@
--r requirements.txt
-
 # pre-commit hooks to ensure code quality before committing.
-pre-commit
+pre-commit~=2.19.0
 
 # linting
-flake8
+flake8~=4.0.1
 
 # formatting
-black>=20.8b1
+black~=22.3.0
 
 # testing
 pytest

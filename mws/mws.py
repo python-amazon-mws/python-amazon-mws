@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """Main module for python-amazon-mws package."""
 
-from enum import Enum
-from urllib.parse import quote
 import base64
 import hashlib
 import hmac
 import warnings
+from enum import Enum
+from urllib.parse import quote
 
 from requests import request
 from requests.exceptions import HTTPError
@@ -21,7 +21,6 @@ from mws.utils.params import (
     remove_empty_param_keys,
 )
 from mws.utils.timezone import mws_utc_now
-
 
 __version__ = "1.0dev16"
 PAM_USER_AGENT = f"python-amazon-mws/{__version__} (Language=Python)"
@@ -154,7 +153,7 @@ class MWS(object):
 
     ACCOUNT_TYPE = "SellerId"
 
-    def __init__(
+    def __init__(  # nosec No password default is provided, only auth_token empty value (where it may not be needed)
         self,
         access_key,
         secret_key,
@@ -306,10 +305,9 @@ class MWS(object):
             else:
                 ### DEPRECATED ###
                 # Remove in v1.0
-                from xml.etree.ElementTree import ParseError as XMLError
+                from defusedxml.ElementTree import ParseError as XMLError
 
-                from mws.utils.parsers import DataWrapper
-                from mws.utils.parsers import DictWrapper
+                from mws.utils.parsers import DataWrapper, DictWrapper
 
                 data = response.content
                 try:

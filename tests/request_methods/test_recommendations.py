@@ -1,6 +1,7 @@
 """Tests for the Recommendations API class."""
 
 import unittest
+
 import mws
 
 from .utils import CommonAPIRequestTools
