@@ -15,6 +15,7 @@ runs:
 
     - name: "Update pip"
       id: pip-cache
+      shell: bash
       run: |
         echo "::set-output name=dir::$(pip cache dir)"
 
@@ -27,5 +28,6 @@ runs:
           ${{ hashFiles('./setup.cfg', './setup.py') }}"
 
     - name: "Install dev dependencies"
+      shell: bash
       run: |
         pip install -e .[develop]
