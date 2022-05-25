@@ -80,10 +80,17 @@ GetServiceStatusResponse>\n'
 
 ## Development
 
-All dependencies for developing on `python-amazon-mws`, including testing and documentation building, can be installed using:
+To get started with development, first clone this repo, then install the package locally with extra dependencies:
 
 ```shell
-pip install -r requirements-dev.txt
+# development tooling (Black, Flake8, Isort
+pip install -e .[develop]
+# documentation tools
+pip install -e .[docs]
+# both of the above
+pip install -e .[develop,docs]
+# or, just everything
+pip install -e .[all]
 ```
 
 ### Using pre-commit framework
