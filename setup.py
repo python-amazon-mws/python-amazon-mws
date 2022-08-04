@@ -5,7 +5,7 @@ import setuptools
 
 BASE_DIR = Path(__file__).resolve().parent
 
-version = "1.0dev18"
+version = "1.0dev19"
 homepage = "https://github.com/python-amazon-mws/python-amazon-mws"
 short_description = "Python library for interacting with the Amazon MWS API"
 
