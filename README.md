@@ -8,6 +8,12 @@ python-amazon-mws is a Python connector to [Amazon Marketplace Web Services][2]
 (or MWS). It provides a simple way to build and send requests to MWS,
 allowing access to all that MWS can do from your Python application.
 
+## Mostly inactive development
+
+Time to maintain this project is limited at present, and the MWS service is being deprecated in favor of the newer Selling Partners API (SP-API).
+
+If you require assistance with this package specifically, please feel free to open an issue. This project may be archived in the near future and development halted.
+
 ## Installation
 
 Two versions are currently available:
