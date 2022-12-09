@@ -25,10 +25,9 @@ jobs:
           python_version: ${{ env.PYTHON_VERSION }}
 
       - name: Run pre-commit checks
-        run: pre-commit run --all-files
-        env:
-          # Force pre-commit to do a system install.
-          PIP_USER: 0
+        uses: pre-commit/action@v3.0.0
+        with:
+          extra_args: --all-files
 
   tests:
     name: Tests on ${{ matrix.os }}, Python ${{ matrix.python-version }}
