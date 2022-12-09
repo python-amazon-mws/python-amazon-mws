@@ -9,6 +9,7 @@ concurrency: code-quality-${{ github.sha }}
 env:
   # Set an environment variable to select pip's cache directory for us to actually cache between runs.
   PIP_CACHE_DIR: /tmp/pip-cache-dir
+  PYTHON_VERSION: "3.11"
 
 jobs:
   linting:
@@ -21,7 +22,7 @@ jobs:
 
       - uses: ./.github/workflows/composite/setup-dev-dependencies
         with:
-          python_version: "3.10"
+          python_version: ${{ env.PYTHON_VERSION }}
 
       - name: Run pre-commit checks
         run: pre-commit run --all-files
@@ -41,7 +42,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         # Periodically check for versions here: https://github.com/actions/python-versions
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -68,7 +69,7 @@ jobs:
 
       - uses: ./.github/workflows/composite/setup-dev-dependencies
         with:
-          python_version: "3.10"
+          python_version: ${{ env.PYTHON_VERSION }}
 
       - name: Generate coverage report
         run: |
