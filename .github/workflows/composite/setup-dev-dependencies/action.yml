@@ -17,7 +17,7 @@ runs:
       id: pip-cache
       shell: bash
       run: |
-        echo "::set-output name=dir::$(pip cache dir)"
+        echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
     - name: "Pip cache"
       uses: actions/cache@v3
