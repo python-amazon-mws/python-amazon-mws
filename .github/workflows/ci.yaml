@@ -17,13 +17,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - uses: ./.github/workflows/composite/setup-dev-dependencies
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          python_version: ${{ env.PYTHON_VERSION }}
-
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Run pre-commit checks
         uses: pre-commit/action@v3.0.0
         with:
