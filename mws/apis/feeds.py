@@ -7,10 +7,8 @@ from enum import Enum
 from mws import MWS
 from mws.decorators import next_token_action
 from mws.utils.crypto import calc_md5
-from mws.utils.params import coerce_to_bool, enumerate_param
-
-# DEPRECATIONS for argument names in v1.1
 from mws.utils.deprecation import kwargs_renamed_for_v11
+from mws.utils.params import coerce_to_bool, enumerate_param
 
 
 def clean_feed_option_val(val):
@@ -81,7 +79,7 @@ def feed_options_str(feed_options):
     for key, val in feed_options.items():
         clean_val = clean_feed_option_val(val)
         if clean_val is not None:
-            output.append("metadata:{}={}".format(key, clean_val))
+            output.append(f"metadata:{key}={clean_val}")
     return ";".join(output)
 
 

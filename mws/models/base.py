@@ -1,8 +1,8 @@
 """Base models for datatypes used in MWS."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable, List, Mapping, Union
 from enum import Enum
+from typing import Any, Iterable, List, Mapping, Union
 
 from mws.errors import MWSError
 from mws.utils import flat_param_dict
@@ -19,11 +19,9 @@ class MWSDataType(ABC):
     """
 
     def __repr__(self):
-        output = f"<{self.__class__.__name__}("
-        values = [f"{key}={repr(val)}" for key, val in self.__dict__.items()]
-        output += ", ".join(values)
-        output += ")>"
-        return output
+        values = ", ".join(f"{k}={repr(v)}" for k, v in self.__dict__.items())
+
+        return f"<{self.__class__.__name__}({values})>"
 
     @abstractmethod
     def params_dict(self) -> dict:

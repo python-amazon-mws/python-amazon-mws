@@ -1,0 +1,80 @@
+name: Bug Report
+description: Submit a bug report
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out the following fields to create your bug report!
+
+  # MWS and Python versions
+  - type: dropdown
+    id: python-version
+    attributes:
+      label: Python Version
+      description: |
+        Which version of Python are you using?
+        (any Python version *not* listed here is unsupported,
+        and we may be unable to help with your issue in those cases)
+      options:
+        - "3.6"
+        - "3.7"
+        - "3.8"
+        - "3.9"
+        - "3.10"
+    validations:
+      required: true
+  - type: dropdown
+    id: mws-version
+    attributes:
+      label: Python Amazon MWS (PAM) Version
+      description: "Which version of PAM are you using (use `pip freeze mws` to view installed version number)?"
+      options:
+        - "0.8 (PyPI version / GitHub master branch / 'legacy')"
+        - "1.0dev (GitHub develop branch)"
+    validations:
+      required: true
+
+  # Ask if they changed any of our code.
+  - type: dropdown
+    id: our-fork-check
+    attributes:
+      label: Has your copy of PAM been altered in any way?
+      description: |
+        There are several forks of this project available. Users will often customize the package to fit the needs of their own applications. Please indicate whether you have made any changes to the package (if so, please describe these changes below or provide a link to your own repo, so that we can help investigate root causes).
+      options:
+        - "No, I HAVE NOT made changes to the MWS code"
+        - "Yes, I HAVE made some changes, and will describe or link to them"
+    validations:
+      required: true
+
+  # Details
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Describe the issue
+      value: |
+        **What happened**
+        Tell us about the issue you've encountered. Please take some time to add as much detail as necessary for us to understand the context of the problem. Where relevant, please add code samples or full tracebacks to help illustrate the issue.
+
+        Please *do not* post screenshots of code or error messages: text is easier for everyone to read and copy.
+
+        **Expected behavior**
+        Tell us what you wanted the code to do, in a broad sense. Understanding what you're trying to do can help us offer alternatives that might work.
+    validations:
+      required: true
+
+
+  # Credential check
+  - type: checkboxes
+    id: credential-check
+    attributes:
+      label: MWS Credential check
+      description: |
+        Please check any code samples or tracebacks you wish to submit for MWS credentials (secret key, account ID, access key, developer token, etc.).
+
+        All data uploaded to a public repo can be scraped via GitHub's API within seconds. Accidentally posting your credentials in a traceback or code sample can result in unauthorized access to your Amazon seller account.
+      options:
+        - label: I have removed my MWS credentials from any tracebacks and code samples
+          required: true

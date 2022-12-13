@@ -8,6 +8,12 @@ python-amazon-mws is a Python connector to [Amazon Marketplace Web Services][2]
 (or MWS). It provides a simple way to build and send requests to MWS,
 allowing access to all that MWS can do from your Python application.
 
+## Mostly inactive development
+
+Time to maintain this project is limited at present, and the MWS service is being deprecated in favor of the newer Selling Partners API (SP-API).
+
+If you require assistance with this package specifically, please feel free to open an issue. This project may be archived in the near future and development halted.
+
 ## Installation
 
 Two versions are currently available:
@@ -80,10 +86,17 @@ GetServiceStatusResponse>\n'
 
 ## Development
 
-All dependencies for developing on `python-amazon-mws`, including testing and documentation building, can be installed using:
+To get started with development, first clone this repo, then install the package locally with extra dependencies:
 
 ```shell
-pip install -r requirements-dev.txt
+# development tooling (Black, Flake8, Isort
+pip install -e .[develop]
+# documentation tools
+pip install -e .[docs]
+# both of the above
+pip install -e .[develop,docs]
+# or, just everything
+pip install -e .[all]
 ```
 
 ### Using pre-commit framework

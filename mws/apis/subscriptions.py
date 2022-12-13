@@ -1,8 +1,7 @@
 """Amazon MWS Subscriptions API."""
 
 from mws import MWS
-from mws.utils.params import coerce_to_bool
-from mws.utils.params import enumerate_keyed_param
+from mws.utils.params import coerce_to_bool, enumerate_keyed_param
 
 # TODO include NotificationType enumeration
 # TODO set up a basic object for Subscription and Destination types?

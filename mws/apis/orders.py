@@ -1,12 +1,11 @@
 """Amazon Orders API."""
 
 from mws import MWS
-from mws.utils.params import enumerate_param
-from mws.utils.params import enumerate_params
 from mws.decorators import next_token_action
 
 # DEPRECATIONS
 from mws.utils.deprecation import kwargs_renamed_for_v11
+from mws.utils.params import enumerate_param, enumerate_params
 
 
 class Orders(MWS):

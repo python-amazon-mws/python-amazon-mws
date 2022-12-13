@@ -1,6 +1,6 @@
 """Utilities for deprecations in the project."""
-from functools import wraps
 import warnings
+from functools import wraps
 
 
 class RemovedInPAM10Warning(DeprecationWarning):

@@ -1,9 +1,11 @@
 """Tests related to kwarg renaming from 0.8 to 1.0dev versions"""
 
+import warnings
 from typing import Callable, List, Union
+
 import pytest
 
-from mws import apis, MWS
+from mws import MWS, apis
 from mws.utils.deprecation import RemovedInPAM11Warning
 
 
@@ -60,13 +62,13 @@ class MethodRenamedBase:
 
         # The new kwarg should raise no warning:
         # record the warnings raised and assert the record is empty.
-        with pytest.warns(None) as record:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
             if isinstance(new, dict):
                 new_kwargs = new
             else:
                 new_kwargs = {new: "dummy"}
             new_params = method(**required, **new_kwargs)
-        assert len(record) == 0
 
         # Check that request params in both the old and new names are identical
         # NOTE: The Timestamp and Signature keys may be different, due to race condition

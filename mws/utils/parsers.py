@@ -3,13 +3,13 @@
 XML to Dict code Borrowed from https://github.com/timotheus/ebaysdk-python
 """
 
-from io import BytesIO
-from zipfile import ZipFile
 import re
 import warnings
-import xml.etree.ElementTree as ET
+from io import BytesIO
+from zipfile import ZipFile
 
-from mws.errors import MWSError
+import defusedxml.ElementTree as ET
+
 from mws.utils.crypto import calc_md5
 from mws.utils.deprecation import RemovedInPAM11Warning
 from mws.utils.xml import remove_xml_namespaces
@@ -176,13 +176,7 @@ class DictWrapper(object):
             RemovedInPAM11Warning,
         )
         if isinstance(xml, bytes):
-            try:
-                xml = xml.decode(encoding="iso-8859-1")
-            except UnicodeDecodeError as exc:
-                # In the very rare occurrence of a decode error, attach the original xml to the .response of the MWSError
-                error = MWSError(str(exc.response.text))
-                error.response = xml
-                raise error
+            xml = xml.decode(encoding="iso-8859-1")
 
         self.response = None
         self._original = xml
@@ -225,7 +219,7 @@ class DataWrapper(object):
         if "content-md5" in self.headers:
             hash_ = calc_md5(self.original)
             if self.headers["content-md5"].encode() != hash_:
-                raise MWSError("Wrong Content length, maybe amazon error...")
+                raise ValueError("Wrong Content length, maybe amazon error...")
 
     @property
     def parsed(self):
@@ -243,12 +237,9 @@ class DataWrapper(object):
         Otherwise, returns None.
         """
         if self.headers["content-type"] == "application/zip":
-            try:
-                with ZipFile(BytesIO(self.original)) as unzipped_fileobj:
-                    # unzipped the zip file contents
-                    unzipped_fileobj.extractall()
-                    # return original zip file object to the user
-                    return unzipped_fileobj
-            except Exception as exc:
-                raise MWSError(str(exc))
+            with ZipFile(BytesIO(self.original)) as unzipped_fileobj:
+                # unzipped the zip file contents
+                unzipped_fileobj.extractall()
+                # return original zip file object to the user
+                return unzipped_fileobj
         return None  # 'The response is not a zipped file.'

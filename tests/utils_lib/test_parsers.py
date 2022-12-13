@@ -3,10 +3,9 @@
 import datetime
 
 import pytest
-
 from requests import Response
 
-from mws import MWSResponse, MWSError
+from mws import MWSError, MWSResponse
 from mws.utils.collections import DotDict
 from mws.utils.xml import MWS_ENCODING
 

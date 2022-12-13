@@ -2,11 +2,13 @@
 
 import pytest
 
-from mws.utils.params import enumerate_param
-from mws.utils.params import enumerate_params
-from mws.utils.params import enumerate_keyed_param
-from mws.utils.params import dict_keyed_param
-from mws.utils.params import flat_param_dict
+from mws.utils.params import (
+    dict_keyed_param,
+    enumerate_keyed_param,
+    enumerate_param,
+    enumerate_params,
+    flat_param_dict,
+)
 
 
 def test_keyed_param_fails_without_dict():

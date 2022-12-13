@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 __all__ = [
     "ReportType",
     "ProcessingStatus",

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """Main module for python-amazon-mws package."""
 
-from enum import Enum
-from urllib.parse import quote
 import base64
 import hashlib
 import hmac
 import warnings
+from enum import Enum
+from urllib.parse import quote
 
 from requests import request
 from requests.exceptions import HTTPError
 
-from mws.errors import MWSError
+from mws.errors import MWSError, MWSRequestError
 from mws.response import MWSResponse
 from mws.utils.crypto import response_md5_is_valid
 from mws.utils.params import (
@@ -22,9 +22,8 @@ from mws.utils.params import (
 )
 from mws.utils.timezone import mws_utc_now
 
-
 __version__ = "1.0dev16"
-PAM_USER_AGENT = "python-amazon-mws/{} (Language=Python)".format(__version__)
+PAM_USER_AGENT = f"python-amazon-mws/{__version__} (Language=Python)"
 """See recommended user agent string format:
 https://docs.developer.amazonservices.com/en_US/dev_guide/DG_UserAgentHeader.html
 """
@@ -67,6 +66,7 @@ class Marketplaces(Enum):
     UK = ("https://mws-eu.amazonservices.com", "A1F83G8C2ARO7P")  # alias for GB
     US = ("https://mws.amazonservices.com", "ATVPDKIKX0DER")
     PL = ("https://mws-eu.amazonservices.com", "A1C3SOZRARQ6R3")
+    BE = ("https://mws-eu.amazonservices.com", "AMEN7PMS3EDWL")
 
     def __init__(self, endpoint, marketplace_id):
         """Easy dot access like: Marketplaces.endpoint ."""
@@ -96,7 +96,7 @@ def canonicalized_query_string(params):
     encoded_params = clean_params_dict(params, urlencode=True)
     for item in sorted(encoded_params.keys()):
         encoded_val = encoded_params[item]
-        description_items.append("{}={}".format(item, encoded_val))
+        description_items.append(f"{item}={encoded_val}")
     return "&".join(description_items)
 
 
@@ -154,7 +154,7 @@ class MWS(object):
 
     ACCOUNT_TYPE = "SellerId"
 
-    def __init__(
+    def __init__(  # nosec No password default is provided, only auth_token empty value (where it may not be needed)
         self,
         access_key,
         secret_key,
@@ -186,14 +186,12 @@ class MWS(object):
         if region in Marketplaces.__members__:
             self.domain = Marketplaces[region].endpoint
         else:
+            regions = ", ".join(Marketplaces.__members__.keys())
             error_msg = (
-                "Incorrect region supplied: {region}. "
-                "Must be one of the following: {regions}".format(
-                    region=region,
-                    regions=", ".join(Marketplaces.__members__.keys()),
-                )
+                f"Incorrect region supplied: {region}. "
+                f"Must be one of the following: {regions}"
             )
-            raise MWSError(error_msg)
+            raise ValueError(error_msg)
 
     def get_default_params(self, action, timestamp):
         """Get the params required in all MWS requests."""
@@ -262,7 +260,7 @@ class MWS(object):
         headers.update(self.extra_headers)
         headers.update(kwargs.get("extra_headers", {}))
 
-        result_key = kwargs.get("result_key", "{}Result".format(action))
+        result_key = kwargs.get("result_key", f"{action}Result")
 
         request_args = {
             "method": method,
@@ -295,7 +293,7 @@ class MWS(object):
                 # Turn on the new response parser and DotDict parsed output
                 # (will be made standard in v1.0)
                 if not response_md5_is_valid(response):
-                    raise MWSError(
+                    raise ValueError(
                         "MD5 hash validation failed: wrong content length for response"
                     )
 
@@ -308,8 +306,9 @@ class MWS(object):
             else:
                 ### DEPRECATED ###
                 # Remove in v1.0
-                from xml.etree.ElementTree import ParseError as XMLError
-                from mws.utils.parsers import DictWrapper, DataWrapper
+                from defusedxml.ElementTree import ParseError as XMLError
+
+                from mws.utils.parsers import DataWrapper, DictWrapper
 
                 data = response.content
                 try:
@@ -324,16 +323,14 @@ class MWS(object):
                 parsed_response.response = response
 
         except HTTPError as exc:
-            error = MWSError(str(exc.response.text))
-            error.response = exc.response
-            raise error
+            raise MWSRequestError(exc)
 
         # Store the response object in the parsed_response for quick access
         return parsed_response
 
     @property
     def endpoint(self):
-        return "{}{}".format(self.domain, self.uri)
+        return f"{self.domain}{self.uri}"
 
     def get_proxies(self):
         """Return a dict of http and https proxies, as defined by `self.proxy`."""
@@ -341,8 +338,8 @@ class MWS(object):
         if self.proxy:
             # TODO need test to enter here
             proxies = {
-                "http": "http://{}".format(self.proxy),
-                "https": "https://{}".format(self.proxy),
+                "http": f"http://{self.proxy}",
+                "https": f"https://{self.proxy}",
             }
         return proxies
 
@@ -376,13 +373,11 @@ class MWS(object):
             # TODO Would like a test entering here.
             # Requires a dummy API class to be written that will trigger it.
             raise MWSError(
-                (
-                    "{} action not listed in this API's NEXT_TOKEN_OPERATIONS. "
-                    "Please refer to documentation."
-                ).format(action)
+                f"{action} action not listed in this API's NEXT_TOKEN_OPERATIONS. "
+                "Please refer to documentation."
             )
 
-        action = "{}ByNextToken".format(action)
+        action = f"{action}ByNextToken"
 
         return self.make_request(action, {"NextToken": next_token})
 

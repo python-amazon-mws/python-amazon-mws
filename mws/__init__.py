@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import warnings
 
-from .mws import Marketplaces, MWS
-from .errors import MWSError
+# This import must go first!
+# API modules also import MWS, so it must be available before attempting
+# those .api imports later
+from mws.mws import MWS, Marketplaces
+
 from .apis import (
+    EasyShip,
     Feeds,
     Finances,
     InboundShipments,
@@ -17,10 +21,10 @@ from .apis import (
     Reports,
     Sellers,
     Subscriptions,
-    EasyShip,
 )
+from .errors import MWSError
 from .response import MWSResponse
-from .utils import types, DotDict
+from .utils import DotDict, types
 
 __all__ = [
     "EasyShip",

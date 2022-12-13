@@ -2,11 +2,9 @@
 
 from xml.parsers.expat import ExpatError
 
-from mws.utils.xml import mws_xml_to_dict
-from mws.errors import MWSError
 from mws.utils.collections import DotDict
 from mws.utils.crypto import calc_md5
-
+from mws.utils.xml import mws_xml_to_dict
 
 __all__ = ["MWSResponse"]
 
@@ -130,7 +128,7 @@ class MWSResponse(ResponseWrapperBase):
         self.parse_response(force_cdata=force_cdata)
 
     def __repr__(self):
-        return "<{} [{}]>".format(self.__class__.__name__, self.original.status_code)
+        return f"<{self.__class__.__name__} [{self.original.status_code}]>"
 
     def parse_response(self, force_cdata=False):
         """Runs :py:meth:`.text <.text>` through ``xmltodict.parse()``, storing the

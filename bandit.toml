@@ -1,0 +1,7 @@
+# Configuration for Bandit security scanner
+# Mimics configuration options for pyproject.toml
+# without needing to implement a full pyproject.toml file
+# (not desired for this project)
+
+[tool.bandit]
+exclude_dirs = ["tests"]

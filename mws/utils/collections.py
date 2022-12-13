@@ -1,6 +1,6 @@
 """Data structure utilities."""
 
-from collections.abc import Mapping, Iterable
+from collections.abc import Iterable, Mapping
 
 
 def unique_list_order_preserved(seq):
@@ -22,7 +22,7 @@ class DotDict(dict):
         self.update(*args, **kwargs)
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__name__, super().__repr__())
+        return f"{self.__class__.__name__}({super().__repr__()})"
 
     def __getattr__(self, name):
         """Simply attempts to grab a key `name`.
@@ -37,12 +37,12 @@ class DotDict(dict):
             return self[name]
         except KeyError:
             # No key by that name? Let's try being helpful.
-            if "@{}".format(name) in self:
+            if f"@{name}" in self:
                 # Does this same name occur starting with ``@``?
-                return self["@{}".format(name)]
-            if "#{}".format(name) in self:
+                return self[f"@{name}"]
+            if f"#{name}" in self:
                 # Does this same name occur starting with ``#``?
-                return self["#{}".format(name)]
+                return self[f"#{name}"]
             # Otherwise, raise the original exception
             raise
 

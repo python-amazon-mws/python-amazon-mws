@@ -2,9 +2,10 @@
 Utilities common to request method tests.
 """
 import datetime
-import mws
 
 import pytest
+
+import mws
 
 
 class CommonAPIRequestTools(object):

@@ -1,0 +1,33 @@
+name: "Setup dev dependencies"
+
+inputs:
+  python_version:
+    description: "Version of Python to setup and install dependencies to"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Setup Python ${{ inputs.python_version }}"
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python_version }}
+
+    - name: "Update pip"
+      id: pip-cache
+      shell: bash
+      run: |
+        echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
+
+    - name: "Pip cache"
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.pip-cache.outputs.dir }}
+        key: "python-pip-${{ runner.os }}-\
+          ${{ steps.python.outputs.python-version }}-\
+          ${{ hashFiles('./setup.cfg', './setup.py') }}"
+
+    - name: "Install dev dependencies"
+      shell: bash
+      run: |
+        pip install -e .[develop]

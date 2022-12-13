@@ -1,8 +1,9 @@
 """
 Tests for the Finances API class.
 """
-import unittest
 import datetime
+import unittest
+
 import mws
 from mws.utils import clean_date
 
