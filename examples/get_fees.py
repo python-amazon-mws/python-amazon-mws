@@ -1,8 +1,9 @@
 import os
 from uuid import uuid4
+
 from mws import Products
+from mws.models.products import FeesEstimateRequest, MoneyType, PriceToEstimateFees
 from mws.mws import Marketplaces
-from mws.models.products import FeesEstimateRequest, PriceToEstimateFees, MoneyType
 
 # You can add your credentials here if you don't want to use environment variables
 ACCESS_KEY = None
