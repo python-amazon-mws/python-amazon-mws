@@ -1,4 +1,5 @@
 """Decorator methods for MWS module."""
+
 from functools import wraps
 
 

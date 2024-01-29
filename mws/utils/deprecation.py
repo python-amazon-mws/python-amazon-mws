@@ -1,4 +1,5 @@
 """Utilities for deprecations in the project."""
+
 import warnings
 from functools import wraps
 

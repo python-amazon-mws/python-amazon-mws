@@ -1,6 +1,7 @@
 """
 Testing the `next_token_action` decorator on a toy class.
 """
+
 import unittest
 
 import mws

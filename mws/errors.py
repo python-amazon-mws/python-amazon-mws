@@ -1,4 +1,5 @@
 """Error classes particular to MWS."""
+
 from requests import HTTPError
 
 

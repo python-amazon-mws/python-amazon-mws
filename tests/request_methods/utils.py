@@ -1,6 +1,7 @@
 """
 Utilities common to request method tests.
 """
+
 import datetime
 
 import pytest
