@@ -1,6 +1,7 @@
 """
 Tests for the Finances API class.
 """
+
 import datetime
 import unittest
 

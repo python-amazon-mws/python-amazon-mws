@@ -1,6 +1,7 @@
 """
 Tests for the MWS.Inventory API class.
 """
+
 import datetime
 import unittest
 

@@ -1,4 +1,5 @@
 """Amazon MWS Reports API."""
+
 import datetime
 import typing
 from enum import Enum

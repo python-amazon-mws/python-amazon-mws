@@ -1,4 +1,5 @@
 """Tests for the InboundShipments API class."""
+
 import datetime
 
 import pytest

@@ -1,4 +1,5 @@
 """Amazon MWS Products API."""
+
 from typing import List, Optional, Union
 
 from mws import MWS
