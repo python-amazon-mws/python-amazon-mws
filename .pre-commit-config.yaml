@@ -13,7 +13,7 @@ repos:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: "24.2.0"
+    rev: "24.3.0"
     hooks:
       - id: black
   - repo: https://github.com/PyCQA/isort
