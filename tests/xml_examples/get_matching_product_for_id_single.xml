@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<GetMatchingProductForIdResponse xmlns="http://mws.amazonservices.com/schema/Products/2011-10-01">
+    <GetMatchingProductForIdResult Id="B07QR73T66" IdType="ASIN" status="Success">
+        <Products xmlns:ns2="http://mws.amazonservices.com/schema/Products/2011-10-01/default.xsd">
+            <Product>
+                <Identifiers>
+                    <MarketplaceASIN>
+                        <MarketplaceId>A1F83G8C2ARO7P</MarketplaceId>
+                        <ASIN>B07QR73T66</ASIN>
+                    </MarketplaceASIN>
+                </Identifiers>
+                <AttributeSets>
+                    <ns2:ItemAttributes xml:lang="en-GB">
+                        <ns2:Binding>Electronics</ns2:Binding>
+                        <ns2:Brand>Focusrite</ns2:Brand>
+                        <ns2:ItemDimensions>
+                            <ns2:Height Units="inches">1.32</ns2:Height>
+                            <ns2:Length Units="inches">7.68</ns2:Length>
+                            <ns2:Width Units="inches">2.09</ns2:Width>
+                        </ns2:ItemDimensions>
+                        <ns2:IsAutographed>false</ns2:IsAutographed>
+                        <ns2:IsMemorabilia>false</ns2:IsMemorabilia>
+                        <ns2:Label>Focusrite</ns2:Label>
+                        <ns2:ListPrice>
+                            <ns2:Amount>149.99</ns2:Amount>
+                            <ns2:CurrencyCode>GBP</ns2:CurrencyCode>
+                        </ns2:ListPrice>
+                        <ns2:Manufacturer>Focusrite</ns2:Manufacturer>
+                        <ns2:Model>AMS-SCARLETT-2I2-3G</ns2:Model>
+                        <ns2:PackageDimensions>
+                            <ns2:Height Units="inches">2.5196850368</ns2:Height>
+                            <ns2:Length Units="inches">7.8740157400</ns2:Length>
+                            <ns2:Width Units="inches">5.9055118050</ns2:Width>
+                            <ns2:Weight Units="pounds">1.4109584768</ns2:Weight>
+                        </ns2:PackageDimensions>
+                        <ns2:PackageQuantity>1</ns2:PackageQuantity>
+                        <ns2:PartNumber>MOSC0025</ns2:PartNumber>
+                        <ns2:ProductGroup>Musical Instruments</ns2:ProductGroup>
+                        <ns2:ProductTypeName>SOUND_AND_RECORDING_EQUIPMENT</ns2:ProductTypeName>
+                        <ns2:Publisher>Focusrite</ns2:Publisher>
+                        <ns2:ReleaseDate>2019-07-02</ns2:ReleaseDate>
+                        <ns2:SmallImage>
+                            <ns2:URL>https://m.media-amazon.com/images/I/31QhKoLUdvL._SL75_.jpg</ns2:URL>
+                            <ns2:Height Units="pixels">50</ns2:Height>
+                            <ns2:Width Units="pixels">75</ns2:Width>
+                        </ns2:SmallImage>
+                        <ns2:Studio>Focusrite</ns2:Studio>
+                        <ns2:Title>Focusrite Scarlett 2i2 3rd Gen USB Audio Interface</ns2:Title>
+                        <ns2:Warranty>3 year warranty.</ns2:Warranty>
+                    </ns2:ItemAttributes>
+                </AttributeSets>
+                <Relationships>
+                    <VariationParent>
+                        <Identifiers>
+                            <MarketplaceASIN>
+                                <MarketplaceId>A1F83G8C2ARO7P</MarketplaceId>
+                                <ASIN>B07V1CRJHK</ASIN>
+                            </MarketplaceASIN>
+                        </Identifiers>
+                    </VariationParent>
+                </Relationships>
+                <SalesRankings>
+                    <SalesRank>
+                        <ProductCategoryId>musical_instruments_display_on_website</ProductCategoryId>
+                        <Rank>19</Rank>
+                    </SalesRank>
+                    <SalesRank>
+                        <ProductCategoryId>407821031</ProductCategoryId>
+                        <Rank>1</Rank>
+                    </SalesRank>
+                </SalesRankings>
+            </Product>
+        </Products>
+    </GetMatchingProductForIdResult>
+    <ResponseMetadata>
+        <RequestId>2f12532d-703c-4109-917c-0938db1c2693</RequestId>
+    </ResponseMetadata>
+</GetMatchingProductForIdResponse>
