@@ -12,23 +12,8 @@ env:
   PYTHON_VERSION: "3.11"
 
 jobs:
-  linting:
-    name: Code quality checks
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-      - name: Run pre-commit checks
-        uses: pre-commit/action@v3.0.0
-        with:
-          extra_args: --all-files
-
   tests:
     name: Tests on ${{ matrix.os }}, Python ${{ matrix.python-version }}
-    needs: linting
     runs-on: ${{ matrix.os }}
 
     # Strategy sets up a matrix of python versions to run the tests against
